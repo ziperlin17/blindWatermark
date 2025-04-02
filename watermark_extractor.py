@@ -706,7 +706,7 @@ def extract_watermark_from_video(
 def main():
     # (Код main без изменений, кроме добавления MAX_WORKERS_EXTRACT в вызов extract...)
     main_start_time = time.time()
-    input_video_base = "watermarked_video"
+    input_video_base = "test_vids/watermarked_video_speedup15"
     input_video = input_video_base + INPUT_EXTENSION
 
     # Определение длины ВЗ (без изменений)
