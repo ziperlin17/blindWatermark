@@ -1,712 +1,520 @@
-[2025-04-02 19:21:45,336] I MainThread - <module>:67 - --- Запуск Скрипта Извлечения (ECC Ожид.: True, Доступно: True, Покрытие: 50.0%) ---
-[2025-04-02 19:21:45,336] I MainThread - <module>:68 - Ожидаемые настройки эмбеддера: Метод='deterministic', Метрика='N/A', N_RINGS=8
-[2025-04-02 19:21:45,336] I MainThread - <module>:69 - Альфа (ожид.): MIN=1.005, MAX=1.1
-[2025-04-02 19:21:45,336] I MainThread - <module>:70 - Компонент: Cr, Исп. сохр. кольца: True
-[2025-04-02 19:21:45,336] I MainThread - <module>:72 - ECC Параметры (ожид.): BCH m=8, t=5
-[2025-04-02 19:21:45,337] I MainThread - main:669 - Read original UUID from original_watermark.txt
-[2025-04-02 19:21:45,337] I MainThread - main:675 - --- Starting Extraction Main Process ---
-[2025-04-02 19:21:45,337] I MainThread - read_video:307 - Reading video from: watermarked_video.avi
-[2025-04-02 19:21:45,342] I MainThread - read_video:313 - Detected FPS: 30.00
-[2025-04-02 19:21:45,343] I MainThread - read_video:316 - Video properties: 842x720 @ 30.00 FPS, ~907 frames
-[2025-04-02 19:21:46,320] I MainThread - read_video:320 - End of stream after reading 907 frames (index 907).
-[2025-04-02 19:21:46,322] I MainThread - read_video:328 - Finished reading. Valid frames: 907. Skipped None: 0, Invalid shape: 0
-[2025-04-02 19:21:46,329] I MainThread - main:680 - Read 907 frames for extraction (Reported FPS: 30.00)
-[2025-04-02 19:21:46,329] I MainThread - extract_watermark_from_video:486 - Starting parallel extraction with aggregation & ECC (expected coverage: 50.0%).
-[2025-04-02 19:21:46,329] I MainThread - extract_watermark_from_video:487 - Ring Selection (dynamic): 'deterministic', Metric: 'entropy'
-[2025-04-02 19:21:46,330] I MainThread - extract_watermark_from_video:488 - Component: Cr, Use saved rings: True, Expect ECC: True
-[2025-04-02 19:21:46,330] I MainThread - extract_watermark_from_video:502 - BCH initialized: n=255, t=5. Expected packet len: 255 bits.
-[2025-04-02 19:21:46,330] I MainThread - load_saved_rings:235 - Loaded 226 saved rings from selected_rings.json
-[2025-04-02 19:21:46,330] I MainThread - extract_watermark_from_video:538 - Attempting to extract from 226 pairs (up to 453 available).
-[2025-04-02 19:21:46,334] I MainThread - extract_watermark_from_video:561 - Submitting 226 extraction tasks to ThreadPoolExecutor (max_workers=None)...
-[2025-04-02 19:21:46,335] I ThreadPoolExecutor-0_0 - _extract_frame_pair_worker:425 - [P:0] Worker using saved ring: 0
-[2025-04-02 19:21:46,335] I ThreadPoolExecutor-0_1 - _extract_frame_pair_worker:425 - [P:1] Worker using saved ring: 0
-[2025-04-02 19:21:46,336] I ThreadPoolExecutor-0_2 - _extract_frame_pair_worker:425 - [P:2] Worker using saved ring: 0
-[2025-04-02 19:21:46,337] I ThreadPoolExecutor-0_3 - _extract_frame_pair_worker:425 - [P:3] Worker using saved ring: 0
-[2025-04-02 19:21:46,339] I ThreadPoolExecutor-0_4 - _extract_frame_pair_worker:425 - [P:4] Worker using saved ring: 0
-[2025-04-02 19:21:46,340] I ThreadPoolExecutor-0_5 - _extract_frame_pair_worker:425 - [P:5] Worker using saved ring: 0
-[2025-04-02 19:21:46,343] I ThreadPoolExecutor-0_6 - _extract_frame_pair_worker:425 - [P:6] Worker using saved ring: 0
-[2025-04-02 19:21:46,345] I ThreadPoolExecutor-0_7 - _extract_frame_pair_worker:425 - [P:7] Worker using saved ring: 0
-[2025-04-02 19:21:46,347] I ThreadPoolExecutor-0_8 - _extract_frame_pair_worker:425 - [P:8] Worker using saved ring: 0
-[2025-04-02 19:21:46,349] I ThreadPoolExecutor-0_9 - _extract_frame_pair_worker:425 - [P:9] Worker using saved ring: 0
-[2025-04-02 19:21:46,351] I ThreadPoolExecutor-0_10 - _extract_frame_pair_worker:425 - [P:10] Worker using saved ring: 0
-[2025-04-02 19:21:46,355] I ThreadPoolExecutor-0_11 - _extract_frame_pair_worker:425 - [P:11] Worker using saved ring: 0
-[2025-04-02 19:21:46,358] I ThreadPoolExecutor-0_12 - _extract_frame_pair_worker:425 - [P:12] Worker using saved ring: 0
-[2025-04-02 19:21:46,359] I ThreadPoolExecutor-0_13 - _extract_frame_pair_worker:425 - [P:13] Worker using saved ring: 0
-[2025-04-02 19:21:46,362] I ThreadPoolExecutor-0_14 - _extract_frame_pair_worker:425 - [P:14] Worker using saved ring: 0
-[2025-04-02 19:21:46,364] I ThreadPoolExecutor-0_15 - _extract_frame_pair_worker:425 - [P:15] Worker using saved ring: 0
-[2025-04-02 19:21:46,367] I ThreadPoolExecutor-0_16 - _extract_frame_pair_worker:425 - [P:16] Worker using saved ring: 0
-[2025-04-02 19:21:46,369] I ThreadPoolExecutor-0_17 - _extract_frame_pair_worker:425 - [P:17] Worker using saved ring: 0
-[2025-04-02 19:21:46,371] I ThreadPoolExecutor-0_18 - _extract_frame_pair_worker:425 - [P:18] Worker using saved ring: 0
-[2025-04-02 19:21:46,374] I ThreadPoolExecutor-0_19 - _extract_frame_pair_worker:425 - [P:19] Worker using saved ring: 0
-[2025-04-02 19:21:47,260] I ThreadPoolExecutor-0_13 - compute_adaptive_alpha_entropy:162 - [F:26, R:0] Ev=1.5364, Ee=-1.6157, Var=0.0001, Factor=0.9995, Ratio=-1.0516 -> final_alpha=1.0296
-[2025-04-02 19:21:47,266] I ThreadPoolExecutor-0_13 - extract_frame_pair:383 - [P:13, R:0] s1=61.6860, s2=61.3548, ratio=1.0054 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:47,267] I ThreadPoolExecutor-0_13 - _extract_frame_pair_worker:425 - [P:20] Worker using saved ring: 0
-[2025-04-02 19:21:47,302] I ThreadPoolExecutor-0_0 - compute_adaptive_alpha_entropy:162 - [F:0, R:0] Ev=1.7439, Ee=-1.7768, Var=0.0001, Factor=0.9995, Ratio=-1.0189 -> final_alpha=1.0302
-[2025-04-02 19:21:47,305] I ThreadPoolExecutor-0_0 - extract_frame_pair:383 - [P:0, R:0] s1=61.0531, s2=61.7566, ratio=0.9886 vs thr=1.0004 -> Bit=1
-[2025-04-02 19:21:47,307] I ThreadPoolExecutor-0_0 - _extract_frame_pair_worker:425 - [P:21] Worker using saved ring: 0
-[2025-04-02 19:21:47,336] I ThreadPoolExecutor-0_10 - compute_adaptive_alpha_entropy:162 - [F:20, R:0] Ev=1.5021, Ee=-1.6340, Var=0.0000, Factor=0.9995, Ratio=-1.0878 -> final_alpha=1.0289
-[2025-04-02 19:21:47,340] I ThreadPoolExecutor-0_10 - extract_frame_pair:383 - [P:10, R:0] s1=61.6859, s2=61.3766, ratio=1.0050 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:47,341] I ThreadPoolExecutor-0_10 - _extract_frame_pair_worker:425 - [P:22] Worker using saved ring: 0
-[2025-04-02 19:21:47,429] I ThreadPoolExecutor-0_1 - compute_adaptive_alpha_entropy:162 - [F:2, R:0] Ev=1.7689, Ee=-1.8004, Var=0.0001, Factor=0.9994, Ratio=-1.0178 -> final_alpha=1.0302
-[2025-04-02 19:21:47,438] I ThreadPoolExecutor-0_1 - extract_frame_pair:383 - [P:1, R:0] s1=61.3989, s2=61.7029, ratio=0.9951 vs thr=1.0004 -> Bit=1
-[2025-04-02 19:21:47,439] I ThreadPoolExecutor-0_1 - _extract_frame_pair_worker:425 - [P:23] Worker using saved ring: 0
-[2025-04-02 19:21:47,475] I ThreadPoolExecutor-0_2 - compute_adaptive_alpha_entropy:162 - [F:4, R:0] Ev=1.2796, Ee=-1.5020, Var=0.0001, Factor=0.9994, Ratio=-1.1738 -> final_alpha=1.0274
-[2025-04-02 19:21:47,487] I ThreadPoolExecutor-0_2 - extract_frame_pair:383 - [P:2, R:0] s1=61.7029, s2=61.3989, ratio=1.0050 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:47,491] I ThreadPoolExecutor-0_2 - _extract_frame_pair_worker:425 - [P:24] Worker using saved ring: 0
-[2025-04-02 19:21:47,633] I ThreadPoolExecutor-0_15 - compute_adaptive_alpha_entropy:162 - [F:30, R:0] Ev=1.5616, Ee=-1.6241, Var=0.0001, Factor=0.9995, Ratio=-1.0400 -> final_alpha=1.0298
-[2025-04-02 19:21:47,644] I ThreadPoolExecutor-0_15 - extract_frame_pair:383 - [P:15, R:0] s1=61.6928, s2=61.3032, ratio=1.0064 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:47,645] I ThreadPoolExecutor-0_15 - _extract_frame_pair_worker:425 - [P:25] Worker using saved ring: 0
-[2025-04-02 19:21:47,655] I ThreadPoolExecutor-0_8 - compute_adaptive_alpha_entropy:162 - [F:16, R:0] Ev=1.4789, Ee=-1.6425, Var=0.0001, Factor=0.9995, Ratio=-1.1107 -> final_alpha=1.0285
-[2025-04-02 19:21:47,667] I ThreadPoolExecutor-0_8 - extract_frame_pair:383 - [P:8, R:0] s1=61.6848, s2=61.3807, ratio=1.0050 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:47,668] I ThreadPoolExecutor-0_8 - _extract_frame_pair_worker:425 - [P:26] Worker using saved ring: 0
-[2025-04-02 19:21:47,701] I ThreadPoolExecutor-0_5 - compute_adaptive_alpha_entropy:162 - [F:10, R:0] Ev=1.2796, Ee=-1.5020, Var=0.0001, Factor=0.9994, Ratio=-1.1738 -> final_alpha=1.0274
-[2025-04-02 19:21:47,707] I ThreadPoolExecutor-0_11 - compute_adaptive_alpha_entropy:162 - [F:22, R:0] Ev=1.5734, Ee=-1.6696, Var=0.0000, Factor=0.9996, Ratio=-1.0611 -> final_alpha=1.0294
-[2025-04-02 19:21:47,711] I ThreadPoolExecutor-0_5 - extract_frame_pair:383 - [P:5, R:0] s1=61.7029, s2=61.3989, ratio=1.0050 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:47,711] I ThreadPoolExecutor-0_5 - _extract_frame_pair_worker:425 - [P:27] Worker using saved ring: 0
-[2025-04-02 19:21:47,720] I ThreadPoolExecutor-0_11 - extract_frame_pair:383 - [P:11, R:0] s1=61.3662, s2=61.6854, ratio=0.9948 vs thr=1.0004 -> Bit=1
-[2025-04-02 19:21:47,722] I ThreadPoolExecutor-0_11 - _extract_frame_pair_worker:425 - [P:28] Worker using saved ring: 0
-[2025-04-02 19:21:47,809] I ThreadPoolExecutor-0_16 - compute_adaptive_alpha_entropy:162 - [F:32, R:0] Ev=1.6107, Ee=-1.6498, Var=0.0001, Factor=0.9994, Ratio=-1.0243 -> final_alpha=1.0301
-[2025-04-02 19:21:47,812] I ThreadPoolExecutor-0_16 - extract_frame_pair:383 - [P:16, R:0] s1=61.3032, s2=61.6828, ratio=0.9938 vs thr=1.0004 -> Bit=1
-[2025-04-02 19:21:47,814] I ThreadPoolExecutor-0_16 - _extract_frame_pair_worker:425 - [P:29] Worker using saved ring: 0
-[2025-04-02 19:21:47,857] I ThreadPoolExecutor-0_6 - compute_adaptive_alpha_entropy:162 - [F:12, R:0] Ev=1.3585, Ee=-1.5529, Var=0.0001, Factor=0.9995, Ratio=-1.1431 -> final_alpha=1.0280
-[2025-04-02 19:21:47,866] I ThreadPoolExecutor-0_6 - extract_frame_pair:383 - [P:6, R:0] s1=61.2821, s2=61.6848, ratio=0.9935 vs thr=1.0004 -> Bit=1
-[2025-04-02 19:21:47,866] I ThreadPoolExecutor-0_6 - _extract_frame_pair_worker:425 - [P:30] Worker using saved ring: 0
-[2025-04-02 19:21:47,875] I ThreadPoolExecutor-0_17 - compute_adaptive_alpha_entropy:162 - [F:34, R:0] Ev=1.6107, Ee=-1.6498, Var=0.0001, Factor=0.9994, Ratio=-1.0243 -> final_alpha=1.0301
-[2025-04-02 19:21:47,880] I ThreadPoolExecutor-0_17 - extract_frame_pair:383 - [P:17, R:0] s1=61.3032, s2=61.6828, ratio=0.9938 vs thr=1.0004 -> Bit=1
-[2025-04-02 19:21:47,883] I ThreadPoolExecutor-0_17 - _extract_frame_pair_worker:425 - [P:31] Worker using saved ring: 0
-[2025-04-02 19:21:47,903] I ThreadPoolExecutor-0_7 - compute_adaptive_alpha_entropy:162 - [F:14, R:0] Ev=1.5281, Ee=-1.6742, Var=0.0000, Factor=0.9996, Ratio=-1.0956 -> final_alpha=1.0288
-[2025-04-02 19:21:47,911] I ThreadPoolExecutor-0_7 - extract_frame_pair:383 - [P:7, R:0] s1=61.3808, s2=61.6848, ratio=0.9951 vs thr=1.0004 -> Bit=1
-[2025-04-02 19:21:47,911] I ThreadPoolExecutor-0_18 - compute_adaptive_alpha_entropy:162 - [F:36, R:0] Ev=1.4705, Ee=-1.5749, Var=0.0001, Factor=0.9993, Ratio=-1.0710 -> final_alpha=1.0292
-[2025-04-02 19:21:47,913] I ThreadPoolExecutor-0_7 - _extract_frame_pair_worker:425 - [P:32] Worker using saved ring: 0
-[2025-04-02 19:21:47,923] I ThreadPoolExecutor-0_14 - compute_adaptive_alpha_entropy:162 - [F:28, R:0] Ev=1.5239, Ee=-1.6105, Var=0.0001, Factor=0.9994, Ratio=-1.0568 -> final_alpha=1.0295
-[2025-04-02 19:21:47,926] I ThreadPoolExecutor-0_4 - compute_adaptive_alpha_entropy:162 - [F:8, R:0] Ev=1.7689, Ee=-1.8004, Var=0.0001, Factor=0.9994, Ratio=-1.0178 -> final_alpha=1.0302
-[2025-04-02 19:21:47,927] I ThreadPoolExecutor-0_14 - extract_frame_pair:383 - [P:14, R:0] s1=61.6603, s2=61.3542, ratio=1.0050 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:47,928] I ThreadPoolExecutor-0_18 - extract_frame_pair:383 - [P:18, R:0] s1=61.2319, s2=61.6726, ratio=0.9929 vs thr=1.0004 -> Bit=1
-[2025-04-02 19:21:47,930] I ThreadPoolExecutor-0_9 - compute_adaptive_alpha_entropy:162 - [F:18, R:0] Ev=1.5280, Ee=-1.6742, Var=0.0000, Factor=0.9996, Ratio=-1.0957 -> final_alpha=1.0288
-[2025-04-02 19:21:47,930] I ThreadPoolExecutor-0_14 - _extract_frame_pair_worker:425 - [P:33] Worker using saved ring: 0
-[2025-04-02 19:21:47,931] I ThreadPoolExecutor-0_4 - extract_frame_pair:383 - [P:4, R:0] s1=61.3989, s2=61.7029, ratio=0.9951 vs thr=1.0004 -> Bit=1
-[2025-04-02 19:21:47,935] I ThreadPoolExecutor-0_18 - _extract_frame_pair_worker:425 - [P:34] Worker using saved ring: 0
-[2025-04-02 19:21:47,939] I ThreadPoolExecutor-0_12 - compute_adaptive_alpha_entropy:162 - [F:24, R:0] Ev=1.4451, Ee=-1.5751, Var=0.0000, Factor=0.9996, Ratio=-1.0899 -> final_alpha=1.0289
-[2025-04-02 19:21:47,941] I ThreadPoolExecutor-0_19 - compute_adaptive_alpha_entropy:162 - [F:38, R:0] Ev=1.5130, Ee=-1.6152, Var=0.0001, Factor=0.9994, Ratio=-1.0675 -> final_alpha=1.0293
-[2025-04-02 19:21:47,943] I ThreadPoolExecutor-0_4 - _extract_frame_pair_worker:425 - [P:35] Worker using saved ring: 0
-[2025-04-02 19:21:47,943] I ThreadPoolExecutor-0_9 - extract_frame_pair:383 - [P:9, R:0] s1=61.3806, s2=61.6769, ratio=0.9952 vs thr=1.0004 -> Bit=1
-[2025-04-02 19:21:47,945] I ThreadPoolExecutor-0_3 - compute_adaptive_alpha_entropy:162 - [F:6, R:0] Ev=1.7689, Ee=-1.8004, Var=0.0001, Factor=0.9994, Ratio=-1.0178 -> final_alpha=1.0302
-[2025-04-02 19:21:47,954] I ThreadPoolExecutor-0_12 - extract_frame_pair:383 - [P:12, R:0] s1=61.3245, s2=61.6863, ratio=0.9941 vs thr=1.0004 -> Bit=1
-[2025-04-02 19:21:47,956] I ThreadPoolExecutor-0_19 - extract_frame_pair:383 - [P:19, R:0] s1=61.2929, s2=61.6726, ratio=0.9938 vs thr=1.0004 -> Bit=1
-[2025-04-02 19:21:47,957] I ThreadPoolExecutor-0_9 - _extract_frame_pair_worker:425 - [P:36] Worker using saved ring: 0
-[2025-04-02 19:21:47,962] I ThreadPoolExecutor-0_12 - _extract_frame_pair_worker:425 - [P:37] Worker using saved ring: 0
-[2025-04-02 19:21:47,964] I ThreadPoolExecutor-0_19 - _extract_frame_pair_worker:425 - [P:38] Worker using saved ring: 0
-[2025-04-02 19:21:47,971] I ThreadPoolExecutor-0_3 - extract_frame_pair:383 - [P:3, R:0] s1=61.3989, s2=61.7029, ratio=0.9951 vs thr=1.0004 -> Bit=1
-[2025-04-02 19:21:47,986] I ThreadPoolExecutor-0_3 - _extract_frame_pair_worker:425 - [P:39] Worker using saved ring: 0
-[2025-04-02 19:21:48,710] I ThreadPoolExecutor-0_0 - compute_adaptive_alpha_entropy:162 - [F:42, R:0] Ev=1.5130, Ee=-1.6152, Var=0.0001, Factor=0.9994, Ratio=-1.0675 -> final_alpha=1.0293
-[2025-04-02 19:21:48,713] I ThreadPoolExecutor-0_0 - extract_frame_pair:383 - [P:21, R:0] s1=61.2929, s2=61.6706, ratio=0.9939 vs thr=1.0004 -> Bit=1
-[2025-04-02 19:21:48,714] I ThreadPoolExecutor-0_0 - _extract_frame_pair_worker:425 - [P:40] Worker using saved ring: 0
-[2025-04-02 19:21:48,719] I ThreadPoolExecutor-0_10 - compute_adaptive_alpha_entropy:162 - [F:44, R:0] Ev=1.5130, Ee=-1.6152, Var=0.0001, Factor=0.9994, Ratio=-1.0675 -> final_alpha=1.0293
-[2025-04-02 19:21:48,724] I ThreadPoolExecutor-0_10 - extract_frame_pair:383 - [P:22, R:0] s1=61.2929, s2=61.6706, ratio=0.9939 vs thr=1.0004 -> Bit=1
-[2025-04-02 19:21:48,724] I ThreadPoolExecutor-0_10 - _extract_frame_pair_worker:425 - [P:41] Worker using saved ring: 0
-[2025-04-02 19:21:48,761] I ThreadPoolExecutor-0_13 - compute_adaptive_alpha_entropy:162 - [F:40, R:0] Ev=1.5732, Ee=-1.6381, Var=0.0001, Factor=0.9995, Ratio=-1.0413 -> final_alpha=1.0298
-[2025-04-02 19:21:48,764] I ThreadPoolExecutor-0_13 - extract_frame_pair:383 - [P:20, R:0] s1=61.6726, s2=61.2929, ratio=1.0062 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:48,764] I ThreadPoolExecutor-0_13 - _extract_frame_pair_worker:425 - [P:42] Worker using saved ring: 0
-[2025-04-02 19:21:48,812] I ThreadPoolExecutor-0_1 - compute_adaptive_alpha_entropy:162 - [F:46, R:0] Ev=1.5790, Ee=-1.6388, Var=0.0001, Factor=0.9994, Ratio=-1.0378 -> final_alpha=1.0298
-[2025-04-02 19:21:48,816] I ThreadPoolExecutor-0_1 - extract_frame_pair:383 - [P:23, R:0] s1=61.6706, s2=61.2929, ratio=1.0062 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:48,817] I ThreadPoolExecutor-0_1 - _extract_frame_pair_worker:425 - [P:43] Worker using saved ring: 7
-[2025-04-02 19:21:48,842] I ThreadPoolExecutor-0_2 - compute_adaptive_alpha_entropy:162 - [F:48, R:0] Ev=1.4705, Ee=-1.5749, Var=0.0001, Factor=0.9993, Ratio=-1.0710 -> final_alpha=1.0292
-[2025-04-02 19:21:48,845] I ThreadPoolExecutor-0_2 - extract_frame_pair:383 - [P:24, R:0] s1=61.2319, s2=61.6726, ratio=0.9929 vs thr=1.0004 -> Bit=1
-[2025-04-02 19:21:48,846] I ThreadPoolExecutor-0_2 - _extract_frame_pair_worker:425 - [P:44] Worker using saved ring: 7
-[2025-04-02 19:21:48,960] I ThreadPoolExecutor-0_8 - compute_adaptive_alpha_entropy:162 - [F:52, R:0] Ev=1.5732, Ee=-1.6381, Var=0.0001, Factor=0.9995, Ratio=-1.0413 -> final_alpha=1.0298
-[2025-04-02 19:21:48,965] I ThreadPoolExecutor-0_8 - extract_frame_pair:383 - [P:26, R:0] s1=61.6726, s2=61.2929, ratio=1.0062 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:48,968] I ThreadPoolExecutor-0_8 - _extract_frame_pair_worker:425 - [P:45] Worker using saved ring: 7
-[2025-04-02 19:21:48,984] I ThreadPoolExecutor-0_11 - compute_adaptive_alpha_entropy:162 - [F:56, R:0] Ev=1.5130, Ee=-1.6152, Var=0.0001, Factor=0.9994, Ratio=-1.0675 -> final_alpha=1.0293
-[2025-04-02 19:21:48,995] I ThreadPoolExecutor-0_11 - extract_frame_pair:383 - [P:28, R:0] s1=61.2929, s2=61.6706, ratio=0.9939 vs thr=1.0004 -> Bit=1
-[2025-04-02 19:21:48,996] I ThreadPoolExecutor-0_11 - _extract_frame_pair_worker:425 - [P:46] Worker using saved ring: 7
-[2025-04-02 19:21:49,120] I ThreadPoolExecutor-0_15 - compute_adaptive_alpha_entropy:162 - [F:50, R:0] Ev=1.5130, Ee=-1.6152, Var=0.0001, Factor=0.9994, Ratio=-1.0675 -> final_alpha=1.0293
-[2025-04-02 19:21:49,130] I ThreadPoolExecutor-0_15 - extract_frame_pair:383 - [P:25, R:0] s1=61.2929, s2=61.6726, ratio=0.9938 vs thr=1.0004 -> Bit=1
-[2025-04-02 19:21:49,135] I ThreadPoolExecutor-0_15 - _extract_frame_pair_worker:425 - [P:47] Worker using saved ring: 7
-[2025-04-02 19:21:49,138] I ThreadPoolExecutor-0_5 - compute_adaptive_alpha_entropy:162 - [F:54, R:0] Ev=1.5790, Ee=-1.6388, Var=0.0001, Factor=0.9994, Ratio=-1.0378 -> final_alpha=1.0298
-[2025-04-02 19:21:49,151] I ThreadPoolExecutor-0_5 - extract_frame_pair:383 - [P:27, R:0] s1=61.6706, s2=61.2929, ratio=1.0062 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:49,153] I ThreadPoolExecutor-0_5 - _extract_frame_pair_worker:425 - [P:48] Worker using saved ring: 7
-[2025-04-02 19:21:49,220] I ThreadPoolExecutor-0_16 - compute_adaptive_alpha_entropy:162 - [F:58, R:0] Ev=1.5790, Ee=-1.6388, Var=0.0001, Factor=0.9994, Ratio=-1.0378 -> final_alpha=1.0298
-[2025-04-02 19:21:49,227] I ThreadPoolExecutor-0_16 - extract_frame_pair:383 - [P:29, R:0] s1=61.6706, s2=61.2929, ratio=1.0062 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:49,230] I ThreadPoolExecutor-0_16 - _extract_frame_pair_worker:425 - [P:49] Worker using saved ring: 7
-[2025-04-02 19:21:49,244] I ThreadPoolExecutor-0_7 - compute_adaptive_alpha_entropy:162 - [F:64, R:0] Ev=1.7837, Ee=-1.7656, Var=0.0001, Factor=0.9993, Ratio=-0.9899 -> final_alpha=1.0307
-[2025-04-02 19:21:49,249] I ThreadPoolExecutor-0_6 - compute_adaptive_alpha_entropy:162 - [F:60, R:0] Ev=1.2702, Ee=-1.4860, Var=0.0001, Factor=0.9994, Ratio=-1.1699 -> final_alpha=1.0275
-[2025-04-02 19:21:49,252] I ThreadPoolExecutor-0_17 - compute_adaptive_alpha_entropy:162 - [F:62, R:0] Ev=1.2583, Ee=-1.4843, Var=0.0001, Factor=0.9994, Ratio=-1.1795 -> final_alpha=1.0273
-[2025-04-02 19:21:49,259] I ThreadPoolExecutor-0_6 - extract_frame_pair:383 - [P:30, R:0] s1=61.7311, s2=61.3426, ratio=1.0063 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:49,260] I ThreadPoolExecutor-0_6 - _extract_frame_pair_worker:425 - [P:50] Worker using saved ring: 7
-[2025-04-02 19:21:49,262] I ThreadPoolExecutor-0_17 - extract_frame_pair:383 - [P:31, R:0] s1=61.7219, s2=61.3426, ratio=1.0062 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:49,264] I ThreadPoolExecutor-0_17 - _extract_frame_pair_worker:425 - [P:51] Worker using saved ring: 7
-[2025-04-02 19:21:49,265] I ThreadPoolExecutor-0_7 - extract_frame_pair:383 - [P:32, R:0] s1=61.3426, s2=61.7219, ratio=0.9939 vs thr=1.0005 -> Bit=1
-[2025-04-02 19:21:49,270] I ThreadPoolExecutor-0_7 - _extract_frame_pair_worker:425 - [P:52] Worker using saved ring: 7
-[2025-04-02 19:21:49,291] I ThreadPoolExecutor-0_14 - compute_adaptive_alpha_entropy:162 - [F:66, R:0] Ev=1.7837, Ee=-1.7656, Var=0.0001, Factor=0.9993, Ratio=-0.9899 -> final_alpha=1.0307
-[2025-04-02 19:21:49,308] I ThreadPoolExecutor-0_14 - extract_frame_pair:383 - [P:33, R:0] s1=61.3426, s2=61.7219, ratio=0.9939 vs thr=1.0005 -> Bit=1
-[2025-04-02 19:21:49,309] I ThreadPoolExecutor-0_14 - _extract_frame_pair_worker:425 - [P:53] Worker using saved ring: 7
-[2025-04-02 19:21:49,317] I ThreadPoolExecutor-0_9 - compute_adaptive_alpha_entropy:162 - [F:72, R:0] Ev=1.2690, Ee=-1.4857, Var=0.0001, Factor=0.9994, Ratio=-1.1708 -> final_alpha=1.0275
-[2025-04-02 19:21:49,324] I ThreadPoolExecutor-0_9 - extract_frame_pair:383 - [P:36, R:0] s1=61.7314, s2=61.3427, ratio=1.0063 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:49,325] I ThreadPoolExecutor-0_9 - _extract_frame_pair_worker:425 - [P:54] Worker using saved ring: 7
-[2025-04-02 19:21:49,345] I ThreadPoolExecutor-0_19 - compute_adaptive_alpha_entropy:162 - [F:76, R:0] Ev=1.2597, Ee=-1.4848, Var=0.0001, Factor=0.9994, Ratio=-1.1786 -> final_alpha=1.0273
-[2025-04-02 19:21:49,350] I ThreadPoolExecutor-0_19 - extract_frame_pair:383 - [P:38, R:0] s1=61.7220, s2=61.3427, ratio=1.0062 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:49,351] I ThreadPoolExecutor-0_19 - _extract_frame_pair_worker:425 - [P:55] Worker using saved ring: 7
-[2025-04-02 19:21:49,389] I ThreadPoolExecutor-0_3 - compute_adaptive_alpha_entropy:162 - [F:78, R:0] Ev=1.7842, Ee=-1.7656, Var=0.0001, Factor=0.9993, Ratio=-0.9896 -> final_alpha=1.0307
-[2025-04-02 19:21:49,396] I ThreadPoolExecutor-0_3 - extract_frame_pair:383 - [P:39, R:0] s1=61.3427, s2=61.7201, ratio=0.9939 vs thr=1.0005 -> Bit=1
-[2025-04-02 19:21:49,399] I ThreadPoolExecutor-0_3 - _extract_frame_pair_worker:425 - [P:56] Worker using saved ring: 7
-[2025-04-02 19:21:49,434] I ThreadPoolExecutor-0_18 - compute_adaptive_alpha_entropy:162 - [F:68, R:0] Ev=1.7837, Ee=-1.7656, Var=0.0001, Factor=0.9993, Ratio=-0.9899 -> final_alpha=1.0307
-[2025-04-02 19:21:49,443] I ThreadPoolExecutor-0_18 - extract_frame_pair:383 - [P:34, R:0] s1=61.3426, s2=61.7219, ratio=0.9939 vs thr=1.0005 -> Bit=1
-[2025-04-02 19:21:49,444] I ThreadPoolExecutor-0_18 - _extract_frame_pair_worker:425 - [P:57] Worker using saved ring: 7
-[2025-04-02 19:21:49,469] I ThreadPoolExecutor-0_12 - compute_adaptive_alpha_entropy:162 - [F:74, R:0] Ev=1.7842, Ee=-1.7656, Var=0.0001, Factor=0.9993, Ratio=-0.9896 -> final_alpha=1.0307
-[2025-04-02 19:21:49,473] I ThreadPoolExecutor-0_12 - extract_frame_pair:383 - [P:37, R:0] s1=61.3427, s2=61.7220, ratio=0.9939 vs thr=1.0005 -> Bit=1
-[2025-04-02 19:21:49,476] I ThreadPoolExecutor-0_12 - _extract_frame_pair_worker:425 - [P:58] Worker using saved ring: 7
-[2025-04-02 19:21:49,490] I ThreadPoolExecutor-0_4 - compute_adaptive_alpha_entropy:162 - [F:70, R:0] Ev=1.7837, Ee=-1.7656, Var=0.0001, Factor=0.9993, Ratio=-0.9899 -> final_alpha=1.0307
-[2025-04-02 19:21:49,494] I ThreadPoolExecutor-0_4 - extract_frame_pair:383 - [P:35, R:0] s1=61.3426, s2=61.7219, ratio=0.9939 vs thr=1.0005 -> Bit=1
-[2025-04-02 19:21:49,499] I ThreadPoolExecutor-0_4 - _extract_frame_pair_worker:425 - [P:59] Worker using saved ring: 7
-[2025-04-02 19:21:50,139] I ThreadPoolExecutor-0_10 - compute_adaptive_alpha_entropy:162 - [F:82, R:0] Ev=1.7842, Ee=-1.7656, Var=0.0001, Factor=0.9993, Ratio=-0.9896 -> final_alpha=1.0307
-[2025-04-02 19:21:50,143] I ThreadPoolExecutor-0_10 - extract_frame_pair:383 - [P:41, R:0] s1=61.3427, s2=61.7181, ratio=0.9939 vs thr=1.0005 -> Bit=1
-[2025-04-02 19:21:50,145] I ThreadPoolExecutor-0_10 - _extract_frame_pair_worker:425 - [P:60] Worker using saved ring: 7
-[2025-04-02 19:21:50,180] I ThreadPoolExecutor-0_13 - compute_adaptive_alpha_entropy:162 - [F:84, R:0] Ev=1.2690, Ee=-1.4857, Var=0.0001, Factor=0.9994, Ratio=-1.1708 -> final_alpha=1.0275
-[2025-04-02 19:21:50,186] I ThreadPoolExecutor-0_13 - extract_frame_pair:383 - [P:42, R:0] s1=61.7314, s2=61.3427, ratio=1.0063 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:50,187] I ThreadPoolExecutor-0_0 - compute_adaptive_alpha_entropy:162 - [F:80, R:0] Ev=1.2720, Ee=-1.4855, Var=0.0001, Factor=0.9994, Ratio=-1.1678 -> final_alpha=1.0275
-[2025-04-02 19:21:50,187] I ThreadPoolExecutor-0_13 - _extract_frame_pair_worker:425 - [P:61] Worker using saved ring: 7
-[2025-04-02 19:21:50,195] I ThreadPoolExecutor-0_0 - extract_frame_pair:383 - [P:40, R:0] s1=61.7201, s2=61.3427, ratio=1.0062 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:50,196] I ThreadPoolExecutor-0_0 - _extract_frame_pair_worker:425 - [P:62] Worker using saved ring: 7
-[2025-04-02 19:21:50,213] I ThreadPoolExecutor-0_1 - compute_adaptive_alpha_entropy:162 - [F:86, R:7] Ev=4.0670, Ee=-2.4351, Var=0.0049, Factor=0.9535, Ratio=-0.5987 -> final_alpha=1.0371
-[2025-04-02 19:21:50,222] I ThreadPoolExecutor-0_1 - extract_frame_pair:383 - [P:43, R:7] s1=70.0406, s2=69.6860, ratio=1.0051 vs thr=1.0007 -> Bit=0
-[2025-04-02 19:21:50,223] I ThreadPoolExecutor-0_1 - _extract_frame_pair_worker:425 - [P:63] Worker using saved ring: 7
-[2025-04-02 19:21:50,230] I ThreadPoolExecutor-0_2 - compute_adaptive_alpha_entropy:162 - [F:88, R:7] Ev=4.2219, Ee=-2.4861, Var=0.0049, Factor=0.9536, Ratio=-0.5889 -> final_alpha=1.0373
-[2025-04-02 19:21:50,235] I ThreadPoolExecutor-0_2 - extract_frame_pair:383 - [P:44, R:7] s1=69.6841, s2=69.9153, ratio=0.9967 vs thr=1.0007 -> Bit=1
-[2025-04-02 19:21:50,236] I ThreadPoolExecutor-0_2 - _extract_frame_pair_worker:425 - [P:64] Worker using saved ring: 7
-[2025-04-02 19:21:50,247] I ThreadPoolExecutor-0_8 - compute_adaptive_alpha_entropy:162 - [F:90, R:7] Ev=4.1315, Ee=-2.4525, Var=0.0049, Factor=0.9534, Ratio=-0.5936 -> final_alpha=1.0372
-[2025-04-02 19:21:50,250] I ThreadPoolExecutor-0_8 - extract_frame_pair:383 - [P:45, R:7] s1=69.9202, s2=69.6805, ratio=1.0034 vs thr=1.0007 -> Bit=0
-[2025-04-02 19:21:50,251] I ThreadPoolExecutor-0_8 - _extract_frame_pair_worker:425 - [P:65] Worker using saved ring: 7
-[2025-04-02 19:21:50,278] I ThreadPoolExecutor-0_11 - compute_adaptive_alpha_entropy:162 - [F:92, R:7] Ev=4.1419, Ee=-2.4546, Var=0.0049, Factor=0.9534, Ratio=-0.5926 -> final_alpha=1.0372
-[2025-04-02 19:21:50,282] I ThreadPoolExecutor-0_11 - extract_frame_pair:383 - [P:46, R:7] s1=69.9072, s2=69.6771, ratio=1.0033 vs thr=1.0007 -> Bit=0
-[2025-04-02 19:21:50,283] I ThreadPoolExecutor-0_11 - _extract_frame_pair_worker:425 - [P:66] Worker using saved ring: 7
-[2025-04-02 19:21:50,362] I ThreadPoolExecutor-0_15 - compute_adaptive_alpha_entropy:162 - [F:94, R:7] Ev=4.1430, Ee=-2.4547, Var=0.0049, Factor=0.9534, Ratio=-0.5925 -> final_alpha=1.0373
-[2025-04-02 19:21:50,370] I ThreadPoolExecutor-0_15 - extract_frame_pair:383 - [P:47, R:7] s1=69.9064, s2=69.6774, ratio=1.0033 vs thr=1.0007 -> Bit=0
-[2025-04-02 19:21:50,371] I ThreadPoolExecutor-0_15 - _extract_frame_pair_worker:425 - [P:67] Worker using saved ring: 7
-[2025-04-02 19:21:50,393] I ThreadPoolExecutor-0_16 - compute_adaptive_alpha_entropy:162 - [F:98, R:7] Ev=4.2219, Ee=-2.4839, Var=0.0049, Factor=0.9535, Ratio=-0.5883 -> final_alpha=1.0373
-[2025-04-02 19:21:50,396] I ThreadPoolExecutor-0_5 - compute_adaptive_alpha_entropy:162 - [F:96, R:7] Ev=4.0744, Ee=-2.4372, Var=0.0048, Factor=0.9538, Ratio=-0.5982 -> final_alpha=1.0371
-[2025-04-02 19:21:50,398] I ThreadPoolExecutor-0_16 - extract_frame_pair:383 - [P:49, R:7] s1=69.6520, s2=69.9159, ratio=0.9962 vs thr=1.0007 -> Bit=1
-[2025-04-02 19:21:50,399] I ThreadPoolExecutor-0_16 - _extract_frame_pair_worker:425 - [P:68] Worker using saved ring: 7
-[2025-04-02 19:21:50,400] I ThreadPoolExecutor-0_5 - extract_frame_pair:383 - [P:48, R:7] s1=70.0502, s2=69.6520, ratio=1.0057 vs thr=1.0007 -> Bit=0
-[2025-04-02 19:21:50,404] I ThreadPoolExecutor-0_5 - _extract_frame_pair_worker:425 - [P:69] Worker using saved ring: 7
-[2025-04-02 19:21:50,425] I ThreadPoolExecutor-0_6 - compute_adaptive_alpha_entropy:162 - [F:100, R:7] Ev=4.1526, Ee=-2.4580, Var=0.0049, Factor=0.9535, Ratio=-0.5919 -> final_alpha=1.0373
-[2025-04-02 19:21:50,428] I ThreadPoolExecutor-0_6 - extract_frame_pair:383 - [P:50, R:7] s1=69.9184, s2=69.6701, ratio=1.0036 vs thr=1.0007 -> Bit=0
-[2025-04-02 19:21:50,429] I ThreadPoolExecutor-0_6 - _extract_frame_pair_worker:425 - [P:70] Worker using saved ring: 7
-[2025-04-02 19:21:50,489] I ThreadPoolExecutor-0_17 - compute_adaptive_alpha_entropy:162 - [F:102, R:7] Ev=4.1525, Ee=-2.4582, Var=0.0049, Factor=0.9535, Ratio=-0.5920 -> final_alpha=1.0373
-[2025-04-02 19:21:50,492] I ThreadPoolExecutor-0_17 - extract_frame_pair:383 - [P:51, R:7] s1=69.9198, s2=69.6717, ratio=1.0036 vs thr=1.0007 -> Bit=0
-[2025-04-02 19:21:50,493] I ThreadPoolExecutor-0_17 - _extract_frame_pair_worker:425 - [P:71] Worker using saved ring: 7
-[2025-04-02 19:21:50,534] I ThreadPoolExecutor-0_7 - compute_adaptive_alpha_entropy:162 - [F:104, R:7] Ev=4.1521, Ee=-2.4582, Var=0.0049, Factor=0.9535, Ratio=-0.5920 -> final_alpha=1.0373
-[2025-04-02 19:21:50,543] I ThreadPoolExecutor-0_7 - extract_frame_pair:383 - [P:52, R:7] s1=69.9199, s2=69.6719, ratio=1.0036 vs thr=1.0007 -> Bit=0
-[2025-04-02 19:21:50,543] I ThreadPoolExecutor-0_7 - _extract_frame_pair_worker:425 - [P:72] Worker using saved ring: 7
-[2025-04-02 19:21:50,623] I ThreadPoolExecutor-0_19 - compute_adaptive_alpha_entropy:162 - [F:110, R:7] Ev=4.1437, Ee=-2.4557, Var=0.0048, Factor=0.9539, Ratio=-0.5926 -> final_alpha=1.0373
-[2025-04-02 19:21:50,632] I ThreadPoolExecutor-0_19 - extract_frame_pair:383 - [P:55, R:7] s1=69.8142, s2=69.5045, ratio=1.0045 vs thr=1.0007 -> Bit=0
-[2025-04-02 19:21:50,632] I ThreadPoolExecutor-0_19 - _extract_frame_pair_worker:425 - [P:73] Worker using saved ring: 7
-[2025-04-02 19:21:50,672] I ThreadPoolExecutor-0_9 - compute_adaptive_alpha_entropy:162 - [F:108, R:7] Ev=4.1471, Ee=-2.4605, Var=0.0049, Factor=0.9533, Ratio=-0.5933 -> final_alpha=1.0372
-[2025-04-02 19:21:50,683] I ThreadPoolExecutor-0_9 - extract_frame_pair:383 - [P:54, R:7] s1=69.3101, s2=69.8139, ratio=0.9928 vs thr=1.0007 -> Bit=1
-[2025-04-02 19:21:50,684] I ThreadPoolExecutor-0_9 - _extract_frame_pair_worker:425 - [P:74] Worker using saved ring: 7
-[2025-04-02 19:21:50,701] I ThreadPoolExecutor-0_14 - compute_adaptive_alpha_entropy:162 - [F:106, R:7] Ev=4.1358, Ee=-2.4531, Var=0.0049, Factor=0.9536, Ratio=-0.5931 -> final_alpha=1.0372
-[2025-04-02 19:21:50,714] I ThreadPoolExecutor-0_14 - extract_frame_pair:383 - [P:53, R:7] s1=69.8648, s2=69.5409, ratio=1.0047 vs thr=1.0007 -> Bit=0
-[2025-04-02 19:21:50,714] I ThreadPoolExecutor-0_14 - _extract_frame_pair_worker:425 - [P:75] Worker using saved ring: 7
-[2025-04-02 19:21:50,776] I ThreadPoolExecutor-0_4 - compute_adaptive_alpha_entropy:162 - [F:118, R:7] Ev=4.1279, Ee=-2.4586, Var=0.0046, Factor=0.9557, Ratio=-0.5956 -> final_alpha=1.0373
-[2025-04-02 19:21:50,783] I ThreadPoolExecutor-0_4 - extract_frame_pair:383 - [P:59, R:7] s1=69.5372, s2=69.0975, ratio=1.0064 vs thr=1.0007 -> Bit=0
-[2025-04-02 19:21:50,784] I ThreadPoolExecutor-0_4 - _extract_frame_pair_worker:425 - [P:76] Worker using saved ring: 7
-[2025-04-02 19:21:50,824] I ThreadPoolExecutor-0_3 - compute_adaptive_alpha_entropy:162 - [F:112, R:7] Ev=4.1400, Ee=-2.4551, Var=0.0049, Factor=0.9536, Ratio=-0.5930 -> final_alpha=1.0372
-[2025-04-02 19:21:50,831] I ThreadPoolExecutor-0_3 - extract_frame_pair:383 - [P:56, R:7] s1=69.8040, s2=69.5045, ratio=1.0043 vs thr=1.0007 -> Bit=0
-[2025-04-02 19:21:50,833] I ThreadPoolExecutor-0_3 - _extract_frame_pair_worker:425 - [P:77] Worker using saved ring: 7
-[2025-04-02 19:21:50,921] I ThreadPoolExecutor-0_12 - compute_adaptive_alpha_entropy:162 - [F:116, R:7] Ev=4.1407, Ee=-2.4553, Var=0.0049, Factor=0.9536, Ratio=-0.5930 -> final_alpha=1.0372
-[2025-04-02 19:21:50,926] I ThreadPoolExecutor-0_12 - extract_frame_pair:383 - [P:58, R:7] s1=69.8035, s2=69.5001, ratio=1.0044 vs thr=1.0007 -> Bit=0
-[2025-04-02 19:21:50,929] I ThreadPoolExecutor-0_12 - _extract_frame_pair_worker:425 - [P:78] Worker using saved ring: 7
-[2025-04-02 19:21:50,961] I ThreadPoolExecutor-0_18 - compute_adaptive_alpha_entropy:162 - [F:114, R:7] Ev=4.1991, Ee=-2.4740, Var=0.0049, Factor=0.9535, Ratio=-0.5892 -> final_alpha=1.0373
-[2025-04-02 19:21:50,967] I ThreadPoolExecutor-0_18 - extract_frame_pair:383 - [P:57, R:7] s1=69.5035, s2=69.8026, ratio=0.9957 vs thr=1.0007 -> Bit=1
-[2025-04-02 19:21:50,970] I ThreadPoolExecutor-0_18 - _extract_frame_pair_worker:425 - [P:79] Worker using saved ring: 7
-[2025-04-02 19:21:51,479] I ThreadPoolExecutor-0_10 - compute_adaptive_alpha_entropy:162 - [F:120, R:7] Ev=3.9376, Ee=-2.4186, Var=0.0045, Factor=0.9566, Ratio=-0.6142 -> final_alpha=1.0369
-[2025-04-02 19:21:51,489] I ThreadPoolExecutor-0_10 - extract_frame_pair:383 - [P:60, R:7] s1=69.6362, s2=69.2581, ratio=1.0055 vs thr=1.0007 -> Bit=0
-[2025-04-02 19:21:51,491] I ThreadPoolExecutor-0_10 - _extract_frame_pair_worker:425 - [P:80] Worker using saved ring: 7
-[2025-04-02 19:21:51,636] I ThreadPoolExecutor-0_11 - compute_adaptive_alpha_entropy:162 - [F:132, R:7] Ev=3.9810, Ee=-2.4293, Var=0.0045, Factor=0.9565, Ratio=-0.6102 -> final_alpha=1.0370
-[2025-04-02 19:21:51,642] I ThreadPoolExecutor-0_13 - compute_adaptive_alpha_entropy:162 - [F:122, R:7] Ev=4.0788, Ee=-2.4681, Var=0.0046, Factor=0.9563, Ratio=-0.6051 -> final_alpha=1.0371
-[2025-04-02 19:21:51,648] I ThreadPoolExecutor-0_11 - extract_frame_pair:383 - [P:66, R:7] s1=69.6716, s2=69.2691, ratio=1.0058 vs thr=1.0007 -> Bit=0
-[2025-04-02 19:21:51,650] I ThreadPoolExecutor-0_11 - _extract_frame_pair_worker:425 - [P:81] Worker using saved ring: 7
-[2025-04-02 19:21:51,653] I ThreadPoolExecutor-0_13 - extract_frame_pair:383 - [P:61, R:7] s1=69.2584, s2=69.5041, ratio=0.9965 vs thr=1.0007 -> Bit=1
-[2025-04-02 19:21:51,655] I ThreadPoolExecutor-0_13 - _extract_frame_pair_worker:425 - [P:82] Worker using saved ring: 7
-[2025-04-02 19:21:51,679] I ThreadPoolExecutor-0_1 - compute_adaptive_alpha_entropy:162 - [F:126, R:7] Ev=4.0884, Ee=-2.4704, Var=0.0046, Factor=0.9562, Ratio=-0.6043 -> final_alpha=1.0371
-[2025-04-02 19:21:51,687] I ThreadPoolExecutor-0_1 - extract_frame_pair:383 - [P:63, R:7] s1=69.2686, s2=69.5029, ratio=0.9966 vs thr=1.0007 -> Bit=1
-[2025-04-02 19:21:51,689] I ThreadPoolExecutor-0_1 - _extract_frame_pair_worker:425 - [P:83] Worker using saved ring: 7
-[2025-04-02 19:21:51,745] I ThreadPoolExecutor-0_8 - compute_adaptive_alpha_entropy:162 - [F:130, R:7] Ev=4.0093, Ee=-2.4378, Var=0.0046, Factor=0.9563, Ratio=-0.6080 -> final_alpha=1.0370
-[2025-04-02 19:21:51,746] I ThreadPoolExecutor-0_2 - compute_adaptive_alpha_entropy:162 - [F:128, R:7] Ev=4.0884, Ee=-2.4704, Var=0.0046, Factor=0.9562, Ratio=-0.6043 -> final_alpha=1.0371
-[2025-04-02 19:21:51,756] I ThreadPoolExecutor-0_2 - extract_frame_pair:383 - [P:64, R:7] s1=69.2686, s2=69.5029, ratio=0.9966 vs thr=1.0007 -> Bit=1
-[2025-04-02 19:21:51,756] I ThreadPoolExecutor-0_2 - _extract_frame_pair_worker:425 - [P:84] Worker using saved ring: 7
-[2025-04-02 19:21:51,760] I ThreadPoolExecutor-0_8 - extract_frame_pair:383 - [P:65, R:7] s1=69.5029, s2=69.2686, ratio=1.0034 vs thr=1.0007 -> Bit=0
-[2025-04-02 19:21:51,761] I ThreadPoolExecutor-0_8 - _extract_frame_pair_worker:425 - [P:85] Worker using saved ring: 7
-[2025-04-02 19:21:51,773] I ThreadPoolExecutor-0_0 - compute_adaptive_alpha_entropy:162 - [F:124, R:7] Ev=4.0086, Ee=-2.4378, Var=0.0046, Factor=0.9563, Ratio=-0.6081 -> final_alpha=1.0370
-[2025-04-02 19:21:51,781] I ThreadPoolExecutor-0_0 - extract_frame_pair:383 - [P:62, R:7] s1=69.5041, s2=69.2686, ratio=1.0034 vs thr=1.0007 -> Bit=0
-[2025-04-02 19:21:51,782] I ThreadPoolExecutor-0_0 - _extract_frame_pair_worker:425 - [P:86] Worker using saved ring: 7
-[2025-04-02 19:21:51,815] I ThreadPoolExecutor-0_16 - compute_adaptive_alpha_entropy:162 - [F:136, R:7] Ev=4.0391, Ee=-2.4456, Var=0.0046, Factor=0.9563, Ratio=-0.6055 -> final_alpha=1.0371
-[2025-04-02 19:21:51,821] I ThreadPoolExecutor-0_16 - extract_frame_pair:383 - [P:68, R:7] s1=69.5234, s2=69.2757, ratio=1.0036 vs thr=1.0007 -> Bit=0
-[2025-04-02 19:21:51,821] I ThreadPoolExecutor-0_15 - compute_adaptive_alpha_entropy:162 - [F:134, R:7] Ev=4.1127, Ee=-2.4746, Var=0.0046, Factor=0.9562, Ratio=-0.6017 -> final_alpha=1.0372
-[2025-04-02 19:21:51,822] I ThreadPoolExecutor-0_16 - _extract_frame_pair_worker:425 - [P:87] Worker using saved ring: 7
-[2025-04-02 19:21:51,823] I ThreadPoolExecutor-0_5 - compute_adaptive_alpha_entropy:162 - [F:138, R:7] Ev=4.0477, Ee=-2.4484, Var=0.0046, Factor=0.9564, Ratio=-0.6049 -> final_alpha=1.0371
-[2025-04-02 19:21:51,826] I ThreadPoolExecutor-0_15 - extract_frame_pair:383 - [P:67, R:7] s1=69.2691, s2=69.5234, ratio=0.9963 vs thr=1.0007 -> Bit=1
-[2025-04-02 19:21:51,828] I ThreadPoolExecutor-0_15 - _extract_frame_pair_worker:425 - [P:88] Worker using saved ring: 7
-[2025-04-02 19:21:51,834] I ThreadPoolExecutor-0_5 - extract_frame_pair:383 - [P:69, R:7] s1=69.4802, s2=69.1137, ratio=1.0053 vs thr=1.0007 -> Bit=0
-[2025-04-02 19:21:51,839] I ThreadPoolExecutor-0_5 - _extract_frame_pair_worker:425 - [P:89] Worker using saved ring: 7
-[2025-04-02 19:21:51,874] I ThreadPoolExecutor-0_6 - compute_adaptive_alpha_entropy:162 - [F:140, R:7] Ev=4.1278, Ee=-2.4769, Var=0.0046, Factor=0.9564, Ratio=-0.6001 -> final_alpha=1.0372
-[2025-04-02 19:21:51,883] I ThreadPoolExecutor-0_6 - extract_frame_pair:383 - [P:70, R:7] s1=69.1112, s2=69.4331, ratio=0.9954 vs thr=1.0007 -> Bit=1
-[2025-04-02 19:21:51,887] I ThreadPoolExecutor-0_6 - _extract_frame_pair_worker:425 - [P:90] Worker using saved ring: 7
-[2025-04-02 19:21:51,912] I ThreadPoolExecutor-0_17 - compute_adaptive_alpha_entropy:162 - [F:142, R:7] Ev=4.1346, Ee=-2.4781, Var=0.0046, Factor=0.9564, Ratio=-0.5994 -> final_alpha=1.0372
-[2025-04-02 19:21:51,914] I ThreadPoolExecutor-0_7 - compute_adaptive_alpha_entropy:162 - [F:144, R:7] Ev=4.0037, Ee=-2.4356, Var=0.0045, Factor=0.9567, Ratio=-0.6083 -> final_alpha=1.0370
-[2025-04-02 19:21:51,916] I ThreadPoolExecutor-0_7 - extract_frame_pair:383 - [P:72, R:7] s1=69.5797, s2=69.1083, ratio=1.0068 vs thr=1.0007 -> Bit=0
-[2025-04-02 19:21:51,918] I ThreadPoolExecutor-0_7 - _extract_frame_pair_worker:425 - [P:91] Worker using saved ring: 7
-[2025-04-02 19:21:51,919] I ThreadPoolExecutor-0_17 - extract_frame_pair:383 - [P:71, R:7] s1=69.1154, s2=69.4319, ratio=0.9954 vs thr=1.0007 -> Bit=1
-[2025-04-02 19:21:51,924] I ThreadPoolExecutor-0_17 - _extract_frame_pair_worker:425 - [P:92] Worker using saved ring: 7
-[2025-04-02 19:21:51,966] I ThreadPoolExecutor-0_19 - compute_adaptive_alpha_entropy:162 - [F:146, R:7] Ev=4.0449, Ee=-2.4458, Var=0.0046, Factor=0.9564, Ratio=-0.6047 -> final_alpha=1.0371
-[2025-04-02 19:21:51,969] I ThreadPoolExecutor-0_19 - extract_frame_pair:383 - [P:73, R:7] s1=69.4307, s2=69.1151, ratio=1.0046 vs thr=1.0007 -> Bit=0
-[2025-04-02 19:21:51,971] I ThreadPoolExecutor-0_19 - _extract_frame_pair_worker:425 - [P:93] Worker using saved ring: 7
-[2025-04-02 19:21:52,023] I ThreadPoolExecutor-0_9 - compute_adaptive_alpha_entropy:162 - [F:148, R:7] Ev=4.1369, Ee=-2.4793, Var=0.0046, Factor=0.9564, Ratio=-0.5993 -> final_alpha=1.0372
-[2025-04-02 19:21:52,026] I ThreadPoolExecutor-0_9 - extract_frame_pair:383 - [P:74, R:7] s1=69.1152, s2=69.4247, ratio=0.9955 vs thr=1.0007 -> Bit=1
-[2025-04-02 19:21:52,027] I ThreadPoolExecutor-0_9 - _extract_frame_pair_worker:425 - [P:94] Worker using saved ring: 7
-[2025-04-02 19:21:52,065] I ThreadPoolExecutor-0_14 - compute_adaptive_alpha_entropy:162 - [F:150, R:7] Ev=4.0226, Ee=-2.4408, Var=0.0046, Factor=0.9562, Ratio=-0.6068 -> final_alpha=1.0370
-[2025-04-02 19:21:52,072] I ThreadPoolExecutor-0_14 - extract_frame_pair:383 - [P:75, R:7] s1=69.4891, s2=69.2771, ratio=1.0031 vs thr=1.0007 -> Bit=0
-[2025-04-02 19:21:52,072] I ThreadPoolExecutor-0_14 - _extract_frame_pair_worker:425 - [P:95] Worker using saved ring: 7
-[2025-04-02 19:21:52,109] I ThreadPoolExecutor-0_4 - compute_adaptive_alpha_entropy:162 - [F:152, R:7] Ev=4.0212, Ee=-2.4401, Var=0.0046, Factor=0.9563, Ratio=-0.6068 -> final_alpha=1.0370
-[2025-04-02 19:21:52,113] I ThreadPoolExecutor-0_4 - extract_frame_pair:383 - [P:76, R:7] s1=69.4870, s2=69.2777, ratio=1.0030 vs thr=1.0007 -> Bit=0
-[2025-04-02 19:21:52,114] I ThreadPoolExecutor-0_4 - _extract_frame_pair_worker:425 - [P:96] Worker using saved ring: 7
-[2025-04-02 19:21:52,264] I ThreadPoolExecutor-0_3 - compute_adaptive_alpha_entropy:162 - [F:154, R:7] Ev=4.0183, Ee=-2.4398, Var=0.0046, Factor=0.9563, Ratio=-0.6072 -> final_alpha=1.0370
-[2025-04-02 19:21:52,277] I ThreadPoolExecutor-0_3 - extract_frame_pair:383 - [P:77, R:7] s1=69.4907, s2=69.2814, ratio=1.0030 vs thr=1.0007 -> Bit=0
-[2025-04-02 19:21:52,279] I ThreadPoolExecutor-0_3 - _extract_frame_pair_worker:425 - [P:97] Worker using saved ring: 7
-[2025-04-02 19:21:52,571] I ThreadPoolExecutor-0_18 - compute_adaptive_alpha_entropy:162 - [F:158, R:7] Ev=4.0171, Ee=-2.4395, Var=0.0045, Factor=0.9565, Ratio=-0.6073 -> final_alpha=1.0370
-[2025-04-02 19:21:52,576] I ThreadPoolExecutor-0_18 - extract_frame_pair:383 - [P:79, R:7] s1=69.4454, s2=69.2108, ratio=1.0034 vs thr=1.0007 -> Bit=0
-[2025-04-02 19:21:52,577] I ThreadPoolExecutor-0_18 - _extract_frame_pair_worker:425 - [P:98] Worker using saved ring: 7
-[2025-04-02 19:21:52,644] I ThreadPoolExecutor-0_12 - compute_adaptive_alpha_entropy:162 - [F:156, R:7] Ev=4.1086, Ee=-2.4768, Var=0.0046, Factor=0.9557, Ratio=-0.6028 -> final_alpha=1.0371
-[2025-04-02 19:21:52,648] I ThreadPoolExecutor-0_12 - extract_frame_pair:383 - [P:78, R:7] s1=69.0768, s2=69.4451, ratio=0.9947 vs thr=1.0007 -> Bit=1
-[2025-04-02 19:21:52,650] I ThreadPoolExecutor-0_12 - _extract_frame_pair_worker:425 - [P:99] Worker using saved ring: 7
-[2025-04-02 19:21:52,825] I ThreadPoolExecutor-0_10 - compute_adaptive_alpha_entropy:162 - [F:160, R:7] Ev=4.0126, Ee=-2.4385, Var=0.0046, Factor=0.9563, Ratio=-0.6077 -> final_alpha=1.0370
-[2025-04-02 19:21:52,832] I ThreadPoolExecutor-0_10 - extract_frame_pair:383 - [P:80, R:7] s1=69.4353, s2=69.2132, ratio=1.0032 vs thr=1.0007 -> Bit=0
-[2025-04-02 19:21:52,833] I ThreadPoolExecutor-0_10 - _extract_frame_pair_worker:425 - [P:100] Worker using saved ring: 7
-[2025-04-02 19:21:53,094] I ThreadPoolExecutor-0_11 - compute_adaptive_alpha_entropy:162 - [F:162, R:7] Ev=4.0114, Ee=-2.4385, Var=0.0046, Factor=0.9563, Ratio=-0.6079 -> final_alpha=1.0370
-[2025-04-02 19:21:53,105] I ThreadPoolExecutor-0_11 - extract_frame_pair:383 - [P:81, R:7] s1=69.4373, s2=69.2268, ratio=1.0030 vs thr=1.0007 -> Bit=0
-[2025-04-02 19:21:53,106] I ThreadPoolExecutor-0_11 - _extract_frame_pair_worker:425 - [P:101] Worker using saved ring: 7
-[2025-04-02 19:21:53,132] I ThreadPoolExecutor-0_13 - compute_adaptive_alpha_entropy:162 - [F:164, R:7] Ev=4.0102, Ee=-2.4382, Var=0.0046, Factor=0.9563, Ratio=-0.6080 -> final_alpha=1.0370
-[2025-04-02 19:21:53,144] I ThreadPoolExecutor-0_13 - extract_frame_pair:383 - [P:82, R:7] s1=69.4374, s2=69.2239, ratio=1.0031 vs thr=1.0007 -> Bit=0
-[2025-04-02 19:21:53,146] I ThreadPoolExecutor-0_13 - _extract_frame_pair_worker:425 - [P:102] Worker using saved ring: 7
-[2025-04-02 19:21:53,172] I ThreadPoolExecutor-0_1 - compute_adaptive_alpha_entropy:162 - [F:166, R:7] Ev=4.0973, Ee=-2.4693, Var=0.0046, Factor=0.9562, Ratio=-0.6027 -> final_alpha=1.0371
-[2025-04-02 19:21:53,181] I ThreadPoolExecutor-0_1 - extract_frame_pair:383 - [P:83, R:7] s1=69.2238, s2=69.4344, ratio=0.9970 vs thr=1.0007 -> Bit=1
-[2025-04-02 19:21:53,182] I ThreadPoolExecutor-0_1 - _extract_frame_pair_worker:425 - [P:103] Worker using saved ring: 0
-[2025-04-02 19:21:53,231] I ThreadPoolExecutor-0_2 - compute_adaptive_alpha_entropy:162 - [F:168, R:7] Ev=4.1083, Ee=-2.4764, Var=0.0046, Factor=0.9557, Ratio=-0.6028 -> final_alpha=1.0371
-[2025-04-02 19:21:53,245] I ThreadPoolExecutor-0_2 - extract_frame_pair:383 - [P:84, R:7] s1=69.0707, s2=69.4389, ratio=0.9947 vs thr=1.0007 -> Bit=1
-[2025-04-02 19:21:53,246] I ThreadPoolExecutor-0_2 - _extract_frame_pair_worker:425 - [P:104] Worker using saved ring: 0
-[2025-04-02 19:21:53,258] I ThreadPoolExecutor-0_0 - compute_adaptive_alpha_entropy:162 - [F:172, R:7] Ev=4.0109, Ee=-2.4375, Var=0.0046, Factor=0.9563, Ratio=-0.6077 -> final_alpha=1.0370
-[2025-04-02 19:21:53,270] I ThreadPoolExecutor-0_16 - compute_adaptive_alpha_entropy:162 - [F:174, R:7] Ev=4.1028, Ee=-2.4712, Var=0.0046, Factor=0.9562, Ratio=-0.6023 -> final_alpha=1.0371
-[2025-04-02 19:21:53,271] I ThreadPoolExecutor-0_0 - extract_frame_pair:383 - [P:86, R:7] s1=69.4302, s2=69.2207, ratio=1.0030 vs thr=1.0007 -> Bit=0
-[2025-04-02 19:21:53,280] I ThreadPoolExecutor-0_0 - _extract_frame_pair_worker:425 - [P:105] Worker using saved ring: 0
-[2025-04-02 19:21:53,282] I ThreadPoolExecutor-0_16 - extract_frame_pair:383 - [P:87, R:7] s1=69.2073, s2=69.4314, ratio=0.9968 vs thr=1.0007 -> Bit=1
-[2025-04-02 19:21:53,283] I ThreadPoolExecutor-0_16 - _extract_frame_pair_worker:425 - [P:106] Worker using saved ring: 0
-[2025-04-02 19:21:53,322] I ThreadPoolExecutor-0_8 - compute_adaptive_alpha_entropy:162 - [F:170, R:7] Ev=4.0990, Ee=-2.4693, Var=0.0046, Factor=0.9562, Ratio=-0.6024 -> final_alpha=1.0371
-[2025-04-02 19:21:53,330] I ThreadPoolExecutor-0_8 - extract_frame_pair:383 - [P:85, R:7] s1=69.2176, s2=69.4280, ratio=0.9970 vs thr=1.0007 -> Bit=1
-[2025-04-02 19:21:53,332] I ThreadPoolExecutor-0_8 - _extract_frame_pair_worker:425 - [P:107] Worker using saved ring: 0
-[2025-04-02 19:21:53,356] I ThreadPoolExecutor-0_6 - compute_adaptive_alpha_entropy:162 - [F:180, R:7] Ev=4.0807, Ee=-2.4724, Var=0.0046, Factor=0.9558, Ratio=-0.6059 -> final_alpha=1.0371
-[2025-04-02 19:21:53,363] I ThreadPoolExecutor-0_5 - compute_adaptive_alpha_entropy:162 - [F:178, R:7] Ev=4.1019, Ee=-2.4713, Var=0.0046, Factor=0.9562, Ratio=-0.6025 -> final_alpha=1.0371
-[2025-04-02 19:21:53,363] I ThreadPoolExecutor-0_6 - extract_frame_pair:383 - [P:90, R:7] s1=69.0630, s2=69.4570, ratio=0.9943 vs thr=1.0007 -> Bit=1
-[2025-04-02 19:21:53,365] I ThreadPoolExecutor-0_6 - _extract_frame_pair_worker:425 - [P:108] Worker using saved ring: 0
-[2025-04-02 19:21:53,368] I ThreadPoolExecutor-0_5 - extract_frame_pair:383 - [P:89, R:7] s1=69.2105, s2=69.4359, ratio=0.9968 vs thr=1.0007 -> Bit=1
-[2025-04-02 19:21:53,370] I ThreadPoolExecutor-0_17 - compute_adaptive_alpha_entropy:162 - [F:184, R:7] Ev=4.0646, Ee=-2.4628, Var=0.0046, Factor=0.9561, Ratio=-0.6059 -> final_alpha=1.0371
-[2025-04-02 19:21:53,370] I ThreadPoolExecutor-0_5 - _extract_frame_pair_worker:425 - [P:109] Worker using saved ring: 0
-[2025-04-02 19:21:53,380] I ThreadPoolExecutor-0_17 - extract_frame_pair:383 - [P:92, R:7] s1=69.2056, s2=69.4387, ratio=0.9966 vs thr=1.0007 -> Bit=1
-[2025-04-02 19:21:53,381] I ThreadPoolExecutor-0_17 - _extract_frame_pair_worker:425 - [P:110] Worker using saved ring: 0
-[2025-04-02 19:21:53,384] I ThreadPoolExecutor-0_7 - compute_adaptive_alpha_entropy:162 - [F:182, R:7] Ev=3.9807, Ee=-2.4302, Var=0.0045, Factor=0.9565, Ratio=-0.6105 -> final_alpha=1.0370
-[2025-04-02 19:21:53,396] I ThreadPoolExecutor-0_7 - extract_frame_pair:383 - [P:91, R:7] s1=69.4570, s2=69.2054, ratio=1.0036 vs thr=1.0007 -> Bit=0
-[2025-04-02 19:21:53,398] I ThreadPoolExecutor-0_7 - _extract_frame_pair_worker:425 - [P:111] Worker using saved ring: 0
-[2025-04-02 19:21:53,409] I ThreadPoolExecutor-0_19 - compute_adaptive_alpha_entropy:162 - [F:186, R:7] Ev=4.0649, Ee=-2.4627, Var=0.0046, Factor=0.9561, Ratio=-0.6058 -> final_alpha=1.0371
-[2025-04-02 19:21:53,414] I ThreadPoolExecutor-0_19 - extract_frame_pair:383 - [P:93, R:7] s1=69.2069, s2=69.4401, ratio=0.9966 vs thr=1.0007 -> Bit=1
-[2025-04-02 19:21:53,421] I ThreadPoolExecutor-0_19 - _extract_frame_pair_worker:425 - [P:112] Worker using saved ring: 0
-[2025-04-02 19:21:53,425] I ThreadPoolExecutor-0_15 - compute_adaptive_alpha_entropy:162 - [F:176, R:7] Ev=4.1043, Ee=-2.4715, Var=0.0046, Factor=0.9562, Ratio=-0.6022 -> final_alpha=1.0371
-[2025-04-02 19:21:53,430] I ThreadPoolExecutor-0_15 - extract_frame_pair:383 - [P:88, R:7] s1=69.2073, s2=69.4321, ratio=0.9968 vs thr=1.0007 -> Bit=1
-[2025-04-02 19:21:53,441] I ThreadPoolExecutor-0_15 - _extract_frame_pair_worker:425 - [P:113] Worker using saved ring: 0
-[2025-04-02 19:21:53,465] I ThreadPoolExecutor-0_9 - compute_adaptive_alpha_entropy:162 - [F:188, R:7] Ev=3.9722, Ee=-2.4277, Var=0.0046, Factor=0.9563, Ratio=-0.6112 -> final_alpha=1.0370
-[2025-04-02 19:21:53,468] I ThreadPoolExecutor-0_9 - extract_frame_pair:383 - [P:94, R:7] s1=69.4375, s2=69.2030, ratio=1.0034 vs thr=1.0007 -> Bit=0
-[2025-04-02 19:21:53,472] I ThreadPoolExecutor-0_9 - _extract_frame_pair_worker:425 - [P:114] Worker using saved ring: 0
-[2025-04-02 19:21:53,521] I ThreadPoolExecutor-0_14 - compute_adaptive_alpha_entropy:162 - [F:190, R:7] Ev=3.9730, Ee=-2.4279, Var=0.0046, Factor=0.9563, Ratio=-0.6111 -> final_alpha=1.0370
-[2025-04-02 19:21:53,524] I ThreadPoolExecutor-0_14 - extract_frame_pair:383 - [P:95, R:7] s1=69.4368, s2=69.2030, ratio=1.0034 vs thr=1.0007 -> Bit=0
-[2025-04-02 19:21:53,529] I ThreadPoolExecutor-0_14 - _extract_frame_pair_worker:425 - [P:115] Worker using saved ring: 0
-[2025-04-02 19:21:53,552] I ThreadPoolExecutor-0_3 - compute_adaptive_alpha_entropy:162 - [F:194, R:7] Ev=4.1067, Ee=-2.4718, Var=0.0046, Factor=0.9562, Ratio=-0.6019 -> final_alpha=1.0371
-[2025-04-02 19:21:53,556] I ThreadPoolExecutor-0_3 - extract_frame_pair:383 - [P:97, R:7] s1=69.2052, s2=69.4294, ratio=0.9968 vs thr=1.0007 -> Bit=1
-[2025-04-02 19:21:53,558] I ThreadPoolExecutor-0_3 - _extract_frame_pair_worker:425 - [P:116] Worker using saved ring: 0
-[2025-04-02 19:21:53,567] I ThreadPoolExecutor-0_4 - compute_adaptive_alpha_entropy:162 - [F:192, R:7] Ev=4.1107, Ee=-2.4768, Var=0.0046, Factor=0.9557, Ratio=-0.6025 -> final_alpha=1.0371
-[2025-04-02 19:21:53,570] I ThreadPoolExecutor-0_4 - extract_frame_pair:383 - [P:96, R:7] s1=69.0716, s2=69.4399, ratio=0.9947 vs thr=1.0007 -> Bit=1
-[2025-04-02 19:21:53,573] I ThreadPoolExecutor-0_4 - _extract_frame_pair_worker:425 - [P:117] Worker using saved ring: 0
-[2025-04-02 19:21:53,741] I ThreadPoolExecutor-0_18 - compute_adaptive_alpha_entropy:162 - [F:196, R:7] Ev=4.0121, Ee=-2.4376, Var=0.0046, Factor=0.9563, Ratio=-0.6076 -> final_alpha=1.0370
-[2025-04-02 19:21:53,746] I ThreadPoolExecutor-0_18 - extract_frame_pair:383 - [P:98, R:7] s1=69.4310, s2=69.2069, ratio=1.0032 vs thr=1.0007 -> Bit=0
-[2025-04-02 19:21:53,748] I ThreadPoolExecutor-0_18 - _extract_frame_pair_worker:425 - [P:118] Worker using saved ring: 0
-[2025-04-02 19:21:54,049] I ThreadPoolExecutor-0_12 - compute_adaptive_alpha_entropy:162 - [F:198, R:7] Ev=4.0116, Ee=-2.4375, Var=0.0046, Factor=0.9563, Ratio=-0.6076 -> final_alpha=1.0370
-[2025-04-02 19:21:54,060] I ThreadPoolExecutor-0_12 - extract_frame_pair:383 - [P:99, R:7] s1=69.4313, s2=69.2090, ratio=1.0032 vs thr=1.0007 -> Bit=0
-[2025-04-02 19:21:54,064] I ThreadPoolExecutor-0_12 - _extract_frame_pair_worker:425 - [P:119] Worker using saved ring: 0
-[2025-04-02 19:21:54,251] I ThreadPoolExecutor-0_10 - compute_adaptive_alpha_entropy:162 - [F:200, R:7] Ev=4.0097, Ee=-2.4374, Var=0.0046, Factor=0.9563, Ratio=-0.6079 -> final_alpha=1.0370
-[2025-04-02 19:21:54,257] I ThreadPoolExecutor-0_10 - extract_frame_pair:383 - [P:100, R:7] s1=69.4351, s2=69.2249, ratio=1.0030 vs thr=1.0007 -> Bit=0
-[2025-04-02 19:21:54,258] I ThreadPoolExecutor-0_10 - _extract_frame_pair_worker:425 - [P:120] Worker using saved ring: 0
-[2025-04-02 19:21:54,275] I ThreadPoolExecutor-0_11 - compute_adaptive_alpha_entropy:162 - [F:202, R:7] Ev=4.0065, Ee=-2.4370, Var=0.0046, Factor=0.9563, Ratio=-0.6083 -> final_alpha=1.0370
-[2025-04-02 19:21:54,280] I ThreadPoolExecutor-0_11 - extract_frame_pair:383 - [P:101, R:7] s1=69.4376, s2=69.2272, ratio=1.0030 vs thr=1.0007 -> Bit=0
-[2025-04-02 19:21:54,281] I ThreadPoolExecutor-0_11 - _extract_frame_pair_worker:425 - [P:121] Worker using saved ring: 0
-[2025-04-02 19:21:54,309] I ThreadPoolExecutor-0_13 - compute_adaptive_alpha_entropy:162 - [F:204, R:7] Ev=4.1317, Ee=-2.4815, Var=0.0046, Factor=0.9559, Ratio=-0.6006 -> final_alpha=1.0372
-[2025-04-02 19:21:54,311] I ThreadPoolExecutor-0_13 - extract_frame_pair:383 - [P:102, R:7] s1=69.0896, s2=69.9294, ratio=0.9880 vs thr=1.0007 -> Bit=1
-[2025-04-02 19:21:54,311] I ThreadPoolExecutor-0_13 - _extract_frame_pair_worker:425 - [P:122] Worker using saved ring: 0
-[2025-04-02 19:21:54,380] I ThreadPoolExecutor-0_1 - compute_adaptive_alpha_entropy:162 - [F:206, R:0] Ev=1.7488, Ee=-1.7289, Var=0.0001, Factor=0.9995, Ratio=-0.9886 -> final_alpha=1.0308
-[2025-04-02 19:21:54,383] I ThreadPoolExecutor-0_1 - extract_frame_pair:383 - [P:103, R:0] s1=61.3889, s2=61.7154, ratio=0.9947 vs thr=1.0005 -> Bit=1
-[2025-04-02 19:21:54,384] I ThreadPoolExecutor-0_1 - _extract_frame_pair_worker:425 - [P:123] Worker using saved ring: 0
-[2025-04-02 19:21:54,482] I ThreadPoolExecutor-0_0 - compute_adaptive_alpha_entropy:162 - [F:210, R:0] Ev=1.3962, Ee=-1.5128, Var=0.0001, Factor=0.9994, Ratio=-1.0835 -> final_alpha=1.0290
-[2025-04-02 19:21:54,487] I ThreadPoolExecutor-0_0 - extract_frame_pair:383 - [P:105, R:0] s1=61.7125, s2=61.3919, ratio=1.0052 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:54,489] I ThreadPoolExecutor-0_0 - _extract_frame_pair_worker:425 - [P:124] Worker using saved ring: 0
-[2025-04-02 19:21:54,493] I ThreadPoolExecutor-0_2 - compute_adaptive_alpha_entropy:162 - [F:208, R:0] Ev=1.3983, Ee=-1.5212, Var=0.0001, Factor=0.9994, Ratio=-1.0879 -> final_alpha=1.0289
-[2025-04-02 19:21:54,501] I ThreadPoolExecutor-0_2 - extract_frame_pair:383 - [P:104, R:0] s1=61.7154, s2=61.3888, ratio=1.0053 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:54,502] I ThreadPoolExecutor-0_2 - _extract_frame_pair_worker:425 - [P:125] Worker using saved ring: 0
-[2025-04-02 19:21:54,690] I ThreadPoolExecutor-0_6 - compute_adaptive_alpha_entropy:162 - [F:216, R:0] Ev=1.4317, Ee=-1.5810, Var=0.0000, Factor=0.9996, Ratio=-1.1043 -> final_alpha=1.0286
-[2025-04-02 19:21:54,704] I ThreadPoolExecutor-0_6 - extract_frame_pair:383 - [P:108, R:0] s1=61.3358, s2=61.6705, ratio=0.9946 vs thr=1.0004 -> Bit=1
-[2025-04-02 19:21:54,705] I ThreadPoolExecutor-0_6 - _extract_frame_pair_worker:425 - [P:126] Worker using saved ring: 0
-[2025-04-02 19:21:54,718] I ThreadPoolExecutor-0_16 - compute_adaptive_alpha_entropy:162 - [F:212, R:0] Ev=1.8052, Ee=-1.7489, Var=0.0001, Factor=0.9995, Ratio=-0.9688 -> final_alpha=1.0311
-[2025-04-02 19:21:54,726] I ThreadPoolExecutor-0_16 - extract_frame_pair:383 - [P:106, R:0] s1=61.3919, s2=61.7119, ratio=0.9948 vs thr=1.0005 -> Bit=1
-[2025-04-02 19:21:54,728] I ThreadPoolExecutor-0_16 - _extract_frame_pair_worker:425 - [P:127] Worker using saved ring: 0
-[2025-04-02 19:21:54,807] I ThreadPoolExecutor-0_5 - compute_adaptive_alpha_entropy:162 - [F:218, R:0] Ev=1.5258, Ee=-1.6322, Var=0.0001, Factor=0.9995, Ratio=-1.0697 -> final_alpha=1.0293
-[2025-04-02 19:21:54,819] I ThreadPoolExecutor-0_8 - compute_adaptive_alpha_entropy:162 - [F:214, R:0] Ev=1.3963, Ee=-1.5128, Var=0.0001, Factor=0.9994, Ratio=-1.0834 -> final_alpha=1.0290
-[2025-04-02 19:21:54,825] I ThreadPoolExecutor-0_5 - extract_frame_pair:383 - [P:109, R:0] s1=61.6705, s2=61.3502, ratio=1.0052 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:54,828] I ThreadPoolExecutor-0_5 - _extract_frame_pair_worker:425 - [P:128] Worker using saved ring: 0
-[2025-04-02 19:21:54,835] I ThreadPoolExecutor-0_8 - extract_frame_pair:383 - [P:107, R:0] s1=61.7119, s2=61.3919, ratio=1.0052 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:54,837] I ThreadPoolExecutor-0_8 - _extract_frame_pair_worker:425 - [P:129] Worker using saved ring: 0
-[2025-04-02 19:21:54,879] I ThreadPoolExecutor-0_15 - compute_adaptive_alpha_entropy:162 - [F:226, R:0] Ev=1.4966, Ee=-1.6151, Var=0.0000, Factor=0.9996, Ratio=-1.0792 -> final_alpha=1.0291
-[2025-04-02 19:21:54,891] I ThreadPoolExecutor-0_15 - extract_frame_pair:383 - [P:113, R:0] s1=61.3502, s2=61.6705, ratio=0.9948 vs thr=1.0004 -> Bit=1
-[2025-04-02 19:21:54,893] I ThreadPoolExecutor-0_15 - _extract_frame_pair_worker:425 - [P:130] Worker using saved ring: 0
-[2025-04-02 19:21:54,895] I ThreadPoolExecutor-0_7 - compute_adaptive_alpha_entropy:162 - [F:222, R:0] Ev=1.5258, Ee=-1.6322, Var=0.0001, Factor=0.9995, Ratio=-1.0697 -> final_alpha=1.0293
-[2025-04-02 19:21:54,909] I ThreadPoolExecutor-0_7 - extract_frame_pair:383 - [P:111, R:0] s1=61.6705, s2=61.3502, ratio=1.0052 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:54,910] I ThreadPoolExecutor-0_7 - _extract_frame_pair_worker:425 - [P:131] Worker using saved ring: 0
-[2025-04-02 19:21:54,928] I ThreadPoolExecutor-0_19 - compute_adaptive_alpha_entropy:162 - [F:224, R:0] Ev=1.5258, Ee=-1.6322, Var=0.0001, Factor=0.9995, Ratio=-1.0697 -> final_alpha=1.0293
-[2025-04-02 19:21:54,938] I ThreadPoolExecutor-0_19 - extract_frame_pair:383 - [P:112, R:0] s1=61.6705, s2=61.3502, ratio=1.0052 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:54,938] I ThreadPoolExecutor-0_19 - _extract_frame_pair_worker:425 - [P:132] Worker using saved ring: 0
-[2025-04-02 19:21:54,955] I ThreadPoolExecutor-0_4 - compute_adaptive_alpha_entropy:162 - [F:234, R:0] Ev=1.7742, Ee=-1.7497, Var=0.0001, Factor=0.9995, Ratio=-0.9862 -> final_alpha=1.0308
-[2025-04-02 19:21:54,964] I ThreadPoolExecutor-0_4 - extract_frame_pair:383 - [P:117, R:0] s1=61.3764, s2=61.6966, ratio=0.9948 vs thr=1.0005 -> Bit=1
-[2025-04-02 19:21:54,965] I ThreadPoolExecutor-0_4 - _extract_frame_pair_worker:425 - [P:133] Worker using saved ring: 0
-[2025-04-02 19:21:54,980] I ThreadPoolExecutor-0_17 - compute_adaptive_alpha_entropy:162 - [F:220, R:0] Ev=1.4966, Ee=-1.6151, Var=0.0000, Factor=0.9996, Ratio=-1.0792 -> final_alpha=1.0291
-[2025-04-02 19:21:54,986] I ThreadPoolExecutor-0_3 - compute_adaptive_alpha_entropy:162 - [F:232, R:0] Ev=1.3306, Ee=-1.4942, Var=0.0001, Factor=0.9994, Ratio=-1.1229 -> final_alpha=1.0283
-[2025-04-02 19:21:54,987] I ThreadPoolExecutor-0_17 - extract_frame_pair:383 - [P:110, R:0] s1=61.3502, s2=61.6705, ratio=0.9948 vs thr=1.0004 -> Bit=1
-[2025-04-02 19:21:54,988] I ThreadPoolExecutor-0_17 - _extract_frame_pair_worker:425 - [P:134] Worker using saved ring: 0
-[2025-04-02 19:21:54,993] I ThreadPoolExecutor-0_3 - extract_frame_pair:383 - [P:116, R:0] s1=61.6966, s2=61.3764, ratio=1.0052 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:54,996] I ThreadPoolExecutor-0_3 - _extract_frame_pair_worker:425 - [P:135] Worker using saved ring: 0
-[2025-04-02 19:21:54,998] I ThreadPoolExecutor-0_9 - compute_adaptive_alpha_entropy:162 - [F:228, R:0] Ev=1.3599, Ee=-1.5033, Var=0.0001, Factor=0.9994, Ratio=-1.1055 -> final_alpha=1.0286
-[2025-04-02 19:21:54,999] I ThreadPoolExecutor-0_14 - compute_adaptive_alpha_entropy:162 - [F:230, R:0] Ev=1.3306, Ee=-1.4942, Var=0.0001, Factor=0.9994, Ratio=-1.1229 -> final_alpha=1.0283
-[2025-04-02 19:21:55,004] I ThreadPoolExecutor-0_9 - extract_frame_pair:383 - [P:114, R:0] s1=61.7689, s2=61.3764, ratio=1.0064 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:55,007] I ThreadPoolExecutor-0_9 - _extract_frame_pair_worker:425 - [P:136] Worker using saved ring: 0
-[2025-04-02 19:21:55,009] I ThreadPoolExecutor-0_14 - extract_frame_pair:383 - [P:115, R:0] s1=61.6966, s2=61.3764, ratio=1.0052 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:55,015] I ThreadPoolExecutor-0_14 - _extract_frame_pair_worker:425 - [P:137] Worker using saved ring: 0
-[2025-04-02 19:21:55,131] I ThreadPoolExecutor-0_18 - compute_adaptive_alpha_entropy:162 - [F:236, R:0] Ev=1.7742, Ee=-1.7497, Var=0.0001, Factor=0.9995, Ratio=-0.9862 -> final_alpha=1.0308
-[2025-04-02 19:21:55,135] I ThreadPoolExecutor-0_18 - extract_frame_pair:383 - [P:118, R:0] s1=61.3764, s2=61.6966, ratio=0.9948 vs thr=1.0005 -> Bit=1
-[2025-04-02 19:21:55,136] I ThreadPoolExecutor-0_18 - _extract_frame_pair_worker:425 - [P:138] Worker using saved ring: 0
-[2025-04-02 19:21:55,303] I ThreadPoolExecutor-0_12 - compute_adaptive_alpha_entropy:162 - [F:238, R:0] Ev=1.7742, Ee=-1.7497, Var=0.0001, Factor=0.9995, Ratio=-0.9862 -> final_alpha=1.0308
-[2025-04-02 19:21:55,306] I ThreadPoolExecutor-0_12 - extract_frame_pair:383 - [P:119, R:0] s1=61.3764, s2=61.6966, ratio=0.9948 vs thr=1.0005 -> Bit=1
-[2025-04-02 19:21:55,307] I ThreadPoolExecutor-0_12 - _extract_frame_pair_worker:425 - [P:139] Worker using saved ring: 0
-[2025-04-02 19:21:55,650] I ThreadPoolExecutor-0_11 - compute_adaptive_alpha_entropy:162 - [F:242, R:0] Ev=1.4955, Ee=-1.6146, Var=0.0000, Factor=0.9996, Ratio=-1.0796 -> final_alpha=1.0291
-[2025-04-02 19:21:55,660] I ThreadPoolExecutor-0_11 - extract_frame_pair:383 - [P:121, R:0] s1=61.3503, s2=61.6700, ratio=0.9948 vs thr=1.0004 -> Bit=1
-[2025-04-02 19:21:55,660] I ThreadPoolExecutor-0_11 - _extract_frame_pair_worker:425 - [P:140] Worker using saved ring: 0
-[2025-04-02 19:21:55,701] I ThreadPoolExecutor-0_10 - compute_adaptive_alpha_entropy:162 - [F:240, R:0] Ev=1.4317, Ee=-1.5810, Var=0.0000, Factor=0.9996, Ratio=-1.1043 -> final_alpha=1.0286
-[2025-04-02 19:21:55,714] I ThreadPoolExecutor-0_10 - extract_frame_pair:383 - [P:120, R:0] s1=61.3358, s2=61.6706, ratio=0.9946 vs thr=1.0004 -> Bit=1
-[2025-04-02 19:21:55,718] I ThreadPoolExecutor-0_10 - _extract_frame_pair_worker:425 - [P:141] Worker using saved ring: 0
-[2025-04-02 19:21:55,790] I ThreadPoolExecutor-0_1 - compute_adaptive_alpha_entropy:162 - [F:246, R:0] Ev=1.5308, Ee=-1.6256, Var=0.0001, Factor=0.9995, Ratio=-1.0619 -> final_alpha=1.0294
-[2025-04-02 19:21:55,793] I ThreadPoolExecutor-0_13 - compute_adaptive_alpha_entropy:162 - [F:244, R:0] Ev=1.4945, Ee=-1.6144, Var=0.0000, Factor=0.9996, Ratio=-1.0802 -> final_alpha=1.0291
-[2025-04-02 19:21:55,795] I ThreadPoolExecutor-0_1 - extract_frame_pair:383 - [P:123, R:0] s1=61.6721, s2=61.3004, ratio=1.0061 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:55,796] I ThreadPoolExecutor-0_1 - _extract_frame_pair_worker:425 - [P:142] Worker using saved ring: 0
-[2025-04-02 19:21:55,798] I ThreadPoolExecutor-0_13 - extract_frame_pair:383 - [P:122, R:0] s1=61.3498, s2=61.6721, ratio=0.9948 vs thr=1.0004 -> Bit=1
-[2025-04-02 19:21:55,800] I ThreadPoolExecutor-0_13 - _extract_frame_pair_worker:425 - [P:143] Worker using saved ring: 0
-[2025-04-02 19:21:55,821] I ThreadPoolExecutor-0_2 - compute_adaptive_alpha_entropy:162 - [F:250, R:0] Ev=1.5651, Ee=-1.6261, Var=0.0001, Factor=0.9994, Ratio=-1.0390 -> final_alpha=1.0298
-[2025-04-02 19:21:55,826] I ThreadPoolExecutor-0_2 - extract_frame_pair:383 - [P:125, R:0] s1=61.3004, s2=61.6721, ratio=0.9940 vs thr=1.0004 -> Bit=1
-[2025-04-02 19:21:55,827] I ThreadPoolExecutor-0_2 - _extract_frame_pair_worker:425 - [P:144] Worker using saved ring: 0
-[2025-04-02 19:21:55,837] I ThreadPoolExecutor-0_0 - compute_adaptive_alpha_entropy:162 - [F:248, R:0] Ev=1.5308, Ee=-1.6256, Var=0.0001, Factor=0.9995, Ratio=-1.0619 -> final_alpha=1.0294
-[2025-04-02 19:21:55,842] I ThreadPoolExecutor-0_0 - extract_frame_pair:383 - [P:124, R:0] s1=61.6721, s2=61.3004, ratio=1.0061 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:55,843] I ThreadPoolExecutor-0_0 - _extract_frame_pair_worker:425 - [P:145] Worker using saved ring: 0
-[2025-04-02 19:21:55,888] I ThreadPoolExecutor-0_6 - compute_adaptive_alpha_entropy:162 - [F:252, R:0] Ev=1.3145, Ee=-1.4902, Var=0.0001, Factor=0.9994, Ratio=-1.1337 -> final_alpha=1.0281
-[2025-04-02 19:21:55,892] I ThreadPoolExecutor-0_6 - extract_frame_pair:383 - [P:126, R:0] s1=61.7346, s2=61.3448, ratio=1.0064 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:55,893] I ThreadPoolExecutor-0_6 - _extract_frame_pair_worker:425 - [P:146] Worker using saved ring: 0
-[2025-04-02 19:21:55,915] I ThreadPoolExecutor-0_16 - compute_adaptive_alpha_entropy:162 - [F:254, R:0] Ev=1.7958, Ee=-1.7673, Var=0.0001, Factor=0.9993, Ratio=-0.9841 -> final_alpha=1.0308
-[2025-04-02 19:21:55,918] I ThreadPoolExecutor-0_16 - extract_frame_pair:383 - [P:127, R:0] s1=61.3448, s2=61.7162, ratio=0.9940 vs thr=1.0005 -> Bit=1
-[2025-04-02 19:21:55,919] I ThreadPoolExecutor-0_16 - _extract_frame_pair_worker:425 - [P:147] Worker using saved ring: 0
-[2025-04-02 19:21:56,004] I ThreadPoolExecutor-0_8 - compute_adaptive_alpha_entropy:162 - [F:258, R:0] Ev=1.2884, Ee=-1.4862, Var=0.0001, Factor=0.9994, Ratio=-1.1535 -> final_alpha=1.0278
-[2025-04-02 19:21:56,008] I ThreadPoolExecutor-0_8 - extract_frame_pair:383 - [P:129, R:0] s1=61.7162, s2=61.3448, ratio=1.0061 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:56,008] I ThreadPoolExecutor-0_8 - _extract_frame_pair_worker:425 - [P:148] Worker using saved ring: 0
-[2025-04-02 19:21:56,040] I ThreadPoolExecutor-0_15 - compute_adaptive_alpha_entropy:162 - [F:260, R:0] Ev=1.7958, Ee=-1.7673, Var=0.0001, Factor=0.9993, Ratio=-0.9841 -> final_alpha=1.0308
-[2025-04-02 19:21:56,044] I ThreadPoolExecutor-0_5 - compute_adaptive_alpha_entropy:162 - [F:256, R:0] Ev=1.2884, Ee=-1.4862, Var=0.0001, Factor=0.9994, Ratio=-1.1535 -> final_alpha=1.0278
-[2025-04-02 19:21:56,048] I ThreadPoolExecutor-0_15 - extract_frame_pair:383 - [P:130, R:0] s1=61.3448, s2=61.7162, ratio=0.9940 vs thr=1.0005 -> Bit=1
-[2025-04-02 19:21:56,048] I ThreadPoolExecutor-0_5 - extract_frame_pair:383 - [P:128, R:0] s1=61.7162, s2=61.3448, ratio=1.0061 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:56,049] I ThreadPoolExecutor-0_15 - _extract_frame_pair_worker:425 - [P:149] Worker using saved ring: 0
-[2025-04-02 19:21:56,050] I ThreadPoolExecutor-0_5 - _extract_frame_pair_worker:425 - [P:150] Worker using saved ring: 0
-[2025-04-02 19:21:56,119] I ThreadPoolExecutor-0_7 - compute_adaptive_alpha_entropy:162 - [F:262, R:0] Ev=1.7958, Ee=-1.7673, Var=0.0001, Factor=0.9993, Ratio=-0.9841 -> final_alpha=1.0308
-[2025-04-02 19:21:56,127] I ThreadPoolExecutor-0_7 - extract_frame_pair:383 - [P:131, R:0] s1=61.3448, s2=61.7162, ratio=0.9940 vs thr=1.0005 -> Bit=1
-[2025-04-02 19:21:56,128] I ThreadPoolExecutor-0_7 - _extract_frame_pair_worker:425 - [P:151] Worker using saved ring: 0
-[2025-04-02 19:21:56,196] I ThreadPoolExecutor-0_19 - compute_adaptive_alpha_entropy:162 - [F:264, R:0] Ev=1.3145, Ee=-1.4902, Var=0.0001, Factor=0.9994, Ratio=-1.1337 -> final_alpha=1.0281
-[2025-04-02 19:21:56,202] I ThreadPoolExecutor-0_19 - extract_frame_pair:383 - [P:132, R:0] s1=61.7346, s2=61.3448, ratio=1.0064 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:56,203] I ThreadPoolExecutor-0_19 - _extract_frame_pair_worker:425 - [P:152] Worker using saved ring: 0
-[2025-04-02 19:21:56,306] I ThreadPoolExecutor-0_9 - compute_adaptive_alpha_entropy:162 - [F:272, R:0] Ev=1.7614, Ee=-1.7643, Var=0.0001, Factor=0.9993, Ratio=-1.0017 -> final_alpha=1.0305
-[2025-04-02 19:21:56,319] I ThreadPoolExecutor-0_9 - extract_frame_pair:383 - [P:136, R:0] s1=61.3368, s2=61.7252, ratio=0.9937 vs thr=1.0005 -> Bit=1
-[2025-04-02 19:21:56,320] I ThreadPoolExecutor-0_9 - _extract_frame_pair_worker:425 - [P:153] Worker using saved ring: 0
-[2025-04-02 19:21:56,373] I ThreadPoolExecutor-0_4 - compute_adaptive_alpha_entropy:162 - [F:266, R:0] Ev=1.7958, Ee=-1.7673, Var=0.0001, Factor=0.9993, Ratio=-0.9841 -> final_alpha=1.0308
-[2025-04-02 19:21:56,379] I ThreadPoolExecutor-0_4 - extract_frame_pair:383 - [P:133, R:0] s1=61.3448, s2=61.7162, ratio=0.9940 vs thr=1.0005 -> Bit=1
-[2025-04-02 19:21:56,381] I ThreadPoolExecutor-0_4 - _extract_frame_pair_worker:425 - [P:154] Worker using saved ring: 0
-[2025-04-02 19:21:56,429] I ThreadPoolExecutor-0_3 - compute_adaptive_alpha_entropy:162 - [F:270, R:0] Ev=1.3063, Ee=-1.4894, Var=0.0001, Factor=0.9994, Ratio=-1.1401 -> final_alpha=1.0280
-[2025-04-02 19:21:56,437] I ThreadPoolExecutor-0_3 - extract_frame_pair:383 - [P:135, R:0] s1=61.7252, s2=61.3368, ratio=1.0063 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:56,437] I ThreadPoolExecutor-0_3 - _extract_frame_pair_worker:425 - [P:155] Worker using saved ring: 0
-[2025-04-02 19:21:56,455] I ThreadPoolExecutor-0_14 - compute_adaptive_alpha_entropy:162 - [F:274, R:0] Ev=1.7614, Ee=-1.7643, Var=0.0001, Factor=0.9993, Ratio=-1.0017 -> final_alpha=1.0305
-[2025-04-02 19:21:56,463] I ThreadPoolExecutor-0_14 - extract_frame_pair:383 - [P:137, R:0] s1=61.3368, s2=61.7252, ratio=0.9937 vs thr=1.0005 -> Bit=1
-[2025-04-02 19:21:56,463] I ThreadPoolExecutor-0_14 - _extract_frame_pair_worker:425 - [P:156] Worker using saved ring: 0
-[2025-04-02 19:21:56,473] I ThreadPoolExecutor-0_17 - compute_adaptive_alpha_entropy:162 - [F:268, R:0] Ev=1.2884, Ee=-1.4862, Var=0.0001, Factor=0.9994, Ratio=-1.1535 -> final_alpha=1.0278
-[2025-04-02 19:21:56,480] I ThreadPoolExecutor-0_17 - extract_frame_pair:383 - [P:134, R:0] s1=61.7162, s2=61.3448, ratio=1.0061 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:56,481] I ThreadPoolExecutor-0_17 - _extract_frame_pair_worker:425 - [P:157] Worker using saved ring: 0
-[2025-04-02 19:21:56,545] I ThreadPoolExecutor-0_18 - compute_adaptive_alpha_entropy:162 - [F:276, R:0] Ev=1.2920, Ee=-1.4890, Var=0.0001, Factor=0.9995, Ratio=-1.1524 -> final_alpha=1.0278
-[2025-04-02 19:21:56,549] I ThreadPoolExecutor-0_18 - extract_frame_pair:383 - [P:138, R:0] s1=61.7835, s2=61.3607, ratio=1.0069 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:56,549] I ThreadPoolExecutor-0_18 - _extract_frame_pair_worker:425 - [P:158] Worker using saved ring: 0
-[2025-04-02 19:21:56,607] I ThreadPoolExecutor-0_12 - compute_adaptive_alpha_entropy:162 - [F:278, R:0] Ev=1.7498, Ee=-1.7420, Var=0.0001, Factor=0.9994, Ratio=-0.9955 -> final_alpha=1.0306
-[2025-04-02 19:21:56,610] I ThreadPoolExecutor-0_12 - extract_frame_pair:383 - [P:139, R:0] s1=61.3607, s2=61.7395, ratio=0.9939 vs thr=1.0005 -> Bit=1
-[2025-04-02 19:21:56,610] I ThreadPoolExecutor-0_12 - _extract_frame_pair_worker:425 - [P:159] Worker using saved ring: 0
-[2025-04-02 19:21:56,966] I ThreadPoolExecutor-0_10 - compute_adaptive_alpha_entropy:162 - [F:282, R:0] Ev=1.3121, Ee=-1.5000, Var=0.0001, Factor=0.9995, Ratio=-1.1432 -> final_alpha=1.0280
-[2025-04-02 19:21:56,975] I ThreadPoolExecutor-0_10 - extract_frame_pair:383 - [P:141, R:0] s1=61.7395, s2=61.3603, ratio=1.0062 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:56,977] I ThreadPoolExecutor-0_10 - _extract_frame_pair_worker:425 - [P:160] Worker using saved ring: 0
-[2025-04-02 19:21:57,062] I ThreadPoolExecutor-0_11 - compute_adaptive_alpha_entropy:162 - [F:280, R:0] Ev=1.7499, Ee=-1.7419, Var=0.0001, Factor=0.9994, Ratio=-0.9955 -> final_alpha=1.0306
-[2025-04-02 19:21:57,077] I ThreadPoolExecutor-0_11 - extract_frame_pair:383 - [P:140, R:0] s1=61.3603, s2=61.7395, ratio=0.9939 vs thr=1.0005 -> Bit=1
-[2025-04-02 19:21:57,079] I ThreadPoolExecutor-0_11 - _extract_frame_pair_worker:425 - [P:161] Worker using saved ring: 0
-[2025-04-02 19:21:57,201] I ThreadPoolExecutor-0_13 - compute_adaptive_alpha_entropy:162 - [F:286, R:0] Ev=1.8168, Ee=-1.7525, Var=0.0001, Factor=0.9994, Ratio=-0.9646 -> final_alpha=1.0312
-[2025-04-02 19:21:57,204] I ThreadPoolExecutor-0_1 - compute_adaptive_alpha_entropy:162 - [F:284, R:0] Ev=1.7718, Ee=-1.7481, Var=0.0001, Factor=0.9994, Ratio=-0.9866 -> final_alpha=1.0308
-[2025-04-02 19:21:57,207] I ThreadPoolExecutor-0_13 - extract_frame_pair:383 - [P:143, R:0] s1=61.3727, s2=61.7347, ratio=0.9941 vs thr=1.0005 -> Bit=1
-[2025-04-02 19:21:57,208] I ThreadPoolExecutor-0_13 - _extract_frame_pair_worker:425 - [P:162] Worker using saved ring: 0
-[2025-04-02 19:21:57,217] I ThreadPoolExecutor-0_1 - extract_frame_pair:383 - [P:142, R:0] s1=61.3510, s2=61.7282, ratio=0.9939 vs thr=1.0005 -> Bit=1
-[2025-04-02 19:21:57,218] I ThreadPoolExecutor-0_1 - _extract_frame_pair_worker:425 - [P:163] Worker using saved ring: 0
-[2025-04-02 19:21:57,227] I ThreadPoolExecutor-0_0 - compute_adaptive_alpha_entropy:162 - [F:290, R:0] Ev=1.7767, Ee=-1.7499, Var=0.0001, Factor=0.9995, Ratio=-0.9849 -> final_alpha=1.0308
-[2025-04-02 19:21:57,231] I ThreadPoolExecutor-0_0 - extract_frame_pair:383 - [P:145, R:0] s1=61.3763, s2=61.6965, ratio=0.9948 vs thr=1.0005 -> Bit=1
-[2025-04-02 19:21:57,232] I ThreadPoolExecutor-0_0 - _extract_frame_pair_worker:425 - [P:164] Worker using saved ring: 0
-[2025-04-02 19:21:57,237] I ThreadPoolExecutor-0_16 - compute_adaptive_alpha_entropy:162 - [F:294, R:0] Ev=1.3705, Ee=-1.5171, Var=0.0001, Factor=0.9994, Ratio=-1.1070 -> final_alpha=1.0286
-[2025-04-02 19:21:57,242] I ThreadPoolExecutor-0_16 - extract_frame_pair:383 - [P:147, R:0] s1=61.6965, s2=61.3763, ratio=1.0052 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:57,242] I ThreadPoolExecutor-0_16 - _extract_frame_pair_worker:425 - [P:165] Worker using saved ring: 0
-[2025-04-02 19:21:57,246] I ThreadPoolExecutor-0_2 - compute_adaptive_alpha_entropy:162 - [F:288, R:0] Ev=1.3508, Ee=-1.5014, Var=0.0001, Factor=0.9994, Ratio=-1.1115 -> final_alpha=1.0285
-[2025-04-02 19:21:57,251] I ThreadPoolExecutor-0_2 - extract_frame_pair:383 - [P:144, R:0] s1=61.7649, s2=61.3763, ratio=1.0063 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:57,251] I ThreadPoolExecutor-0_2 - _extract_frame_pair_worker:425 - [P:166] Worker using saved ring: 0
-[2025-04-02 19:21:57,270] I ThreadPoolExecutor-0_6 - compute_adaptive_alpha_entropy:162 - [F:292, R:0] Ev=1.7767, Ee=-1.7499, Var=0.0001, Factor=0.9995, Ratio=-0.9849 -> final_alpha=1.0308
-[2025-04-02 19:21:57,276] I ThreadPoolExecutor-0_6 - extract_frame_pair:383 - [P:146, R:0] s1=61.3763, s2=61.6965, ratio=0.9948 vs thr=1.0005 -> Bit=1
-[2025-04-02 19:21:57,277] I ThreadPoolExecutor-0_6 - _extract_frame_pair_worker:425 - [P:167] Worker using saved ring: 0
-[2025-04-02 19:21:57,291] I ThreadPoolExecutor-0_8 - compute_adaptive_alpha_entropy:162 - [F:296, R:0] Ev=1.3705, Ee=-1.5171, Var=0.0001, Factor=0.9994, Ratio=-1.1070 -> final_alpha=1.0286
-[2025-04-02 19:21:57,297] I ThreadPoolExecutor-0_8 - extract_frame_pair:383 - [P:148, R:0] s1=61.6965, s2=61.3763, ratio=1.0052 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:57,298] I ThreadPoolExecutor-0_8 - _extract_frame_pair_worker:425 - [P:168] Worker using saved ring: 0
-[2025-04-02 19:21:57,341] I ThreadPoolExecutor-0_5 - compute_adaptive_alpha_entropy:162 - [F:300, R:0] Ev=1.3134, Ee=-1.4905, Var=0.0001, Factor=0.9995, Ratio=-1.1349 -> final_alpha=1.0281
-[2025-04-02 19:21:57,343] I ThreadPoolExecutor-0_5 - extract_frame_pair:383 - [P:150, R:0] s1=61.7728, s2=61.3748, ratio=1.0065 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:57,344] I ThreadPoolExecutor-0_5 - _extract_frame_pair_worker:425 - [P:169] Worker using saved ring: 0
-[2025-04-02 19:21:57,375] I ThreadPoolExecutor-0_15 - compute_adaptive_alpha_entropy:162 - [F:298, R:0] Ev=1.3705, Ee=-1.5171, Var=0.0001, Factor=0.9994, Ratio=-1.1070 -> final_alpha=1.0286
-[2025-04-02 19:21:57,377] I ThreadPoolExecutor-0_15 - extract_frame_pair:383 - [P:149, R:0] s1=61.6965, s2=61.3763, ratio=1.0052 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:57,378] I ThreadPoolExecutor-0_15 - _extract_frame_pair_worker:425 - [P:170] Worker using saved ring: 0
-[2025-04-02 19:21:57,477] I ThreadPoolExecutor-0_7 - compute_adaptive_alpha_entropy:162 - [F:302, R:0] Ev=1.7608, Ee=-1.7450, Var=0.0001, Factor=0.9995, Ratio=-0.9910 -> final_alpha=1.0307
-[2025-04-02 19:21:57,483] I ThreadPoolExecutor-0_7 - extract_frame_pair:383 - [P:151, R:0] s1=61.3748, s2=61.6950, ratio=0.9948 vs thr=1.0005 -> Bit=1
-[2025-04-02 19:21:57,483] I ThreadPoolExecutor-0_7 - _extract_frame_pair_worker:425 - [P:171] Worker using saved ring: 0
-[2025-04-02 19:21:57,596] I ThreadPoolExecutor-0_19 - compute_adaptive_alpha_entropy:162 - [F:304, R:0] Ev=1.7972, Ee=-1.7547, Var=0.0001, Factor=0.9995, Ratio=-0.9763 -> final_alpha=1.0310
-[2025-04-02 19:21:57,604] I ThreadPoolExecutor-0_19 - extract_frame_pair:383 - [P:152, R:0] s1=61.3608, s2=61.7040, ratio=0.9944 vs thr=1.0005 -> Bit=1
-[2025-04-02 19:21:57,606] I ThreadPoolExecutor-0_19 - _extract_frame_pair_worker:425 - [P:172] Worker using saved ring: 0
-[2025-04-02 19:21:57,712] I ThreadPoolExecutor-0_9 - compute_adaptive_alpha_entropy:162 - [F:306, R:0] Ev=1.7608, Ee=-1.7450, Var=0.0001, Factor=0.9995, Ratio=-0.9910 -> final_alpha=1.0307
-[2025-04-02 19:21:57,738] I ThreadPoolExecutor-0_9 - extract_frame_pair:383 - [P:153, R:0] s1=61.3748, s2=61.6950, ratio=0.9948 vs thr=1.0005 -> Bit=1
-[2025-04-02 19:21:57,740] I ThreadPoolExecutor-0_9 - _extract_frame_pair_worker:425 - [P:173] Worker using saved ring: 0
-[2025-04-02 19:21:57,824] I ThreadPoolExecutor-0_4 - compute_adaptive_alpha_entropy:162 - [F:308, R:0] Ev=1.3764, Ee=-1.5235, Var=0.0001, Factor=0.9994, Ratio=-1.1068 -> final_alpha=1.0286
-[2025-04-02 19:21:57,833] I ThreadPoolExecutor-0_4 - extract_frame_pair:383 - [P:154, R:0] s1=61.6950, s2=61.3748, ratio=1.0052 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:57,836] I ThreadPoolExecutor-0_4 - _extract_frame_pair_worker:425 - [P:174] Worker using saved ring: 0
-[2025-04-02 19:21:57,890] I ThreadPoolExecutor-0_3 - compute_adaptive_alpha_entropy:162 - [F:310, R:0] Ev=1.7608, Ee=-1.7450, Var=0.0001, Factor=0.9995, Ratio=-0.9910 -> final_alpha=1.0307
-[2025-04-02 19:21:57,901] I ThreadPoolExecutor-0_3 - extract_frame_pair:383 - [P:155, R:0] s1=61.3748, s2=61.6950, ratio=0.9948 vs thr=1.0005 -> Bit=1
-[2025-04-02 19:21:57,904] I ThreadPoolExecutor-0_3 - _extract_frame_pair_worker:425 - [P:175] Worker using saved ring: 0
-[2025-04-02 19:21:57,933] I ThreadPoolExecutor-0_18 - compute_adaptive_alpha_entropy:162 - [F:316, R:0] Ev=1.7677, Ee=-1.7462, Var=0.0001, Factor=0.9995, Ratio=-0.9879 -> final_alpha=1.0308
-[2025-04-02 19:21:57,946] I ThreadPoolExecutor-0_18 - extract_frame_pair:383 - [P:158, R:0] s1=61.3774, s2=61.6976, ratio=0.9948 vs thr=1.0005 -> Bit=1
-[2025-04-02 19:21:57,946] I ThreadPoolExecutor-0_18 - _extract_frame_pair_worker:425 - [P:176] Worker using saved ring: 0
-[2025-04-02 19:21:57,954] I ThreadPoolExecutor-0_14 - compute_adaptive_alpha_entropy:162 - [F:312, R:0] Ev=1.3181, Ee=-1.4906, Var=0.0001, Factor=0.9995, Ratio=-1.1309 -> final_alpha=1.0282
-[2025-04-02 19:21:57,961] I ThreadPoolExecutor-0_14 - extract_frame_pair:383 - [P:156, R:0] s1=61.7754, s2=61.3774, ratio=1.0065 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:57,961] I ThreadPoolExecutor-0_14 - _extract_frame_pair_worker:425 - [P:177] Worker using saved ring: 0
-[2025-04-02 19:21:57,975] I ThreadPoolExecutor-0_17 - compute_adaptive_alpha_entropy:162 - [F:314, R:0] Ev=1.3812, Ee=-1.5236, Var=0.0001, Factor=0.9994, Ratio=-1.1031 -> final_alpha=1.0287
-[2025-04-02 19:21:57,982] I ThreadPoolExecutor-0_17 - extract_frame_pair:383 - [P:157, R:0] s1=61.6976, s2=61.3774, ratio=1.0052 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:57,984] I ThreadPoolExecutor-0_17 - _extract_frame_pair_worker:425 - [P:178] Worker using saved ring: 0
-[2025-04-02 19:21:57,997] I ThreadPoolExecutor-0_12 - compute_adaptive_alpha_entropy:162 - [F:318, R:0] Ev=1.7686, Ee=-1.7464, Var=0.0001, Factor=0.9995, Ratio=-0.9874 -> final_alpha=1.0308
-[2025-04-02 19:21:58,000] I ThreadPoolExecutor-0_12 - extract_frame_pair:383 - [P:159, R:0] s1=61.3779, s2=61.6981, ratio=0.9948 vs thr=1.0005 -> Bit=1
-[2025-04-02 19:21:58,002] I ThreadPoolExecutor-0_12 - _extract_frame_pair_worker:425 - [P:179] Worker using saved ring: 0
-[2025-04-02 19:21:58,238] I ThreadPoolExecutor-0_10 - compute_adaptive_alpha_entropy:162 - [F:320, R:0] Ev=1.3797, Ee=-1.5233, Var=0.0001, Factor=0.9994, Ratio=-1.1041 -> final_alpha=1.0286
-[2025-04-02 19:21:58,244] I ThreadPoolExecutor-0_10 - extract_frame_pair:383 - [P:160, R:0] s1=61.6969, s2=61.3400, ratio=1.0058 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:58,245] I ThreadPoolExecutor-0_10 - _extract_frame_pair_worker:425 - [P:180] Worker using saved ring: 0
-[2025-04-02 19:21:58,402] I ThreadPoolExecutor-0_11 - compute_adaptive_alpha_entropy:162 - [F:322, R:0] Ev=1.7860, Ee=-1.7459, Var=0.0001, Factor=0.9993, Ratio=-0.9775 -> final_alpha=1.0310
-[2025-04-02 19:21:58,415] I ThreadPoolExecutor-0_11 - extract_frame_pair:383 - [P:161, R:0] s1=61.3399, s2=61.7192, ratio=0.9939 vs thr=1.0005 -> Bit=1
-[2025-04-02 19:21:58,417] I ThreadPoolExecutor-0_11 - _extract_frame_pair_worker:425 - [P:181] Worker using saved ring: 0
-[2025-04-02 19:21:58,449] I ThreadPoolExecutor-0_1 - compute_adaptive_alpha_entropy:162 - [F:326, R:0] Ev=1.5725, Ee=-1.6556, Var=0.0001, Factor=0.9995, Ratio=-1.0528 -> final_alpha=1.0296
-[2025-04-02 19:21:58,458] I ThreadPoolExecutor-0_1 - extract_frame_pair:383 - [P:163, R:0] s1=61.6739, s2=61.2943, ratio=1.0062 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:58,463] I ThreadPoolExecutor-0_1 - _extract_frame_pair_worker:425 - [P:182] Worker using saved ring: 0
-[2025-04-02 19:21:58,514] I ThreadPoolExecutor-0_0 - compute_adaptive_alpha_entropy:162 - [F:328, R:0] Ev=1.5725, Ee=-1.6556, Var=0.0001, Factor=0.9995, Ratio=-1.0528 -> final_alpha=1.0296
-[2025-04-02 19:21:58,519] I ThreadPoolExecutor-0_0 - extract_frame_pair:383 - [P:164, R:0] s1=61.6739, s2=61.2943, ratio=1.0062 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:58,520] I ThreadPoolExecutor-0_0 - _extract_frame_pair_worker:425 - [P:183] Worker using saved ring: 0
-[2025-04-02 19:21:58,620] I ThreadPoolExecutor-0_6 - compute_adaptive_alpha_entropy:162 - [F:334, R:0] Ev=1.5570, Ee=-1.6502, Var=0.0001, Factor=0.9995, Ratio=-1.0598 -> final_alpha=1.0294
-[2025-04-02 19:21:58,626] I ThreadPoolExecutor-0_6 - extract_frame_pair:383 - [P:167, R:0] s1=61.6830, s2=61.2948, ratio=1.0063 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:58,628] I ThreadPoolExecutor-0_6 - _extract_frame_pair_worker:425 - [P:184] Worker using saved ring: 0
-[2025-04-02 19:21:58,652] I ThreadPoolExecutor-0_2 - compute_adaptive_alpha_entropy:162 - [F:332, R:0] Ev=1.5570, Ee=-1.6502, Var=0.0001, Factor=0.9995, Ratio=-1.0598 -> final_alpha=1.0294
-[2025-04-02 19:21:58,662] I ThreadPoolExecutor-0_2 - extract_frame_pair:383 - [P:166, R:0] s1=61.6830, s2=61.2948, ratio=1.0063 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:58,664] I ThreadPoolExecutor-0_2 - _extract_frame_pair_worker:425 - [P:185] Worker using saved ring: 0
-[2025-04-02 19:21:58,673] I ThreadPoolExecutor-0_16 - compute_adaptive_alpha_entropy:162 - [F:330, R:0] Ev=1.5570, Ee=-1.6502, Var=0.0001, Factor=0.9995, Ratio=-1.0598 -> final_alpha=1.0294
-[2025-04-02 19:21:58,684] I ThreadPoolExecutor-0_16 - extract_frame_pair:383 - [P:165, R:0] s1=61.6830, s2=61.2948, ratio=1.0063 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:58,685] I ThreadPoolExecutor-0_16 - _extract_frame_pair_worker:425 - [P:186] Worker using saved ring: 0
-[2025-04-02 19:21:58,732] I ThreadPoolExecutor-0_8 - compute_adaptive_alpha_entropy:162 - [F:336, R:0] Ev=1.4637, Ee=-1.5733, Var=0.0001, Factor=0.9994, Ratio=-1.0749 -> final_alpha=1.0292
-[2025-04-02 19:21:58,738] I ThreadPoolExecutor-0_8 - extract_frame_pair:383 - [P:168, R:0] s1=61.2794, s2=61.6804, ratio=0.9935 vs thr=1.0004 -> Bit=1
-[2025-04-02 19:21:58,740] I ThreadPoolExecutor-0_8 - _extract_frame_pair_worker:425 - [P:187] Worker using saved ring: 0
-[2025-04-02 19:21:58,755] I ThreadPoolExecutor-0_15 - compute_adaptive_alpha_entropy:162 - [F:340, R:0] Ev=1.5681, Ee=-1.6421, Var=0.0001, Factor=0.9995, Ratio=-1.0472 -> final_alpha=1.0297
-[2025-04-02 19:21:58,765] I ThreadPoolExecutor-0_15 - extract_frame_pair:383 - [P:170, R:0] s1=61.6804, s2=61.3009, ratio=1.0062 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:58,766] I ThreadPoolExecutor-0_15 - _extract_frame_pair_worker:425 - [P:188] Worker using saved ring: 0
-[2025-04-02 19:21:58,778] I ThreadPoolExecutor-0_13 - compute_adaptive_alpha_entropy:162 - [F:324, R:0] Ev=1.4595, Ee=-1.5679, Var=0.0001, Factor=0.9994, Ratio=-1.0742 -> final_alpha=1.0292
-[2025-04-02 19:21:58,781] I ThreadPoolExecutor-0_7 - compute_adaptive_alpha_entropy:162 - [F:342, R:0] Ev=1.5248, Ee=-1.6075, Var=0.0001, Factor=0.9994, Ratio=-1.0542 -> final_alpha=1.0295
-[2025-04-02 19:21:58,786] I ThreadPoolExecutor-0_13 - extract_frame_pair:383 - [P:162, R:0] s1=61.2799, s2=61.6739, ratio=0.9936 vs thr=1.0004 -> Bit=1
-[2025-04-02 19:21:58,786] I ThreadPoolExecutor-0_7 - extract_frame_pair:383 - [P:171, R:0] s1=61.3009, s2=61.6804, ratio=0.9938 vs thr=1.0004 -> Bit=1
-[2025-04-02 19:21:58,788] I ThreadPoolExecutor-0_13 - _extract_frame_pair_worker:425 - [P:189] Worker using saved ring: 0
-[2025-04-02 19:21:58,789] I ThreadPoolExecutor-0_5 - compute_adaptive_alpha_entropy:162 - [F:338, R:0] Ev=1.5248, Ee=-1.6075, Var=0.0001, Factor=0.9994, Ratio=-1.0542 -> final_alpha=1.0295
-[2025-04-02 19:21:58,792] I ThreadPoolExecutor-0_7 - _extract_frame_pair_worker:425 - [P:190] Worker using saved ring: 0
-[2025-04-02 19:21:58,796] I ThreadPoolExecutor-0_5 - extract_frame_pair:383 - [P:169, R:0] s1=61.3009, s2=61.6804, ratio=0.9938 vs thr=1.0004 -> Bit=1
-[2025-04-02 19:21:58,800] I ThreadPoolExecutor-0_5 - _extract_frame_pair_worker:425 - [P:191] Worker using saved ring: 0
-[2025-04-02 19:21:58,876] I ThreadPoolExecutor-0_19 - compute_adaptive_alpha_entropy:162 - [F:344, R:0] Ev=1.5248, Ee=-1.6075, Var=0.0001, Factor=0.9994, Ratio=-1.0542 -> final_alpha=1.0295
-[2025-04-02 19:21:58,880] I ThreadPoolExecutor-0_19 - extract_frame_pair:383 - [P:172, R:0] s1=61.3009, s2=61.6804, ratio=0.9938 vs thr=1.0004 -> Bit=1
-[2025-04-02 19:21:58,889] I ThreadPoolExecutor-0_19 - _extract_frame_pair_worker:425 - [P:192] Worker using saved ring: 0
-[2025-04-02 19:21:58,974] I ThreadPoolExecutor-0_4 - compute_adaptive_alpha_entropy:162 - [F:348, R:0] Ev=1.4637, Ee=-1.5733, Var=0.0001, Factor=0.9994, Ratio=-1.0749 -> final_alpha=1.0292
-[2025-04-02 19:21:58,977] I ThreadPoolExecutor-0_4 - extract_frame_pair:383 - [P:174, R:0] s1=61.2794, s2=61.6239, ratio=0.9944 vs thr=1.0004 -> Bit=1
-[2025-04-02 19:21:58,978] I ThreadPoolExecutor-0_4 - _extract_frame_pair_worker:425 - [P:193] Worker using saved ring: 0
-[2025-04-02 19:21:58,988] I ThreadPoolExecutor-0_9 - compute_adaptive_alpha_entropy:162 - [F:346, R:0] Ev=1.5681, Ee=-1.6421, Var=0.0001, Factor=0.9995, Ratio=-1.0472 -> final_alpha=1.0297
-[2025-04-02 19:21:58,993] I ThreadPoolExecutor-0_9 - extract_frame_pair:383 - [P:173, R:0] s1=61.6804, s2=61.3009, ratio=1.0062 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:58,996] I ThreadPoolExecutor-0_9 - _extract_frame_pair_worker:425 - [P:194] Worker using saved ring: 0
-[2025-04-02 19:21:59,088] I ThreadPoolExecutor-0_3 - compute_adaptive_alpha_entropy:162 - [F:350, R:0] Ev=1.5517, Ee=-1.6106, Var=0.0001, Factor=0.9994, Ratio=-1.0379 -> final_alpha=1.0298
-[2025-04-02 19:21:59,090] I ThreadPoolExecutor-0_3 - extract_frame_pair:383 - [P:175, R:0] s1=61.3028, s2=61.6238, ratio=0.9948 vs thr=1.0004 -> Bit=1
-[2025-04-02 19:21:59,093] I ThreadPoolExecutor-0_3 - _extract_frame_pair_worker:425 - [P:195] Worker using saved ring: 0
-[2025-04-02 19:21:59,363] I ThreadPoolExecutor-0_14 - compute_adaptive_alpha_entropy:162 - [F:354, R:0] Ev=1.5524, Ee=-1.6110, Var=0.0001, Factor=0.9994, Ratio=-1.0377 -> final_alpha=1.0298
-[2025-04-02 19:21:59,373] I ThreadPoolExecutor-0_14 - extract_frame_pair:383 - [P:177, R:0] s1=61.3042, s2=61.6793, ratio=0.9939 vs thr=1.0004 -> Bit=1
-[2025-04-02 19:21:59,374] I ThreadPoolExecutor-0_14 - _extract_frame_pair_worker:425 - [P:196] Worker using saved ring: 0
-[2025-04-02 19:21:59,428] I ThreadPoolExecutor-0_18 - compute_adaptive_alpha_entropy:162 - [F:352, R:0] Ev=1.6224, Ee=-1.6529, Var=0.0001, Factor=0.9993, Ratio=-1.0188 -> final_alpha=1.0302
-[2025-04-02 19:21:59,441] I ThreadPoolExecutor-0_18 - extract_frame_pair:383 - [P:176, R:0] s1=61.6248, s2=61.3042, ratio=1.0052 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:59,446] I ThreadPoolExecutor-0_18 - _extract_frame_pair_worker:425 - [P:197] Worker using saved ring: 0
-[2025-04-02 19:21:59,580] I ThreadPoolExecutor-0_17 - compute_adaptive_alpha_entropy:162 - [F:356, R:0] Ev=1.5939, Ee=-1.6501, Var=0.0001, Factor=0.9995, Ratio=-1.0353 -> final_alpha=1.0299
-[2025-04-02 19:21:59,593] I ThreadPoolExecutor-0_17 - extract_frame_pair:383 - [P:178, R:0] s1=61.6794, s2=61.3589, ratio=1.0052 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:59,594] I ThreadPoolExecutor-0_17 - _extract_frame_pair_worker:425 - [P:198] Worker using saved ring: 0
-[2025-04-02 19:21:59,724] I ThreadPoolExecutor-0_12 - compute_adaptive_alpha_entropy:162 - [F:358, R:0] Ev=1.5264, Ee=-1.6097, Var=0.0000, Factor=0.9996, Ratio=-1.0546 -> final_alpha=1.0295
-[2025-04-02 19:21:59,728] I ThreadPoolExecutor-0_10 - compute_adaptive_alpha_entropy:162 - [F:360, R:0] Ev=1.4057, Ee=-1.5631, Var=0.0000, Factor=0.9996, Ratio=-1.1120 -> final_alpha=1.0285
-[2025-04-02 19:21:59,733] I ThreadPoolExecutor-0_12 - extract_frame_pair:383 - [P:179, R:0] s1=61.3590, s2=61.6789, ratio=0.9948 vs thr=1.0004 -> Bit=1
-[2025-04-02 19:21:59,733] I ThreadPoolExecutor-0_12 - _extract_frame_pair_worker:425 - [P:199] Worker using saved ring: 0
-[2025-04-02 19:21:59,736] I ThreadPoolExecutor-0_10 - extract_frame_pair:383 - [P:180, R:0] s1=61.3390, s2=61.6736, ratio=0.9946 vs thr=1.0004 -> Bit=1
-[2025-04-02 19:21:59,738] I ThreadPoolExecutor-0_10 - _extract_frame_pair_worker:425 - [P:200] Worker using saved ring: 0
-[2025-04-02 19:21:59,853] I ThreadPoolExecutor-0_11 - compute_adaptive_alpha_entropy:162 - [F:362, R:0] Ev=1.5714, Ee=-1.6554, Var=0.0001, Factor=0.9995, Ratio=-1.0534 -> final_alpha=1.0296
-[2025-04-02 19:21:59,857] I ThreadPoolExecutor-0_11 - extract_frame_pair:383 - [P:181, R:0] s1=61.6736, s2=61.3533, ratio=1.0052 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:59,857] I ThreadPoolExecutor-0_11 - _extract_frame_pair_worker:425 - [P:201] Worker using saved ring: 0
-[2025-04-02 19:21:59,876] I ThreadPoolExecutor-0_1 - compute_adaptive_alpha_entropy:162 - [F:364, R:0] Ev=1.5714, Ee=-1.6554, Var=0.0001, Factor=0.9995, Ratio=-1.0534 -> final_alpha=1.0296
-[2025-04-02 19:21:59,877] I ThreadPoolExecutor-0_0 - compute_adaptive_alpha_entropy:162 - [F:366, R:0] Ev=1.5714, Ee=-1.6554, Var=0.0001, Factor=0.9995, Ratio=-1.0534 -> final_alpha=1.0296
-[2025-04-02 19:21:59,885] I ThreadPoolExecutor-0_1 - extract_frame_pair:383 - [P:182, R:0] s1=61.6736, s2=61.3533, ratio=1.0052 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:59,886] I ThreadPoolExecutor-0_0 - extract_frame_pair:383 - [P:183, R:0] s1=61.6736, s2=61.3533, ratio=1.0052 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:21:59,886] I ThreadPoolExecutor-0_1 - _extract_frame_pair_worker:425 - [P:202] Worker using saved ring: 0
-[2025-04-02 19:21:59,888] I ThreadPoolExecutor-0_0 - _extract_frame_pair_worker:425 - [P:203] Worker using saved ring: 0
-[2025-04-02 19:21:59,894] I ThreadPoolExecutor-0_6 - compute_adaptive_alpha_entropy:162 - [F:368, R:0] Ev=1.5141, Ee=-1.6087, Var=0.0000, Factor=0.9996, Ratio=-1.0625 -> final_alpha=1.0294
-[2025-04-02 19:21:59,898] I ThreadPoolExecutor-0_6 - extract_frame_pair:383 - [P:184, R:0] s1=61.3403, s2=61.6826, ratio=0.9945 vs thr=1.0004 -> Bit=1
-[2025-04-02 19:21:59,900] I ThreadPoolExecutor-0_6 - _extract_frame_pair_worker:425 - [P:204] Worker using saved ring: 0
-[2025-04-02 19:21:59,957] I ThreadPoolExecutor-0_2 - compute_adaptive_alpha_entropy:162 - [F:370, R:0] Ev=1.4764, Ee=-1.5984, Var=0.0000, Factor=0.9996, Ratio=-1.0826 -> final_alpha=1.0290
-[2025-04-02 19:21:59,959] I ThreadPoolExecutor-0_2 - extract_frame_pair:383 - [P:185, R:0] s1=61.3533, s2=61.6736, ratio=0.9948 vs thr=1.0004 -> Bit=1
-[2025-04-02 19:21:59,961] I ThreadPoolExecutor-0_2 - _extract_frame_pair_worker:425 - [P:205] Worker using saved ring: 0
-[2025-04-02 19:21:59,975] I ThreadPoolExecutor-0_16 - compute_adaptive_alpha_entropy:162 - [F:372, R:0] Ev=1.4057, Ee=-1.5631, Var=0.0000, Factor=0.9996, Ratio=-1.1120 -> final_alpha=1.0285
-[2025-04-02 19:21:59,977] I ThreadPoolExecutor-0_16 - extract_frame_pair:383 - [P:186, R:0] s1=61.3390, s2=61.6736, ratio=0.9946 vs thr=1.0004 -> Bit=1
-[2025-04-02 19:21:59,982] I ThreadPoolExecutor-0_16 - _extract_frame_pair_worker:425 - [P:206] Worker using saved ring: 0
-[2025-04-02 19:22:00,290] I ThreadPoolExecutor-0_8 - compute_adaptive_alpha_entropy:162 - [F:374, R:0] Ev=1.4764, Ee=-1.5984, Var=0.0000, Factor=0.9996, Ratio=-1.0826 -> final_alpha=1.0290
-[2025-04-02 19:22:00,304] I ThreadPoolExecutor-0_8 - extract_frame_pair:383 - [P:187, R:0] s1=61.3533, s2=61.6736, ratio=0.9948 vs thr=1.0004 -> Bit=1
-[2025-04-02 19:22:00,310] I ThreadPoolExecutor-0_8 - _extract_frame_pair_worker:425 - [P:207] Worker using saved ring: 0
-[2025-04-02 19:22:00,419] I ThreadPoolExecutor-0_15 - compute_adaptive_alpha_entropy:162 - [F:376, R:0] Ev=1.5714, Ee=-1.6554, Var=0.0001, Factor=0.9995, Ratio=-1.0534 -> final_alpha=1.0296
-[2025-04-02 19:22:00,426] I ThreadPoolExecutor-0_19 - compute_adaptive_alpha_entropy:162 - [F:384, R:0] Ev=1.4057, Ee=-1.5631, Var=0.0000, Factor=0.9996, Ratio=-1.1120 -> final_alpha=1.0285
-[2025-04-02 19:22:00,433] I ThreadPoolExecutor-0_15 - extract_frame_pair:383 - [P:188, R:0] s1=61.6736, s2=61.3533, ratio=1.0052 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:22:00,434] I ThreadPoolExecutor-0_15 - _extract_frame_pair_worker:425 - [P:208] Worker using saved ring: 0
-[2025-04-02 19:22:00,447] I ThreadPoolExecutor-0_19 - extract_frame_pair:383 - [P:192, R:0] s1=61.3390, s2=61.6736, ratio=0.9946 vs thr=1.0004 -> Bit=1
-[2025-04-02 19:22:00,448] I ThreadPoolExecutor-0_19 - _extract_frame_pair_worker:425 - [P:209] Worker using saved ring: 0
-[2025-04-02 19:22:00,474] I ThreadPoolExecutor-0_5 - compute_adaptive_alpha_entropy:162 - [F:382, R:0] Ev=1.5714, Ee=-1.6554, Var=0.0001, Factor=0.9995, Ratio=-1.0534 -> final_alpha=1.0296
-[2025-04-02 19:22:00,490] I ThreadPoolExecutor-0_5 - extract_frame_pair:383 - [P:191, R:0] s1=61.6736, s2=61.3533, ratio=1.0052 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:22:00,491] I ThreadPoolExecutor-0_5 - _extract_frame_pair_worker:425 - [P:210] Worker using saved ring: 0
-[2025-04-02 19:22:00,504] I ThreadPoolExecutor-0_9 - compute_adaptive_alpha_entropy:162 - [F:388, R:0] Ev=1.5721, Ee=-1.6558, Var=0.0001, Factor=0.9995, Ratio=-1.0532 -> final_alpha=1.0296
-[2025-04-02 19:22:00,522] I ThreadPoolExecutor-0_9 - extract_frame_pair:383 - [P:194, R:0] s1=61.6735, s2=61.2939, ratio=1.0062 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:22:00,523] I ThreadPoolExecutor-0_9 - _extract_frame_pair_worker:425 - [P:211] Worker using saved ring: 0
-[2025-04-02 19:22:00,635] I ThreadPoolExecutor-0_4 - compute_adaptive_alpha_entropy:162 - [F:386, R:0] Ev=1.4764, Ee=-1.5984, Var=0.0000, Factor=0.9996, Ratio=-1.0826 -> final_alpha=1.0290
-[2025-04-02 19:22:00,640] I ThreadPoolExecutor-0_7 - compute_adaptive_alpha_entropy:162 - [F:380, R:0] Ev=1.4764, Ee=-1.5984, Var=0.0000, Factor=0.9996, Ratio=-1.0826 -> final_alpha=1.0290
-[2025-04-02 19:22:00,647] I ThreadPoolExecutor-0_4 - extract_frame_pair:383 - [P:193, R:0] s1=61.3533, s2=61.6736, ratio=0.9948 vs thr=1.0004 -> Bit=1
-[2025-04-02 19:22:00,648] I ThreadPoolExecutor-0_4 - _extract_frame_pair_worker:425 - [P:212] Worker using saved ring: 0
-[2025-04-02 19:22:00,653] I ThreadPoolExecutor-0_7 - extract_frame_pair:383 - [P:190, R:0] s1=61.3533, s2=61.6736, ratio=0.9948 vs thr=1.0004 -> Bit=1
-[2025-04-02 19:22:00,654] I ThreadPoolExecutor-0_7 - _extract_frame_pair_worker:425 - [P:213] Worker using saved ring: 0
-[2025-04-02 19:22:00,672] I ThreadPoolExecutor-0_13 - compute_adaptive_alpha_entropy:162 - [F:378, R:0] Ev=1.4764, Ee=-1.5984, Var=0.0000, Factor=0.9996, Ratio=-1.0826 -> final_alpha=1.0290
-[2025-04-02 19:22:00,678] I ThreadPoolExecutor-0_13 - extract_frame_pair:383 - [P:189, R:0] s1=61.3533, s2=61.6736, ratio=0.9948 vs thr=1.0004 -> Bit=1
-[2025-04-02 19:22:00,680] I ThreadPoolExecutor-0_13 - _extract_frame_pair_worker:425 - [P:214] Worker using saved ring: 0
-[2025-04-02 19:22:00,687] I ThreadPoolExecutor-0_3 - compute_adaptive_alpha_entropy:162 - [F:390, R:0] Ev=1.5535, Ee=-1.6501, Var=0.0001, Factor=0.9995, Ratio=-1.0622 -> final_alpha=1.0294
-[2025-04-02 19:22:00,691] I ThreadPoolExecutor-0_3 - extract_frame_pair:383 - [P:195, R:0] s1=61.6825, s2=61.2938, ratio=1.0063 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:22:00,698] I ThreadPoolExecutor-0_3 - _extract_frame_pair_worker:425 - [P:215] Worker using saved ring: 0
-[2025-04-02 19:22:00,721] I ThreadPoolExecutor-0_18 - compute_adaptive_alpha_entropy:162 - [F:394, R:0] Ev=1.5535, Ee=-1.6501, Var=0.0001, Factor=0.9995, Ratio=-1.0622 -> final_alpha=1.0294
-[2025-04-02 19:22:00,726] I ThreadPoolExecutor-0_18 - extract_frame_pair:383 - [P:197, R:0] s1=61.6825, s2=61.2938, ratio=1.0063 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:22:00,728] I ThreadPoolExecutor-0_18 - _extract_frame_pair_worker:425 - [P:216] Worker using saved ring: 0
-[2025-04-02 19:22:00,740] I ThreadPoolExecutor-0_14 - compute_adaptive_alpha_entropy:162 - [F:392, R:0] Ev=1.5287, Ee=-1.6027, Var=0.0001, Factor=0.9994, Ratio=-1.0484 -> final_alpha=1.0296
-[2025-04-02 19:22:00,746] I ThreadPoolExecutor-0_14 - extract_frame_pair:383 - [P:196, R:0] s1=61.2938, s2=61.6825, ratio=0.9937 vs thr=1.0004 -> Bit=1
-[2025-04-02 19:22:00,750] I ThreadPoolExecutor-0_14 - _extract_frame_pair_worker:425 - [P:217] Worker using saved ring: 0
-[2025-04-02 19:22:00,986] I ThreadPoolExecutor-0_17 - compute_adaptive_alpha_entropy:162 - [F:396, R:0] Ev=1.2920, Ee=-1.4890, Var=0.0001, Factor=0.9995, Ratio=-1.1524 -> final_alpha=1.0278
-[2025-04-02 19:22:00,992] I ThreadPoolExecutor-0_17 - extract_frame_pair:383 - [P:198, R:0] s1=61.7835, s2=61.3607, ratio=1.0069 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:22:00,992] I ThreadPoolExecutor-0_17 - _extract_frame_pair_worker:425 - [P:218] Worker using saved ring: 0
-[2025-04-02 19:22:01,025] I ThreadPoolExecutor-0_0 - compute_adaptive_alpha_entropy:162 - [F:406, R:0] Ev=1.7503, Ee=-1.7424, Var=0.0001, Factor=0.9994, Ratio=-0.9955 -> final_alpha=1.0306
-[2025-04-02 19:22:01,026] I ThreadPoolExecutor-0_0 - extract_frame_pair:383 - [P:203, R:0] s1=61.3609, s2=61.7401, ratio=0.9939 vs thr=1.0005 -> Bit=1
-[2025-04-02 19:22:01,029] I ThreadPoolExecutor-0_0 - _extract_frame_pair_worker:425 - [P:219] Worker using saved ring: 0
-[2025-04-02 19:22:01,082] I ThreadPoolExecutor-0_12 - compute_adaptive_alpha_entropy:162 - [F:398, R:0] Ev=1.3096, Ee=-1.4993, Var=0.0001, Factor=0.9995, Ratio=-1.1449 -> final_alpha=1.0279
-[2025-04-02 19:22:01,089] I ThreadPoolExecutor-0_12 - extract_frame_pair:383 - [P:199, R:0] s1=61.7401, s2=61.3609, ratio=1.0062 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:22:01,090] I ThreadPoolExecutor-0_12 - _extract_frame_pair_worker:425 - [P:220] Worker using saved ring: 0
-[2025-04-02 19:22:01,535] I ThreadPoolExecutor-0_10 - compute_adaptive_alpha_entropy:162 - [F:400, R:0] Ev=1.7503, Ee=-1.7424, Var=0.0001, Factor=0.9994, Ratio=-0.9955 -> final_alpha=1.0306
-[2025-04-02 19:22:01,548] I ThreadPoolExecutor-0_10 - extract_frame_pair:383 - [P:200, R:0] s1=61.3609, s2=61.7401, ratio=0.9939 vs thr=1.0005 -> Bit=1
-[2025-04-02 19:22:01,551] I ThreadPoolExecutor-0_10 - _extract_frame_pair_worker:425 - [P:221] Worker using saved ring: 0
-[2025-04-02 19:22:01,555] I ThreadPoolExecutor-0_6 - compute_adaptive_alpha_entropy:162 - [F:408, R:0] Ev=1.2920, Ee=-1.4890, Var=0.0001, Factor=0.9995, Ratio=-1.1524 -> final_alpha=1.0278
-[2025-04-02 19:22:01,572] I ThreadPoolExecutor-0_6 - extract_frame_pair:383 - [P:204, R:0] s1=61.7835, s2=61.3607, ratio=1.0069 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:22:01,575] I ThreadPoolExecutor-0_6 - _extract_frame_pair_worker:425 - [P:222] Worker using saved ring: 0
-[2025-04-02 19:22:01,619] I ThreadPoolExecutor-0_16 - compute_adaptive_alpha_entropy:162 - [F:412, R:0] Ev=1.3121, Ee=-1.5000, Var=0.0001, Factor=0.9995, Ratio=-1.1432 -> final_alpha=1.0280
-[2025-04-02 19:22:01,634] I ThreadPoolExecutor-0_16 - extract_frame_pair:383 - [P:206, R:0] s1=61.7395, s2=61.3603, ratio=1.0062 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:22:01,635] I ThreadPoolExecutor-0_16 - _extract_frame_pair_worker:425 - [P:223] Worker using saved ring: 0
-[2025-04-02 19:22:01,663] I ThreadPoolExecutor-0_2 - compute_adaptive_alpha_entropy:162 - [F:410, R:0] Ev=1.7498, Ee=-1.7420, Var=0.0001, Factor=0.9994, Ratio=-0.9955 -> final_alpha=1.0306
-[2025-04-02 19:22:01,667] I ThreadPoolExecutor-0_1 - compute_adaptive_alpha_entropy:162 - [F:404, R:0] Ev=1.7503, Ee=-1.7424, Var=0.0001, Factor=0.9994, Ratio=-0.9955 -> final_alpha=1.0306
-[2025-04-02 19:22:01,671] I ThreadPoolExecutor-0_1 - extract_frame_pair:383 - [P:202, R:0] s1=61.3609, s2=61.7401, ratio=0.9939 vs thr=1.0005 -> Bit=1
-[2025-04-02 19:22:01,672] I ThreadPoolExecutor-0_1 - _extract_frame_pair_worker:425 - [P:224] Worker using saved ring: 0
-[2025-04-02 19:22:01,680] I ThreadPoolExecutor-0_2 - extract_frame_pair:383 - [P:205, R:0] s1=61.3607, s2=61.7395, ratio=0.9939 vs thr=1.0005 -> Bit=1
-[2025-04-02 19:22:01,681] I ThreadPoolExecutor-0_2 - _extract_frame_pair_worker:425 - [P:225] Worker using saved ring: 0
-[2025-04-02 19:22:01,692] I ThreadPoolExecutor-0_8 - compute_adaptive_alpha_entropy:162 - [F:414, R:0] Ev=1.7499, Ee=-1.7419, Var=0.0001, Factor=0.9994, Ratio=-0.9955 -> final_alpha=1.0306
-[2025-04-02 19:22:01,699] I ThreadPoolExecutor-0_8 - extract_frame_pair:383 - [P:207, R:0] s1=61.3603, s2=61.7395, ratio=0.9939 vs thr=1.0005 -> Bit=1
-[2025-04-02 19:22:01,715] I ThreadPoolExecutor-0_15 - compute_adaptive_alpha_entropy:162 - [F:416, R:0] Ev=1.3121, Ee=-1.5000, Var=0.0001, Factor=0.9995, Ratio=-1.1432 -> final_alpha=1.0280
-[2025-04-02 19:22:01,720] I ThreadPoolExecutor-0_15 - extract_frame_pair:383 - [P:208, R:0] s1=61.7395, s2=61.3603, ratio=1.0062 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:22:01,735] I ThreadPoolExecutor-0_11 - compute_adaptive_alpha_entropy:162 - [F:402, R:0] Ev=1.7503, Ee=-1.7424, Var=0.0001, Factor=0.9994, Ratio=-0.9955 -> final_alpha=1.0306
-[2025-04-02 19:22:01,745] I ThreadPoolExecutor-0_11 - extract_frame_pair:383 - [P:201, R:0] s1=61.3609, s2=61.7401, ratio=0.9939 vs thr=1.0005 -> Bit=1
-[2025-04-02 19:22:01,762] I ThreadPoolExecutor-0_19 - compute_adaptive_alpha_entropy:162 - [F:418, R:0] Ev=1.7117, Ee=-1.7361, Var=0.0001, Factor=0.9994, Ratio=-1.0143 -> final_alpha=1.0303
-[2025-04-02 19:22:01,768] I ThreadPoolExecutor-0_19 - extract_frame_pair:383 - [P:209, R:0] s1=61.3565, s2=61.7356, ratio=0.9939 vs thr=1.0004 -> Bit=1
-[2025-04-02 19:22:01,800] I ThreadPoolExecutor-0_5 - compute_adaptive_alpha_entropy:162 - [F:420, R:0] Ev=1.2510, Ee=-1.4749, Var=0.0001, Factor=0.9995, Ratio=-1.1790 -> final_alpha=1.0273
-[2025-04-02 19:22:01,809] I ThreadPoolExecutor-0_5 - extract_frame_pair:383 - [P:210, R:0] s1=61.7403, s2=61.3458, ratio=1.0064 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:22:01,814] I ThreadPoolExecutor-0_9 - compute_adaptive_alpha_entropy:162 - [F:422, R:0] Ev=1.1868, Ee=-1.4586, Var=0.0001, Factor=0.9995, Ratio=-1.2290 -> final_alpha=1.0265
-[2025-04-02 19:22:01,826] I ThreadPoolExecutor-0_9 - extract_frame_pair:383 - [P:211, R:0] s1=61.7170, s2=61.3458, ratio=1.0061 vs thr=1.0003 -> Bit=0
-[2025-04-02 19:22:01,873] I ThreadPoolExecutor-0_3 - compute_adaptive_alpha_entropy:162 - [F:430, R:0] Ev=1.1868, Ee=-1.4586, Var=0.0001, Factor=0.9995, Ratio=-1.2290 -> final_alpha=1.0265
-[2025-04-02 19:22:01,877] I ThreadPoolExecutor-0_3 - extract_frame_pair:383 - [P:215, R:0] s1=61.7170, s2=61.3458, ratio=1.0061 vs thr=1.0003 -> Bit=0
-[2025-04-02 19:22:01,921] I ThreadPoolExecutor-0_4 - compute_adaptive_alpha_entropy:162 - [F:424, R:0] Ev=1.7692, Ee=-1.7806, Var=0.0001, Factor=0.9994, Ratio=-1.0065 -> final_alpha=1.0304
-[2025-04-02 19:22:01,926] I ThreadPoolExecutor-0_4 - extract_frame_pair:383 - [P:212, R:0] s1=61.3458, s2=61.7170, ratio=0.9940 vs thr=1.0004 -> Bit=1
-[2025-04-02 19:22:01,954] I ThreadPoolExecutor-0_13 - compute_adaptive_alpha_entropy:162 - [F:428, R:0] Ev=1.1868, Ee=-1.4586, Var=0.0001, Factor=0.9995, Ratio=-1.2290 -> final_alpha=1.0265
-[2025-04-02 19:22:01,956] I ThreadPoolExecutor-0_13 - extract_frame_pair:383 - [P:214, R:0] s1=61.7170, s2=61.3458, ratio=1.0061 vs thr=1.0003 -> Bit=0
-[2025-04-02 19:22:02,108] I ThreadPoolExecutor-0_18 - compute_adaptive_alpha_entropy:162 - [F:432, R:0] Ev=1.2509, Ee=-1.4749, Var=0.0001, Factor=0.9995, Ratio=-1.1791 -> final_alpha=1.0273
-[2025-04-02 19:22:02,113] I ThreadPoolExecutor-0_18 - extract_frame_pair:383 - [P:216, R:0] s1=61.7399, s2=61.3459, ratio=1.0064 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:22:02,169] I ThreadPoolExecutor-0_7 - compute_adaptive_alpha_entropy:162 - [F:426, R:0] Ev=1.1868, Ee=-1.4586, Var=0.0001, Factor=0.9995, Ratio=-1.2290 -> final_alpha=1.0265
-[2025-04-02 19:22:02,172] I ThreadPoolExecutor-0_7 - extract_frame_pair:383 - [P:213, R:0] s1=61.7170, s2=61.3458, ratio=1.0061 vs thr=1.0003 -> Bit=0
-[2025-04-02 19:22:02,304] I ThreadPoolExecutor-0_0 - compute_adaptive_alpha_entropy:162 - [F:438, R:0] Ev=1.1831, Ee=-1.4574, Var=0.0001, Factor=0.9995, Ratio=-1.2318 -> final_alpha=1.0264
-[2025-04-02 19:22:02,307] I ThreadPoolExecutor-0_0 - extract_frame_pair:383 - [P:219, R:0] s1=61.7172, s2=61.3459, ratio=1.0061 vs thr=1.0003 -> Bit=0
-[2025-04-02 19:22:02,311] I ThreadPoolExecutor-0_17 - compute_adaptive_alpha_entropy:162 - [F:436, R:0] Ev=1.1831, Ee=-1.4574, Var=0.0001, Factor=0.9995, Ratio=-1.2318 -> final_alpha=1.0264
-[2025-04-02 19:22:02,314] I ThreadPoolExecutor-0_17 - extract_frame_pair:383 - [P:218, R:0] s1=61.7172, s2=61.3459, ratio=1.0061 vs thr=1.0003 -> Bit=0
-[2025-04-02 19:22:02,318] I ThreadPoolExecutor-0_14 - compute_adaptive_alpha_entropy:162 - [F:434, R:0] Ev=1.7701, Ee=-1.7813, Var=0.0001, Factor=0.9994, Ratio=-1.0063 -> final_alpha=1.0304
-[2025-04-02 19:22:02,321] I ThreadPoolExecutor-0_14 - extract_frame_pair:383 - [P:217, R:0] s1=61.3459, s2=61.7172, ratio=0.9940 vs thr=1.0004 -> Bit=1
-[2025-04-02 19:22:02,334] I ThreadPoolExecutor-0_12 - compute_adaptive_alpha_entropy:162 - [F:440, R:0] Ev=1.1831, Ee=-1.4574, Var=0.0001, Factor=0.9995, Ratio=-1.2318 -> final_alpha=1.0264
-[2025-04-02 19:22:02,336] I ThreadPoolExecutor-0_12 - extract_frame_pair:383 - [P:220, R:0] s1=61.7172, s2=61.3459, ratio=1.0061 vs thr=1.0003 -> Bit=0
-[2025-04-02 19:22:02,349] I ThreadPoolExecutor-0_10 - compute_adaptive_alpha_entropy:162 - [F:442, R:0] Ev=1.1837, Ee=-1.4576, Var=0.0001, Factor=0.9995, Ratio=-1.2314 -> final_alpha=1.0265
-[2025-04-02 19:22:02,351] I ThreadPoolExecutor-0_10 - extract_frame_pair:383 - [P:221, R:0] s1=61.7171, s2=61.3578, ratio=1.0059 vs thr=1.0003 -> Bit=0
-[2025-04-02 19:22:02,368] I ThreadPoolExecutor-0_6 - compute_adaptive_alpha_entropy:162 - [F:444, R:0] Ev=1.4348, Ee=-1.5613, Var=0.0001, Factor=0.9994, Ratio=-1.0882 -> final_alpha=1.0289
-[2025-04-02 19:22:02,369] I ThreadPoolExecutor-0_6 - extract_frame_pair:383 - [P:222, R:0] s1=61.2581, s2=61.6520, ratio=0.9936 vs thr=1.0004 -> Bit=1
-[2025-04-02 19:22:02,410] I ThreadPoolExecutor-0_16 - compute_adaptive_alpha_entropy:162 - [F:446, R:0] Ev=1.6106, Ee=-1.6472, Var=0.0001, Factor=0.9994, Ratio=-1.0227 -> final_alpha=1.0301
-[2025-04-02 19:22:02,411] I ThreadPoolExecutor-0_16 - extract_frame_pair:383 - [P:223, R:0] s1=61.6679, s2=61.3455, ratio=1.0053 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:22:02,449] I ThreadPoolExecutor-0_2 - compute_adaptive_alpha_entropy:162 - [F:450, R:0] Ev=1.6125, Ee=-1.6498, Var=0.0000, Factor=0.9995, Ratio=-1.0231 -> final_alpha=1.0301
-[2025-04-02 19:22:02,450] I ThreadPoolExecutor-0_2 - extract_frame_pair:383 - [P:225, R:0] s1=61.3429, s2=61.6658, ratio=0.9948 vs thr=1.0004 -> Bit=1
-[2025-04-02 19:22:02,455] I ThreadPoolExecutor-0_1 - compute_adaptive_alpha_entropy:162 - [F:448, R:0] Ev=1.6106, Ee=-1.6472, Var=0.0001, Factor=0.9994, Ratio=-1.0227 -> final_alpha=1.0301
-[2025-04-02 19:22:02,456] I ThreadPoolExecutor-0_1 - extract_frame_pair:383 - [P:224, R:0] s1=61.6679, s2=61.3441, ratio=1.0053 vs thr=1.0004 -> Bit=0
-[2025-04-02 19:22:02,457] I MainThread - extract_watermark_from_video:585 - Parallel extraction finished. Pairs submitted: 226. Processed: 226. Errors/Nones: 0.
-[2025-04-02 19:22:02,458] I MainThread - extract_watermark_from_video:590 - Starting aggregation for 226 bits...
-[2025-04-02 19:22:02,458] I MainThread - extract_watermark_from_video:607 - Aggregation finished. Reconstructed bits: 226/226.
-[2025-04-02 19:22:02,458] I MainThread - extract_watermark_from_video:616 - Converting aggregated bits to bytes...
-[2025-04-02 19:22:02,458] W MainThread - bits_to_bytes:244 - Number of valid bits (226) not multiple of 8. Padding with 6 zeros at the end.
-[2025-04-02 19:22:02,458] I MainThread - extract_watermark_from_video:626 - Attempting to decode packet (29 bytes). Will use ECC: False
-[2025-04-02 19:22:02,458] I MainThread - extract_watermark_from_video:645 - ECC was disabled or packet too short. Taking payload directly.
-[2025-04-02 19:22:02,458] I MainThread - extract_watermark_from_video:648 - Extracted payload length: 16 bytes.
-[2025-04-02 19:22:02,458] I MainThread - extract_watermark_from_video:654 - Extraction and processing finished. Total time: 16.13 sec.
-[2025-04-02 19:22:02,460] I MainThread - main:698 - Successfully decoded extracted payload to UUID: db58f6c8-f548-4245-9322-1decc32a47e5
-[2025-04-02 19:22:02,460] I MainThread - main:705 - UUID verification successful.
-[2025-04-02 19:22:02,460] I MainThread - main:709 - --- Extraction Main Process Finished ---
-[2025-04-02 19:22:02,460] I MainThread - main:711 - --- Total Extractor Script Time: 17.12 sec ---
-[2025-04-02 19:22:02,604] I MainThread - <module>:735 - Profiling stats saved to profile_stats_extract.txt
+[2025-04-03 20:36:38,664] I MainThread - <module>:70 - --- Запуск Скрипта Извлечения (Bits/Pair: 2, Payload: 64bit, ECC Ожид.: True, Доступно: True, Max Repeats: 5) ---
+[2025-04-03 20:36:38,664] I MainThread - <module>:71 - Ожид. настройки эмбеддера: Метод='multi_ring', Метрика='entropy', Колец исп.=2, N_RINGS_Total=8
+[2025-04-03 20:36:38,664] I MainThread - <module>:72 - Альфа (ожид.): MIN=1.005, MAX=1.1
+[2025-04-03 20:36:38,664] I MainThread - <module>:73 - Компонент: Cr, Исп. сохр. кольца: True
+[2025-04-03 20:36:38,665] I MainThread - main:883 - Read original ID (Hex) from original_watermark_id.txt
+[2025-04-03 20:36:38,665] I MainThread - main:893 - --- Starting Extraction Main Process ---
+[2025-04-03 20:36:38,665] I MainThread - read_video:399 - Reading video from: watermarked_video_n2_try.avi
+[2025-04-03 20:36:38,675] I MainThread - read_video:405 - Detected FPS: 30.00
+[2025-04-03 20:36:38,675] I MainThread - read_video:408 - Video properties: 842x720 @ 30.00 FPS, ~907 frames
+[2025-04-03 20:36:39,720] I MainThread - read_video:412 - End of stream after reading 907 frames (index 907).
+[2025-04-03 20:36:39,720] I MainThread - read_video:420 - Finished reading. Valid frames: 907. Skipped None: 0, Invalid shape: 0
+[2025-04-03 20:36:39,728] I MainThread - main:898 - Read 907 frames for extraction (Reported FPS: 30.00)
+[2025-04-03 20:36:39,728] I MainThread - extract_watermark_from_video:640 - Starting parallel extraction (Bits/Pair: 2) with packet voting (Max Repeats: 5).
+[2025-04-03 20:36:39,728] I MainThread - extract_watermark_from_video:641 - Ring Selection: Saved, Component: Cr, Expect ECC: True
+[2025-04-03 20:36:39,729] E MainThread - extract_watermark_from_video:676 - Failed to initialize BCH: 'bchlib.BCH' object has no attribute 'k'. Disabling ECC.
+[2025-04-03 20:36:39,729] I MainThread - load_saved_rings:282 - Loaded 160 valid ring entries from selected_rings.json
+[2025-04-03 20:36:39,730] I MainThread - extract_watermark_from_video:694 - Attempting to extract from 160 pairs (up to 453 available, covers up to 5 repeats).
+[2025-04-03 20:36:39,733] I MainThread - extract_watermark_from_video:728 - Submitting 160 extraction tasks to ThreadPoolExecutor (max_workers=None)...
+[2025-04-03 20:36:40,732] I ThreadPoolExecutor-0_14 - extract_frame_pair:506 - [P:14, R:4] s1=186.7893, s2=186.5295, ratio=1.0014 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:40,916] I ThreadPoolExecutor-0_10 - extract_frame_pair:506 - [P:10, R:4] s1=186.4449, s2=186.7850, ratio=0.9982 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:41,022] I ThreadPoolExecutor-0_3 - extract_frame_pair:506 - [P:3, R:4] s1=186.4434, s2=186.7771, ratio=0.9982 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:41,054] I ThreadPoolExecutor-0_4 - extract_frame_pair:506 - [P:4, R:4] s1=186.4376, s2=186.7812, ratio=0.9982 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:41,063] I ThreadPoolExecutor-0_0 - extract_frame_pair:506 - [P:0, R:4] s1=188.1099, s2=186.9211, ratio=1.0064 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:41,148] I ThreadPoolExecutor-0_15 - extract_frame_pair:506 - [P:15, R:4] s1=186.3107, s2=186.7491, ratio=0.9977 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:41,193] I ThreadPoolExecutor-0_12 - extract_frame_pair:506 - [P:12, R:4] s1=186.1651, s2=186.6500, ratio=0.9974 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:41,320] I ThreadPoolExecutor-0_11 - extract_frame_pair:506 - [P:11, R:4] s1=186.1728, s2=186.7027, ratio=0.9972 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:41,415] I ThreadPoolExecutor-0_13 - extract_frame_pair:506 - [P:13, R:4] s1=186.3113, s2=186.8189, ratio=0.9973 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:41,429] I ThreadPoolExecutor-0_8 - extract_frame_pair:506 - [P:8, R:4] s1=186.5142, s2=186.7870, ratio=0.9985 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:41,502] I ThreadPoolExecutor-0_6 - extract_frame_pair:506 - [P:6, R:4] s1=186.4354, s2=186.7693, ratio=0.9982 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:41,516] I ThreadPoolExecutor-0_5 - extract_frame_pair:506 - [P:5, R:4] s1=186.8414, s2=186.4740, ratio=1.0020 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:41,527] I ThreadPoolExecutor-0_1 - extract_frame_pair:506 - [P:1, R:4] s1=186.6497, s2=186.3190, ratio=1.0018 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:41,533] I ThreadPoolExecutor-0_7 - extract_frame_pair:506 - [P:7, R:4] s1=186.8413, s2=186.4439, ratio=1.0021 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:41,542] I ThreadPoolExecutor-0_9 - extract_frame_pair:506 - [P:9, R:4] s1=186.8333, s2=186.1415, ratio=1.0037 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:41,557] I ThreadPoolExecutor-0_2 - extract_frame_pair:506 - [P:2, R:4] s1=186.5251, s2=186.4135, ratio=1.0006 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:41,565] I ThreadPoolExecutor-0_19 - extract_frame_pair:506 - [P:19, R:4] s1=186.2372, s2=186.7096, ratio=0.9975 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:41,587] I ThreadPoolExecutor-0_16 - extract_frame_pair:506 - [P:16, R:4] s1=186.6959, s2=186.4168, ratio=1.0015 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:41,593] I ThreadPoolExecutor-0_18 - extract_frame_pair:506 - [P:18, R:4] s1=186.0334, s2=186.6098, ratio=0.9969 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:41,625] I ThreadPoolExecutor-0_17 - extract_frame_pair:506 - [P:17, R:4] s1=186.2444, s2=186.6358, ratio=0.9979 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:42,640] I ThreadPoolExecutor-0_14 - extract_frame_pair:506 - [P:14, R:5] s1=180.8933, s2=181.4684, ratio=0.9968 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:42,641] I ThreadPoolExecutor-0_14 - extract_frame_pair_multi_ring:537 - [P:14] Multi-ring extracted bits: [0, 1] from rings [4, 5]
+[2025-04-03 20:36:42,643] I ThreadPoolExecutor-0_10 - extract_frame_pair:506 - [P:10, R:5] s1=181.4982, s2=180.7360, ratio=1.0042 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:42,646] I ThreadPoolExecutor-0_10 - extract_frame_pair_multi_ring:537 - [P:10] Multi-ring extracted bits: [1, 0] from rings [4, 5]
+[2025-04-03 20:36:42,657] I ThreadPoolExecutor-0_3 - extract_frame_pair:506 - [P:3, R:5] s1=180.8226, s2=181.3551, ratio=0.9971 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:42,661] I ThreadPoolExecutor-0_3 - extract_frame_pair_multi_ring:537 - [P:3] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-03 20:36:42,740] I ThreadPoolExecutor-0_0 - extract_frame_pair:506 - [P:0, R:5] s1=179.3339, s2=180.6497, ratio=0.9927 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:42,741] I ThreadPoolExecutor-0_0 - extract_frame_pair_multi_ring:537 - [P:0] Multi-ring extracted bits: [0, 1] from rings [4, 5]
+[2025-04-03 20:36:42,745] I ThreadPoolExecutor-0_4 - extract_frame_pair:506 - [P:4, R:5] s1=180.8072, s2=181.3499, ratio=0.9970 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:42,746] I ThreadPoolExecutor-0_4 - extract_frame_pair_multi_ring:537 - [P:4] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-03 20:36:42,849] I ThreadPoolExecutor-0_12 - extract_frame_pair:506 - [P:12, R:5] s1=181.5081, s2=180.9526, ratio=1.0031 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:42,850] I ThreadPoolExecutor-0_12 - extract_frame_pair_multi_ring:537 - [P:12] Multi-ring extracted bits: [1, 0] from rings [4, 5]
+[2025-04-03 20:36:42,895] I ThreadPoolExecutor-0_11 - extract_frame_pair:506 - [P:11, R:5] s1=180.6729, s2=181.5105, ratio=0.9954 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:42,897] I ThreadPoolExecutor-0_11 - extract_frame_pair_multi_ring:537 - [P:11] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-03 20:36:42,902] I ThreadPoolExecutor-0_15 - extract_frame_pair:506 - [P:15, R:5] s1=180.7997, s2=181.3126, ratio=0.9972 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:42,902] I ThreadPoolExecutor-0_15 - extract_frame_pair_multi_ring:537 - [P:15] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-03 20:36:42,960] I ThreadPoolExecutor-0_6 - extract_frame_pair:506 - [P:6, R:5] s1=181.3330, s2=180.6801, ratio=1.0036 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:42,962] I ThreadPoolExecutor-0_6 - extract_frame_pair_multi_ring:537 - [P:6] Multi-ring extracted bits: [1, 0] from rings [4, 5]
+[2025-04-03 20:36:42,979] I ThreadPoolExecutor-0_8 - extract_frame_pair:506 - [P:8, R:5] s1=180.8620, s2=181.4107, ratio=0.9970 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:42,979] I ThreadPoolExecutor-0_13 - extract_frame_pair:506 - [P:13, R:5] s1=180.8673, s2=181.4395, ratio=0.9968 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:42,982] I ThreadPoolExecutor-0_8 - extract_frame_pair_multi_ring:537 - [P:8] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-03 20:36:42,992] I ThreadPoolExecutor-0_13 - extract_frame_pair_multi_ring:537 - [P:13] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-03 20:36:43,036] I ThreadPoolExecutor-0_5 - extract_frame_pair:506 - [P:5, R:5] s1=180.8941, s2=181.3835, ratio=0.9973 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:43,038] I ThreadPoolExecutor-0_5 - extract_frame_pair_multi_ring:537 - [P:5] Multi-ring extracted bits: [0, 1] from rings [4, 5]
+[2025-04-03 20:36:43,282] I ThreadPoolExecutor-0_1 - extract_frame_pair:506 - [P:1, R:5] s1=181.3448, s2=180.7903, ratio=1.0031 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:43,284] I ThreadPoolExecutor-0_1 - extract_frame_pair_multi_ring:537 - [P:1] Multi-ring extracted bits: [0, 0] from rings [4, 5]
+[2025-04-03 20:36:43,448] I ThreadPoolExecutor-0_18 - extract_frame_pair:506 - [P:18, R:5] s1=180.5249, s2=181.2433, ratio=0.9960 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:43,449] I ThreadPoolExecutor-0_18 - extract_frame_pair_multi_ring:537 - [P:18] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-03 20:36:43,462] I ThreadPoolExecutor-0_2 - extract_frame_pair:506 - [P:2, R:5] s1=180.7864, s2=181.3344, ratio=0.9970 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:43,464] I ThreadPoolExecutor-0_2 - extract_frame_pair_multi_ring:537 - [P:2] Multi-ring extracted bits: [0, 1] from rings [4, 5]
+[2025-04-03 20:36:43,515] I ThreadPoolExecutor-0_19 - extract_frame_pair:506 - [P:19, R:5] s1=180.7204, s2=181.3668, ratio=0.9964 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:43,517] I ThreadPoolExecutor-0_19 - extract_frame_pair_multi_ring:537 - [P:19] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-03 20:36:43,585] I ThreadPoolExecutor-0_7 - extract_frame_pair:506 - [P:7, R:5] s1=181.3324, s2=180.7872, ratio=1.0030 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:43,588] I ThreadPoolExecutor-0_7 - extract_frame_pair_multi_ring:537 - [P:7] Multi-ring extracted bits: [0, 0] from rings [4, 5]
+[2025-04-03 20:36:43,699] I ThreadPoolExecutor-0_9 - extract_frame_pair:506 - [P:9, R:5] s1=180.8996, s2=181.4569, ratio=0.9969 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:43,699] I ThreadPoolExecutor-0_9 - extract_frame_pair_multi_ring:537 - [P:9] Multi-ring extracted bits: [0, 1] from rings [4, 5]
+[2025-04-03 20:36:43,703] I ThreadPoolExecutor-0_16 - extract_frame_pair:506 - [P:16, R:5] s1=180.7942, s2=181.3066, ratio=0.9972 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:43,704] I ThreadPoolExecutor-0_16 - extract_frame_pair_multi_ring:537 - [P:16] Multi-ring extracted bits: [0, 1] from rings [4, 5]
+[2025-04-03 20:36:43,716] I ThreadPoolExecutor-0_17 - extract_frame_pair:506 - [P:17, R:5] s1=180.6962, s2=181.2517, ratio=0.9969 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:43,716] I ThreadPoolExecutor-0_17 - extract_frame_pair_multi_ring:537 - [P:17] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-03 20:36:44,076] I ThreadPoolExecutor-0_10 - extract_frame_pair:506 - [P:21, R:4] s1=186.8928, s2=186.5666, ratio=1.0017 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:44,152] I ThreadPoolExecutor-0_3 - extract_frame_pair:506 - [P:22, R:4] s1=186.8578, s2=186.5895, ratio=1.0014 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:44,205] I ThreadPoolExecutor-0_0 - extract_frame_pair:506 - [P:23, R:4] s1=186.9485, s2=186.6812, ratio=1.0014 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:44,565] I ThreadPoolExecutor-0_4 - extract_frame_pair:506 - [P:24, R:4] s1=187.0390, s2=186.6342, ratio=1.0022 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:44,771] I ThreadPoolExecutor-0_14 - extract_frame_pair:506 - [P:20, R:4] s1=186.3563, s2=186.8941, ratio=0.9971 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:44,783] I ThreadPoolExecutor-0_12 - extract_frame_pair:506 - [P:25, R:4] s1=186.9241, s2=186.6171, ratio=1.0016 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:44,837] I ThreadPoolExecutor-0_11 - extract_frame_pair:506 - [P:26, R:4] s1=186.9503, s2=186.5458, ratio=1.0022 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:44,883] I ThreadPoolExecutor-0_13 - extract_frame_pair:506 - [P:30, R:4] s1=186.3256, s2=186.9537, ratio=0.9966 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:44,890] I ThreadPoolExecutor-0_15 - extract_frame_pair:506 - [P:27, R:4] s1=186.2841, s2=186.6148, ratio=0.9982 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:44,914] I ThreadPoolExecutor-0_6 - extract_frame_pair:506 - [P:28, R:4] s1=186.2064, s2=186.6239, ratio=0.9978 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:44,946] I ThreadPoolExecutor-0_1 - extract_frame_pair:506 - [P:32, R:4] s1=186.9349, s2=186.6235, ratio=1.0017 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:44,948] I ThreadPoolExecutor-0_2 - extract_frame_pair:506 - [P:34, R:4] s1=186.8555, s2=186.4878, ratio=1.0020 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:44,956] I ThreadPoolExecutor-0_8 - extract_frame_pair:506 - [P:29, R:4] s1=186.2535, s2=186.7500, ratio=0.9973 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:44,962] I ThreadPoolExecutor-0_18 - extract_frame_pair:506 - [P:33, R:4] s1=186.9368, s2=186.5955, ratio=1.0018 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:44,982] I ThreadPoolExecutor-0_19 - extract_frame_pair:506 - [P:35, R:4] s1=186.3541, s2=186.7476, ratio=0.9979 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:45,008] I ThreadPoolExecutor-0_5 - extract_frame_pair:506 - [P:31, R:4] s1=186.9463, s2=186.6411, ratio=1.0016 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:45,047] I ThreadPoolExecutor-0_7 - extract_frame_pair:506 - [P:36, R:4] s1=186.2957, s2=186.8893, ratio=0.9968 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:45,162] I ThreadPoolExecutor-0_16 - extract_frame_pair:506 - [P:38, R:4] s1=186.4632, s2=186.8945, ratio=0.9977 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:45,290] I ThreadPoolExecutor-0_9 - extract_frame_pair:506 - [P:37, R:4] s1=186.8896, s2=186.5883, ratio=1.0016 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:45,396] I ThreadPoolExecutor-0_17 - extract_frame_pair:506 - [P:39, R:4] s1=186.9002, s2=186.5871, ratio=1.0017 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:45,655] I ThreadPoolExecutor-0_10 - extract_frame_pair:506 - [P:21, R:5] s1=181.3729, s2=180.8508, ratio=1.0029 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:45,655] I ThreadPoolExecutor-0_10 - extract_frame_pair_multi_ring:537 - [P:21] Multi-ring extracted bits: [0, 0] from rings [4, 5]
+[2025-04-03 20:36:46,196] I ThreadPoolExecutor-0_3 - extract_frame_pair:506 - [P:22, R:5] s1=180.7707, s2=181.3839, ratio=0.9966 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:46,197] I ThreadPoolExecutor-0_3 - extract_frame_pair_multi_ring:537 - [P:22] Multi-ring extracted bits: [0, 1] from rings [4, 5]
+[2025-04-03 20:36:46,209] I ThreadPoolExecutor-0_0 - extract_frame_pair:506 - [P:23, R:5] s1=181.4060, s2=180.8936, ratio=1.0028 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:46,213] I ThreadPoolExecutor-0_0 - extract_frame_pair_multi_ring:537 - [P:23] Multi-ring extracted bits: [0, 0] from rings [4, 5]
+[2025-04-03 20:36:46,314] I ThreadPoolExecutor-0_12 - extract_frame_pair:506 - [P:25, R:5] s1=180.7977, s2=181.3824, ratio=0.9968 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:46,314] I ThreadPoolExecutor-0_12 - extract_frame_pair_multi_ring:537 - [P:25] Multi-ring extracted bits: [0, 1] from rings [4, 5]
+[2025-04-03 20:36:46,355] I ThreadPoolExecutor-0_14 - extract_frame_pair:506 - [P:20, R:5] s1=181.3527, s2=180.8748, ratio=1.0026 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:46,357] I ThreadPoolExecutor-0_14 - extract_frame_pair_multi_ring:537 - [P:20] Multi-ring extracted bits: [1, 0] from rings [4, 5]
+[2025-04-03 20:36:46,367] I ThreadPoolExecutor-0_11 - extract_frame_pair:506 - [P:26, R:5] s1=181.3923, s2=180.8900, ratio=1.0028 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:46,367] I ThreadPoolExecutor-0_11 - extract_frame_pair_multi_ring:537 - [P:26] Multi-ring extracted bits: [0, 0] from rings [4, 5]
+[2025-04-03 20:36:46,386] I ThreadPoolExecutor-0_4 - extract_frame_pair:506 - [P:24, R:5] s1=181.4745, s2=180.8993, ratio=1.0032 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:46,387] I ThreadPoolExecutor-0_4 - extract_frame_pair_multi_ring:537 - [P:24] Multi-ring extracted bits: [0, 0] from rings [4, 5]
+[2025-04-03 20:36:46,438] I ThreadPoolExecutor-0_15 - extract_frame_pair:506 - [P:27, R:5] s1=181.3609, s2=180.9053, ratio=1.0025 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:46,441] I ThreadPoolExecutor-0_15 - extract_frame_pair_multi_ring:537 - [P:27] Multi-ring extracted bits: [1, 0] from rings [4, 5]
+[2025-04-03 20:36:46,472] I ThreadPoolExecutor-0_13 - extract_frame_pair:506 - [P:30, R:5] s1=180.6529, s2=181.3075, ratio=0.9964 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:46,472] I ThreadPoolExecutor-0_13 - extract_frame_pair_multi_ring:537 - [P:30] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-03 20:36:46,509] I ThreadPoolExecutor-0_6 - extract_frame_pair:506 - [P:28, R:5] s1=181.3627, s2=180.9203, ratio=1.0024 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:46,510] I ThreadPoolExecutor-0_6 - extract_frame_pair_multi_ring:537 - [P:28] Multi-ring extracted bits: [1, 0] from rings [4, 5]
+[2025-04-03 20:36:46,550] I ThreadPoolExecutor-0_18 - extract_frame_pair:506 - [P:33, R:5] s1=181.3190, s2=180.8044, ratio=1.0028 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:46,551] I ThreadPoolExecutor-0_18 - extract_frame_pair_multi_ring:537 - [P:33] Multi-ring extracted bits: [0, 0] from rings [4, 5]
+[2025-04-03 20:36:46,553] I ThreadPoolExecutor-0_5 - extract_frame_pair:506 - [P:31, R:5] s1=180.8135, s2=181.3066, ratio=0.9973 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:46,553] I ThreadPoolExecutor-0_5 - extract_frame_pair_multi_ring:537 - [P:31] Multi-ring extracted bits: [0, 1] from rings [4, 5]
+[2025-04-03 20:36:46,579] I ThreadPoolExecutor-0_1 - extract_frame_pair:506 - [P:32, R:5] s1=180.8010, s2=181.3174, ratio=0.9972 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:46,580] I ThreadPoolExecutor-0_1 - extract_frame_pair_multi_ring:537 - [P:32] Multi-ring extracted bits: [0, 1] from rings [4, 5]
+[2025-04-03 20:36:46,621] I ThreadPoolExecutor-0_19 - extract_frame_pair:506 - [P:35, R:5] s1=180.6821, s2=181.2459, ratio=0.9969 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:46,622] I ThreadPoolExecutor-0_19 - extract_frame_pair_multi_ring:537 - [P:35] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-03 20:36:46,805] I ThreadPoolExecutor-0_16 - extract_frame_pair:506 - [P:38, R:5] s1=181.3735, s2=180.8554, ratio=1.0029 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:46,808] I ThreadPoolExecutor-0_16 - extract_frame_pair_multi_ring:537 - [P:38] Multi-ring extracted bits: [1, 0] from rings [4, 5]
+[2025-04-03 20:36:47,241] I ThreadPoolExecutor-0_8 - extract_frame_pair:506 - [P:29, R:5] s1=181.3571, s2=180.9117, ratio=1.0025 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:47,249] I ThreadPoolExecutor-0_8 - extract_frame_pair_multi_ring:537 - [P:29] Multi-ring extracted bits: [1, 0] from rings [4, 5]
+[2025-04-03 20:36:47,267] I ThreadPoolExecutor-0_7 - extract_frame_pair:506 - [P:36, R:5] s1=180.6195, s2=181.3265, ratio=0.9961 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:47,275] I ThreadPoolExecutor-0_7 - extract_frame_pair_multi_ring:537 - [P:36] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-03 20:36:47,338] I ThreadPoolExecutor-0_10 - extract_frame_pair:506 - [P:40, R:4] s1=186.4704, s2=186.8826, ratio=0.9978 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:47,368] I ThreadPoolExecutor-0_9 - extract_frame_pair:506 - [P:37, R:5] s1=180.8281, s2=181.3855, ratio=0.9969 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:47,369] I ThreadPoolExecutor-0_9 - extract_frame_pair_multi_ring:537 - [P:37] Multi-ring extracted bits: [0, 1] from rings [4, 5]
+[2025-04-03 20:36:47,373] I ThreadPoolExecutor-0_17 - extract_frame_pair:506 - [P:39, R:5] s1=181.3780, s2=180.8213, ratio=1.0031 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:47,374] I ThreadPoolExecutor-0_17 - extract_frame_pair_multi_ring:537 - [P:39] Multi-ring extracted bits: [0, 0] from rings [4, 5]
+[2025-04-03 20:36:47,408] I ThreadPoolExecutor-0_2 - extract_frame_pair:506 - [P:34, R:5] s1=180.7106, s2=181.2286, ratio=0.9971 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:47,409] I ThreadPoolExecutor-0_2 - extract_frame_pair_multi_ring:537 - [P:34] Multi-ring extracted bits: [0, 1] from rings [4, 5]
+[2025-04-03 20:36:47,743] I ThreadPoolExecutor-0_0 - extract_frame_pair:506 - [P:42, R:4] s1=186.2790, s2=186.8604, ratio=0.9969 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:47,791] I ThreadPoolExecutor-0_3 - extract_frame_pair:506 - [P:41, R:4] s1=186.8828, s2=186.5238, ratio=1.0019 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:47,808] I ThreadPoolExecutor-0_12 - extract_frame_pair:506 - [P:43, R:4] s1=186.0863, s2=186.7166, ratio=0.9966 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:47,963] I ThreadPoolExecutor-0_15 - extract_frame_pair:506 - [P:47, R:4] s1=185.8411, s2=186.1741, ratio=0.9982 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:47,965] I ThreadPoolExecutor-0_4 - extract_frame_pair:506 - [P:46, R:4] s1=186.3842, s2=185.6680, ratio=1.0039 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:48,066] I ThreadPoolExecutor-0_11 - extract_frame_pair:506 - [P:45, R:4] s1=186.0302, s2=186.3790, ratio=0.9981 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:48,609] I ThreadPoolExecutor-0_18 - extract_frame_pair:506 - [P:50, R:4] s1=186.0912, s2=186.4113, ratio=0.9983 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:48,616] I ThreadPoolExecutor-0_19 - extract_frame_pair:506 - [P:53, R:4] s1=186.4003, s2=185.6930, ratio=1.0038 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:48,790] I ThreadPoolExecutor-0_0 - extract_frame_pair:506 - [P:42, R:5] s1=181.3956, s2=181.0794, ratio=1.0017 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:48,791] I ThreadPoolExecutor-0_0 - extract_frame_pair_multi_ring:537 - [P:42] Multi-ring extracted bits: [1, 0] from rings [4, 5]
+[2025-04-03 20:36:49,028] I ThreadPoolExecutor-0_12 - extract_frame_pair:506 - [P:43, R:5] s1=180.4026, s2=181.0770, ratio=0.9963 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:49,029] I ThreadPoolExecutor-0_12 - extract_frame_pair_multi_ring:537 - [P:43] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-03 20:36:49,115] I ThreadPoolExecutor-0_9 - extract_frame_pair:506 - [P:57, R:4] s1=185.9524, s2=185.5838, ratio=1.0020 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:49,390] I ThreadPoolExecutor-0_8 - extract_frame_pair:506 - [P:55, R:4] s1=185.9847, s2=185.5842, ratio=1.0022 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:49,507] I ThreadPoolExecutor-0_16 - extract_frame_pair:506 - [P:54, R:4] s1=186.1485, s2=185.6087, ratio=1.0029 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:49,544] I ThreadPoolExecutor-0_10 - extract_frame_pair:506 - [P:40, R:5] s1=180.6967, s2=181.2868, ratio=0.9967 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:49,546] I ThreadPoolExecutor-0_10 - extract_frame_pair_multi_ring:537 - [P:40] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-03 20:36:49,615] I ThreadPoolExecutor-0_13 - extract_frame_pair:506 - [P:48, R:4] s1=186.3362, s2=185.8626, ratio=1.0025 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:49,638] I ThreadPoolExecutor-0_6 - extract_frame_pair:506 - [P:49, R:4] s1=186.0464, s2=186.3878, ratio=0.9982 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:49,638] I ThreadPoolExecutor-0_5 - extract_frame_pair:506 - [P:51, R:4] s1=186.0965, s2=186.4023, ratio=0.9984 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:49,657] I ThreadPoolExecutor-0_1 - extract_frame_pair:506 - [P:52, R:4] s1=186.1024, s2=186.4107, ratio=0.9983 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:49,661] I ThreadPoolExecutor-0_14 - extract_frame_pair:506 - [P:44, R:4] s1=186.1880, s2=186.4289, ratio=0.9987 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:49,836] I ThreadPoolExecutor-0_17 - extract_frame_pair:506 - [P:58, R:4] s1=185.9406, s2=185.6240, ratio=1.0017 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:49,856] I ThreadPoolExecutor-0_11 - extract_frame_pair:506 - [P:45, R:7] s1=69.8360, s2=69.8631, ratio=0.9996 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:49,857] I ThreadPoolExecutor-0_11 - extract_frame_pair_multi_ring:537 - [P:45] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-03 20:36:49,947] I ThreadPoolExecutor-0_7 - extract_frame_pair:506 - [P:56, R:4] s1=185.9563, s2=185.5941, ratio=1.0020 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:50,075] I ThreadPoolExecutor-0_3 - extract_frame_pair:506 - [P:41, R:5] s1=180.7929, s2=181.3598, ratio=0.9969 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:50,075] I ThreadPoolExecutor-0_3 - extract_frame_pair_multi_ring:537 - [P:41] Multi-ring extracted bits: [0, 1] from rings [4, 5]
+[2025-04-03 20:36:50,256] I ThreadPoolExecutor-0_2 - extract_frame_pair:506 - [P:59, R:4] s1=185.1355, s2=185.3230, ratio=0.9990 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:50,481] I ThreadPoolExecutor-0_4 - extract_frame_pair:506 - [P:46, R:7] s1=69.8555, s2=69.8599, ratio=0.9999 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:50,482] I ThreadPoolExecutor-0_4 - extract_frame_pair_multi_ring:537 - [P:46] Multi-ring extracted bits: [0, 1] from rings [4, 7]
+[2025-04-03 20:36:50,502] I ThreadPoolExecutor-0_15 - extract_frame_pair:506 - [P:47, R:7] s1=69.8465, s2=69.8583, ratio=0.9998 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:50,504] I ThreadPoolExecutor-0_15 - extract_frame_pair_multi_ring:537 - [P:47] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-03 20:36:50,623] I ThreadPoolExecutor-0_19 - extract_frame_pair:506 - [P:53, R:7] s1=69.8100, s2=69.7669, ratio=1.0006 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:50,626] I ThreadPoolExecutor-0_19 - extract_frame_pair_multi_ring:537 - [P:53] Multi-ring extracted bits: [0, 0] from rings [4, 7]
+[2025-04-03 20:36:50,628] I ThreadPoolExecutor-0_18 - extract_frame_pair:506 - [P:50, R:7] s1=69.8247, s2=69.8374, ratio=0.9998 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:50,629] I ThreadPoolExecutor-0_18 - extract_frame_pair_multi_ring:537 - [P:50] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-03 20:36:50,730] I ThreadPoolExecutor-0_12 - extract_frame_pair:506 - [P:61, R:4] s1=185.1544, s2=185.7086, ratio=0.9970 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:50,737] I ThreadPoolExecutor-0_0 - extract_frame_pair:506 - [P:60, R:4] s1=184.9321, s2=185.3856, ratio=0.9976 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:50,964] I ThreadPoolExecutor-0_9 - extract_frame_pair:506 - [P:57, R:7] s1=69.7107, s2=69.6137, ratio=1.0014 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:50,979] I ThreadPoolExecutor-0_9 - extract_frame_pair_multi_ring:537 - [P:57] Multi-ring extracted bits: [0, 0] from rings [4, 7]
+[2025-04-03 20:36:50,983] I ThreadPoolExecutor-0_8 - extract_frame_pair:506 - [P:55, R:7] s1=69.7908, s2=69.7224, ratio=1.0010 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:50,984] I ThreadPoolExecutor-0_8 - extract_frame_pair_multi_ring:537 - [P:55] Multi-ring extracted bits: [0, 0] from rings [4, 7]
+[2025-04-03 20:36:51,456] I ThreadPoolExecutor-0_16 - extract_frame_pair:506 - [P:54, R:7] s1=69.7655, s2=69.7887, ratio=0.9997 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:51,458] I ThreadPoolExecutor-0_16 - extract_frame_pair_multi_ring:537 - [P:54] Multi-ring extracted bits: [0, 1] from rings [4, 7]
+[2025-04-03 20:36:51,505] I ThreadPoolExecutor-0_10 - extract_frame_pair:506 - [P:62, R:4] s1=185.5981, s2=186.0289, ratio=0.9977 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:51,530] I ThreadPoolExecutor-0_13 - extract_frame_pair:506 - [P:48, R:7] s1=69.8264, s2=69.8537, ratio=0.9996 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:51,539] I ThreadPoolExecutor-0_13 - extract_frame_pair_multi_ring:537 - [P:48] Multi-ring extracted bits: [0, 1] from rings [4, 7]
+[2025-04-03 20:36:51,651] I ThreadPoolExecutor-0_5 - extract_frame_pair:506 - [P:51, R:7] s1=69.8267, s2=69.8291, ratio=1.0000 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:51,652] I ThreadPoolExecutor-0_5 - extract_frame_pair_multi_ring:537 - [P:51] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-03 20:36:51,700] I ThreadPoolExecutor-0_14 - extract_frame_pair:506 - [P:44, R:7] s1=69.9957, s2=69.7332, ratio=1.0038 vs thr=1.0002 -> Bit=0
+[2025-04-03 20:36:51,701] I ThreadPoolExecutor-0_14 - extract_frame_pair_multi_ring:537 - [P:44] Multi-ring extracted bits: [1, 0] from rings [4, 7]
+[2025-04-03 20:36:51,727] I ThreadPoolExecutor-0_6 - extract_frame_pair:506 - [P:49, R:7] s1=69.8335, s2=69.8358, ratio=1.0000 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:51,729] I ThreadPoolExecutor-0_6 - extract_frame_pair_multi_ring:537 - [P:49] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-03 20:36:51,739] I ThreadPoolExecutor-0_11 - extract_frame_pair:506 - [P:63, R:4] s1=186.0311, s2=185.6703, ratio=1.0019 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:51,827] I ThreadPoolExecutor-0_1 - extract_frame_pair:506 - [P:52, R:7] s1=69.8354, s2=69.7886, ratio=1.0007 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:51,833] I ThreadPoolExecutor-0_1 - extract_frame_pair_multi_ring:537 - [P:52] Multi-ring extracted bits: [1, 0] from rings [4, 7]
+[2025-04-03 20:36:51,839] I ThreadPoolExecutor-0_17 - extract_frame_pair:506 - [P:58, R:7] s1=69.6139, s2=69.6255, ratio=0.9998 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:51,844] I ThreadPoolExecutor-0_17 - extract_frame_pair_multi_ring:537 - [P:58] Multi-ring extracted bits: [0, 1] from rings [4, 7]
+[2025-04-03 20:36:51,990] I ThreadPoolExecutor-0_7 - extract_frame_pair:506 - [P:56, R:7] s1=69.7427, s2=69.7092, ratio=1.0005 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:51,991] I ThreadPoolExecutor-0_7 - extract_frame_pair_multi_ring:537 - [P:56] Multi-ring extracted bits: [0, 0] from rings [4, 7]
+[2025-04-03 20:36:52,064] I ThreadPoolExecutor-0_3 - extract_frame_pair:506 - [P:64, R:4] s1=186.1347, s2=185.8189, ratio=1.0017 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:52,096] I ThreadPoolExecutor-0_2 - extract_frame_pair:506 - [P:59, R:7] s1=69.4886, s2=69.4491, ratio=1.0006 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:52,098] I ThreadPoolExecutor-0_2 - extract_frame_pair_multi_ring:537 - [P:59] Multi-ring extracted bits: [1, 0] from rings [4, 7]
+[2025-04-03 20:36:52,222] I ThreadPoolExecutor-0_4 - extract_frame_pair:506 - [P:65, R:4] s1=186.2113, s2=185.7221, ratio=1.0026 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:52,245] I ThreadPoolExecutor-0_15 - extract_frame_pair:506 - [P:66, R:4] s1=186.2487, s2=185.7649, ratio=1.0026 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:52,255] I ThreadPoolExecutor-0_19 - extract_frame_pair:506 - [P:67, R:4] s1=185.6997, s2=185.8989, ratio=0.9989 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:52,369] I ThreadPoolExecutor-0_0 - extract_frame_pair:506 - [P:60, R:5] s1=181.2072, s2=180.7001, ratio=1.0028 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:52,370] I ThreadPoolExecutor-0_0 - extract_frame_pair_multi_ring:537 - [P:60] Multi-ring extracted bits: [1, 0] from rings [4, 5]
+[2025-04-03 20:36:52,460] I ThreadPoolExecutor-0_12 - extract_frame_pair:506 - [P:61, R:5] s1=181.3210, s2=180.8250, ratio=1.0027 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:52,463] I ThreadPoolExecutor-0_12 - extract_frame_pair_multi_ring:537 - [P:61] Multi-ring extracted bits: [1, 0] from rings [4, 5]
+[2025-04-03 20:36:52,620] I ThreadPoolExecutor-0_18 - extract_frame_pair:506 - [P:68, R:4] s1=185.5640, s2=185.9627, ratio=0.9979 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:52,979] I ThreadPoolExecutor-0_8 - extract_frame_pair:506 - [P:70, R:4] s1=185.4729, s2=185.8445, ratio=0.9980 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:53,151] I ThreadPoolExecutor-0_9 - extract_frame_pair:506 - [P:69, R:4] s1=185.9700, s2=185.4548, ratio=1.0028 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:53,469] I ThreadPoolExecutor-0_16 - extract_frame_pair:506 - [P:71, R:4] s1=185.8620, s2=185.3871, ratio=1.0026 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:53,531] I ThreadPoolExecutor-0_13 - extract_frame_pair:506 - [P:72, R:4] s1=185.3284, s2=185.7850, ratio=0.9975 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:53,553] I ThreadPoolExecutor-0_11 - extract_frame_pair:506 - [P:63, R:5] s1=180.8591, s2=181.2234, ratio=0.9980 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:53,554] I ThreadPoolExecutor-0_11 - extract_frame_pair_multi_ring:537 - [P:63] Multi-ring extracted bits: [0, 1] from rings [4, 5]
+[2025-04-03 20:36:53,576] I ThreadPoolExecutor-0_10 - extract_frame_pair:506 - [P:62, R:5] s1=180.8222, s2=181.3261, ratio=0.9972 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:53,578] I ThreadPoolExecutor-0_5 - extract_frame_pair:506 - [P:73, R:4] s1=185.7842, s2=185.3617, ratio=1.0023 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:53,578] I ThreadPoolExecutor-0_10 - extract_frame_pair_multi_ring:537 - [P:62] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-03 20:36:53,600] I ThreadPoolExecutor-0_14 - extract_frame_pair:506 - [P:74, R:4] s1=185.3734, s2=185.7799, ratio=0.9978 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:53,611] I ThreadPoolExecutor-0_7 - extract_frame_pair:506 - [P:78, R:4] s1=186.3319, s2=185.8267, ratio=1.0027 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:53,633] I ThreadPoolExecutor-0_1 - extract_frame_pair:506 - [P:76, R:4] s1=185.6767, s2=186.0223, ratio=0.9981 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:53,740] I ThreadPoolExecutor-0_6 - extract_frame_pair:506 - [P:75, R:4] s1=185.4486, s2=185.8073, ratio=0.9981 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:53,745] I ThreadPoolExecutor-0_3 - extract_frame_pair:506 - [P:64, R:5] s1=180.7888, s2=181.2888, ratio=0.9972 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:53,748] I ThreadPoolExecutor-0_3 - extract_frame_pair_multi_ring:537 - [P:64] Multi-ring extracted bits: [0, 1] from rings [4, 5]
+[2025-04-03 20:36:54,174] I ThreadPoolExecutor-0_0 - extract_frame_pair:506 - [P:80, R:4] s1=186.2236, s2=185.7501, ratio=1.0025 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:54,176] I ThreadPoolExecutor-0_2 - extract_frame_pair:506 - [P:79, R:4] s1=185.8504, s2=186.2176, ratio=0.9980 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:54,240] I ThreadPoolExecutor-0_15 - extract_frame_pair:506 - [P:66, R:5] s1=180.6389, s2=181.1584, ratio=0.9971 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:54,243] I ThreadPoolExecutor-0_15 - extract_frame_pair_multi_ring:537 - [P:66] Multi-ring extracted bits: [0, 1] from rings [4, 5]
+[2025-04-03 20:36:54,332] I ThreadPoolExecutor-0_12 - extract_frame_pair:506 - [P:81, R:4] s1=185.6672, s2=185.9220, ratio=0.9986 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:54,372] I ThreadPoolExecutor-0_17 - extract_frame_pair:506 - [P:77, R:4] s1=185.7123, s2=186.2188, ratio=0.9973 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:54,394] I ThreadPoolExecutor-0_19 - extract_frame_pair:506 - [P:67, R:5] s1=180.6546, s2=181.1462, ratio=0.9973 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:54,395] I ThreadPoolExecutor-0_19 - extract_frame_pair_multi_ring:537 - [P:67] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-03 20:36:54,434] I ThreadPoolExecutor-0_18 - extract_frame_pair:506 - [P:68, R:5] s1=180.7752, s2=181.3049, ratio=0.9971 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:54,434] I ThreadPoolExecutor-0_18 - extract_frame_pair_multi_ring:537 - [P:68] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-03 20:36:54,473] I ThreadPoolExecutor-0_4 - extract_frame_pair:506 - [P:65, R:5] s1=181.3006, s2=180.7102, ratio=1.0033 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:54,477] I ThreadPoolExecutor-0_4 - extract_frame_pair_multi_ring:537 - [P:65] Multi-ring extracted bits: [0, 0] from rings [4, 5]
+[2025-04-03 20:36:54,640] I ThreadPoolExecutor-0_8 - extract_frame_pair:506 - [P:70, R:5] s1=181.3097, s2=180.7678, ratio=1.0030 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:54,640] I ThreadPoolExecutor-0_8 - extract_frame_pair_multi_ring:537 - [P:70] Multi-ring extracted bits: [1, 0] from rings [4, 5]
+[2025-04-03 20:36:54,655] I ThreadPoolExecutor-0_9 - extract_frame_pair:506 - [P:69, R:5] s1=180.7765, s2=181.2824, ratio=0.9972 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:54,660] I ThreadPoolExecutor-0_9 - extract_frame_pair_multi_ring:537 - [P:69] Multi-ring extracted bits: [0, 1] from rings [4, 5]
+[2025-04-03 20:36:54,773] I ThreadPoolExecutor-0_11 - extract_frame_pair:506 - [P:82, R:4] s1=185.5529, s2=185.9079, ratio=0.9981 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:55,111] I ThreadPoolExecutor-0_10 - extract_frame_pair:506 - [P:83, R:4] s1=185.5088, s2=185.8493, ratio=0.9982 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:55,361] I ThreadPoolExecutor-0_7 - extract_frame_pair:506 - [P:78, R:5] s1=180.6358, s2=181.1433, ratio=0.9972 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:55,363] I ThreadPoolExecutor-0_7 - extract_frame_pair_multi_ring:537 - [P:78] Multi-ring extracted bits: [0, 1] from rings [4, 5]
+[2025-04-03 20:36:55,444] I ThreadPoolExecutor-0_13 - extract_frame_pair:506 - [P:72, R:5] s1=180.6260, s2=181.2294, ratio=0.9967 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:55,448] I ThreadPoolExecutor-0_13 - extract_frame_pair_multi_ring:537 - [P:72] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-03 20:36:55,516] I ThreadPoolExecutor-0_14 - extract_frame_pair:506 - [P:74, R:5] s1=181.2969, s2=180.7988, ratio=1.0028 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:55,518] I ThreadPoolExecutor-0_14 - extract_frame_pair_multi_ring:537 - [P:74] Multi-ring extracted bits: [1, 0] from rings [4, 5]
+[2025-04-03 20:36:55,532] I ThreadPoolExecutor-0_16 - extract_frame_pair:506 - [P:71, R:5] s1=181.2575, s2=180.6667, ratio=1.0033 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:55,534] I ThreadPoolExecutor-0_16 - extract_frame_pair_multi_ring:537 - [P:71] Multi-ring extracted bits: [0, 0] from rings [4, 5]
+[2025-04-03 20:36:55,587] I ThreadPoolExecutor-0_3 - extract_frame_pair:506 - [P:84, R:4] s1=185.5205, s2=186.0640, ratio=0.9971 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:55,606] I ThreadPoolExecutor-0_1 - extract_frame_pair:506 - [P:76, R:5] s1=181.3602, s2=180.8381, ratio=1.0029 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:55,607] I ThreadPoolExecutor-0_1 - extract_frame_pair_multi_ring:537 - [P:76] Multi-ring extracted bits: [1, 0] from rings [4, 5]
+[2025-04-03 20:36:55,613] I ThreadPoolExecutor-0_6 - extract_frame_pair:506 - [P:75, R:5] s1=180.8100, s2=181.3363, ratio=0.9971 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:55,614] I ThreadPoolExecutor-0_6 - extract_frame_pair_multi_ring:537 - [P:75] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-03 20:36:55,615] I ThreadPoolExecutor-0_5 - extract_frame_pair:506 - [P:73, R:5] s1=180.7805, s2=181.2349, ratio=0.9975 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:55,620] I ThreadPoolExecutor-0_5 - extract_frame_pair_multi_ring:537 - [P:73] Multi-ring extracted bits: [0, 1] from rings [4, 5]
+[2025-04-03 20:36:55,633] I ThreadPoolExecutor-0_2 - extract_frame_pair:506 - [P:79, R:5] s1=180.6521, s2=181.1002, ratio=0.9975 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:55,635] I ThreadPoolExecutor-0_2 - extract_frame_pair_multi_ring:537 - [P:79] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-03 20:36:55,664] I ThreadPoolExecutor-0_0 - extract_frame_pair:506 - [P:80, R:5] s1=180.6553, s2=181.1076, ratio=0.9975 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:55,667] I ThreadPoolExecutor-0_0 - extract_frame_pair_multi_ring:537 - [P:80] Multi-ring extracted bits: [0, 1] from rings [4, 5]
+[2025-04-03 20:36:55,730] I ThreadPoolExecutor-0_15 - extract_frame_pair:506 - [P:85, R:4] s1=186.1133, s2=185.6150, ratio=1.0027 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:55,738] I ThreadPoolExecutor-0_19 - extract_frame_pair:506 - [P:86, R:4] s1=186.0928, s2=185.7174, ratio=1.0020 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:55,762] I ThreadPoolExecutor-0_12 - extract_frame_pair:506 - [P:81, R:5] s1=180.6054, s2=181.0835, ratio=0.9974 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:55,764] I ThreadPoolExecutor-0_12 - extract_frame_pair_multi_ring:537 - [P:81] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-03 20:36:55,821] I ThreadPoolExecutor-0_17 - extract_frame_pair:506 - [P:77, R:5] s1=180.7779, s2=181.2176, ratio=0.9976 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:55,822] I ThreadPoolExecutor-0_17 - extract_frame_pair_multi_ring:537 - [P:77] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-03 20:36:55,937] I ThreadPoolExecutor-0_4 - extract_frame_pair:506 - [P:88, R:4] s1=186.2152, s2=185.7980, ratio=1.0022 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:55,962] I ThreadPoolExecutor-0_18 - extract_frame_pair:506 - [P:87, R:4] s1=186.1471, s2=185.7017, ratio=1.0024 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:56,273] I ThreadPoolExecutor-0_8 - extract_frame_pair:506 - [P:89, R:4] s1=186.1417, s2=185.7760, ratio=1.0020 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:56,302] I ThreadPoolExecutor-0_9 - extract_frame_pair:506 - [P:90, R:4] s1=186.3021, s2=185.7641, ratio=1.0029 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:56,475] I ThreadPoolExecutor-0_11 - extract_frame_pair:506 - [P:82, R:5] s1=180.8510, s2=181.4279, ratio=0.9968 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:56,476] I ThreadPoolExecutor-0_11 - extract_frame_pair_multi_ring:537 - [P:82] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-03 20:36:56,546] I ThreadPoolExecutor-0_10 - extract_frame_pair:506 - [P:83, R:5] s1=180.9743, s2=181.5523, ratio=0.9968 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:56,547] I ThreadPoolExecutor-0_10 - extract_frame_pair_multi_ring:537 - [P:83] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-03 20:36:56,786] I ThreadPoolExecutor-0_7 - extract_frame_pair:506 - [P:91, R:4] s1=185.6770, s2=185.8750, ratio=0.9989 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:56,963] I ThreadPoolExecutor-0_13 - extract_frame_pair:506 - [P:92, R:4] s1=185.4809, s2=185.7320, ratio=0.9986 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:57,026] I ThreadPoolExecutor-0_16 - extract_frame_pair:506 - [P:94, R:4] s1=185.6218, s2=186.1299, ratio=0.9973 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:57,110] I ThreadPoolExecutor-0_14 - extract_frame_pair:506 - [P:93, R:4] s1=185.4015, s2=185.6554, ratio=0.9986 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:57,210] I ThreadPoolExecutor-0_6 - extract_frame_pair:506 - [P:96, R:4] s1=186.3376, s2=185.8658, ratio=1.0025 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:57,318] I ThreadPoolExecutor-0_1 - extract_frame_pair:506 - [P:95, R:4] s1=186.1511, s2=185.7561, ratio=1.0021 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:57,333] I ThreadPoolExecutor-0_3 - extract_frame_pair:506 - [P:84, R:5] s1=181.6538, s2=181.0004, ratio=1.0036 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:57,336] I ThreadPoolExecutor-0_3 - extract_frame_pair_multi_ring:537 - [P:84] Multi-ring extracted bits: [1, 0] from rings [4, 5]
+[2025-04-03 20:36:57,370] I ThreadPoolExecutor-0_0 - extract_frame_pair:506 - [P:99, R:4] s1=185.6586, s2=185.8903, ratio=0.9988 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:57,400] I ThreadPoolExecutor-0_5 - extract_frame_pair:506 - [P:97, R:4] s1=186.2702, s2=185.8345, ratio=1.0023 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:57,415] I ThreadPoolExecutor-0_12 - extract_frame_pair:506 - [P:100, R:4] s1=185.5004, s2=185.9685, ratio=0.9975 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:57,468] I ThreadPoolExecutor-0_17 - extract_frame_pair:506 - [P:101, R:4] s1=185.9613, s2=185.4667, ratio=1.0027 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:57,481] I ThreadPoolExecutor-0_2 - extract_frame_pair:506 - [P:98, R:4] s1=186.1983, s2=185.6973, ratio=1.0027 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:57,486] I ThreadPoolExecutor-0_19 - extract_frame_pair:506 - [P:86, R:5] s1=180.8947, s2=181.3238, ratio=0.9976 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:57,489] I ThreadPoolExecutor-0_19 - extract_frame_pair_multi_ring:537 - [P:86] Multi-ring extracted bits: [0, 1] from rings [4, 5]
+[2025-04-03 20:36:57,505] I ThreadPoolExecutor-0_15 - extract_frame_pair:506 - [P:85, R:5] s1=181.5189, s2=180.8909, ratio=1.0035 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:57,508] I ThreadPoolExecutor-0_15 - extract_frame_pair_multi_ring:537 - [P:85] Multi-ring extracted bits: [0, 0] from rings [4, 5]
+[2025-04-03 20:36:57,632] I ThreadPoolExecutor-0_18 - extract_frame_pair:506 - [P:87, R:5] s1=181.3493, s2=180.7548, ratio=1.0033 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:57,633] I ThreadPoolExecutor-0_18 - extract_frame_pair_multi_ring:537 - [P:87] Multi-ring extracted bits: [0, 0] from rings [4, 5]
+[2025-04-03 20:36:57,641] I ThreadPoolExecutor-0_4 - extract_frame_pair:506 - [P:88, R:5] s1=181.4883, s2=180.9873, ratio=1.0028 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:57,644] I ThreadPoolExecutor-0_4 - extract_frame_pair_multi_ring:537 - [P:88] Multi-ring extracted bits: [0, 0] from rings [4, 5]
+[2025-04-03 20:36:57,780] I ThreadPoolExecutor-0_8 - extract_frame_pair:506 - [P:89, R:5] s1=181.0092, s2=181.5023, ratio=0.9973 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:57,784] I ThreadPoolExecutor-0_8 - extract_frame_pair_multi_ring:537 - [P:89] Multi-ring extracted bits: [0, 1] from rings [4, 5]
+[2025-04-03 20:36:57,798] I ThreadPoolExecutor-0_11 - extract_frame_pair:506 - [P:102, R:4] s1=185.5491, s2=185.5643, ratio=0.9999 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:57,807] I ThreadPoolExecutor-0_9 - extract_frame_pair:506 - [P:90, R:5] s1=181.6012, s2=181.0159, ratio=1.0032 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:57,813] I ThreadPoolExecutor-0_9 - extract_frame_pair_multi_ring:537 - [P:90] Multi-ring extracted bits: [0, 0] from rings [4, 5]
+[2025-04-03 20:36:58,319] I ThreadPoolExecutor-0_10 - extract_frame_pair:506 - [P:103, R:4] s1=185.0569, s2=184.0494, ratio=1.0055 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:58,643] I ThreadPoolExecutor-0_13 - extract_frame_pair:506 - [P:92, R:5] s1=181.4204, s2=180.9172, ratio=1.0028 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:58,645] I ThreadPoolExecutor-0_13 - extract_frame_pair_multi_ring:537 - [P:92] Multi-ring extracted bits: [1, 0] from rings [4, 5]
+[2025-04-03 20:36:58,674] I ThreadPoolExecutor-0_16 - extract_frame_pair:506 - [P:94, R:5] s1=180.7121, s2=181.1799, ratio=0.9974 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:58,675] I ThreadPoolExecutor-0_16 - extract_frame_pair_multi_ring:537 - [P:94] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-03 20:36:58,691] I ThreadPoolExecutor-0_7 - extract_frame_pair:506 - [P:91, R:5] s1=181.5123, s2=180.9579, ratio=1.0031 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:58,691] I ThreadPoolExecutor-0_7 - extract_frame_pair_multi_ring:537 - [P:91] Multi-ring extracted bits: [1, 0] from rings [4, 5]
+[2025-04-03 20:36:58,714] I ThreadPoolExecutor-0_14 - extract_frame_pair:506 - [P:93, R:5] s1=181.3629, s2=180.7637, ratio=1.0033 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:58,715] I ThreadPoolExecutor-0_14 - extract_frame_pair_multi_ring:537 - [P:93] Multi-ring extracted bits: [1, 0] from rings [4, 5]
+[2025-04-03 20:36:58,719] I ThreadPoolExecutor-0_1 - extract_frame_pair:506 - [P:95, R:5] s1=180.7295, s2=181.1398, ratio=0.9977 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:58,720] I ThreadPoolExecutor-0_1 - extract_frame_pair_multi_ring:537 - [P:95] Multi-ring extracted bits: [0, 1] from rings [4, 5]
+[2025-04-03 20:36:58,721] I ThreadPoolExecutor-0_6 - extract_frame_pair:506 - [P:96, R:5] s1=180.5482, s2=181.0719, ratio=0.9971 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:58,723] I ThreadPoolExecutor-0_6 - extract_frame_pair_multi_ring:537 - [P:96] Multi-ring extracted bits: [0, 1] from rings [4, 5]
+[2025-04-03 20:36:58,730] I ThreadPoolExecutor-0_3 - extract_frame_pair:506 - [P:104, R:4] s1=183.5886, s2=184.2057, ratio=0.9967 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:58,783] I ThreadPoolExecutor-0_5 - extract_frame_pair:506 - [P:97, R:5] s1=181.0883, s2=180.5507, ratio=1.0030 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:58,786] I ThreadPoolExecutor-0_5 - extract_frame_pair_multi_ring:537 - [P:97] Multi-ring extracted bits: [0, 0] from rings [4, 5]
+[2025-04-03 20:36:58,806] I ThreadPoolExecutor-0_12 - extract_frame_pair:506 - [P:100, R:5] s1=180.6972, s2=181.2537, ratio=0.9969 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:58,811] I ThreadPoolExecutor-0_12 - extract_frame_pair_multi_ring:537 - [P:100] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-03 20:36:58,821] I ThreadPoolExecutor-0_0 - extract_frame_pair:506 - [P:99, R:5] s1=180.5376, s2=181.0126, ratio=0.9974 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:58,827] I ThreadPoolExecutor-0_0 - extract_frame_pair_multi_ring:537 - [P:99] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-03 20:36:58,882] I ThreadPoolExecutor-0_2 - extract_frame_pair:506 - [P:98, R:5] s1=180.5502, s2=180.9967, ratio=0.9975 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:58,884] I ThreadPoolExecutor-0_2 - extract_frame_pair_multi_ring:537 - [P:98] Multi-ring extracted bits: [0, 1] from rings [4, 5]
+[2025-04-03 20:36:58,890] I ThreadPoolExecutor-0_15 - extract_frame_pair:506 - [P:106, R:4] s1=183.5665, s2=183.9828, ratio=0.9977 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:59,333] I ThreadPoolExecutor-0_17 - extract_frame_pair:506 - [P:101, R:5] s1=180.8619, s2=181.3637, ratio=0.9972 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:59,340] I ThreadPoolExecutor-0_17 - extract_frame_pair_multi_ring:537 - [P:101] Multi-ring extracted bits: [0, 1] from rings [4, 5]
+[2025-04-03 20:36:59,404] I ThreadPoolExecutor-0_18 - extract_frame_pair:506 - [P:107, R:4] s1=183.6669, s2=184.0316, ratio=0.9980 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:59,542] I ThreadPoolExecutor-0_19 - extract_frame_pair:506 - [P:105, R:4] s1=183.9818, s2=183.5692, ratio=1.0022 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:59,562] I ThreadPoolExecutor-0_8 - extract_frame_pair:506 - [P:109, R:4] s1=183.6572, s2=183.9919, ratio=0.9982 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:59,585] I ThreadPoolExecutor-0_4 - extract_frame_pair:506 - [P:108, R:4] s1=183.5764, s2=183.9964, ratio=0.9977 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:59,603] I ThreadPoolExecutor-0_9 - extract_frame_pair:506 - [P:110, R:4] s1=183.9951, s2=183.3508, ratio=1.0035 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:59,611] I ThreadPoolExecutor-0_11 - extract_frame_pair:506 - [P:102, R:5] s1=181.4668, s2=180.4106, ratio=1.0059 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:59,619] I ThreadPoolExecutor-0_11 - extract_frame_pair_multi_ring:537 - [P:102] Multi-ring extracted bits: [1, 0] from rings [4, 5]
+[2025-04-03 20:36:59,797] I ThreadPoolExecutor-0_10 - extract_frame_pair:506 - [P:103, R:5] s1=180.9617, s2=180.0382, ratio=1.0051 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:36:59,797] I ThreadPoolExecutor-0_10 - extract_frame_pair_multi_ring:537 - [P:103] Multi-ring extracted bits: [0, 0] from rings [4, 5]
+[2025-04-03 20:36:59,922] I ThreadPoolExecutor-0_7 - extract_frame_pair:506 - [P:113, R:4] s1=183.4205, s2=183.8957, ratio=0.9974 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:59,972] I ThreadPoolExecutor-0_14 - extract_frame_pair:506 - [P:114, R:4] s1=183.4518, s2=183.9057, ratio=0.9975 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:36:59,979] I ThreadPoolExecutor-0_13 - extract_frame_pair:506 - [P:111, R:4] s1=183.4706, s2=183.7864, ratio=0.9983 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:00,380] I ThreadPoolExecutor-0_6 - extract_frame_pair:506 - [P:116, R:4] s1=183.4919, s2=183.8870, ratio=0.9979 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:00,501] I ThreadPoolExecutor-0_1 - extract_frame_pair:506 - [P:115, R:4] s1=183.5061, s2=183.8936, ratio=0.9979 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:00,555] I ThreadPoolExecutor-0_5 - extract_frame_pair:506 - [P:117, R:4] s1=183.8900, s2=183.1609, ratio=1.0040 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:37:00,588] I ThreadPoolExecutor-0_3 - extract_frame_pair:506 - [P:104, R:7] s1=69.8045, s2=69.9141, ratio=0.9984 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:00,589] I ThreadPoolExecutor-0_3 - extract_frame_pair_multi_ring:537 - [P:104] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-03 20:37:00,628] I ThreadPoolExecutor-0_16 - extract_frame_pair:506 - [P:112, R:4] s1=183.8477, s2=183.2801, ratio=1.0031 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:37:00,645] I ThreadPoolExecutor-0_12 - extract_frame_pair:506 - [P:118, R:4] s1=183.5779, s2=183.1568, ratio=1.0023 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:37:00,661] I ThreadPoolExecutor-0_2 - extract_frame_pair:506 - [P:120, R:4] s1=183.7400, s2=183.2503, ratio=1.0027 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:37:00,664] I ThreadPoolExecutor-0_0 - extract_frame_pair:506 - [P:119, R:4] s1=183.5532, s2=183.1358, ratio=1.0023 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:37:00,691] I ThreadPoolExecutor-0_15 - extract_frame_pair:506 - [P:106, R:7] s1=69.9066, s2=69.8301, ratio=1.0011 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:37:00,695] I ThreadPoolExecutor-0_15 - extract_frame_pair_multi_ring:537 - [P:106] Multi-ring extracted bits: [1, 0] from rings [4, 7]
+[2025-04-03 20:37:00,699] I ThreadPoolExecutor-0_18 - extract_frame_pair:506 - [P:107, R:7] s1=69.8424, s2=69.7997, ratio=1.0006 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:37:00,704] I ThreadPoolExecutor-0_18 - extract_frame_pair_multi_ring:537 - [P:107] Multi-ring extracted bits: [1, 0] from rings [4, 7]
+[2025-04-03 20:37:00,725] I ThreadPoolExecutor-0_17 - extract_frame_pair:506 - [P:121, R:4] s1=183.6676, s2=183.1630, ratio=1.0028 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:37:00,865] I ThreadPoolExecutor-0_19 - extract_frame_pair:506 - [P:105, R:7] s1=69.8906, s2=69.9128, ratio=0.9997 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:00,867] I ThreadPoolExecutor-0_19 - extract_frame_pair_multi_ring:537 - [P:105] Multi-ring extracted bits: [0, 1] from rings [4, 7]
+[2025-04-03 20:37:00,932] I ThreadPoolExecutor-0_11 - extract_frame_pair:506 - [P:122, R:4] s1=183.6822, s2=183.3178, ratio=1.0020 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:37:00,948] I ThreadPoolExecutor-0_9 - extract_frame_pair:506 - [P:110, R:7] s1=69.8885, s2=69.9021, ratio=0.9998 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:00,954] I ThreadPoolExecutor-0_9 - extract_frame_pair_multi_ring:537 - [P:110] Multi-ring extracted bits: [0, 1] from rings [4, 7]
+[2025-04-03 20:37:01,075] I ThreadPoolExecutor-0_10 - extract_frame_pair:506 - [P:123, R:4] s1=183.4028, s2=183.8695, ratio=0.9975 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:01,096] I ThreadPoolExecutor-0_8 - extract_frame_pair:506 - [P:109, R:7] s1=69.9022, s2=69.9037, ratio=1.0000 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:01,101] I ThreadPoolExecutor-0_8 - extract_frame_pair_multi_ring:537 - [P:109] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-03 20:37:01,144] I ThreadPoolExecutor-0_4 - extract_frame_pair:506 - [P:108, R:7] s1=69.9162, s2=69.8540, ratio=1.0009 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:37:01,148] I ThreadPoolExecutor-0_4 - extract_frame_pair_multi_ring:537 - [P:108] Multi-ring extracted bits: [1, 0] from rings [4, 7]
+[2025-04-03 20:37:01,757] I ThreadPoolExecutor-0_14 - extract_frame_pair:506 - [P:114, R:7] s1=69.8584, s2=69.8436, ratio=1.0002 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:01,759] I ThreadPoolExecutor-0_14 - extract_frame_pair_multi_ring:537 - [P:114] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-03 20:37:01,790] I ThreadPoolExecutor-0_7 - extract_frame_pair:506 - [P:113, R:7] s1=69.8966, s2=69.8897, ratio=1.0001 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:01,791] I ThreadPoolExecutor-0_7 - extract_frame_pair_multi_ring:537 - [P:113] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-03 20:37:01,797] I ThreadPoolExecutor-0_13 - extract_frame_pair:506 - [P:111, R:7] s1=69.8799, s2=69.9013, ratio=0.9997 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:01,799] I ThreadPoolExecutor-0_13 - extract_frame_pair_multi_ring:537 - [P:111] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-03 20:37:01,829] I ThreadPoolExecutor-0_1 - extract_frame_pair:506 - [P:115, R:7] s1=69.8404, s2=69.8238, ratio=1.0002 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:01,832] I ThreadPoolExecutor-0_1 - extract_frame_pair_multi_ring:537 - [P:115] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-03 20:37:01,854] I ThreadPoolExecutor-0_6 - extract_frame_pair:506 - [P:116, R:7] s1=69.8283, s2=69.8274, ratio=1.0000 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:01,855] I ThreadPoolExecutor-0_6 - extract_frame_pair_multi_ring:537 - [P:116] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-03 20:37:01,908] I ThreadPoolExecutor-0_5 - extract_frame_pair:506 - [P:117, R:7] s1=69.8277, s2=69.7315, ratio=1.0014 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:37:01,915] I ThreadPoolExecutor-0_5 - extract_frame_pair_multi_ring:537 - [P:117] Multi-ring extracted bits: [0, 0] from rings [4, 7]
+[2025-04-03 20:37:01,959] I ThreadPoolExecutor-0_16 - extract_frame_pair:506 - [P:112, R:7] s1=69.9025, s2=69.9026, ratio=1.0000 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:01,961] I ThreadPoolExecutor-0_12 - extract_frame_pair:506 - [P:118, R:7] s1=69.7498, s2=69.7580, ratio=0.9999 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:01,961] I ThreadPoolExecutor-0_16 - extract_frame_pair_multi_ring:537 - [P:112] Multi-ring extracted bits: [0, 1] from rings [4, 7]
+[2025-04-03 20:37:01,963] I ThreadPoolExecutor-0_12 - extract_frame_pair_multi_ring:537 - [P:118] Multi-ring extracted bits: [0, 1] from rings [4, 7]
+[2025-04-03 20:37:01,998] I ThreadPoolExecutor-0_3 - extract_frame_pair:506 - [P:124, R:4] s1=183.4347, s2=183.8714, ratio=0.9976 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:02,062] I ThreadPoolExecutor-0_0 - extract_frame_pair:506 - [P:119, R:7] s1=69.7840, s2=69.7876, ratio=0.9999 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:02,064] I ThreadPoolExecutor-0_0 - extract_frame_pair_multi_ring:537 - [P:119] Multi-ring extracted bits: [0, 1] from rings [4, 7]
+[2025-04-03 20:37:02,163] I ThreadPoolExecutor-0_18 - extract_frame_pair:506 - [P:126, R:4] s1=183.2934, s2=183.9151, ratio=0.9966 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:02,174] I ThreadPoolExecutor-0_2 - extract_frame_pair:506 - [P:120, R:7] s1=69.8098, s2=69.6716, ratio=1.0020 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:37:02,180] I ThreadPoolExecutor-0_2 - extract_frame_pair_multi_ring:537 - [P:120] Multi-ring extracted bits: [0, 0] from rings [4, 7]
+[2025-04-03 20:37:02,215] I ThreadPoolExecutor-0_17 - extract_frame_pair:506 - [P:121, R:7] s1=69.6955, s2=69.7862, ratio=0.9987 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:02,220] I ThreadPoolExecutor-0_17 - extract_frame_pair_multi_ring:537 - [P:121] Multi-ring extracted bits: [0, 1] from rings [4, 7]
+[2025-04-03 20:37:02,264] I ThreadPoolExecutor-0_11 - extract_frame_pair:506 - [P:122, R:7] s1=69.7945, s2=69.7453, ratio=1.0007 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:37:02,266] I ThreadPoolExecutor-0_11 - extract_frame_pair_multi_ring:537 - [P:122] Multi-ring extracted bits: [0, 0] from rings [4, 7]
+[2025-04-03 20:37:02,268] I ThreadPoolExecutor-0_15 - extract_frame_pair:506 - [P:125, R:4] s1=183.1953, s2=183.8695, ratio=0.9963 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:02,304] I ThreadPoolExecutor-0_10 - extract_frame_pair:506 - [P:123, R:7] s1=69.7694, s2=69.7452, ratio=1.0003 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:37:02,305] I ThreadPoolExecutor-0_10 - extract_frame_pair_multi_ring:537 - [P:123] Multi-ring extracted bits: [1, 0] from rings [4, 7]
+[2025-04-03 20:37:02,901] I ThreadPoolExecutor-0_8 - extract_frame_pair:506 - [P:129, R:4] s1=183.8313, s2=183.3823, ratio=1.0024 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:37:02,963] I ThreadPoolExecutor-0_9 - extract_frame_pair:506 - [P:128, R:4] s1=183.8459, s2=183.4225, ratio=1.0023 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:37:02,969] I ThreadPoolExecutor-0_19 - extract_frame_pair:506 - [P:127, R:4] s1=183.8475, s2=183.4427, ratio=1.0022 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:37:03,022] I ThreadPoolExecutor-0_4 - extract_frame_pair:506 - [P:130, R:4] s1=183.8295, s2=183.3559, ratio=1.0026 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:37:03,158] I ThreadPoolExecutor-0_7 - extract_frame_pair:506 - [P:132, R:4] s1=183.2217, s2=183.8273, ratio=0.9967 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:03,193] I ThreadPoolExecutor-0_6 - extract_frame_pair:506 - [P:135, R:4] s1=183.8093, s2=183.3420, ratio=1.0025 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:37:03,220] I ThreadPoolExecutor-0_1 - extract_frame_pair:506 - [P:134, R:4] s1=183.2316, s2=183.8080, ratio=0.9969 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:03,288] I ThreadPoolExecutor-0_12 - extract_frame_pair:506 - [P:138, R:4] s1=183.1219, s2=183.5903, ratio=0.9974 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:03,316] I ThreadPoolExecutor-0_13 - extract_frame_pair:506 - [P:133, R:4] s1=183.8274, s2=183.3829, ratio=1.0024 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:37:03,333] I ThreadPoolExecutor-0_14 - extract_frame_pair:506 - [P:131, R:4] s1=183.0167, s2=183.7035, ratio=0.9963 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:03,374] I ThreadPoolExecutor-0_5 - extract_frame_pair:506 - [P:136, R:4] s1=183.2220, s2=183.7834, ratio=0.9969 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:03,486] I ThreadPoolExecutor-0_16 - extract_frame_pair:506 - [P:137, R:4] s1=183.7797, s2=183.3192, ratio=1.0025 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:37:03,578] I ThreadPoolExecutor-0_0 - extract_frame_pair:506 - [P:139, R:4] s1=182.9903, s2=183.3326, ratio=0.9981 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:03,719] I ThreadPoolExecutor-0_17 - extract_frame_pair:506 - [P:141, R:4] s1=182.9849, s2=183.2904, ratio=0.9983 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:03,812] I ThreadPoolExecutor-0_3 - extract_frame_pair:506 - [P:124, R:7] s1=69.7683, s2=69.7458, ratio=1.0003 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:37:03,813] I ThreadPoolExecutor-0_3 - extract_frame_pair_multi_ring:537 - [P:124] Multi-ring extracted bits: [1, 0] from rings [4, 7]
+[2025-04-03 20:37:03,858] I ThreadPoolExecutor-0_18 - extract_frame_pair:506 - [P:126, R:7] s1=69.9458, s2=69.9934, ratio=0.9993 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:03,859] I ThreadPoolExecutor-0_18 - extract_frame_pair_multi_ring:537 - [P:126] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-03 20:37:03,884] I ThreadPoolExecutor-0_15 - extract_frame_pair:506 - [P:125, R:7] s1=70.0130, s2=69.9721, ratio=1.0006 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:37:03,887] I ThreadPoolExecutor-0_11 - extract_frame_pair:506 - [P:142, R:4] s1=183.0713, s2=182.6484, ratio=1.0023 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:37:03,888] I ThreadPoolExecutor-0_15 - extract_frame_pair_multi_ring:537 - [P:125] Multi-ring extracted bits: [1, 0] from rings [4, 7]
+[2025-04-03 20:37:03,920] I ThreadPoolExecutor-0_2 - extract_frame_pair:506 - [P:140, R:4] s1=182.9953, s2=183.3317, ratio=0.9982 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:03,926] I ThreadPoolExecutor-0_10 - extract_frame_pair:506 - [P:143, R:4] s1=182.4605, s2=183.2093, ratio=0.9959 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:04,388] I ThreadPoolExecutor-0_9 - extract_frame_pair:506 - [P:128, R:7] s1=69.9518, s2=69.9880, ratio=0.9995 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:04,390] I ThreadPoolExecutor-0_9 - extract_frame_pair_multi_ring:537 - [P:128] Multi-ring extracted bits: [0, 1] from rings [4, 7]
+[2025-04-03 20:37:04,479] I ThreadPoolExecutor-0_8 - extract_frame_pair:506 - [P:129, R:7] s1=69.9804, s2=69.9580, ratio=1.0003 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:37:04,482] I ThreadPoolExecutor-0_8 - extract_frame_pair_multi_ring:537 - [P:129] Multi-ring extracted bits: [0, 0] from rings [4, 7]
+[2025-04-03 20:37:04,582] I ThreadPoolExecutor-0_19 - extract_frame_pair:506 - [P:127, R:7] s1=69.8059, s2=69.9680, ratio=0.9977 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:04,586] I ThreadPoolExecutor-0_19 - extract_frame_pair_multi_ring:537 - [P:127] Multi-ring extracted bits: [0, 1] from rings [4, 7]
+[2025-04-03 20:37:04,694] I ThreadPoolExecutor-0_4 - extract_frame_pair:506 - [P:130, R:7] s1=69.9438, s2=69.9511, ratio=0.9999 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:04,695] I ThreadPoolExecutor-0_4 - extract_frame_pair_multi_ring:537 - [P:130] Multi-ring extracted bits: [0, 1] from rings [4, 7]
+[2025-04-03 20:37:04,731] I ThreadPoolExecutor-0_13 - extract_frame_pair:506 - [P:133, R:7] s1=69.7916, s2=69.9752, ratio=0.9974 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:04,732] I ThreadPoolExecutor-0_13 - extract_frame_pair_multi_ring:537 - [P:133] Multi-ring extracted bits: [0, 1] from rings [4, 7]
+[2025-04-03 20:37:04,769] I ThreadPoolExecutor-0_12 - extract_frame_pair:506 - [P:138, R:7] s1=69.9259, s2=69.9058, ratio=1.0003 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:37:04,770] I ThreadPoolExecutor-0_12 - extract_frame_pair_multi_ring:537 - [P:138] Multi-ring extracted bits: [1, 0] from rings [4, 7]
+[2025-04-03 20:37:04,776] I ThreadPoolExecutor-0_7 - extract_frame_pair:506 - [P:132, R:7] s1=69.7571, s2=69.8042, ratio=0.9993 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:04,777] I ThreadPoolExecutor-0_7 - extract_frame_pair_multi_ring:537 - [P:132] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-03 20:37:04,779] I ThreadPoolExecutor-0_1 - extract_frame_pair:506 - [P:134, R:7] s1=69.9740, s2=69.9833, ratio=0.9999 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:04,780] I ThreadPoolExecutor-0_1 - extract_frame_pair_multi_ring:537 - [P:134] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-03 20:37:04,790] I ThreadPoolExecutor-0_6 - extract_frame_pair:506 - [P:135, R:7] s1=69.9903, s2=69.9524, ratio=1.0005 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:37:04,794] I ThreadPoolExecutor-0_6 - extract_frame_pair_multi_ring:537 - [P:135] Multi-ring extracted bits: [0, 0] from rings [4, 7]
+[2025-04-03 20:37:04,805] I ThreadPoolExecutor-0_14 - extract_frame_pair:506 - [P:131, R:7] s1=69.7958, s2=69.8036, ratio=0.9999 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:04,809] I ThreadPoolExecutor-0_14 - extract_frame_pair_multi_ring:537 - [P:131] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-03 20:37:04,824] I ThreadPoolExecutor-0_5 - extract_frame_pair:506 - [P:136, R:7] s1=69.9242, s2=69.9482, ratio=0.9997 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:04,829] I ThreadPoolExecutor-0_5 - extract_frame_pair_multi_ring:537 - [P:136] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-03 20:37:04,841] I ThreadPoolExecutor-0_16 - extract_frame_pair:506 - [P:137, R:7] s1=69.8230, s2=69.9209, ratio=0.9986 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:04,844] I ThreadPoolExecutor-0_16 - extract_frame_pair_multi_ring:537 - [P:137] Multi-ring extracted bits: [0, 1] from rings [4, 7]
+[2025-04-03 20:37:04,849] I ThreadPoolExecutor-0_0 - extract_frame_pair:506 - [P:139, R:7] s1=69.8315, s2=69.8916, ratio=0.9991 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:04,854] I ThreadPoolExecutor-0_0 - extract_frame_pair_multi_ring:537 - [P:139] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-03 20:37:05,336] I ThreadPoolExecutor-0_17 - extract_frame_pair:506 - [P:141, R:7] s1=69.8403, s2=69.8910, ratio=0.9993 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:05,339] I ThreadPoolExecutor-0_17 - extract_frame_pair_multi_ring:537 - [P:141] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-03 20:37:05,438] I ThreadPoolExecutor-0_3 - extract_frame_pair:506 - [P:144, R:4] s1=183.2625, s2=182.7957, ratio=1.0026 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:37:05,467] I ThreadPoolExecutor-0_11 - extract_frame_pair:506 - [P:142, R:7] s1=69.8692, s2=69.8703, ratio=1.0000 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:05,468] I ThreadPoolExecutor-0_11 - extract_frame_pair_multi_ring:537 - [P:142] Multi-ring extracted bits: [0, 1] from rings [4, 7]
+[2025-04-03 20:37:05,525] I ThreadPoolExecutor-0_18 - extract_frame_pair:506 - [P:145, R:4] s1=182.8283, s2=183.3237, ratio=0.9973 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:05,535] I ThreadPoolExecutor-0_10 - extract_frame_pair:506 - [P:143, R:7] s1=69.8321, s2=69.9961, ratio=0.9977 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:05,536] I ThreadPoolExecutor-0_10 - extract_frame_pair_multi_ring:537 - [P:143] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-03 20:37:05,540] I ThreadPoolExecutor-0_15 - extract_frame_pair:506 - [P:146, R:4] s1=182.8860, s2=183.3060, ratio=0.9977 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:05,561] I ThreadPoolExecutor-0_2 - extract_frame_pair:506 - [P:140, R:7] s1=69.8918, s2=69.8804, ratio=1.0002 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:05,565] I ThreadPoolExecutor-0_2 - extract_frame_pair_multi_ring:537 - [P:140] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-03 20:37:05,701] I ThreadPoolExecutor-0_9 - extract_frame_pair:506 - [P:147, R:4] s1=182.8623, s2=183.3182, ratio=0.9975 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:05,757] I ThreadPoolExecutor-0_8 - extract_frame_pair:506 - [P:148, R:4] s1=182.8768, s2=183.3180, ratio=0.9976 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:05,880] I ThreadPoolExecutor-0_19 - extract_frame_pair:506 - [P:149, R:4] s1=183.3146, s2=182.7661, ratio=1.0030 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:37:05,940] I ThreadPoolExecutor-0_4 - extract_frame_pair:506 - [P:150, R:4] s1=183.1491, s2=182.6928, ratio=1.0025 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:37:06,030] I ThreadPoolExecutor-0_6 - extract_frame_pair:506 - [P:155, R:4] s1=182.6845, s2=183.1794, ratio=0.9973 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:06,066] I ThreadPoolExecutor-0_13 - extract_frame_pair:506 - [P:151, R:4] s1=182.9512, s2=182.5773, ratio=1.0020 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:37:06,315] I ThreadPoolExecutor-0_7 - extract_frame_pair:506 - [P:153, R:4] s1=182.8738, s2=182.5714, ratio=1.0017 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:37:06,326] I ThreadPoolExecutor-0_12 - extract_frame_pair:506 - [P:152, R:4] s1=182.9407, s2=182.4911, ratio=1.0025 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:37:06,371] I ThreadPoolExecutor-0_1 - extract_frame_pair:506 - [P:154, R:4] s1=183.0467, s2=182.6462, ratio=1.0022 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:37:06,381] I ThreadPoolExecutor-0_5 - extract_frame_pair:506 - [P:157, R:4] s1=182.6691, s2=183.1479, ratio=0.9974 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:06,459] I ThreadPoolExecutor-0_0 - extract_frame_pair:506 - [P:159, R:4] s1=183.1205, s2=182.7055, ratio=1.0023 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:37:06,467] I ThreadPoolExecutor-0_14 - extract_frame_pair:506 - [P:156, R:4] s1=182.6108, s2=183.1748, ratio=0.9969 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:06,471] I ThreadPoolExecutor-0_16 - extract_frame_pair:506 - [P:158, R:4] s1=182.6461, s2=183.1415, ratio=0.9973 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:06,534] I ThreadPoolExecutor-0_3 - extract_frame_pair:506 - [P:144, R:7] s1=69.9628, s2=70.0037, ratio=0.9994 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:06,535] I ThreadPoolExecutor-0_3 - extract_frame_pair_multi_ring:537 - [P:144] Multi-ring extracted bits: [0, 1] from rings [4, 7]
+[2025-04-03 20:37:06,587] I ThreadPoolExecutor-0_18 - extract_frame_pair:506 - [P:145, R:7] s1=69.9419, s2=69.9891, ratio=0.9993 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:06,587] I ThreadPoolExecutor-0_18 - extract_frame_pair_multi_ring:537 - [P:145] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-03 20:37:06,618] I ThreadPoolExecutor-0_15 - extract_frame_pair:506 - [P:146, R:7] s1=69.9625, s2=69.9735, ratio=0.9998 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:06,619] I ThreadPoolExecutor-0_15 - extract_frame_pair_multi_ring:537 - [P:146] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-03 20:37:06,660] I ThreadPoolExecutor-0_9 - extract_frame_pair:506 - [P:147, R:7] s1=69.9493, s2=69.9696, ratio=0.9997 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:06,660] I ThreadPoolExecutor-0_9 - extract_frame_pair_multi_ring:537 - [P:147] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-03 20:37:06,925] I ThreadPoolExecutor-0_8 - extract_frame_pair:506 - [P:148, R:7] s1=69.9698, s2=69.9671, ratio=1.0000 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:06,926] I ThreadPoolExecutor-0_8 - extract_frame_pair_multi_ring:537 - [P:148] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-03 20:37:07,067] I ThreadPoolExecutor-0_19 - extract_frame_pair:506 - [P:149, R:7] s1=69.9541, s2=69.9068, ratio=1.0007 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:37:07,067] I ThreadPoolExecutor-0_19 - extract_frame_pair_multi_ring:537 - [P:149] Multi-ring extracted bits: [0, 0] from rings [4, 7]
+[2025-04-03 20:37:07,078] I ThreadPoolExecutor-0_6 - extract_frame_pair:506 - [P:155, R:7] s1=69.8941, s2=69.9197, ratio=0.9996 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:07,079] I ThreadPoolExecutor-0_6 - extract_frame_pair_multi_ring:537 - [P:155] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-03 20:37:07,085] I ThreadPoolExecutor-0_4 - extract_frame_pair:506 - [P:150, R:7] s1=69.8514, s2=69.8996, ratio=0.9993 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:07,086] I ThreadPoolExecutor-0_4 - extract_frame_pair_multi_ring:537 - [P:150] Multi-ring extracted bits: [0, 1] from rings [4, 7]
+[2025-04-03 20:37:07,096] I ThreadPoolExecutor-0_13 - extract_frame_pair:506 - [P:151, R:7] s1=69.8746, s2=69.9245, ratio=0.9993 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:07,101] I ThreadPoolExecutor-0_13 - extract_frame_pair_multi_ring:537 - [P:151] Multi-ring extracted bits: [0, 1] from rings [4, 7]
+[2025-04-03 20:37:07,162] I ThreadPoolExecutor-0_7 - extract_frame_pair:506 - [P:153, R:7] s1=69.9086, s2=69.9343, ratio=0.9996 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:07,165] I ThreadPoolExecutor-0_7 - extract_frame_pair_multi_ring:537 - [P:153] Multi-ring extracted bits: [0, 1] from rings [4, 7]
+[2025-04-03 20:37:07,188] I ThreadPoolExecutor-0_12 - extract_frame_pair:506 - [P:152, R:7] s1=69.9526, s2=69.9324, ratio=1.0003 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:37:07,191] I ThreadPoolExecutor-0_12 - extract_frame_pair_multi_ring:537 - [P:152] Multi-ring extracted bits: [0, 0] from rings [4, 7]
+[2025-04-03 20:37:07,247] I ThreadPoolExecutor-0_0 - extract_frame_pair:506 - [P:159, R:7] s1=69.9050, s2=69.9735, ratio=0.9990 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:07,248] I ThreadPoolExecutor-0_0 - extract_frame_pair_multi_ring:537 - [P:159] Multi-ring extracted bits: [0, 1] from rings [4, 7]
+[2025-04-03 20:37:07,252] I ThreadPoolExecutor-0_5 - extract_frame_pair:506 - [P:157, R:7] s1=69.7583, s2=69.8844, ratio=0.9982 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:07,257] I ThreadPoolExecutor-0_5 - extract_frame_pair_multi_ring:537 - [P:157] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-03 20:37:07,257] I ThreadPoolExecutor-0_1 - extract_frame_pair:506 - [P:154, R:7] s1=69.9328, s2=69.9117, ratio=1.0003 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:37:07,262] I ThreadPoolExecutor-0_1 - extract_frame_pair_multi_ring:537 - [P:154] Multi-ring extracted bits: [0, 0] from rings [4, 7]
+[2025-04-03 20:37:07,283] I ThreadPoolExecutor-0_16 - extract_frame_pair:506 - [P:158, R:7] s1=69.8982, s2=69.9208, ratio=0.9997 vs thr=1.0003 -> Bit=1
+[2025-04-03 20:37:07,287] I ThreadPoolExecutor-0_16 - extract_frame_pair_multi_ring:537 - [P:158] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-03 20:37:07,290] I ThreadPoolExecutor-0_14 - extract_frame_pair:506 - [P:156, R:7] s1=69.9633, s2=69.9311, ratio=1.0005 vs thr=1.0003 -> Bit=0
+[2025-04-03 20:37:07,294] I ThreadPoolExecutor-0_14 - extract_frame_pair_multi_ring:537 - [P:156] Multi-ring extracted bits: [1, 0] from rings [4, 7]
+[2025-04-03 20:37:07,296] I MainThread - extract_watermark_from_video:757 - Parallel extraction finished. Pairs submitted: 160. Pairs processed: 160.
+[2025-04-03 20:37:07,296] I MainThread - extract_watermark_from_video:758 - Pairs with failed extraction (None bits): 0.
+[2025-04-03 20:37:07,297] I MainThread - extract_watermark_from_video:771 - Total bits collected: 320 (Expected based on pairs processed: 320)
+[2025-04-03 20:37:07,297] I MainThread - extract_watermark_from_video:777 - Attempting to decode 5 potential packets (Packet Size: 64 bits)...
+[2025-04-03 20:37:07,297] I MainThread - extract_watermark_from_video:831 - Successfully decoded payload from packet #1 (ECC corrected: 0).
+[2025-04-03 20:37:07,297] I MainThread - extract_watermark_from_video:831 - Successfully decoded payload from packet #2 (ECC corrected: 0).
+[2025-04-03 20:37:07,297] I MainThread - extract_watermark_from_video:831 - Successfully decoded payload from packet #3 (ECC corrected: 0).
+[2025-04-03 20:37:07,297] I MainThread - extract_watermark_from_video:831 - Successfully decoded payload from packet #4 (ECC corrected: 0).
+[2025-04-03 20:37:07,297] I MainThread - extract_watermark_from_video:831 - Successfully decoded payload from packet #5 (ECC corrected: 0).
+[2025-04-03 20:37:07,297] I MainThread - extract_watermark_from_video:840 - Packet decoding summary: Success=5, Failed=0. Total ECC corrections: 0.
+[2025-04-03 20:37:07,297] I MainThread - extract_watermark_from_video:848 - Payload voting results:
+[2025-04-03 20:37:07,297] I MainThread - extract_watermark_from_video:853 -   Payload (Hex ID: 47d8dbb77f8412ad): 2 votes
+[2025-04-03 20:37:07,297] I MainThread - extract_watermark_from_video:853 -   Payload (Hex ID: 47d8dbb77f8406ad): 1 votes
+[2025-04-03 20:37:07,297] I MainThread - extract_watermark_from_video:853 -   Payload (Hex ID: 47d8dab77fc512ad): 1 votes
+[2025-04-03 20:37:07,298] I MainThread - extract_watermark_from_video:853 -   Payload (Hex ID: 47dcdbf77fc513bd): 1 votes
+[2025-04-03 20:37:07,298] I MainThread - extract_watermark_from_video:860 - Most common payload selected with 2/5 votes (Confidence: 40.0%).
+[2025-04-03 20:37:07,298] I MainThread - extract_watermark_from_video:866 - Extraction and processing finished. Total time: 27.57 sec.
+[2025-04-03 20:37:07,298] I MainThread - main:919 - Successfully decoded extracted payload to Hex ID: 47d8dbb77f8412ad
+[2025-04-03 20:37:07,298] I MainThread - main:933 - ID verification successful.
+[2025-04-03 20:37:07,298] I MainThread - main:940 - --- Extraction Main Process Finished ---
+[2025-04-03 20:37:07,298] I MainThread - main:942 - --- Total Extractor Script Time: 28.63 sec ---
+[2025-04-03 20:37:07,453] I MainThread - <module>:967 - Profiling stats saved to profile_stats_extract_n2.txt
