@@ -1,141 +1,997 @@
-[2025-04-03 20:35:03,316] I MainThread - <module>:70 - --- Запуск Скрипта Встраивания (Bits/Pair: 2, Payload: 64bit, ECC: True, Max Repeats: 5) ---
-[2025-04-03 20:35:03,316] I MainThread - <module>:72 - Настройки: Метод кольца='multi_ring', Метрика='entropy', Колец исп.=2, N_RINGS_Total=8
-[2025-04-03 20:35:03,317] I MainThread - <module>:74 - Альфа: MIN=1.005, MAX=1.1
-[2025-04-03 20:35:03,317] I MainThread - <module>:75 - Маскировка: True, Компонент: Cr
-[2025-04-03 20:35:03,317] I MainThread - <module>:76 - Выход: Кодек=XVID, Расширение=.avi
-[2025-04-03 20:35:03,317] W MainThread - <module>:85 - Используется lossy кодек 'XVID'. Тщательно проверьте извлекаемость ВЗ!
-[2025-04-03 20:35:03,317] I MainThread - main:1134 - --- Starting Embedding Main Process ---
-[2025-04-03 20:35:03,317] I MainThread - read_video:553 - Reading video from: input.mp4
-[2025-04-03 20:35:03,378] I MainThread - read_video:563 - Detected FPS: 30.00
-[2025-04-03 20:35:03,378] I MainThread - read_video:569 - Video properties: 842x720 @ 30.00 FPS, ~907 frames
-[2025-04-03 20:35:04,781] I MainThread - read_video:578 - End of stream after reading 907 frames (index 907).
-[2025-04-03 20:35:04,781] I MainThread - read_video:592 - Finished reading. Valid frames: 907. Skipped None: 0, Invalid shape: 0
-[2025-04-03 20:35:04,791] I MainThread - main:1145 - Generated Payload ID (Hex): 11032b8fb87a79c5
-[2025-04-03 20:35:04,791] I MainThread - main:1146 - Payload size: 8 bytes (64 bits)
-[2025-04-03 20:35:04,792] E MainThread - main:1173 - Failed to initialize/use BCH: 'bchlib.BCH' object has no attribute 'k'. Proceeding without ECC.
+[2025-04-04 08:58:59,688] I MainThread - <module>:68 - --- Запуск Скрипта Встраивания (Bits/Pair: 2, Payload: 64bit, ECC: True, Max Repeats: 5) ---
+[2025-04-04 08:58:59,688] I MainThread - <module>:70 - Настройки: Метод кольца='multi_ring', Метрика='entropy', Колец исп.=2, N_RINGS_Total=8
+[2025-04-04 08:58:59,689] I MainThread - <module>:72 - Альфа: MIN=1.005, MAX=1.1
+[2025-04-04 08:58:59,689] I MainThread - <module>:73 - Маскировка: True, Компонент: Cr
+[2025-04-04 08:58:59,689] I MainThread - <module>:74 - Выход: Кодек=XVID, Расширение=.avi
+[2025-04-04 08:58:59,690] W MainThread - <module>:83 - Используется lossy кодек 'XVID'. Тщательно проверьте извлекаемость ВЗ!
+[2025-04-04 08:58:59,692] I MainThread - main:1189 - --- Starting Embedding Main Process ---
+[2025-04-04 08:58:59,692] I MainThread - read_video:590 - Reading video from: input.mp4
+[2025-04-04 08:58:59,889] I MainThread - read_video:601 - Detected FPS: 30.00
+[2025-04-04 08:58:59,890] I MainThread - read_video:607 - Video properties: 842x720 @ 30.00 FPS, ~907 frames
+[2025-04-04 08:59:03,565] I MainThread - read_video:616 - End of stream after reading 907 frames (index 907).
+[2025-04-04 08:59:03,565] I MainThread - read_video:633 - Finished reading. Valid frames: 907. Skipped None: 0, Invalid shape: 0
+[2025-04-04 08:59:03,584] I MainThread - main:1200 - Generated Payload ID (Hex): a6be6d7bf702377f
+[2025-04-04 08:59:03,585] I MainThread - main:1201 - Payload size: 8 bytes (64 bits)
+[2025-04-04 08:59:03,586] E MainThread - main:1228 - Failed to initialize/use BCH: 'bchlib.BCH' object has no attribute 'k'. Proceeding without ECC.
 Traceback (most recent call last):
-  File "C:\Users\danil\PycharmProjects\blindWatermark\watermark_embedder.py", line 1157, in main
+  File "C:\Users\danil\PycharmProjects\blindWatermark\watermark_embedder.py", line 1212, in main
     k_bits = bch.k
 AttributeError: 'bchlib.BCH' object has no attribute 'k'
-[2025-04-03 20:35:04,794] I MainThread - main:1181 - Using raw payload bits (No ECC). Packet length: 64 bits.
-[2025-04-03 20:35:04,795] I MainThread - main:1189 - Original ID (Hex) saved to original_watermark_id.txt
-[2025-04-03 20:35:04,795] I MainThread - embed_watermark_in_video:1009 - Starting embedding: 320 total bits (2 bits/pair) across 160 frame pairs.
-[2025-04-03 20:35:04,795] I MainThread - embed_watermark_in_video:1011 - Packet length: 64 bits. Target repeats: up to 5 (requires 160 pairs).
-[2025-04-03 20:35:04,796] I MainThread - embed_watermark_in_video:1013 - Actual bits embedded correspond to 5.00 packets.
-[2025-04-03 20:35:04,796] I MainThread - embed_watermark_in_video:1063 - Submitting 160 embedding tasks to ThreadPoolExecutor (max_workers=None)...
-[2025-04-03 20:35:05,883] I ThreadPoolExecutor-0_8 - select_embedding_rings:402 - [F:16] Multi-ring selection result: [4, 5]
-[2025-04-03 20:35:05,888] I ThreadPoolExecutor-0_2 - select_embedding_rings:402 - [F:4] Multi-ring selection result: [4, 5]
-[2025-04-03 20:35:05,909] I ThreadPoolExecutor-0_14 - select_embedding_rings:402 - [F:28] Multi-ring selection result: [4, 5]
-[2025-04-03 20:35:05,911] I ThreadPoolExecutor-0_17 - select_embedding_rings:402 - [F:34] Multi-ring selection result: [4, 5]
-[2025-04-03 20:35:05,920] I ThreadPoolExecutor-0_18 - select_embedding_rings:402 - [F:36] Multi-ring selection result: [4, 5]
-[2025-04-03 20:35:05,923] I ThreadPoolExecutor-0_12 - select_embedding_rings:402 - [F:24] Multi-ring selection result: [4, 5]
-[2025-04-03 20:35:05,932] I ThreadPoolExecutor-0_6 - select_embedding_rings:402 - [F:12] Multi-ring selection result: [4, 5]
-[2025-04-03 20:35:05,933] I ThreadPoolExecutor-0_11 - select_embedding_rings:402 - [F:22] Multi-ring selection result: [4, 5]
-[2025-04-03 20:35:05,937] I ThreadPoolExecutor-0_16 - select_embedding_rings:402 - [F:32] Multi-ring selection result: [4, 5]
-[2025-04-03 20:35:05,942] I ThreadPoolExecutor-0_13 - select_embedding_rings:402 - [F:26] Multi-ring selection result: [4, 5]
-[2025-04-03 20:35:05,947] I ThreadPoolExecutor-0_4 - select_embedding_rings:402 - [F:8] Multi-ring selection result: [4, 5]
-[2025-04-03 20:35:05,948] I ThreadPoolExecutor-0_1 - select_embedding_rings:402 - [F:2] Multi-ring selection result: [4, 5]
-[2025-04-03 20:35:05,948] I ThreadPoolExecutor-0_19 - select_embedding_rings:402 - [F:38] Multi-ring selection result: [4, 5]
-[2025-04-03 20:35:05,957] I ThreadPoolExecutor-0_9 - select_embedding_rings:402 - [F:18] Multi-ring selection result: [4, 5]
-[2025-04-03 20:35:05,967] I ThreadPoolExecutor-0_15 - select_embedding_rings:402 - [F:30] Multi-ring selection result: [4, 5]
-[2025-04-03 20:35:05,973] I ThreadPoolExecutor-0_3 - select_embedding_rings:402 - [F:6] Multi-ring selection result: [4, 5]
-[2025-04-03 20:35:05,974] I ThreadPoolExecutor-0_5 - select_embedding_rings:402 - [F:10] Multi-ring selection result: [4, 5]
-[2025-04-03 20:35:05,975] I ThreadPoolExecutor-0_7 - select_embedding_rings:402 - [F:14] Multi-ring selection result: [4, 5]
-[2025-04-03 20:35:05,976] I ThreadPoolExecutor-0_0 - select_embedding_rings:402 - [F:0] Multi-ring selection result: [4, 5]
-[2025-04-03 20:35:05,985] I ThreadPoolExecutor-0_10 - select_embedding_rings:402 - [F:20] Multi-ring selection result: [4, 5]
-[2025-04-03 20:35:08,553] I ThreadPoolExecutor-0_14 - embed_frame_pair:776 - [P:14, R:4] Embedding Bit=1, Alpha=1.0234
-[2025-04-03 20:35:08,572] I ThreadPoolExecutor-0_16 - embed_frame_pair:776 - [P:16, R:4] Embedding Bit=1, Alpha=1.0234
-[2025-04-03 20:35:08,575] I ThreadPoolExecutor-0_13 - embed_frame_pair:776 - [P:13, R:4] Embedding Bit=0, Alpha=1.0234
-[2025-04-03 20:35:08,597] I ThreadPoolExecutor-0_13 - embed_frame_pair:807 - [P:13, R:4] SVD Mod Applied: True. Orig s1=187.8139, s2=187.8131. New s1=189.9618, s2=185.6150. Target bit=0.
-[2025-04-03 20:35:08,603] I ThreadPoolExecutor-0_14 - embed_frame_pair:807 - [P:14, R:4] SVD Mod Applied: True. Orig s1=187.8135, s2=187.8135. New s1=185.6153, s2=189.9614. Target bit=1.
-[2025-04-03 20:35:08,606] I ThreadPoolExecutor-0_16 - embed_frame_pair:807 - [P:16, R:4] SVD Mod Applied: True. Orig s1=187.8064, s2=187.8064. New s1=185.6119, s2=189.9509. Target bit=1.
-[2025-04-03 20:35:08,621] I ThreadPoolExecutor-0_1 - embed_frame_pair:776 - [P:1, R:4] Embedding Bit=0, Alpha=1.0234
-[2025-04-03 20:35:08,624] I ThreadPoolExecutor-0_9 - embed_frame_pair:776 - [P:9, R:4] Embedding Bit=1, Alpha=1.0234
-[2025-04-03 20:35:08,637] I ThreadPoolExecutor-0_4 - embed_frame_pair:776 - [P:4, R:4] Embedding Bit=0, Alpha=1.0234
-[2025-04-03 20:35:08,655] I ThreadPoolExecutor-0_9 - embed_frame_pair:807 - [P:9, R:4] SVD Mod Applied: True. Orig s1=187.6627, s2=187.6817. New s1=185.4754, s2=189.8189. Target bit=1.
-[2025-04-03 20:35:08,657] I ThreadPoolExecutor-0_1 - embed_frame_pair:807 - [P:1, R:4] SVD Mod Applied: True. Orig s1=187.6488, s2=187.6507. New s1=189.7950, s2=185.4543. Target bit=0.
-[2025-04-03 20:35:08,658] I ThreadPoolExecutor-0_12 - embed_frame_pair:776 - [P:12, R:4] Embedding Bit=1, Alpha=1.0234
-[2025-04-03 20:35:08,664] I ThreadPoolExecutor-0_4 - embed_frame_pair:807 - [P:4, R:4] SVD Mod Applied: True. Orig s1=187.6507, s2=187.6507. New s1=189.7960, s2=185.4553. Target bit=0.
-[2025-04-03 20:35:08,665] I ThreadPoolExecutor-0_10 - embed_frame_pair:776 - [P:10, R:4] Embedding Bit=1, Alpha=1.0234
-[2025-04-03 20:35:08,672] I ThreadPoolExecutor-0_12 - embed_frame_pair:807 - [P:12, R:4] SVD Mod Applied: True. Orig s1=187.8139, s2=187.8139. New s1=185.6154, s2=189.9622. Target bit=1.
-[2025-04-03 20:35:08,687] I ThreadPoolExecutor-0_10 - embed_frame_pair:807 - [P:10, R:4] SVD Mod Applied: True. Orig s1=187.6773, s2=187.6666. New s1=185.4761, s2=189.8175. Target bit=1.
-[2025-04-03 20:35:08,696] I ThreadPoolExecutor-0_2 - embed_frame_pair:776 - [P:2, R:4] Embedding Bit=0, Alpha=1.0234
-[2025-04-03 20:35:08,729] I ThreadPoolExecutor-0_2 - embed_frame_pair:807 - [P:2, R:4] SVD Mod Applied: True. Orig s1=187.6507, s2=187.6507. New s1=189.7960, s2=185.4553. Target bit=0.
-[2025-04-03 20:35:08,747] I ThreadPoolExecutor-0_7 - embed_frame_pair:776 - [P:7, R:4] Embedding Bit=1, Alpha=1.0234
-[2025-04-03 20:35:08,762] I ThreadPoolExecutor-0_8 - embed_frame_pair:776 - [P:8, R:4] Embedding Bit=0, Alpha=1.0234
-[2025-04-03 20:35:08,767] I ThreadPoolExecutor-0_18 - embed_frame_pair:776 - [P:18, R:4] Embedding Bit=1, Alpha=1.0234
-[2025-04-03 20:35:08,770] I ThreadPoolExecutor-0_7 - embed_frame_pair:807 - [P:7, R:4] SVD Mod Applied: True. Orig s1=187.6507, s2=187.6507. New s1=185.4553, s2=189.7960. Target bit=1.
-[2025-04-03 20:35:08,789] I ThreadPoolExecutor-0_8 - embed_frame_pair:807 - [P:8, R:4] SVD Mod Applied: True. Orig s1=187.6507, s2=187.6380. New s1=189.7896, s2=185.4491. Target bit=0.
-[2025-04-03 20:35:08,806] I ThreadPoolExecutor-0_13 - embed_frame_pair:776 - [P:13, R:5] Embedding Bit=0, Alpha=1.0232
-[2025-04-03 20:35:08,811] I ThreadPoolExecutor-0_18 - embed_frame_pair:807 - [P:18, R:4] SVD Mod Applied: True. Orig s1=187.7191, s2=187.7191. New s1=185.5265, s2=189.8617. Target bit=1.
-[2025-04-03 20:35:08,853] I ThreadPoolExecutor-0_14 - embed_frame_pair:776 - [P:14, R:5] Embedding Bit=1, Alpha=1.0232
-[2025-04-03 20:35:08,865] I ThreadPoolExecutor-0_16 - embed_frame_pair:776 - [P:16, R:5] Embedding Bit=0, Alpha=1.0232
-[2025-04-03 20:35:08,874] I ThreadPoolExecutor-0_1 - embed_frame_pair:776 - [P:1, R:5] Embedding Bit=1, Alpha=1.0231
-[2025-04-03 20:35:08,874] I ThreadPoolExecutor-0_4 - embed_frame_pair:776 - [P:4, R:5] Embedding Bit=0, Alpha=1.0231
-[2025-04-03 20:35:08,880] I ThreadPoolExecutor-0_12 - embed_frame_pair:776 - [P:12, R:5] Embedding Bit=0, Alpha=1.0232
-[2025-04-03 20:35:08,905] I ThreadPoolExecutor-0_2 - embed_frame_pair:776 - [P:2, R:5] Embedding Bit=0, Alpha=1.0231
-[2025-04-03 20:35:08,912] I ThreadPoolExecutor-0_9 - embed_frame_pair:776 - [P:9, R:5] Embedding Bit=0, Alpha=1.0232
-[2025-04-03 20:35:08,922] I ThreadPoolExecutor-0_10 - embed_frame_pair:776 - [P:10, R:5] Embedding Bit=0, Alpha=1.0232
-[2025-04-03 20:35:09,019] I ThreadPoolExecutor-0_8 - embed_frame_pair:776 - [P:8, R:5] Embedding Bit=0, Alpha=1.0231
-[2025-04-03 20:35:09,024] I ThreadPoolExecutor-0_7 - embed_frame_pair:776 - [P:7, R:5] Embedding Bit=1, Alpha=1.0231
-[2025-04-03 20:35:09,049] I ThreadPoolExecutor-0_18 - embed_frame_pair:776 - [P:18, R:5] Embedding Bit=0, Alpha=1.0231
-[2025-04-03 20:35:09,067] I ThreadPoolExecutor-0_10 - embed_frame_pair:807 - [P:10, R:5] SVD Mod Applied: True. Orig s1=182.2850, s2=182.2914. New s1=184.3511, s2=180.1773. Target bit=0.
-[2025-04-03 20:35:09,089] I ThreadPoolExecutor-0_18 - embed_frame_pair:807 - [P:18, R:5] SVD Mod Applied: True. Orig s1=182.2478, s2=182.2478. New s1=184.3079, s2=180.1399. Target bit=0.
-[2025-04-03 20:35:09,147] I ThreadPoolExecutor-0_12 - embed_frame_pair:807 - [P:12, R:5] SVD Mod Applied: True. Orig s1=182.3943, s2=182.3943. New s1=184.4589, s2=180.2818. Target bit=0.
-[2025-04-03 20:35:09,153] I ThreadPoolExecutor-0_8 - embed_frame_pair:807 - [P:8, R:5] SVD Mod Applied: True. Orig s1=182.2579, s2=182.2688. New s1=184.3245, s2=180.1544. Target bit=0.
-[2025-04-03 20:35:09,155] I ThreadPoolExecutor-0_7 - embed_frame_pair:807 - [P:7, R:5] SVD Mod Applied: True. Orig s1=182.2579, s2=182.2579. New s1=180.1491, s2=184.3190. Target bit=1.
-[2025-04-03 20:35:09,191] I ThreadPoolExecutor-0_15 - embed_frame_pair:776 - [P:15, R:4] Embedding Bit=1, Alpha=1.0234
-[2025-04-03 20:35:09,195] I ThreadPoolExecutor-0_19 - embed_frame_pair:776 - [P:19, R:4] Embedding Bit=0, Alpha=1.0234
-[2025-04-03 20:35:09,217] I ThreadPoolExecutor-0_15 - embed_frame_pair:807 - [P:15, R:4] SVD Mod Applied: True. Orig s1=187.7932, s2=187.8064. New s1=185.6055, s2=189.9441. Target bit=1.
-[2025-04-03 20:35:09,219] I ThreadPoolExecutor-0_9 - embed_frame_pair:807 - [P:9, R:5] SVD Mod Applied: True. Orig s1=182.3123, s2=182.2808. New s1=184.3603, s2=180.1854. Target bit=0.
-[2025-04-03 20:35:09,221] I ThreadPoolExecutor-0_13 - embed_frame_pair:807 - [P:13, R:5] SVD Mod Applied: True. Orig s1=182.3943, s2=182.3943. New s1=184.4589, s2=180.2818. Target bit=0.
-[2025-04-03 20:35:09,225] I ThreadPoolExecutor-0_19 - embed_frame_pair:807 - [P:19, R:4] SVD Mod Applied: True. Orig s1=187.6860, s2=187.7420. New s1=189.8567, s2=185.5205. Target bit=0.
-[2025-04-03 20:35:09,232] I ThreadPoolExecutor-0_4 - embed_frame_pair:807 - [P:4, R:5] SVD Mod Applied: True. Orig s1=182.2579, s2=182.2579. New s1=184.3190, s2=180.1491. Target bit=0.
-[2025-04-03 20:35:09,238] I ThreadPoolExecutor-0_2 - embed_frame_pair:807 - [P:2, R:5] SVD Mod Applied: True. Orig s1=182.2579, s2=182.2579. New s1=184.3190, s2=180.1491. Target bit=0.
-[2025-04-03 20:35:09,260] I ThreadPoolExecutor-0_16 - embed_frame_pair:807 - [P:16, R:5] SVD Mod Applied: True. Orig s1=182.4016, s2=182.4016. New s1=184.4675, s2=180.2879. Target bit=0.
-[2025-04-03 20:35:09,261] I ThreadPoolExecutor-0_1 - embed_frame_pair:807 - [P:1, R:5] SVD Mod Applied: True. Orig s1=182.2619, s2=182.2579. New s1=180.1511, s2=184.3210. Target bit=1.
-[2025-04-03 20:35:09,323] I ThreadPoolExecutor-0_14 - embed_frame_pair:807 - [P:14, R:5] SVD Mod Applied: True. Orig s1=182.3943, s2=182.3943. New s1=180.2818, s2=184.4589. Target bit=1.
-[2025-04-03 20:35:09,400] I ThreadPoolExecutor-0_19 - embed_frame_pair:776 - [P:19, R:5] Embedding Bit=0, Alpha=1.0231
-[2025-04-03 20:35:09,417] I ThreadPoolExecutor-0_15 - embed_frame_pair:776 - [P:15, R:5] Embedding Bit=1, Alpha=1.0232
-[2025-04-03 20:35:09,430] I ThreadPoolExecutor-0_19 - embed_frame_pair:807 - [P:19, R:5] SVD Mod Applied: True. Orig s1=182.2399, s2=182.2718. New s1=184.3160, s2=180.1477. Target bit=0.
-[2025-04-03 20:35:09,674] I ThreadPoolExecutor-0_15 - embed_frame_pair:807 - [P:15, R:5] SVD Mod Applied: True. Orig s1=182.3684, s2=182.4016. New s1=180.2711, s2=184.4514. Target bit=1.
-[2025-04-03 20:35:09,710] I ThreadPoolExecutor-0_17 - embed_frame_pair:776 - [P:17, R:4] Embedding Bit=1, Alpha=1.0234
-[2025-04-03 20:35:09,712] I ThreadPoolExecutor-0_3 - embed_frame_pair:776 - [P:3, R:4] Embedding Bit=0, Alpha=1.0234
-[2025-04-03 20:35:09,742] I ThreadPoolExecutor-0_17 - embed_frame_pair:807 - [P:17, R:4] SVD Mod Applied: True. Orig s1=187.7186, s2=187.7190. New s1=185.5262, s2=189.8613. Target bit=1.
-[2025-04-03 20:35:09,756] I ThreadPoolExecutor-0_3 - embed_frame_pair:807 - [P:3, R:4] SVD Mod Applied: True. Orig s1=187.6507, s2=187.6507. New s1=189.7960, s2=185.4553. Target bit=0.
-[2025-04-03 20:35:09,835] I ThreadPoolExecutor-0_11 - embed_frame_pair:776 - [P:11, R:4] Embedding Bit=1, Alpha=1.0234
-[2025-04-03 20:35:09,858] I ThreadPoolExecutor-0_5 - embed_frame_pair:776 - [P:5, R:4] Embedding Bit=0, Alpha=1.0234
-[2025-04-03 20:35:09,864] I ThreadPoolExecutor-0_11 - embed_frame_pair:807 - [P:11, R:4] SVD Mod Applied: True. Orig s1=187.7944, s2=187.8139. New s1=185.6061, s2=189.9523. Target bit=1.
-[2025-04-03 20:35:09,875] I ThreadPoolExecutor-0_5 - embed_frame_pair:807 - [P:5, R:4] SVD Mod Applied: True. Orig s1=187.6507, s2=187.6507. New s1=189.7960, s2=185.4553. Target bit=0.
-[2025-04-03 20:35:09,987] I ThreadPoolExecutor-0_3 - embed_frame_pair:776 - [P:3, R:5] Embedding Bit=1, Alpha=1.0231
-[2025-04-03 20:35:10,005] I ThreadPoolExecutor-0_17 - embed_frame_pair:776 - [P:17, R:5] Embedding Bit=1, Alpha=1.0231
-[2025-04-03 20:35:10,007] I ThreadPoolExecutor-0_0 - embed_frame_pair:776 - [P:0, R:4] Embedding Bit=0, Alpha=1.0232
-[2025-04-03 20:35:10,025] I ThreadPoolExecutor-0_0 - embed_frame_pair:807 - [P:0, R:4] SVD Mod Applied: True. Orig s1=188.6102, s2=188.2437. New s1=190.5661, s2=186.2425. Target bit=0.
-[2025-04-03 20:35:10,034] I ThreadPoolExecutor-0_3 - embed_frame_pair:807 - [P:3, R:5] SVD Mod Applied: True. Orig s1=182.2579, s2=182.2579. New s1=180.1491, s2=184.3190. Target bit=1.
-[2025-04-03 20:35:10,037] I ThreadPoolExecutor-0_11 - embed_frame_pair:776 - [P:11, R:5] Embedding Bit=1, Alpha=1.0232
-[2025-04-03 20:35:10,050] I ThreadPoolExecutor-0_5 - embed_frame_pair:776 - [P:5, R:5] Embedding Bit=0, Alpha=1.0231
-[2025-04-03 20:35:10,051] I ThreadPoolExecutor-0_6 - embed_frame_pair:776 - [P:6, R:4] Embedding Bit=0, Alpha=1.0234
-[2025-04-03 20:35:10,066] I ThreadPoolExecutor-0_17 - embed_frame_pair:807 - [P:17, R:5] SVD Mod Applied: True. Orig s1=182.2478, s2=182.2478. New s1=180.1399, s2=184.3079. Target bit=1.
-[2025-04-03 20:35:10,083] I ThreadPoolExecutor-0_6 - embed_frame_pair:807 - [P:6, R:4] SVD Mod Applied: True. Orig s1=187.6507, s2=187.6507. New s1=189.7960, s2=185.4553. Target bit=0.
-[2025-04-03 20:35:10,100] I ThreadPoolExecutor-0_11 - embed_frame_pair:807 - [P:11, R:5] SVD Mod Applied: True. Orig s1=182.3773, s2=182.3943. New s1=180.2739, s2=184.4501. Target bit=1.
-[2025-04-03 20:35:10,126] I ThreadPoolExecutor-0_5 - embed_frame_pair:807 - [P:5, R:5] SVD Mod Applied: True. Orig s1=182.2579, s2=182.2579. New s1=184.3190, s2=180.1491. Target bit=0.
-[2025-04-03 20:35:10,217] I ThreadPoolExecutor-0_0 - embed_frame_pair:776 - [P:0, R:5] Embedding Bit=0, Alpha=1.0233
-[2025-04-03 20:35:10,290] I ThreadPoolExecutor-0_6 - embed_frame_pair:776 - [P:6, R:5] Embedding Bit=0, Alpha=1.0231
-[2025-04-03 20:35:10,330] I ThreadPoolExecutor-0_0 - embed_frame_pair:807 - [P:0, R:5] SVD Mod Applied: True. Orig s1=181.4812, s2=181.6077. New s1=183.6087, s2=179.4306. Target bit=0.
-[2025-04-03 20:35:10,366] I ThreadPoolExecutor-0_6 - embed_frame_pair:807 - [P:6, R:5] SVD Mod Applied: True. Orig s1=182.2579, s2=182.2579. New s1=184.3190, s2=180.1491. Target bit=0.
-[2025-04-03 20:35:11,070] I ThreadPoolExecutor-0_10 - embed_frame_pair:888 - --- Embed Finish: Pair 10. Bits: [1, 0], Rings: [4, 5]. Mods: 2. Time: 5.0833 sec ---
-[2025-04-03 20:35:11,205] I ThreadPoolExecutor-0_4 - embed_frame_pair:888 - --- Embed Finish: Pair 4. Bits: [0, 0], Rings: [4, 5]. Mods: 2. Time: 5.2585 sec ---
-[2025-04-03 20:35:11,207] I ThreadPoolExecutor-0_8 - embed_frame_pair:888 - --- Embed Finish: Pair 8. Bits: [0, 0], Rings: [4, 5]. Mods: 2. Time: 5.3227 sec ---
-[2025-04-03 20:35:11,225] I ThreadPoolExecutor-0_14 - embed_frame_pair:888 - --- Embed Finish: Pair 14. Bits: [1, 1], Rings: [4, 5]. Mods: 2. Time: 5.3165 sec ---
-[2025-04-03 20:35:11,345] I ThreadPoolExecutor-0_7 - embed_frame_pair:888 - --- Embed Finish: Pair 7. Bits: [1, 1], Rings: [4, 5]. Mods: 2. Time: 5.3701 sec ---
-[2025-04-03 20:35:11,377] I ThreadPoolExecutor-0_12 - embed_frame_pair:888 - --- Embed Finish: Pair 12. Bits: [1, 0], Rings: [4, 5]. Mods: 2. Time: 5.4528 sec ---
-[2025-04-03 20:35:11,410] I ThreadPoolExecutor-0_1 - embed_frame_pair:888 - --- Embed Finish: Pair 1. Bits: [0, 1], Rings: [4, 5]. Mods: 2. Time: 5.4615 sec ---
-[2025-04-03 20:35:11,511] I ThreadPoolExecutor-0_9 - embed_frame_pair:888 - --- Embed Finish: Pair 9. Bits: [1, 0], Rings: [4, 5]. Mods: 2. Time: 5.5534 sec ---
-[2025-04-03 20:35:11,569] I ThreadPoolExecutor-0_16 - embed_frame_pair:888 - --- Embed Finish: Pair 16. Bits: [1, 0], Rings: [4, 5]. Mods: 2. Time: 5.6324 sec ---
-[2025-04-03 20:35:11,614] I ThreadPoolExecutor-0_15 - embed_frame_pair:888 - --- Embed Finish: Pair 15. Bits: [1, 1], Rings: [4, 5]. Mods: 2. Time: 5.6473 sec ---
-[2025-04-03 20:35:11,696] I ThreadPoolExecutor-0_13 - embed_frame_pair:888 - --- Embed Finish: Pair 13. Bits: [0, 0], Rings: [4, 5]. Mods: 2. Time: 5.7531 sec ---
-[2025-04-03 20:35:11,783] I ThreadPoolExecutor-0_2 - embed_frame_pair:888 - --- Embed Finish: Pair 2. Bits: [0, 0], Rings: [4, 5]. Mods: 2. Time: 5.8946 sec ---
-[2025-04-03 20:35:11,809] I ThreadPoolExecutor-0_18 - embed_frame_pair:888 - --- Embed Finish: Pair 18. Bits: [1, 0], Rings: [4, 5]. Mods: 2. Time: 5.8888 sec ---
-[2025-04-03 20:35:11,812] I ThreadPoolExecutor-0_19 - embed_frame_pair:888 - --- Embed Finish: Pair 19. Bits: [0, 0], Rings: [4, 5]. Mods: 2. Time: 5.8623 sec ---
-[2025-04-03 20:35:11,905] I ThreadPoolExecutor-0_3 - embed_frame_pair:888 - --- Embed Finish: Pair 3. Bits: [0, 1], Rings: [4, 5]. Mods: 2. Time: 5.9318 sec ---
-[2025-04-03 20:35:11,987] I ThreadPoolExecutor-0_10 - select_embedding_rings:402 - [F:40] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:03,589] I MainThread - main:1236 - Using raw payload bits (No ECC). Packet length: 64 bits.
+[2025-04-04 08:59:03,591] I MainThread - main:1244 - Original ID (Hex) saved to original_watermark_id.txt
+[2025-04-04 08:59:03,592] I MainThread - embed_watermark_in_video:1064 - Starting embedding: 320 total bits (2 bits/pair) across 160 frame pairs.
+[2025-04-04 08:59:03,592] I MainThread - embed_watermark_in_video:1066 - Packet length: 64 bits. Target repeats: up to 5 (requires 160 pairs).
+[2025-04-04 08:59:03,592] I MainThread - embed_watermark_in_video:1068 - Actual bits embedded correspond to 5.00 packets.
+[2025-04-04 08:59:03,594] I MainThread - embed_watermark_in_video:1118 - Submitting 160 embedding tasks to ThreadPoolExecutor (max_workers=None)...
+[2025-04-04 08:59:05,253] I ThreadPoolExecutor-0_2 - select_embedding_rings:438 - [F:4] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:05,255] I ThreadPoolExecutor-0_0 - select_embedding_rings:438 - [F:0] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:05,271] I ThreadPoolExecutor-0_7 - select_embedding_rings:438 - [F:14] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:05,293] I ThreadPoolExecutor-0_15 - select_embedding_rings:438 - [F:30] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:05,295] I ThreadPoolExecutor-0_8 - select_embedding_rings:438 - [F:16] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:05,304] I ThreadPoolExecutor-0_4 - select_embedding_rings:438 - [F:8] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:05,307] I ThreadPoolExecutor-0_1 - select_embedding_rings:438 - [F:2] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:05,334] I ThreadPoolExecutor-0_17 - select_embedding_rings:438 - [F:34] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:05,334] I ThreadPoolExecutor-0_10 - select_embedding_rings:438 - [F:20] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:05,336] I ThreadPoolExecutor-0_13 - select_embedding_rings:438 - [F:26] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:05,340] I ThreadPoolExecutor-0_18 - select_embedding_rings:438 - [F:36] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:05,341] I ThreadPoolExecutor-0_12 - select_embedding_rings:438 - [F:24] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:05,347] I ThreadPoolExecutor-0_3 - select_embedding_rings:438 - [F:6] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:05,350] I ThreadPoolExecutor-0_9 - select_embedding_rings:438 - [F:18] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:05,354] I ThreadPoolExecutor-0_19 - select_embedding_rings:438 - [F:38] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:05,362] I ThreadPoolExecutor-0_14 - select_embedding_rings:438 - [F:28] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:05,373] I ThreadPoolExecutor-0_6 - select_embedding_rings:438 - [F:12] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:05,375] I ThreadPoolExecutor-0_5 - select_embedding_rings:438 - [F:10] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:05,379] I ThreadPoolExecutor-0_11 - select_embedding_rings:438 - [F:22] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:05,380] I ThreadPoolExecutor-0_16 - select_embedding_rings:438 - [F:32] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:06,816] I ThreadPoolExecutor-0_0 - embed_frame_pair:825 - [P:0, R:4] Embedding Bit=1, Alpha=1.0415
+[2025-04-04 08:59:06,878] I ThreadPoolExecutor-0_0 - embed_frame_pair:858 - [P:0, R:4] SVD Mod Applied: True. Orig s1=188.6102, s2=188.2437. New s1=184.5202, s2=192.1709. Target bit=1.
+[2025-04-04 08:59:06,942] I ThreadPoolExecutor-0_4 - embed_frame_pair:825 - [P:4, R:4] Embedding Bit=1, Alpha=1.0426
+[2025-04-04 08:59:06,948] I ThreadPoolExecutor-0_2 - embed_frame_pair:825 - [P:2, R:4] Embedding Bit=0, Alpha=1.0426
+[2025-04-04 08:59:06,963] I ThreadPoolExecutor-0_8 - embed_frame_pair:825 - [P:8, R:4] Embedding Bit=0, Alpha=1.0426
+[2025-04-04 08:59:06,972] I ThreadPoolExecutor-0_4 - embed_frame_pair:858 - [P:4, R:4] SVD Mod Applied: True. Orig s1=187.6507, s2=187.6507. New s1=183.6536, s2=191.4844. Target bit=1.
+[2025-04-04 08:59:06,981] I ThreadPoolExecutor-0_2 - embed_frame_pair:858 - [P:2, R:4] SVD Mod Applied: True. Orig s1=187.6507, s2=187.6507. New s1=191.4844, s2=183.6536. Target bit=0.
+[2025-04-04 08:59:06,984] I ThreadPoolExecutor-0_7 - embed_frame_pair:825 - [P:7, R:4] Embedding Bit=1, Alpha=1.0426
+[2025-04-04 08:59:06,988] I ThreadPoolExecutor-0_8 - embed_frame_pair:858 - [P:8, R:4] SVD Mod Applied: True. Orig s1=187.6507, s2=187.6380. New s1=191.4781, s2=183.6475. Target bit=0.
+[2025-04-04 08:59:06,999] I ThreadPoolExecutor-0_1 - embed_frame_pair:825 - [P:1, R:4] Embedding Bit=1, Alpha=1.0426
+[2025-04-04 08:59:07,021] I ThreadPoolExecutor-0_7 - embed_frame_pair:858 - [P:7, R:4] SVD Mod Applied: True. Orig s1=187.6507, s2=187.6507. New s1=183.6536, s2=191.4844. Target bit=1.
+[2025-04-04 08:59:07,028] I ThreadPoolExecutor-0_1 - embed_frame_pair:858 - [P:1, R:4] SVD Mod Applied: True. Orig s1=187.6488, s2=187.6507. New s1=183.6526, s2=191.4836. Target bit=1.
+[2025-04-04 08:59:07,060] I ThreadPoolExecutor-0_10 - embed_frame_pair:825 - [P:10, R:4] Embedding Bit=1, Alpha=1.0427
+[2025-04-04 08:59:07,091] I ThreadPoolExecutor-0_10 - embed_frame_pair:858 - [P:10, R:4] SVD Mod Applied: True. Orig s1=187.6773, s2=187.6666. New s1=183.6721, s2=191.5079. Target bit=1.
+[2025-04-04 08:59:07,094] I ThreadPoolExecutor-0_0 - embed_frame_pair:825 - [P:0, R:5] Embedding Bit=0, Alpha=1.0419
+[2025-04-04 08:59:07,107] I ThreadPoolExecutor-0_9 - embed_frame_pair:825 - [P:9, R:4] Embedding Bit=1, Alpha=1.0428
+[2025-04-04 08:59:07,132] I ThreadPoolExecutor-0_9 - embed_frame_pair:858 - [P:9, R:4] SVD Mod Applied: True. Orig s1=187.6627, s2=187.6817. New s1=183.6604, s2=191.5197. Target bit=1.
+[2025-04-04 08:59:07,140] I ThreadPoolExecutor-0_18 - embed_frame_pair:825 - [P:18, R:4] Embedding Bit=0, Alpha=1.0423
+[2025-04-04 08:59:07,166] I ThreadPoolExecutor-0_18 - embed_frame_pair:858 - [P:18, R:4] SVD Mod Applied: True. Orig s1=187.7191, s2=187.7191. New s1=191.5289, s2=183.7481. Target bit=0.
+[2025-04-04 08:59:07,174] I ThreadPoolExecutor-0_4 - embed_frame_pair:825 - [P:4, R:5] Embedding Bit=0, Alpha=1.0408
+[2025-04-04 08:59:07,182] I ThreadPoolExecutor-0_8 - embed_frame_pair:825 - [P:8, R:5] Embedding Bit=1, Alpha=1.0408
+[2025-04-04 08:59:07,187] I ThreadPoolExecutor-0_2 - embed_frame_pair:825 - [P:2, R:5] Embedding Bit=1, Alpha=1.0408
+[2025-04-04 08:59:07,205] I ThreadPoolExecutor-0_0 - embed_frame_pair:858 - [P:0, R:5] SVD Mod Applied: True. Orig s1=181.4812, s2=181.6077. New s1=185.1888, s2=177.7447. Target bit=0.
+[2025-04-04 08:59:07,224] I ThreadPoolExecutor-0_7 - embed_frame_pair:825 - [P:7, R:5] Embedding Bit=0, Alpha=1.0408
+[2025-04-04 08:59:07,230] I ThreadPoolExecutor-0_15 - embed_frame_pair:825 - [P:15, R:4] Embedding Bit=1, Alpha=1.0424
+[2025-04-04 08:59:07,242] I ThreadPoolExecutor-0_1 - embed_frame_pair:825 - [P:1, R:5] Embedding Bit=0, Alpha=1.0408
+[2025-04-04 08:59:07,263] I ThreadPoolExecutor-0_15 - embed_frame_pair:858 - [P:15, R:4] SVD Mod Applied: True. Orig s1=187.7932, s2=187.8064. New s1=183.8204, s2=191.6176. Target bit=1.
+[2025-04-04 08:59:07,286] I ThreadPoolExecutor-0_10 - embed_frame_pair:825 - [P:10, R:5] Embedding Bit=1, Alpha=1.0409
+[2025-04-04 08:59:07,297] I ThreadPoolExecutor-0_8 - embed_frame_pair:858 - [P:8, R:5] SVD Mod Applied: True. Orig s1=182.2579, s2=182.2688. New s1=178.5481, s2=185.8332. Target bit=1.
+[2025-04-04 08:59:07,300] I ThreadPoolExecutor-0_4 - embed_frame_pair:858 - [P:4, R:5] SVD Mod Applied: True. Orig s1=182.2579, s2=182.2579. New s1=185.8275, s2=178.5426. Target bit=0.
+[2025-04-04 08:59:07,315] I ThreadPoolExecutor-0_2 - embed_frame_pair:858 - [P:2, R:5] SVD Mod Applied: True. Orig s1=182.2579, s2=182.2579. New s1=178.5426, s2=185.8275. Target bit=1.
+[2025-04-04 08:59:07,344] I ThreadPoolExecutor-0_7 - embed_frame_pair:858 - [P:7, R:5] SVD Mod Applied: True. Orig s1=182.2579, s2=182.2579. New s1=185.8275, s2=178.5426. Target bit=0.
+[2025-04-04 08:59:07,362] I ThreadPoolExecutor-0_1 - embed_frame_pair:858 - [P:1, R:5] SVD Mod Applied: True. Orig s1=182.2619, s2=182.2579. New s1=185.8292, s2=178.5450. Target bit=0.
+[2025-04-04 08:59:07,376] I ThreadPoolExecutor-0_9 - embed_frame_pair:825 - [P:9, R:5] Embedding Bit=0, Alpha=1.0409
+[2025-04-04 08:59:07,420] I ThreadPoolExecutor-0_10 - embed_frame_pair:858 - [P:10, R:5] SVD Mod Applied: True. Orig s1=182.2850, s2=182.2914. New s1=178.5622, s2=185.8678. Target bit=1.
+[2025-04-04 08:59:07,467] I ThreadPoolExecutor-0_18 - embed_frame_pair:825 - [P:18, R:5] Embedding Bit=1, Alpha=1.0408
+[2025-04-04 08:59:07,470] I ThreadPoolExecutor-0_3 - embed_frame_pair:825 - [P:3, R:4] Embedding Bit=1, Alpha=1.0426
+[2025-04-04 08:59:07,525] I ThreadPoolExecutor-0_9 - embed_frame_pair:858 - [P:9, R:5] SVD Mod Applied: True. Orig s1=182.3123, s2=182.2808. New s1=185.8782, s2=178.5690. Target bit=0.
+[2025-04-04 08:59:07,559] I ThreadPoolExecutor-0_15 - embed_frame_pair:825 - [P:15, R:5] Embedding Bit=1, Alpha=1.0412
+[2025-04-04 08:59:07,604] I ThreadPoolExecutor-0_3 - embed_frame_pair:858 - [P:3, R:4] SVD Mod Applied: True. Orig s1=187.6507, s2=187.6507. New s1=183.6536, s2=191.4844. Target bit=1.
+[2025-04-04 08:59:07,742] I ThreadPoolExecutor-0_15 - embed_frame_pair:858 - [P:15, R:5] SVD Mod Applied: True. Orig s1=182.3684, s2=182.4016. New s1=178.6312, s2=185.9909. Target bit=1.
+[2025-04-04 08:59:07,780] I ThreadPoolExecutor-0_18 - embed_frame_pair:858 - [P:18, R:5] SVD Mod Applied: True. Orig s1=182.2478, s2=182.2478. New s1=178.5303, s2=185.8194. Target bit=1.
+[2025-04-04 08:59:07,976] I ThreadPoolExecutor-0_13 - embed_frame_pair:825 - [P:13, R:4] Embedding Bit=1, Alpha=1.0428
+[2025-04-04 08:59:08,022] I ThreadPoolExecutor-0_13 - embed_frame_pair:858 - [P:13, R:4] SVD Mod Applied: True. Orig s1=187.8139, s2=187.8131. New s1=183.8023, s2=191.6603. Target bit=1.
+[2025-04-04 08:59:08,083] I ThreadPoolExecutor-0_3 - embed_frame_pair:825 - [P:3, R:5] Embedding Bit=0, Alpha=1.0408
+[2025-04-04 08:59:08,204] I ThreadPoolExecutor-0_14 - embed_frame_pair:825 - [P:14, R:4] Embedding Bit=1, Alpha=1.0427
+[2025-04-04 08:59:08,226] I ThreadPoolExecutor-0_3 - embed_frame_pair:858 - [P:3, R:5] SVD Mod Applied: True. Orig s1=182.2579, s2=182.2579. New s1=185.8275, s2=178.5426. Target bit=0.
+[2025-04-04 08:59:08,238] I ThreadPoolExecutor-0_14 - embed_frame_pair:858 - [P:14, R:4] SVD Mod Applied: True. Orig s1=187.8135, s2=187.8135. New s1=183.8049, s2=191.6578. Target bit=1.
+[2025-04-04 08:59:08,283] I ThreadPoolExecutor-0_13 - embed_frame_pair:825 - [P:13, R:5] Embedding Bit=1, Alpha=1.0409
+[2025-04-04 08:59:08,331] I ThreadPoolExecutor-0_17 - embed_frame_pair:825 - [P:17, R:4] Embedding Bit=1, Alpha=1.0423
+[2025-04-04 08:59:08,341] I ThreadPoolExecutor-0_16 - embed_frame_pair:825 - [P:16, R:4] Embedding Bit=1, Alpha=1.0424
+[2025-04-04 08:59:08,355] I ThreadPoolExecutor-0_17 - embed_frame_pair:858 - [P:17, R:4] SVD Mod Applied: True. Orig s1=187.7186, s2=187.7190. New s1=183.7476, s2=191.5286. Target bit=1.
+[2025-04-04 08:59:08,381] I ThreadPoolExecutor-0_16 - embed_frame_pair:858 - [P:16, R:4] SVD Mod Applied: True. Orig s1=187.8064, s2=187.8064. New s1=183.8261, s2=191.6248. Target bit=1.
+[2025-04-04 08:59:08,400] I ThreadPoolExecutor-0_13 - embed_frame_pair:858 - [P:13, R:5] SVD Mod Applied: True. Orig s1=182.3943, s2=182.3943. New s1=178.6645, s2=185.9773. Target bit=1.
+[2025-04-04 08:59:08,403] I ThreadPoolExecutor-0_5 - embed_frame_pair:825 - [P:5, R:4] Embedding Bit=1, Alpha=1.0426
+[2025-04-04 08:59:08,426] I ThreadPoolExecutor-0_12 - embed_frame_pair:825 - [P:12, R:4] Embedding Bit=0, Alpha=1.0428
+[2025-04-04 08:59:08,432] I ThreadPoolExecutor-0_5 - embed_frame_pair:858 - [P:5, R:4] SVD Mod Applied: True. Orig s1=187.6507, s2=187.6507. New s1=183.6536, s2=191.4844. Target bit=1.
+[2025-04-04 08:59:08,454] I ThreadPoolExecutor-0_6 - embed_frame_pair:825 - [P:6, R:4] Embedding Bit=1, Alpha=1.0426
+[2025-04-04 08:59:08,467] I ThreadPoolExecutor-0_12 - embed_frame_pair:858 - [P:12, R:4] SVD Mod Applied: True. Orig s1=187.8139, s2=187.8139. New s1=191.6607, s2=183.8027. Target bit=0.
+[2025-04-04 08:59:08,480] I ThreadPoolExecutor-0_6 - embed_frame_pair:858 - [P:6, R:4] SVD Mod Applied: True. Orig s1=187.6507, s2=187.6507. New s1=183.6536, s2=191.4844. Target bit=1.
+[2025-04-04 08:59:08,512] I ThreadPoolExecutor-0_11 - embed_frame_pair:825 - [P:11, R:4] Embedding Bit=0, Alpha=1.0427
+[2025-04-04 08:59:08,520] I ThreadPoolExecutor-0_14 - embed_frame_pair:825 - [P:14, R:5] Embedding Bit=0, Alpha=1.0409
+[2025-04-04 08:59:08,530] I ThreadPoolExecutor-0_11 - embed_frame_pair:858 - [P:11, R:4] SVD Mod Applied: True. Orig s1=187.7944, s2=187.8139. New s1=191.6493, s2=183.7943. Target bit=0.
+[2025-04-04 08:59:08,550] I ThreadPoolExecutor-0_19 - embed_frame_pair:825 - [P:19, R:4] Embedding Bit=1, Alpha=1.0424
+[2025-04-04 08:59:08,579] I ThreadPoolExecutor-0_19 - embed_frame_pair:858 - [P:19, R:4] SVD Mod Applied: True. Orig s1=187.6860, s2=187.7420. New s1=183.7383, s2=191.5291. Target bit=1.
+[2025-04-04 08:59:08,594] I ThreadPoolExecutor-0_17 - embed_frame_pair:825 - [P:17, R:5] Embedding Bit=1, Alpha=1.0408
+[2025-04-04 08:59:08,608] I ThreadPoolExecutor-0_14 - embed_frame_pair:858 - [P:14, R:5] SVD Mod Applied: True. Orig s1=182.3943, s2=182.3943. New s1=185.9773, s2=178.6645. Target bit=0.
+[2025-04-04 08:59:08,625] I ThreadPoolExecutor-0_16 - embed_frame_pair:825 - [P:16, R:5] Embedding Bit=1, Alpha=1.0411
+[2025-04-04 08:59:08,632] I ThreadPoolExecutor-0_5 - embed_frame_pair:825 - [P:5, R:5] Embedding Bit=1, Alpha=1.0408
+[2025-04-04 08:59:08,643] I ThreadPoolExecutor-0_12 - embed_frame_pair:825 - [P:12, R:5] Embedding Bit=1, Alpha=1.0409
+[2025-04-04 08:59:08,691] I ThreadPoolExecutor-0_17 - embed_frame_pair:858 - [P:17, R:5] SVD Mod Applied: True. Orig s1=182.2478, s2=182.2478. New s1=178.5303, s2=185.8194. Target bit=1.
+[2025-04-04 08:59:08,692] I ThreadPoolExecutor-0_6 - embed_frame_pair:825 - [P:6, R:5] Embedding Bit=1, Alpha=1.0408
+[2025-04-04 08:59:08,700] I ThreadPoolExecutor-0_11 - embed_frame_pair:825 - [P:11, R:5] Embedding Bit=1, Alpha=1.0409
+[2025-04-04 08:59:08,747] I ThreadPoolExecutor-0_5 - embed_frame_pair:858 - [P:5, R:5] SVD Mod Applied: True. Orig s1=182.2579, s2=182.2579. New s1=178.5426, s2=185.8275. Target bit=1.
+[2025-04-04 08:59:08,751] I ThreadPoolExecutor-0_16 - embed_frame_pair:858 - [P:16, R:5] SVD Mod Applied: True. Orig s1=182.4016, s2=182.4016. New s1=178.6531, s2=186.0021. Target bit=1.
+[2025-04-04 08:59:08,769] I ThreadPoolExecutor-0_12 - embed_frame_pair:858 - [P:12, R:5] SVD Mod Applied: True. Orig s1=182.3943, s2=182.3943. New s1=178.6645, s2=185.9773. Target bit=1.
+[2025-04-04 08:59:08,798] I ThreadPoolExecutor-0_6 - embed_frame_pair:858 - [P:6, R:5] SVD Mod Applied: True. Orig s1=182.2579, s2=182.2579. New s1=178.5426, s2=185.8275. Target bit=1.
+[2025-04-04 08:59:08,819] I ThreadPoolExecutor-0_11 - embed_frame_pair:858 - [P:11, R:5] SVD Mod Applied: True. Orig s1=182.3773, s2=182.3943. New s1=178.6587, s2=185.9667. Target bit=1.
+[2025-04-04 08:59:08,840] I ThreadPoolExecutor-0_19 - embed_frame_pair:825 - [P:19, R:5] Embedding Bit=1, Alpha=1.0408
+[2025-04-04 08:59:08,988] I ThreadPoolExecutor-0_19 - embed_frame_pair:858 - [P:19, R:5] SVD Mod Applied: True. Orig s1=182.2399, s2=182.2718. New s1=178.5377, s2=185.8287. Target bit=1.
+[2025-04-04 08:59:09,370] I ThreadPoolExecutor-0_8 - embed_frame_pair:941 - --- Embed Finish: Pair 8. Bits: [0, 1], Rings: [4, 5]. Mods: 2. Time: 4.0731 sec ---
+[2025-04-04 08:59:09,432] I ThreadPoolExecutor-0_4 - embed_frame_pair:941 - --- Embed Finish: Pair 4. Bits: [1, 0], Rings: [4, 5]. Mods: 2. Time: 4.1278 sec ---
+[2025-04-04 08:59:09,445] I ThreadPoolExecutor-0_0 - embed_frame_pair:941 - --- Embed Finish: Pair 0. Bits: [1, 0], Rings: [4, 5]. Mods: 2. Time: 4.1871 sec ---
+[2025-04-04 08:59:09,520] I ThreadPoolExecutor-0_7 - embed_frame_pair:941 - --- Embed Finish: Pair 7. Bits: [1, 0], Rings: [4, 5]. Mods: 2. Time: 4.2479 sec ---
+[2025-04-04 08:59:09,563] I ThreadPoolExecutor-0_1 - embed_frame_pair:941 - --- Embed Finish: Pair 1. Bits: [1, 0], Rings: [4, 5]. Mods: 2. Time: 4.2530 sec ---
+[2025-04-04 08:59:10,114] I ThreadPoolExecutor-0_9 - embed_frame_pair:941 - --- Embed Finish: Pair 9. Bits: [1, 0], Rings: [4, 5]. Mods: 2. Time: 4.7625 sec ---
+[2025-04-04 08:59:10,212] I ThreadPoolExecutor-0_10 - embed_frame_pair:941 - --- Embed Finish: Pair 10. Bits: [1, 1], Rings: [4, 5]. Mods: 2. Time: 4.8737 sec ---
+[2025-04-04 08:59:10,261] I ThreadPoolExecutor-0_15 - embed_frame_pair:941 - --- Embed Finish: Pair 15. Bits: [1, 1], Rings: [4, 5]. Mods: 2. Time: 4.9677 sec ---
+[2025-04-04 08:59:10,288] I ThreadPoolExecutor-0_2 - embed_frame_pair:941 - --- Embed Finish: Pair 2. Bits: [0, 1], Rings: [4, 5]. Mods: 2. Time: 5.0338 sec ---
+[2025-04-04 08:59:10,355] I ThreadPoolExecutor-0_18 - embed_frame_pair:941 - --- Embed Finish: Pair 18. Bits: [0, 1], Rings: [4, 5]. Mods: 2. Time: 5.0123 sec ---
+[2025-04-04 08:59:10,476] I ThreadPoolExecutor-0_13 - embed_frame_pair:941 - --- Embed Finish: Pair 13. Bits: [1, 1], Rings: [4, 5]. Mods: 2. Time: 5.1357 sec ---
+[2025-04-04 08:59:10,583] I ThreadPoolExecutor-0_3 - embed_frame_pair:941 - --- Embed Finish: Pair 3. Bits: [1, 0], Rings: [4, 5]. Mods: 2. Time: 5.2336 sec ---
+[2025-04-04 08:59:10,725] I ThreadPoolExecutor-0_14 - embed_frame_pair:941 - --- Embed Finish: Pair 14. Bits: [1, 0], Rings: [4, 5]. Mods: 2. Time: 5.3626 sec ---
+[2025-04-04 08:59:10,765] I ThreadPoolExecutor-0_17 - embed_frame_pair:941 - --- Embed Finish: Pair 17. Bits: [1, 1], Rings: [4, 5]. Mods: 2. Time: 5.4291 sec ---
+[2025-04-04 08:59:10,840] I ThreadPoolExecutor-0_6 - embed_frame_pair:941 - --- Embed Finish: Pair 6. Bits: [1, 1], Rings: [4, 5]. Mods: 2. Time: 5.4649 sec ---
+[2025-04-04 08:59:10,913] I ThreadPoolExecutor-0_4 - select_embedding_rings:438 - [F:42] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:10,917] I ThreadPoolExecutor-0_8 - select_embedding_rings:438 - [F:40] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:10,955] I ThreadPoolExecutor-0_0 - select_embedding_rings:438 - [F:44] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:10,988] I ThreadPoolExecutor-0_1 - select_embedding_rings:438 - [F:48] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:10,999] I ThreadPoolExecutor-0_7 - select_embedding_rings:438 - [F:46] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:11,186] I ThreadPoolExecutor-0_5 - embed_frame_pair:941 - --- Embed Finish: Pair 5. Bits: [1, 1], Rings: [4, 5]. Mods: 2. Time: 5.8088 sec ---
+[2025-04-04 08:59:11,190] I ThreadPoolExecutor-0_12 - embed_frame_pair:941 - --- Embed Finish: Pair 12. Bits: [0, 1], Rings: [4, 5]. Mods: 2. Time: 5.8432 sec ---
+[2025-04-04 08:59:11,359] I ThreadPoolExecutor-0_16 - embed_frame_pair:941 - --- Embed Finish: Pair 16. Bits: [1, 1], Rings: [4, 5]. Mods: 2. Time: 5.9779 sec ---
+[2025-04-04 08:59:11,439] I ThreadPoolExecutor-0_19 - embed_frame_pair:941 - --- Embed Finish: Pair 19. Bits: [1, 1], Rings: [4, 5]. Mods: 2. Time: 6.0843 sec ---
+[2025-04-04 08:59:11,536] I ThreadPoolExecutor-0_11 - embed_frame_pair:941 - --- Embed Finish: Pair 11. Bits: [0, 1], Rings: [4, 5]. Mods: 2. Time: 6.1567 sec ---
+[2025-04-04 08:59:12,153] I ThreadPoolExecutor-0_10 - select_embedding_rings:438 - [F:52] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:12,195] I ThreadPoolExecutor-0_9 - select_embedding_rings:438 - [F:50] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:12,218] I ThreadPoolExecutor-0_2 - select_embedding_rings:438 - [F:56] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:12,223] I ThreadPoolExecutor-0_3 - select_embedding_rings:438 - [F:62] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:12,296] I ThreadPoolExecutor-0_15 - select_embedding_rings:438 - [F:54] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:12,334] I ThreadPoolExecutor-0_18 - select_embedding_rings:438 - [F:58] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:12,420] I ThreadPoolExecutor-0_13 - select_embedding_rings:438 - [F:60] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:12,424] I ThreadPoolExecutor-0_14 - select_embedding_rings:438 - [F:64] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:12,456] I ThreadPoolExecutor-0_17 - select_embedding_rings:438 - [F:66] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:12,488] I ThreadPoolExecutor-0_6 - select_embedding_rings:438 - [F:68] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:12,658] I ThreadPoolExecutor-0_12 - select_embedding_rings:438 - [F:72] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:12,714] I ThreadPoolExecutor-0_5 - select_embedding_rings:438 - [F:70] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:12,722] I ThreadPoolExecutor-0_11 - select_embedding_rings:438 - [F:78] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:12,739] I ThreadPoolExecutor-0_0 - embed_frame_pair:825 - [P:22, R:4] Embedding Bit=0, Alpha=1.0424
+[2025-04-04 08:59:12,739] I ThreadPoolExecutor-0_19 - select_embedding_rings:438 - [F:76] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:12,767] I ThreadPoolExecutor-0_0 - embed_frame_pair:858 - [P:22, R:4] SVD Mod Applied: True. Orig s1=187.7420, s2=187.7420. New s1=191.5550, s2=183.7673. Target bit=0.
+[2025-04-04 08:59:12,777] I ThreadPoolExecutor-0_16 - select_embedding_rings:438 - [F:74] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:13,013] I ThreadPoolExecutor-0_0 - embed_frame_pair:825 - [P:22, R:5] Embedding Bit=0, Alpha=1.0408
+[2025-04-04 08:59:13,138] I ThreadPoolExecutor-0_0 - embed_frame_pair:858 - [P:22, R:5] SVD Mod Applied: True. Orig s1=182.2718, s2=182.2718. New s1=185.8457, s2=178.5519. Target bit=0.
+[2025-04-04 08:59:13,231] I ThreadPoolExecutor-0_7 - embed_frame_pair:825 - [P:23, R:4] Embedding Bit=1, Alpha=1.0424
+[2025-04-04 08:59:13,277] I ThreadPoolExecutor-0_7 - embed_frame_pair:858 - [P:23, R:4] SVD Mod Applied: True. Orig s1=187.7420, s2=187.7420. New s1=183.7673, s2=191.5550. Target bit=1.
+[2025-04-04 08:59:13,624] I ThreadPoolExecutor-0_7 - embed_frame_pair:825 - [P:23, R:5] Embedding Bit=0, Alpha=1.0408
+[2025-04-04 08:59:13,662] I ThreadPoolExecutor-0_4 - embed_frame_pair:825 - [P:21, R:4] Embedding Bit=0, Alpha=1.0424
+[2025-04-04 08:59:13,718] I ThreadPoolExecutor-0_4 - embed_frame_pair:858 - [P:21, R:4] SVD Mod Applied: True. Orig s1=187.7420, s2=187.7420. New s1=191.5550, s2=183.7673. Target bit=0.
+[2025-04-04 08:59:13,727] I ThreadPoolExecutor-0_7 - embed_frame_pair:858 - [P:23, R:5] SVD Mod Applied: True. Orig s1=182.2718, s2=182.2718. New s1=185.8457, s2=178.5519. Target bit=0.
+[2025-04-04 08:59:13,730] I ThreadPoolExecutor-0_8 - embed_frame_pair:825 - [P:20, R:4] Embedding Bit=0, Alpha=1.0424
+[2025-04-04 08:59:13,790] I ThreadPoolExecutor-0_8 - embed_frame_pair:858 - [P:20, R:4] SVD Mod Applied: True. Orig s1=187.7420, s2=187.7420. New s1=191.5550, s2=183.7673. Target bit=0.
+[2025-04-04 08:59:13,846] I ThreadPoolExecutor-0_1 - embed_frame_pair:825 - [P:24, R:4] Embedding Bit=0, Alpha=1.0424
+[2025-04-04 08:59:13,886] I ThreadPoolExecutor-0_1 - embed_frame_pair:858 - [P:24, R:4] SVD Mod Applied: True. Orig s1=187.7420, s2=187.7420. New s1=191.5550, s2=183.7673. Target bit=0.
+[2025-04-04 08:59:14,006] I ThreadPoolExecutor-0_4 - embed_frame_pair:825 - [P:21, R:5] Embedding Bit=0, Alpha=1.0408
+[2025-04-04 08:59:14,063] I ThreadPoolExecutor-0_8 - embed_frame_pair:825 - [P:20, R:5] Embedding Bit=0, Alpha=1.0408
+[2025-04-04 08:59:14,134] I ThreadPoolExecutor-0_1 - embed_frame_pair:825 - [P:24, R:5] Embedding Bit=0, Alpha=1.0408
+[2025-04-04 08:59:14,150] I ThreadPoolExecutor-0_4 - embed_frame_pair:858 - [P:21, R:5] SVD Mod Applied: True. Orig s1=182.2718, s2=182.2718. New s1=185.8457, s2=178.5519. Target bit=0.
+[2025-04-04 08:59:14,213] I ThreadPoolExecutor-0_8 - embed_frame_pair:858 - [P:20, R:5] SVD Mod Applied: True. Orig s1=182.2718, s2=182.2718. New s1=185.8457, s2=178.5519. Target bit=0.
+[2025-04-04 08:59:14,234] I ThreadPoolExecutor-0_1 - embed_frame_pair:858 - [P:24, R:5] SVD Mod Applied: True. Orig s1=182.2718, s2=182.2718. New s1=185.8457, s2=178.5519. Target bit=0.
+[2025-04-04 08:59:14,618] I ThreadPoolExecutor-0_9 - embed_frame_pair:825 - [P:25, R:4] Embedding Bit=1, Alpha=1.0424
+[2025-04-04 08:59:14,644] I ThreadPoolExecutor-0_9 - embed_frame_pair:858 - [P:25, R:4] SVD Mod Applied: True. Orig s1=187.7420, s2=187.7420. New s1=183.7673, s2=191.5550. Target bit=1.
+[2025-04-04 08:59:14,716] I ThreadPoolExecutor-0_2 - embed_frame_pair:825 - [P:28, R:4] Embedding Bit=0, Alpha=1.0424
+[2025-04-04 08:59:14,772] I ThreadPoolExecutor-0_2 - embed_frame_pair:858 - [P:28, R:4] SVD Mod Applied: True. Orig s1=187.7420, s2=187.7420. New s1=191.5550, s2=183.7673. Target bit=0.
+[2025-04-04 08:59:14,837] I ThreadPoolExecutor-0_10 - embed_frame_pair:825 - [P:26, R:4] Embedding Bit=0, Alpha=1.0424
+[2025-04-04 08:59:14,888] I ThreadPoolExecutor-0_9 - embed_frame_pair:825 - [P:25, R:5] Embedding Bit=1, Alpha=1.0408
+[2025-04-04 08:59:14,897] I ThreadPoolExecutor-0_10 - embed_frame_pair:858 - [P:26, R:4] SVD Mod Applied: True. Orig s1=187.7420, s2=187.7420. New s1=191.5550, s2=183.7673. Target bit=0.
+[2025-04-04 08:59:14,957] I ThreadPoolExecutor-0_3 - embed_frame_pair:825 - [P:31, R:4] Embedding Bit=1, Alpha=1.0424
+[2025-04-04 08:59:15,029] I ThreadPoolExecutor-0_3 - embed_frame_pair:858 - [P:31, R:4] SVD Mod Applied: True. Orig s1=187.7546, s2=187.7546. New s1=183.7822, s2=191.5656. Target bit=1.
+[2025-04-04 08:59:15,058] I ThreadPoolExecutor-0_9 - embed_frame_pair:858 - [P:25, R:5] SVD Mod Applied: True. Orig s1=182.2718, s2=182.2718. New s1=178.5519, s2=185.8457. Target bit=1.
+[2025-04-04 08:59:15,060] I ThreadPoolExecutor-0_18 - embed_frame_pair:825 - [P:29, R:4] Embedding Bit=1, Alpha=1.0423
+[2025-04-04 08:59:15,117] I ThreadPoolExecutor-0_15 - embed_frame_pair:825 - [P:27, R:4] Embedding Bit=1, Alpha=1.0424
+[2025-04-04 08:59:15,136] I ThreadPoolExecutor-0_18 - embed_frame_pair:858 - [P:29, R:4] SVD Mod Applied: True. Orig s1=187.6954, s2=187.6954. New s1=183.7311, s2=191.4989. Target bit=1.
+[2025-04-04 08:59:15,151] I ThreadPoolExecutor-0_15 - embed_frame_pair:858 - [P:27, R:4] SVD Mod Applied: True. Orig s1=187.7420, s2=187.7420. New s1=183.7673, s2=191.5550. Target bit=1.
+[2025-04-04 08:59:15,162] I ThreadPoolExecutor-0_2 - embed_frame_pair:825 - [P:28, R:5] Embedding Bit=1, Alpha=1.0408
+[2025-04-04 08:59:15,187] I ThreadPoolExecutor-0_6 - embed_frame_pair:825 - [P:34, R:4] Embedding Bit=0, Alpha=1.0424
+[2025-04-04 08:59:15,198] I ThreadPoolExecutor-0_14 - embed_frame_pair:825 - [P:32, R:4] Embedding Bit=1, Alpha=1.0424
+[2025-04-04 08:59:15,272] I ThreadPoolExecutor-0_14 - embed_frame_pair:858 - [P:32, R:4] SVD Mod Applied: True. Orig s1=187.7546, s2=187.7546. New s1=183.7822, s2=191.5656. Target bit=1.
+[2025-04-04 08:59:15,275] I ThreadPoolExecutor-0_6 - embed_frame_pair:858 - [P:34, R:4] SVD Mod Applied: True. Orig s1=187.7546, s2=187.7546. New s1=191.5656, s2=183.7822. Target bit=0.
+[2025-04-04 08:59:15,343] I ThreadPoolExecutor-0_10 - embed_frame_pair:825 - [P:26, R:5] Embedding Bit=1, Alpha=1.0408
+[2025-04-04 08:59:15,406] I ThreadPoolExecutor-0_17 - embed_frame_pair:825 - [P:33, R:4] Embedding Bit=1, Alpha=1.0424
+[2025-04-04 08:59:15,493] I ThreadPoolExecutor-0_2 - embed_frame_pair:858 - [P:28, R:5] SVD Mod Applied: True. Orig s1=182.2718, s2=182.2718. New s1=178.5519, s2=185.8457. Target bit=1.
+[2025-04-04 08:59:15,504] I ThreadPoolExecutor-0_17 - embed_frame_pair:858 - [P:33, R:4] SVD Mod Applied: True. Orig s1=187.7546, s2=187.7546. New s1=183.7822, s2=191.5656. Target bit=1.
+[2025-04-04 08:59:15,512] I ThreadPoolExecutor-0_15 - embed_frame_pair:825 - [P:27, R:5] Embedding Bit=1, Alpha=1.0408
+[2025-04-04 08:59:15,613] I ThreadPoolExecutor-0_10 - embed_frame_pair:858 - [P:26, R:5] SVD Mod Applied: True. Orig s1=182.2718, s2=182.2718. New s1=178.5519, s2=185.8457. Target bit=1.
+[2025-04-04 08:59:15,646] I ThreadPoolExecutor-0_3 - embed_frame_pair:825 - [P:31, R:5] Embedding Bit=1, Alpha=1.0410
+[2025-04-04 08:59:15,665] I ThreadPoolExecutor-0_6 - embed_frame_pair:825 - [P:34, R:5] Embedding Bit=1, Alpha=1.0410
+[2025-04-04 08:59:15,675] I ThreadPoolExecutor-0_15 - embed_frame_pair:858 - [P:27, R:5] SVD Mod Applied: True. Orig s1=182.2718, s2=182.2718. New s1=178.5519, s2=185.8457. Target bit=1.
+[2025-04-04 08:59:15,687] I ThreadPoolExecutor-0_13 - embed_frame_pair:825 - [P:30, R:4] Embedding Bit=1, Alpha=1.0423
+[2025-04-04 08:59:15,692] I ThreadPoolExecutor-0_14 - embed_frame_pair:825 - [P:32, R:5] Embedding Bit=0, Alpha=1.0410
+[2025-04-04 08:59:15,709] I ThreadPoolExecutor-0_18 - embed_frame_pair:825 - [P:29, R:5] Embedding Bit=1, Alpha=1.0407
+[2025-04-04 08:59:15,743] I ThreadPoolExecutor-0_13 - embed_frame_pair:858 - [P:30, R:4] SVD Mod Applied: True. Orig s1=187.7430, s2=187.7546. New s1=183.7779, s2=191.5586. Target bit=1.
+[2025-04-04 08:59:15,756] I ThreadPoolExecutor-0_12 - embed_frame_pair:825 - [P:36, R:4] Embedding Bit=1, Alpha=1.0424
+[2025-04-04 08:59:15,819] I ThreadPoolExecutor-0_12 - embed_frame_pair:858 - [P:36, R:4] SVD Mod Applied: True. Orig s1=187.7546, s2=187.7546. New s1=183.7822, s2=191.5656. Target bit=1.
+[2025-04-04 08:59:15,875] I ThreadPoolExecutor-0_6 - embed_frame_pair:858 - [P:34, R:5] SVD Mod Applied: True. Orig s1=182.3375, s2=182.3375. New s1=178.6014, s2=185.9265. Target bit=1.
+[2025-04-04 08:59:15,930] I ThreadPoolExecutor-0_14 - embed_frame_pair:858 - [P:32, R:5] SVD Mod Applied: True. Orig s1=182.3375, s2=182.3375. New s1=185.9265, s2=178.6014. Target bit=0.
+[2025-04-04 08:59:15,943] I ThreadPoolExecutor-0_3 - embed_frame_pair:858 - [P:31, R:5] SVD Mod Applied: True. Orig s1=182.3375, s2=182.3375. New s1=178.6014, s2=185.9265. Target bit=1.
+[2025-04-04 08:59:15,968] I ThreadPoolExecutor-0_17 - embed_frame_pair:825 - [P:33, R:5] Embedding Bit=0, Alpha=1.0410
+[2025-04-04 08:59:15,973] I ThreadPoolExecutor-0_18 - embed_frame_pair:858 - [P:29, R:5] SVD Mod Applied: True. Orig s1=182.2196, s2=182.2195. New s1=178.5105, s2=185.7834. Target bit=1.
+[2025-04-04 08:59:15,986] I ThreadPoolExecutor-0_0 - embed_frame_pair:941 - --- Embed Finish: Pair 22. Bits: [0, 0], Rings: [4, 5]. Mods: 2. Time: 5.0303 sec ---
+[2025-04-04 08:59:16,087] I ThreadPoolExecutor-0_16 - embed_frame_pair:825 - [P:37, R:4] Embedding Bit=1, Alpha=1.0424
+[2025-04-04 08:59:16,133] I ThreadPoolExecutor-0_17 - embed_frame_pair:858 - [P:33, R:5] SVD Mod Applied: True. Orig s1=182.3375, s2=182.3375. New s1=185.9265, s2=178.6014. Target bit=0.
+[2025-04-04 08:59:16,150] I ThreadPoolExecutor-0_16 - embed_frame_pair:858 - [P:37, R:4] SVD Mod Applied: True. Orig s1=187.7546, s2=187.7546. New s1=183.7822, s2=191.5656. Target bit=1.
+[2025-04-04 08:59:16,223] I ThreadPoolExecutor-0_5 - embed_frame_pair:825 - [P:35, R:4] Embedding Bit=1, Alpha=1.0424
+[2025-04-04 08:59:16,247] I ThreadPoolExecutor-0_13 - embed_frame_pair:825 - [P:30, R:5] Embedding Bit=1, Alpha=1.0411
+[2025-04-04 08:59:16,265] I ThreadPoolExecutor-0_5 - embed_frame_pair:858 - [P:35, R:4] SVD Mod Applied: True. Orig s1=187.7546, s2=187.7546. New s1=183.7822, s2=191.5656. Target bit=1.
+[2025-04-04 08:59:16,274] I ThreadPoolExecutor-0_12 - embed_frame_pair:825 - [P:36, R:5] Embedding Bit=0, Alpha=1.0410
+[2025-04-04 08:59:16,291] I ThreadPoolExecutor-0_11 - embed_frame_pair:825 - [P:39, R:4] Embedding Bit=1, Alpha=1.0424
+[2025-04-04 08:59:16,343] I ThreadPoolExecutor-0_11 - embed_frame_pair:858 - [P:39, R:4] SVD Mod Applied: True. Orig s1=187.7546, s2=187.7546. New s1=183.7822, s2=191.5656. Target bit=1.
+[2025-04-04 08:59:16,402] I ThreadPoolExecutor-0_13 - embed_frame_pair:858 - [P:30, R:5] SVD Mod Applied: True. Orig s1=182.3052, s2=182.3375. New s1=178.5810, s2=185.9148. Target bit=1.
+[2025-04-04 08:59:16,411] I ThreadPoolExecutor-0_19 - embed_frame_pair:825 - [P:38, R:4] Embedding Bit=1, Alpha=1.0424
+[2025-04-04 08:59:16,469] I ThreadPoolExecutor-0_12 - embed_frame_pair:858 - [P:36, R:5] SVD Mod Applied: True. Orig s1=182.3375, s2=182.3375. New s1=185.9265, s2=178.6014. Target bit=0.
+[2025-04-04 08:59:16,504] I ThreadPoolExecutor-0_19 - embed_frame_pair:858 - [P:38, R:4] SVD Mod Applied: True. Orig s1=187.7546, s2=187.7546. New s1=183.7822, s2=191.5656. Target bit=1.
+[2025-04-04 08:59:16,515] I ThreadPoolExecutor-0_16 - embed_frame_pair:825 - [P:37, R:5] Embedding Bit=1, Alpha=1.0410
+[2025-04-04 08:59:16,576] I ThreadPoolExecutor-0_7 - embed_frame_pair:941 - --- Embed Finish: Pair 23. Bits: [1, 0], Rings: [4, 5]. Mods: 2. Time: 5.5758 sec ---
+[2025-04-04 08:59:16,648] I ThreadPoolExecutor-0_16 - embed_frame_pair:858 - [P:37, R:5] SVD Mod Applied: True. Orig s1=182.3375, s2=182.3375. New s1=178.6014, s2=185.9265. Target bit=1.
+[2025-04-04 08:59:16,677] I ThreadPoolExecutor-0_5 - embed_frame_pair:825 - [P:35, R:5] Embedding Bit=0, Alpha=1.0410
+[2025-04-04 08:59:16,695] I ThreadPoolExecutor-0_11 - embed_frame_pair:825 - [P:39, R:5] Embedding Bit=0, Alpha=1.0410
+[2025-04-04 08:59:16,767] I ThreadPoolExecutor-0_8 - embed_frame_pair:941 - --- Embed Finish: Pair 20. Bits: [0, 0], Rings: [4, 5]. Mods: 2. Time: 5.8482 sec ---
+[2025-04-04 08:59:16,784] I ThreadPoolExecutor-0_19 - embed_frame_pair:825 - [P:38, R:5] Embedding Bit=1, Alpha=1.0410
+[2025-04-04 08:59:16,805] I ThreadPoolExecutor-0_4 - embed_frame_pair:941 - --- Embed Finish: Pair 21. Bits: [0, 0], Rings: [4, 5]. Mods: 2. Time: 5.8872 sec ---
+[2025-04-04 08:59:16,858] I ThreadPoolExecutor-0_11 - embed_frame_pair:858 - [P:39, R:5] SVD Mod Applied: True. Orig s1=182.3375, s2=182.3375. New s1=185.9265, s2=178.6014. Target bit=0.
+[2025-04-04 08:59:16,873] I ThreadPoolExecutor-0_5 - embed_frame_pair:858 - [P:35, R:5] SVD Mod Applied: True. Orig s1=182.3375, s2=182.3375. New s1=185.9265, s2=178.6014. Target bit=0.
+[2025-04-04 08:59:16,971] I ThreadPoolExecutor-0_19 - embed_frame_pair:858 - [P:38, R:5] SVD Mod Applied: True. Orig s1=182.3375, s2=182.3375. New s1=178.6014, s2=185.9265. Target bit=1.
+[2025-04-04 08:59:17,204] I ThreadPoolExecutor-0_1 - embed_frame_pair:941 - --- Embed Finish: Pair 24. Bits: [0, 0], Rings: [4, 5]. Mods: 2. Time: 6.2156 sec ---
+[2025-04-04 08:59:17,258] I ThreadPoolExecutor-0_0 - select_embedding_rings:438 - [F:80] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:17,676] I ThreadPoolExecutor-0_9 - embed_frame_pair:941 - --- Embed Finish: Pair 25. Bits: [1, 1], Rings: [4, 5]. Mods: 2. Time: 5.4795 sec ---
+[2025-04-04 08:59:18,099] I ThreadPoolExecutor-0_15 - embed_frame_pair:941 - --- Embed Finish: Pair 27. Bits: [1, 1], Rings: [4, 5]. Mods: 2. Time: 5.8018 sec ---
+[2025-04-04 08:59:18,327] I ThreadPoolExecutor-0_7 - select_embedding_rings:438 - [F:82] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:18,374] I ThreadPoolExecutor-0_4 - select_embedding_rings:438 - [F:86] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:18,438] I ThreadPoolExecutor-0_8 - select_embedding_rings:438 - [F:84] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:18,609] I ThreadPoolExecutor-0_6 - embed_frame_pair:941 - --- Embed Finish: Pair 34. Bits: [0, 1], Rings: [4, 5]. Mods: 2. Time: 6.1197 sec ---
+[2025-04-04 08:59:18,795] I ThreadPoolExecutor-0_2 - embed_frame_pair:941 - --- Embed Finish: Pair 28. Bits: [0, 1], Rings: [4, 5]. Mods: 2. Time: 6.5753 sec ---
+[2025-04-04 08:59:18,918] I ThreadPoolExecutor-0_1 - select_embedding_rings:438 - [F:88] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:19,075] I ThreadPoolExecutor-0_10 - embed_frame_pair:941 - --- Embed Finish: Pair 26. Bits: [0, 1], Rings: [4, 5]. Mods: 2. Time: 6.9201 sec ---
+[2025-04-04 08:59:19,124] I ThreadPoolExecutor-0_14 - embed_frame_pair:941 - --- Embed Finish: Pair 32. Bits: [1, 0], Rings: [4, 5]. Mods: 2. Time: 6.6991 sec ---
+[2025-04-04 08:59:19,145] I ThreadPoolExecutor-0_13 - embed_frame_pair:941 - --- Embed Finish: Pair 30. Bits: [1, 1], Rings: [4, 5]. Mods: 2. Time: 6.7230 sec ---
+[2025-04-04 08:59:19,298] I ThreadPoolExecutor-0_12 - embed_frame_pair:941 - --- Embed Finish: Pair 36. Bits: [1, 0], Rings: [4, 5]. Mods: 2. Time: 6.6383 sec ---
+[2025-04-04 08:59:19,339] I ThreadPoolExecutor-0_18 - embed_frame_pair:941 - --- Embed Finish: Pair 29. Bits: [1, 1], Rings: [4, 5]. Mods: 2. Time: 7.0018 sec ---
+[2025-04-04 08:59:19,514] I ThreadPoolExecutor-0_3 - embed_frame_pair:941 - --- Embed Finish: Pair 31. Bits: [1, 1], Rings: [4, 5]. Mods: 2. Time: 7.2892 sec ---
+[2025-04-04 08:59:19,622] I ThreadPoolExecutor-0_17 - embed_frame_pair:941 - --- Embed Finish: Pair 33. Bits: [1, 0], Rings: [4, 5]. Mods: 2. Time: 7.1648 sec ---
+[2025-04-04 08:59:19,781] I ThreadPoolExecutor-0_5 - embed_frame_pair:941 - --- Embed Finish: Pair 35. Bits: [1, 0], Rings: [4, 5]. Mods: 2. Time: 7.0660 sec ---
+[2025-04-04 08:59:19,872] I ThreadPoolExecutor-0_16 - embed_frame_pair:941 - --- Embed Finish: Pair 37. Bits: [1, 1], Rings: [4, 5]. Mods: 2. Time: 7.0949 sec ---
+[2025-04-04 08:59:20,096] I ThreadPoolExecutor-0_9 - select_embedding_rings:438 - [F:90] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:20,289] I ThreadPoolExecutor-0_0 - embed_frame_pair:825 - [P:40, R:4] Embedding Bit=0, Alpha=1.0424
+[2025-04-04 08:59:20,306] I ThreadPoolExecutor-0_15 - select_embedding_rings:438 - [F:92] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:20,317] I ThreadPoolExecutor-0_0 - embed_frame_pair:858 - [P:40, R:4] SVD Mod Applied: True. Orig s1=187.7546, s2=187.7546. New s1=191.5656, s2=183.7822. Target bit=0.
+[2025-04-04 08:59:20,329] I ThreadPoolExecutor-0_11 - embed_frame_pair:941 - --- Embed Finish: Pair 39. Bits: [1, 0], Rings: [4, 5]. Mods: 2. Time: 7.6058 sec ---
+[2025-04-04 08:59:20,357] I ThreadPoolExecutor-0_19 - embed_frame_pair:941 - --- Embed Finish: Pair 38. Bits: [1, 1], Rings: [4, 5]. Mods: 2. Time: 7.6138 sec ---
+[2025-04-04 08:59:20,478] I ThreadPoolExecutor-0_0 - embed_frame_pair:825 - [P:40, R:5] Embedding Bit=1, Alpha=1.0410
+[2025-04-04 08:59:20,567] I ThreadPoolExecutor-0_0 - embed_frame_pair:858 - [P:40, R:5] SVD Mod Applied: True. Orig s1=182.3375, s2=182.3375. New s1=178.6014, s2=185.9265. Target bit=1.
+[2025-04-04 08:59:20,621] I ThreadPoolExecutor-0_6 - select_embedding_rings:438 - [F:94] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:21,311] I ThreadPoolExecutor-0_2 - select_embedding_rings:438 - [F:96] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:21,509] I ThreadPoolExecutor-0_13 - select_embedding_rings:438 - [F:102] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:21,532] I ThreadPoolExecutor-0_12 - select_embedding_rings:438 - [F:104] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:21,559] I ThreadPoolExecutor-0_8 - embed_frame_pair:825 - [P:42, R:4] Embedding Bit=1, Alpha=1.0424
+[2025-04-04 08:59:21,561] I ThreadPoolExecutor-0_4 - embed_frame_pair:825 - [P:43, R:4] Embedding Bit=0, Alpha=1.0424
+[2025-04-04 08:59:21,585] I ThreadPoolExecutor-0_14 - select_embedding_rings:438 - [F:100] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:21,602] I ThreadPoolExecutor-0_4 - embed_frame_pair:858 - [P:43, R:4] SVD Mod Applied: True. Orig s1=187.6708, s2=187.5023. New s1=191.4039, s2=183.6107. Target bit=0.
+[2025-04-04 08:59:21,619] I ThreadPoolExecutor-0_8 - embed_frame_pair:858 - [P:42, R:4] SVD Mod Applied: True. Orig s1=187.7546, s2=187.9433. New s1=183.8765, s2=191.6638. Target bit=1.
+[2025-04-04 08:59:21,644] I ThreadPoolExecutor-0_10 - select_embedding_rings:438 - [F:98] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:21,663] I ThreadPoolExecutor-0_7 - embed_frame_pair:825 - [P:41, R:4] Embedding Bit=1, Alpha=1.0424
+[2025-04-04 08:59:21,697] I ThreadPoolExecutor-0_7 - embed_frame_pair:858 - [P:41, R:4] SVD Mod Applied: True. Orig s1=187.7546, s2=187.7546. New s1=183.7822, s2=191.5656. Target bit=1.
+[2025-04-04 08:59:21,758] I ThreadPoolExecutor-0_17 - select_embedding_rings:438 - [F:110] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:21,845] I ThreadPoolExecutor-0_4 - embed_frame_pair:825 - [P:43, R:5] Embedding Bit=1, Alpha=1.0412
+[2025-04-04 08:59:21,846] I ThreadPoolExecutor-0_8 - embed_frame_pair:825 - [P:42, R:5] Embedding Bit=1, Alpha=1.0410
+[2025-04-04 08:59:21,853] I ThreadPoolExecutor-0_5 - select_embedding_rings:438 - [F:112] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:21,903] I ThreadPoolExecutor-0_7 - embed_frame_pair:825 - [P:41, R:5] Embedding Bit=0, Alpha=1.0410
+[2025-04-04 08:59:21,905] I ThreadPoolExecutor-0_3 - select_embedding_rings:438 - [F:108] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:21,911] I ThreadPoolExecutor-0_1 - embed_frame_pair:825 - [P:44, R:4] Embedding Bit=0, Alpha=1.0424
+[2025-04-04 08:59:21,915] I ThreadPoolExecutor-0_18 - select_embedding_rings:438 - [F:106] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:21,926] I ThreadPoolExecutor-0_4 - embed_frame_pair:858 - [P:43, R:5] SVD Mod Applied: True. Orig s1=182.1312, s2=181.9649. New s1=178.3014, s2=185.6433. Target bit=1.
+[2025-04-04 08:59:21,937] I ThreadPoolExecutor-0_1 - embed_frame_pair:858 - [P:44, R:4] SVD Mod Applied: True. Orig s1=187.3195, s2=187.2241. New s1=191.0805, s2=183.3036. Target bit=0.
+[2025-04-04 08:59:21,954] I ThreadPoolExecutor-0_8 - embed_frame_pair:858 - [P:42, R:5] SVD Mod Applied: True. Orig s1=182.3375, s2=182.5772. New s1=178.7211, s2=186.0511. Target bit=1.
+[2025-04-04 08:59:21,984] I ThreadPoolExecutor-0_7 - embed_frame_pair:858 - [P:41, R:5] SVD Mod Applied: True. Orig s1=182.3375, s2=182.3375. New s1=185.9265, s2=178.6014. Target bit=0.
+[2025-04-04 08:59:21,999] I ThreadPoolExecutor-0_16 - select_embedding_rings:438 - [F:114] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:22,094] I ThreadPoolExecutor-0_1 - embed_frame_pair:825 - [P:44, R:7] Embedding Bit=1, Alpha=1.0380
+[2025-04-04 08:59:22,104] I ThreadPoolExecutor-0_1 - embed_frame_pair:858 - [P:44, R:7] SVD Mod Applied: True. Orig s1=70.2535, s2=70.2517. New s1=68.9181, s2=71.5381. Target bit=1.
+[2025-04-04 08:59:22,175] I ThreadPoolExecutor-0_11 - select_embedding_rings:438 - [F:116] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:22,198] I ThreadPoolExecutor-0_19 - select_embedding_rings:438 - [F:118] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:22,226] I ThreadPoolExecutor-0_9 - embed_frame_pair:825 - [P:45, R:4] Embedding Bit=1, Alpha=1.0423
+[2025-04-04 08:59:22,246] I ThreadPoolExecutor-0_9 - embed_frame_pair:858 - [P:45, R:4] SVD Mod Applied: True. Orig s1=187.1530, s2=187.1627. New s1=183.2005, s2=190.9547. Target bit=1.
+[2025-04-04 08:59:22,331] I ThreadPoolExecutor-0_9 - embed_frame_pair:825 - [P:45, R:7] Embedding Bit=1, Alpha=1.0379
+[2025-04-04 08:59:22,337] I ThreadPoolExecutor-0_9 - embed_frame_pair:858 - [P:45, R:7] SVD Mod Applied: True. Orig s1=70.2224, s2=70.2222. New s1=68.8933, s2=71.5027. Target bit=1.
+[2025-04-04 08:59:22,342] I ThreadPoolExecutor-0_15 - embed_frame_pair:825 - [P:46, R:4] Embedding Bit=1, Alpha=1.0423
+[2025-04-04 08:59:22,363] I ThreadPoolExecutor-0_15 - embed_frame_pair:858 - [P:46, R:4] SVD Mod Applied: True. Orig s1=187.1627, s2=187.1627. New s1=183.2049, s2=190.9599. Target bit=1.
+[2025-04-04 08:59:22,473] I ThreadPoolExecutor-0_15 - embed_frame_pair:825 - [P:46, R:7] Embedding Bit=0, Alpha=1.0379
+[2025-04-04 08:59:22,482] I ThreadPoolExecutor-0_15 - embed_frame_pair:858 - [P:46, R:7] SVD Mod Applied: True. Orig s1=70.2206, s2=70.2201. New s1=71.5009, s2=68.8912. Target bit=0.
+[2025-04-04 08:59:22,732] I ThreadPoolExecutor-0_0 - embed_frame_pair:941 - --- Embed Finish: Pair 40. Bits: [0, 1], Rings: [4, 5]. Mods: 2. Time: 5.4697 sec ---
+[2025-04-04 08:59:22,969] I ThreadPoolExecutor-0_6 - embed_frame_pair:825 - [P:47, R:4] Embedding Bit=1, Alpha=1.0423
+[2025-04-04 08:59:23,002] I ThreadPoolExecutor-0_6 - embed_frame_pair:858 - [P:47, R:4] SVD Mod Applied: True. Orig s1=187.1627, s2=187.1627. New s1=183.2049, s2=190.9599. Target bit=1.
+[2025-04-04 08:59:23,152] I ThreadPoolExecutor-0_6 - embed_frame_pair:825 - [P:47, R:7] Embedding Bit=1, Alpha=1.0379
+[2025-04-04 08:59:23,163] I ThreadPoolExecutor-0_6 - embed_frame_pair:858 - [P:47, R:7] SVD Mod Applied: True. Orig s1=70.2210, s2=70.2190. New s1=68.8908, s2=71.5007. Target bit=1.
+[2025-04-04 08:59:23,193] I ThreadPoolExecutor-0_2 - embed_frame_pair:825 - [P:48, R:4] Embedding Bit=1, Alpha=1.0423
+[2025-04-04 08:59:23,212] I ThreadPoolExecutor-0_2 - embed_frame_pair:858 - [P:48, R:4] SVD Mod Applied: True. Orig s1=187.1627, s2=187.1627. New s1=183.2049, s2=190.9599. Target bit=1.
+[2025-04-04 08:59:23,321] I ThreadPoolExecutor-0_2 - embed_frame_pair:825 - [P:48, R:7] Embedding Bit=1, Alpha=1.0379
+[2025-04-04 08:59:23,329] I ThreadPoolExecutor-0_2 - embed_frame_pair:858 - [P:48, R:7] SVD Mod Applied: True. Orig s1=70.2164, s2=70.2152. New s1=68.8860, s2=71.4970. Target bit=1.
+[2025-04-04 08:59:23,485] I ThreadPoolExecutor-0_13 - embed_frame_pair:825 - [P:51, R:4] Embedding Bit=1, Alpha=1.0423
+[2025-04-04 08:59:23,499] I ThreadPoolExecutor-0_13 - embed_frame_pair:858 - [P:51, R:4] SVD Mod Applied: True. Orig s1=187.1627, s2=187.1627. New s1=183.2049, s2=190.9599. Target bit=1.
+[2025-04-04 08:59:23,626] I ThreadPoolExecutor-0_13 - embed_frame_pair:825 - [P:51, R:7] Embedding Bit=1, Alpha=1.0379
+[2025-04-04 08:59:23,633] I ThreadPoolExecutor-0_13 - embed_frame_pair:858 - [P:51, R:7] SVD Mod Applied: True. Orig s1=70.2192, s2=70.2192. New s1=68.8902, s2=71.4998. Target bit=1.
+[2025-04-04 08:59:23,674] I ThreadPoolExecutor-0_12 - embed_frame_pair:825 - [P:52, R:4] Embedding Bit=0, Alpha=1.0423
+[2025-04-04 08:59:23,694] I ThreadPoolExecutor-0_12 - embed_frame_pair:858 - [P:52, R:4] SVD Mod Applied: True. Orig s1=187.1627, s2=187.1627. New s1=190.9599, s2=183.2049. Target bit=0.
+[2025-04-04 08:59:23,751] I ThreadPoolExecutor-0_10 - embed_frame_pair:825 - [P:49, R:4] Embedding Bit=1, Alpha=1.0423
+[2025-04-04 08:59:23,780] I ThreadPoolExecutor-0_10 - embed_frame_pair:858 - [P:49, R:4] SVD Mod Applied: True. Orig s1=187.1627, s2=187.1627. New s1=183.2049, s2=190.9599. Target bit=1.
+[2025-04-04 08:59:23,787] I ThreadPoolExecutor-0_14 - embed_frame_pair:825 - [P:50, R:4] Embedding Bit=0, Alpha=1.0423
+[2025-04-04 08:59:23,812] I ThreadPoolExecutor-0_14 - embed_frame_pair:858 - [P:50, R:4] SVD Mod Applied: True. Orig s1=187.1627, s2=187.1627. New s1=190.9599, s2=183.2049. Target bit=0.
+[2025-04-04 08:59:23,829] I ThreadPoolExecutor-0_12 - embed_frame_pair:825 - [P:52, R:7] Embedding Bit=0, Alpha=1.0379
+[2025-04-04 08:59:23,847] I ThreadPoolExecutor-0_12 - embed_frame_pair:858 - [P:52, R:7] SVD Mod Applied: True. Orig s1=70.2207, s2=70.2207. New s1=71.5011, s2=68.8918. Target bit=0.
+[2025-04-04 08:59:23,942] I ThreadPoolExecutor-0_10 - embed_frame_pair:825 - [P:49, R:7] Embedding Bit=1, Alpha=1.0379
+[2025-04-04 08:59:23,952] I ThreadPoolExecutor-0_10 - embed_frame_pair:858 - [P:49, R:7] SVD Mod Applied: True. Orig s1=70.2156, s2=70.2157. New s1=68.8860, s2=71.4967. Target bit=1.
+[2025-04-04 08:59:24,006] I ThreadPoolExecutor-0_14 - embed_frame_pair:825 - [P:50, R:7] Embedding Bit=1, Alpha=1.0379
+[2025-04-04 08:59:24,024] I ThreadPoolExecutor-0_14 - embed_frame_pair:858 - [P:50, R:7] SVD Mod Applied: True. Orig s1=70.2169, s2=70.2172. New s1=68.8876, s2=71.4980. Target bit=1.
+[2025-04-04 08:59:24,187] I ThreadPoolExecutor-0_18 - embed_frame_pair:825 - [P:53, R:4] Embedding Bit=0, Alpha=1.0422
+[2025-04-04 08:59:24,212] I ThreadPoolExecutor-0_7 - embed_frame_pair:941 - --- Embed Finish: Pair 41. Bits: [1, 0], Rings: [4, 5]. Mods: 2. Time: 5.8842 sec ---
+[2025-04-04 08:59:24,222] I ThreadPoolExecutor-0_18 - embed_frame_pair:858 - [P:53, R:4] SVD Mod Applied: True. Orig s1=187.0259, s2=187.0938. New s1=190.8450, s2=183.1134. Target bit=0.
+[2025-04-04 08:59:24,234] I ThreadPoolExecutor-0_17 - embed_frame_pair:825 - [P:55, R:4] Embedding Bit=1, Alpha=1.0422
+[2025-04-04 08:59:24,281] I ThreadPoolExecutor-0_17 - embed_frame_pair:858 - [P:55, R:4] SVD Mod Applied: True. Orig s1=187.0938, s2=187.0938. New s1=183.1458, s2=190.8818. Target bit=1.
+[2025-04-04 08:59:24,288] I ThreadPoolExecutor-0_16 - embed_frame_pair:825 - [P:57, R:4] Embedding Bit=1, Alpha=1.0422
+[2025-04-04 08:59:24,313] I ThreadPoolExecutor-0_3 - embed_frame_pair:825 - [P:54, R:4] Embedding Bit=0, Alpha=1.0422
+[2025-04-04 08:59:24,318] I ThreadPoolExecutor-0_16 - embed_frame_pair:858 - [P:57, R:4] SVD Mod Applied: True. Orig s1=187.0938, s2=187.0938. New s1=183.1458, s2=190.8818. Target bit=1.
+[2025-04-04 08:59:24,324] I ThreadPoolExecutor-0_5 - embed_frame_pair:825 - [P:56, R:4] Embedding Bit=0, Alpha=1.0422
+[2025-04-04 08:59:24,332] I ThreadPoolExecutor-0_4 - embed_frame_pair:941 - --- Embed Finish: Pair 43. Bits: [0, 1], Rings: [4, 5]. Mods: 2. Time: 5.9573 sec ---
+[2025-04-04 08:59:24,346] I ThreadPoolExecutor-0_0 - select_embedding_rings:438 - [F:120] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:24,350] I ThreadPoolExecutor-0_3 - embed_frame_pair:858 - [P:54, R:4] SVD Mod Applied: True. Orig s1=187.0938, s2=187.0938. New s1=190.8818, s2=183.1458. Target bit=0.
+[2025-04-04 08:59:24,357] I ThreadPoolExecutor-0_5 - embed_frame_pair:858 - [P:56, R:4] SVD Mod Applied: True. Orig s1=187.0938, s2=187.0938. New s1=190.8818, s2=183.1458. Target bit=0.
+[2025-04-04 08:59:24,434] I ThreadPoolExecutor-0_18 - embed_frame_pair:825 - [P:53, R:7] Embedding Bit=0, Alpha=1.0368
+[2025-04-04 08:59:24,434] I ThreadPoolExecutor-0_1 - embed_frame_pair:941 - --- Embed Finish: Pair 44. Bits: [0, 1], Rings: [4, 7]. Mods: 2. Time: 5.5122 sec ---
+[2025-04-04 08:59:24,454] I ThreadPoolExecutor-0_18 - embed_frame_pair:858 - [P:53, R:7] SVD Mod Applied: True. Orig s1=70.0985, s2=70.1242. New s1=71.3536, s2=68.8229. Target bit=0.
+[2025-04-04 08:59:24,491] I ThreadPoolExecutor-0_8 - embed_frame_pair:941 - --- Embed Finish: Pair 42. Bits: [1, 1], Rings: [4, 5]. Mods: 2. Time: 6.0505 sec ---
+[2025-04-04 08:59:24,493] I ThreadPoolExecutor-0_17 - embed_frame_pair:825 - [P:55, R:7] Embedding Bit=0, Alpha=1.0368
+[2025-04-04 08:59:24,502] I ThreadPoolExecutor-0_17 - embed_frame_pair:858 - [P:55, R:7] SVD Mod Applied: True. Orig s1=70.1248, s2=70.1234. New s1=71.3670, s2=68.8355. Target bit=0.
+[2025-04-04 08:59:24,516] I ThreadPoolExecutor-0_9 - embed_frame_pair:941 - --- Embed Finish: Pair 45. Bits: [1, 1], Rings: [4, 7]. Mods: 2. Time: 4.4165 sec ---
+[2025-04-04 08:59:24,522] I ThreadPoolExecutor-0_16 - embed_frame_pair:825 - [P:57, R:7] Embedding Bit=1, Alpha=1.0368
+[2025-04-04 08:59:24,532] I ThreadPoolExecutor-0_16 - embed_frame_pair:858 - [P:57, R:7] SVD Mod Applied: True. Orig s1=70.1228, s2=70.1213. New s1=68.8328, s2=71.3656. Target bit=1.
+[2025-04-04 08:59:24,558] I ThreadPoolExecutor-0_3 - embed_frame_pair:825 - [P:54, R:7] Embedding Bit=0, Alpha=1.0368
+[2025-04-04 08:59:24,565] I ThreadPoolExecutor-0_3 - embed_frame_pair:858 - [P:54, R:7] SVD Mod Applied: True. Orig s1=70.1233, s2=70.1232. New s1=71.3664, s2=68.8344. Target bit=0.
+[2025-04-04 08:59:24,570] I ThreadPoolExecutor-0_5 - embed_frame_pair:825 - [P:56, R:7] Embedding Bit=0, Alpha=1.0368
+[2025-04-04 08:59:24,585] I ThreadPoolExecutor-0_5 - embed_frame_pair:858 - [P:56, R:7] SVD Mod Applied: True. Orig s1=70.1234, s2=70.1229. New s1=71.3666, s2=68.8340. Target bit=0.
+[2025-04-04 08:59:24,596] I ThreadPoolExecutor-0_15 - embed_frame_pair:941 - --- Embed Finish: Pair 46. Bits: [1, 0], Rings: [4, 7]. Mods: 2. Time: 4.2877 sec ---
+[2025-04-04 08:59:24,642] I ThreadPoolExecutor-0_11 - embed_frame_pair:825 - [P:58, R:4] Embedding Bit=0, Alpha=1.0422
+[2025-04-04 08:59:24,646] I ThreadPoolExecutor-0_19 - embed_frame_pair:825 - [P:59, R:4] Embedding Bit=1, Alpha=1.0422
+[2025-04-04 08:59:24,663] I ThreadPoolExecutor-0_11 - embed_frame_pair:858 - [P:58, R:4] SVD Mod Applied: True. Orig s1=187.0938, s2=187.0938. New s1=190.8818, s2=183.1458. Target bit=0.
+[2025-04-04 08:59:24,675] I ThreadPoolExecutor-0_19 - embed_frame_pair:858 - [P:59, R:4] SVD Mod Applied: True. Orig s1=186.6896, s2=186.4479. New s1=182.6292, s2=190.3437. Target bit=1.
+[2025-04-04 08:59:24,768] I ThreadPoolExecutor-0_11 - embed_frame_pair:825 - [P:58, R:7] Embedding Bit=1, Alpha=1.0368
+[2025-04-04 08:59:24,779] I ThreadPoolExecutor-0_11 - embed_frame_pair:858 - [P:58, R:7] SVD Mod Applied: True. Orig s1=70.1210, s2=70.1194. New s1=68.8309, s2=71.3638. Target bit=1.
+[2025-04-04 08:59:24,802] I ThreadPoolExecutor-0_19 - embed_frame_pair:825 - [P:59, R:7] Embedding Bit=1, Alpha=1.0364
+[2025-04-04 08:59:24,811] I ThreadPoolExecutor-0_19 - embed_frame_pair:858 - [P:59, R:7] SVD Mod Applied: True. Orig s1=69.8508, s2=69.7348. New s1=68.5219, s2=71.0170. Target bit=1.
+[2025-04-04 08:59:25,078] I ThreadPoolExecutor-0_6 - embed_frame_pair:941 - --- Embed Finish: Pair 47. Bits: [1, 1], Rings: [4, 7]. Mods: 2. Time: 4.4543 sec ---
+[2025-04-04 08:59:25,157] I ThreadPoolExecutor-0_7 - select_embedding_rings:438 - [F:122] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:25,179] I ThreadPoolExecutor-0_4 - select_embedding_rings:438 - [F:124] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:25,234] I ThreadPoolExecutor-0_1 - select_embedding_rings:438 - [F:126] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:25,649] I ThreadPoolExecutor-0_2 - embed_frame_pair:941 - --- Embed Finish: Pair 48. Bits: [1, 1], Rings: [4, 7]. Mods: 2. Time: 4.3377 sec ---
+[2025-04-04 08:59:25,817] I ThreadPoolExecutor-0_13 - embed_frame_pair:941 - --- Embed Finish: Pair 51. Bits: [1, 1], Rings: [4, 7]. Mods: 2. Time: 4.3059 sec ---
+[2025-04-04 08:59:26,164] I ThreadPoolExecutor-0_14 - embed_frame_pair:941 - --- Embed Finish: Pair 50. Bits: [0, 1], Rings: [4, 7]. Mods: 2. Time: 4.5746 sec ---
+[2025-04-04 08:59:26,184] I ThreadPoolExecutor-0_9 - select_embedding_rings:438 - [F:130] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:26,187] I ThreadPoolExecutor-0_12 - embed_frame_pair:941 - --- Embed Finish: Pair 52. Bits: [0, 0], Rings: [4, 7]. Mods: 2. Time: 4.6549 sec ---
+[2025-04-04 08:59:26,188] I ThreadPoolExecutor-0_10 - embed_frame_pair:941 - --- Embed Finish: Pair 49. Bits: [1, 1], Rings: [4, 7]. Mods: 2. Time: 4.5437 sec ---
+[2025-04-04 08:59:26,206] I ThreadPoolExecutor-0_18 - embed_frame_pair:941 - --- Embed Finish: Pair 53. Bits: [0, 0], Rings: [4, 7]. Mods: 2. Time: 4.2861 sec ---
+[2025-04-04 08:59:26,328] I ThreadPoolExecutor-0_0 - embed_frame_pair:825 - [P:60, R:4] Embedding Bit=0, Alpha=1.0424
+[2025-04-04 08:59:26,355] I ThreadPoolExecutor-0_0 - embed_frame_pair:858 - [P:60, R:4] SVD Mod Applied: True. Orig s1=186.4531, s2=186.5459. New s1=190.2886, s2=182.5478. Target bit=0.
+[2025-04-04 08:59:26,358] I ThreadPoolExecutor-0_8 - select_embedding_rings:438 - [F:128] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:26,487] I ThreadPoolExecutor-0_15 - select_embedding_rings:438 - [F:132] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:26,491] I ThreadPoolExecutor-0_0 - embed_frame_pair:825 - [P:60, R:5] Embedding Bit=1, Alpha=1.0406
+[2025-04-04 08:59:26,495] I ThreadPoolExecutor-0_17 - embed_frame_pair:941 - --- Embed Finish: Pair 55. Bits: [1, 0], Rings: [4, 7]. Mods: 2. Time: 4.7347 sec ---
+[2025-04-04 08:59:26,563] I ThreadPoolExecutor-0_0 - embed_frame_pair:858 - [P:60, R:5] SVD Mod Applied: True. Orig s1=181.6451, s2=181.8562. New s1=178.0634, s2=185.2981. Target bit=1.
+[2025-04-04 08:59:26,581] I ThreadPoolExecutor-0_16 - embed_frame_pair:941 - --- Embed Finish: Pair 57. Bits: [1, 1], Rings: [4, 7]. Mods: 2. Time: 4.5809 sec ---
+[2025-04-04 08:59:26,598] I ThreadPoolExecutor-0_6 - select_embedding_rings:438 - [F:134] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:26,771] I ThreadPoolExecutor-0_5 - embed_frame_pair:941 - --- Embed Finish: Pair 56. Bits: [0, 0], Rings: [4, 7]. Mods: 2. Time: 4.9162 sec ---
+[2025-04-04 08:59:26,918] I ThreadPoolExecutor-0_3 - embed_frame_pair:941 - --- Embed Finish: Pair 54. Bits: [0, 0], Rings: [4, 7]. Mods: 2. Time: 5.0125 sec ---
+[2025-04-04 08:59:26,922] I ThreadPoolExecutor-0_19 - embed_frame_pair:941 - --- Embed Finish: Pair 59. Bits: [1, 1], Rings: [4, 7]. Mods: 2. Time: 4.7231 sec ---
+[2025-04-04 08:59:26,935] I ThreadPoolExecutor-0_11 - embed_frame_pair:941 - --- Embed Finish: Pair 58. Bits: [0, 1], Rings: [4, 7]. Mods: 2. Time: 4.7601 sec ---
+[2025-04-04 08:59:26,951] I ThreadPoolExecutor-0_2 - select_embedding_rings:438 - [F:136] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:27,142] I ThreadPoolExecutor-0_13 - select_embedding_rings:438 - [F:138] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:27,433] I ThreadPoolExecutor-0_7 - embed_frame_pair:825 - [P:61, R:4] Embedding Bit=1, Alpha=1.0424
+[2025-04-04 08:59:27,468] I ThreadPoolExecutor-0_7 - embed_frame_pair:858 - [P:61, R:4] SVD Mod Applied: True. Orig s1=186.6832, s2=186.9031. New s1=182.8425, s2=190.5876. Target bit=1.
+[2025-04-04 08:59:27,775] I ThreadPoolExecutor-0_1 - embed_frame_pair:825 - [P:63, R:4] Embedding Bit=1, Alpha=1.0427
+[2025-04-04 08:59:27,801] I ThreadPoolExecutor-0_7 - embed_frame_pair:825 - [P:61, R:5] Embedding Bit=1, Alpha=1.0410
+[2025-04-04 08:59:27,810] I ThreadPoolExecutor-0_1 - embed_frame_pair:858 - [P:63, R:4] SVD Mod Applied: True. Orig s1=186.9044, s2=186.9044. New s1=182.9164, s2=190.7291. Target bit=1.
+[2025-04-04 08:59:27,909] I ThreadPoolExecutor-0_7 - embed_frame_pair:858 - [P:61, R:5] SVD Mod Applied: True. Orig s1=182.0646, s2=182.2711. New s1=178.4404, s2=185.7527. Target bit=1.
+[2025-04-04 08:59:27,935] I ThreadPoolExecutor-0_4 - embed_frame_pair:825 - [P:62, R:4] Embedding Bit=1, Alpha=1.0427
+[2025-04-04 08:59:27,975] I ThreadPoolExecutor-0_4 - embed_frame_pair:858 - [P:62, R:4] SVD Mod Applied: True. Orig s1=186.9044, s2=186.9044. New s1=182.9164, s2=190.7291. Target bit=1.
+[2025-04-04 08:59:27,988] I ThreadPoolExecutor-0_12 - select_embedding_rings:438 - [F:142] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:28,037] I ThreadPoolExecutor-0_18 - select_embedding_rings:438 - [F:146] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:28,052] I ThreadPoolExecutor-0_10 - select_embedding_rings:438 - [F:144] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:28,076] I ThreadPoolExecutor-0_14 - select_embedding_rings:438 - [F:140] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:28,093] I ThreadPoolExecutor-0_1 - embed_frame_pair:825 - [P:63, R:5] Embedding Bit=1, Alpha=1.0415
+[2025-04-04 08:59:28,210] I ThreadPoolExecutor-0_17 - select_embedding_rings:438 - [F:148] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:28,221] I ThreadPoolExecutor-0_1 - embed_frame_pair:858 - [P:63, R:5] SVD Mod Applied: True. Orig s1=182.2721, s2=182.2721. New s1=178.4919, s2=185.9016. Target bit=1.
+[2025-04-04 08:59:28,264] I ThreadPoolExecutor-0_4 - embed_frame_pair:825 - [P:62, R:5] Embedding Bit=1, Alpha=1.0415
+[2025-04-04 08:59:28,366] I ThreadPoolExecutor-0_16 - select_embedding_rings:438 - [F:150] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:28,378] I ThreadPoolExecutor-0_4 - embed_frame_pair:858 - [P:62, R:5] SVD Mod Applied: True. Orig s1=182.2721, s2=182.2721. New s1=178.4919, s2=185.9016. Target bit=1.
+[2025-04-04 08:59:28,448] I ThreadPoolExecutor-0_5 - select_embedding_rings:438 - [F:152] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:28,524] I ThreadPoolExecutor-0_3 - select_embedding_rings:438 - [F:154] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:28,540] I ThreadPoolExecutor-0_11 - select_embedding_rings:438 - [F:158] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:28,569] I ThreadPoolExecutor-0_19 - select_embedding_rings:438 - [F:156] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:28,598] I ThreadPoolExecutor-0_9 - embed_frame_pair:825 - [P:65, R:4] Embedding Bit=1, Alpha=1.0427
+[2025-04-04 08:59:28,619] I ThreadPoolExecutor-0_9 - embed_frame_pair:858 - [P:65, R:4] SVD Mod Applied: True. Orig s1=186.9044, s2=186.9044. New s1=182.9164, s2=190.7291. Target bit=1.
+[2025-04-04 08:59:28,665] I ThreadPoolExecutor-0_8 - embed_frame_pair:825 - [P:64, R:4] Embedding Bit=1, Alpha=1.0427
+[2025-04-04 08:59:28,685] I ThreadPoolExecutor-0_8 - embed_frame_pair:858 - [P:64, R:4] SVD Mod Applied: True. Orig s1=186.9044, s2=186.9044. New s1=182.9164, s2=190.7291. Target bit=1.
+[2025-04-04 08:59:28,688] I ThreadPoolExecutor-0_15 - embed_frame_pair:825 - [P:66, R:4] Embedding Bit=0, Alpha=1.0427
+[2025-04-04 08:59:28,707] I ThreadPoolExecutor-0_15 - embed_frame_pair:858 - [P:66, R:4] SVD Mod Applied: True. Orig s1=186.9044, s2=186.9044. New s1=190.7291, s2=182.9164. Target bit=0.
+[2025-04-04 08:59:28,728] I ThreadPoolExecutor-0_0 - embed_frame_pair:941 - --- Embed Finish: Pair 60. Bits: [0, 1], Rings: [4, 5]. Mods: 2. Time: 4.3760 sec ---
+[2025-04-04 08:59:28,753] I ThreadPoolExecutor-0_9 - embed_frame_pair:825 - [P:65, R:5] Embedding Bit=0, Alpha=1.0415
+[2025-04-04 08:59:28,807] I ThreadPoolExecutor-0_8 - embed_frame_pair:825 - [P:64, R:5] Embedding Bit=0, Alpha=1.0415
+[2025-04-04 08:59:28,832] I ThreadPoolExecutor-0_9 - embed_frame_pair:858 - [P:65, R:5] SVD Mod Applied: True. Orig s1=182.2721, s2=182.2721. New s1=185.9016, s2=178.4919. Target bit=0.
+[2025-04-04 08:59:28,859] I ThreadPoolExecutor-0_15 - embed_frame_pair:825 - [P:66, R:5] Embedding Bit=1, Alpha=1.0415
+[2025-04-04 08:59:28,904] I ThreadPoolExecutor-0_8 - embed_frame_pair:858 - [P:64, R:5] SVD Mod Applied: True. Orig s1=182.2721, s2=182.2721. New s1=185.9016, s2=178.4919. Target bit=0.
+[2025-04-04 08:59:28,983] I ThreadPoolExecutor-0_15 - embed_frame_pair:858 - [P:66, R:5] SVD Mod Applied: True. Orig s1=182.2721, s2=182.2721. New s1=178.4919, s2=185.9016. Target bit=1.
+[2025-04-04 08:59:29,161] I ThreadPoolExecutor-0_6 - embed_frame_pair:825 - [P:67, R:4] Embedding Bit=1, Alpha=1.0427
+[2025-04-04 08:59:29,213] I ThreadPoolExecutor-0_6 - embed_frame_pair:858 - [P:67, R:4] SVD Mod Applied: True. Orig s1=186.9044, s2=186.9044. New s1=182.9164, s2=190.7291. Target bit=1.
+[2025-04-04 08:59:29,531] I ThreadPoolExecutor-0_6 - embed_frame_pair:825 - [P:67, R:5] Embedding Bit=0, Alpha=1.0415
+[2025-04-04 08:59:29,651] I ThreadPoolExecutor-0_6 - embed_frame_pair:858 - [P:67, R:5] SVD Mod Applied: True. Orig s1=182.2721, s2=182.2721. New s1=185.9016, s2=178.4919. Target bit=0.
+[2025-04-04 08:59:29,758] I ThreadPoolExecutor-0_13 - embed_frame_pair:825 - [P:69, R:4] Embedding Bit=1, Alpha=1.0427
+[2025-04-04 08:59:29,766] I ThreadPoolExecutor-0_2 - embed_frame_pair:825 - [P:68, R:4] Embedding Bit=1, Alpha=1.0427
+[2025-04-04 08:59:29,777] I ThreadPoolExecutor-0_13 - embed_frame_pair:858 - [P:69, R:4] SVD Mod Applied: True. Orig s1=186.8034, s2=186.8196. New s1=182.8274, s2=190.6328. Target bit=1.
+[2025-04-04 08:59:29,789] I ThreadPoolExecutor-0_2 - embed_frame_pair:858 - [P:68, R:4] SVD Mod Applied: True. Orig s1=186.9044, s2=186.9044. New s1=182.9164, s2=190.7291. Target bit=1.
+[2025-04-04 08:59:29,944] I ThreadPoolExecutor-0_2 - embed_frame_pair:825 - [P:68, R:5] Embedding Bit=0, Alpha=1.0415
+[2025-04-04 08:59:29,959] I ThreadPoolExecutor-0_13 - embed_frame_pair:825 - [P:69, R:5] Embedding Bit=1, Alpha=1.0412
+[2025-04-04 08:59:30,011] I ThreadPoolExecutor-0_2 - embed_frame_pair:858 - [P:68, R:5] SVD Mod Applied: True. Orig s1=182.2721, s2=182.2721. New s1=185.9016, s2=178.4919. Target bit=0.
+[2025-04-04 08:59:30,026] I ThreadPoolExecutor-0_13 - embed_frame_pair:858 - [P:69, R:5] SVD Mod Applied: True. Orig s1=182.1072, s2=182.1275. New s1=178.3705, s2=185.7165. Target bit=1.
+[2025-04-04 08:59:30,099] I ThreadPoolExecutor-0_0 - select_embedding_rings:438 - [F:160] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:30,157] I ThreadPoolExecutor-0_10 - embed_frame_pair:825 - [P:72, R:4] Embedding Bit=0, Alpha=1.0427
+[2025-04-04 08:59:30,178] I ThreadPoolExecutor-0_10 - embed_frame_pair:858 - [P:72, R:4] SVD Mod Applied: True. Orig s1=186.8318, s2=186.8318. New s1=190.6521, s2=182.8484. Target bit=0.
+[2025-04-04 08:59:30,312] I ThreadPoolExecutor-0_10 - embed_frame_pair:825 - [P:72, R:5] Embedding Bit=1, Alpha=1.0413
+[2025-04-04 08:59:30,338] I ThreadPoolExecutor-0_14 - embed_frame_pair:825 - [P:70, R:4] Embedding Bit=1, Alpha=1.0427
+[2025-04-04 08:59:30,339] I ThreadPoolExecutor-0_18 - embed_frame_pair:825 - [P:73, R:4] Embedding Bit=1, Alpha=1.0427
+[2025-04-04 08:59:30,364] I ThreadPoolExecutor-0_12 - embed_frame_pair:825 - [P:71, R:4] Embedding Bit=1, Alpha=1.0427
+[2025-04-04 08:59:30,367] I ThreadPoolExecutor-0_14 - embed_frame_pair:858 - [P:70, R:4] SVD Mod Applied: True. Orig s1=186.8318, s2=186.8318. New s1=182.8484, s2=190.6521. Target bit=1.
+[2025-04-04 08:59:30,369] I ThreadPoolExecutor-0_18 - embed_frame_pair:858 - [P:73, R:4] SVD Mod Applied: True. Orig s1=186.8318, s2=186.8318. New s1=182.8484, s2=190.6521. Target bit=1.
+[2025-04-04 08:59:30,381] I ThreadPoolExecutor-0_10 - embed_frame_pair:858 - [P:72, R:5] SVD Mod Applied: True. Orig s1=182.1436, s2=182.1436. New s1=178.3818, s2=185.7561. Target bit=1.
+[2025-04-04 08:59:30,389] I ThreadPoolExecutor-0_12 - embed_frame_pair:858 - [P:71, R:4] SVD Mod Applied: True. Orig s1=186.8318, s2=186.8318. New s1=182.8484, s2=190.6521. Target bit=1.
+[2025-04-04 08:59:30,512] I ThreadPoolExecutor-0_7 - embed_frame_pair:941 - --- Embed Finish: Pair 61. Bits: [1, 1], Rings: [4, 5]. Mods: 2. Time: 5.3550 sec ---
+[2025-04-04 08:59:30,532] I ThreadPoolExecutor-0_17 - embed_frame_pair:825 - [P:74, R:4] Embedding Bit=1, Alpha=1.0427
+[2025-04-04 08:59:30,575] I ThreadPoolExecutor-0_17 - embed_frame_pair:858 - [P:74, R:4] SVD Mod Applied: True. Orig s1=186.8318, s2=186.8318. New s1=182.8484, s2=190.6521. Target bit=1.
+[2025-04-04 08:59:30,640] I ThreadPoolExecutor-0_18 - embed_frame_pair:825 - [P:73, R:5] Embedding Bit=0, Alpha=1.0413
+[2025-04-04 08:59:30,657] I ThreadPoolExecutor-0_12 - embed_frame_pair:825 - [P:71, R:5] Embedding Bit=0, Alpha=1.0413
+[2025-04-04 08:59:30,675] I ThreadPoolExecutor-0_14 - embed_frame_pair:825 - [P:70, R:5] Embedding Bit=1, Alpha=1.0413
+[2025-04-04 08:59:30,735] I ThreadPoolExecutor-0_5 - embed_frame_pair:825 - [P:76, R:4] Embedding Bit=0, Alpha=1.0427
+[2025-04-04 08:59:30,782] I ThreadPoolExecutor-0_18 - embed_frame_pair:858 - [P:73, R:5] SVD Mod Applied: True. Orig s1=182.1436, s2=182.1436. New s1=185.7561, s2=178.3818. Target bit=0.
+[2025-04-04 08:59:30,789] I ThreadPoolExecutor-0_5 - embed_frame_pair:858 - [P:76, R:4] SVD Mod Applied: True. Orig s1=186.9041, s2=186.9041. New s1=190.7293, s2=182.9156. Target bit=0.
+[2025-04-04 08:59:30,798] I ThreadPoolExecutor-0_12 - embed_frame_pair:858 - [P:71, R:5] SVD Mod Applied: True. Orig s1=182.1436, s2=182.1436. New s1=185.7561, s2=178.3818. Target bit=0.
+[2025-04-04 08:59:30,811] I ThreadPoolExecutor-0_14 - embed_frame_pair:858 - [P:70, R:5] SVD Mod Applied: True. Orig s1=182.1436, s2=182.1436. New s1=178.3818, s2=185.7561. Target bit=1.
+[2025-04-04 08:59:30,886] I ThreadPoolExecutor-0_17 - embed_frame_pair:825 - [P:74, R:5] Embedding Bit=1, Alpha=1.0413
+[2025-04-04 08:59:31,073] I ThreadPoolExecutor-0_4 - embed_frame_pair:941 - --- Embed Finish: Pair 62. Bits: [1, 1], Rings: [4, 5]. Mods: 2. Time: 5.8927 sec ---
+[2025-04-04 08:59:31,098] I ThreadPoolExecutor-0_1 - embed_frame_pair:941 - --- Embed Finish: Pair 63. Bits: [1, 1], Rings: [4, 5]. Mods: 2. Time: 5.8626 sec ---
+[2025-04-04 08:59:31,106] I ThreadPoolExecutor-0_17 - embed_frame_pair:858 - [P:74, R:5] SVD Mod Applied: True. Orig s1=182.1436, s2=182.1436. New s1=178.3818, s2=185.7561. Target bit=1.
+[2025-04-04 08:59:31,138] I ThreadPoolExecutor-0_5 - embed_frame_pair:825 - [P:76, R:5] Embedding Bit=1, Alpha=1.0417
+[2025-04-04 08:59:31,248] I ThreadPoolExecutor-0_9 - embed_frame_pair:941 - --- Embed Finish: Pair 65. Bits: [1, 0], Rings: [4, 5]. Mods: 2. Time: 5.0627 sec ---
+[2025-04-04 08:59:31,254] I ThreadPoolExecutor-0_16 - embed_frame_pair:825 - [P:75, R:4] Embedding Bit=0, Alpha=1.0427
+[2025-04-04 08:59:31,260] I ThreadPoolExecutor-0_5 - embed_frame_pair:858 - [P:76, R:5] SVD Mod Applied: True. Orig s1=182.2248, s2=182.2248. New s1=178.4298, s2=185.8678. Target bit=1.
+[2025-04-04 08:59:31,268] I ThreadPoolExecutor-0_8 - embed_frame_pair:941 - --- Embed Finish: Pair 64. Bits: [1, 0], Rings: [4, 5]. Mods: 2. Time: 4.9094 sec ---
+[2025-04-04 08:59:31,290] I ThreadPoolExecutor-0_16 - embed_frame_pair:858 - [P:75, R:4] SVD Mod Applied: True. Orig s1=186.9047, s2=186.9041. New s1=190.7293, s2=182.9161. Target bit=0.
+[2025-04-04 08:59:31,311] I ThreadPoolExecutor-0_15 - embed_frame_pair:941 - --- Embed Finish: Pair 66. Bits: [0, 1], Rings: [4, 5]. Mods: 2. Time: 4.8217 sec ---
+[2025-04-04 08:59:31,412] I ThreadPoolExecutor-0_11 - embed_frame_pair:825 - [P:79, R:4] Embedding Bit=1, Alpha=1.0427
+[2025-04-04 08:59:31,416] I ThreadPoolExecutor-0_3 - embed_frame_pair:825 - [P:77, R:4] Embedding Bit=1, Alpha=1.0427
+[2025-04-04 08:59:31,429] I ThreadPoolExecutor-0_11 - embed_frame_pair:858 - [P:79, R:4] SVD Mod Applied: True. Orig s1=186.9041, s2=186.9041. New s1=182.9171, s2=190.7279. Target bit=1.
+[2025-04-04 08:59:31,440] I ThreadPoolExecutor-0_3 - embed_frame_pair:858 - [P:77, R:4] SVD Mod Applied: True. Orig s1=186.9041, s2=186.9027. New s1=182.9149, s2=190.7286. Target bit=1.
+[2025-04-04 08:59:31,485] I ThreadPoolExecutor-0_16 - embed_frame_pair:825 - [P:75, R:5] Embedding Bit=1, Alpha=1.0418
+[2025-04-04 08:59:31,521] I ThreadPoolExecutor-0_19 - embed_frame_pair:825 - [P:78, R:4] Embedding Bit=1, Alpha=1.0427
+[2025-04-04 08:59:31,538] I ThreadPoolExecutor-0_19 - embed_frame_pair:858 - [P:78, R:4] SVD Mod Applied: True. Orig s1=186.9036, s2=186.9036. New s1=182.9168, s2=190.7272. Target bit=1.
+[2025-04-04 08:59:31,551] I ThreadPoolExecutor-0_16 - embed_frame_pair:858 - [P:75, R:5] SVD Mod Applied: True. Orig s1=182.1953, s2=182.2248. New s1=178.4092, s2=185.8591. Target bit=1.
+[2025-04-04 08:59:31,611] I ThreadPoolExecutor-0_11 - embed_frame_pair:825 - [P:79, R:5] Embedding Bit=1, Alpha=1.0417
+[2025-04-04 08:59:31,616] I ThreadPoolExecutor-0_3 - embed_frame_pair:825 - [P:77, R:5] Embedding Bit=1, Alpha=1.0417
+[2025-04-04 08:59:31,703] I ThreadPoolExecutor-0_11 - embed_frame_pair:858 - [P:79, R:5] SVD Mod Applied: True. Orig s1=182.2248, s2=182.2248. New s1=178.4298, s2=185.8678. Target bit=1.
+[2025-04-04 08:59:31,707] I ThreadPoolExecutor-0_3 - embed_frame_pair:858 - [P:77, R:5] SVD Mod Applied: True. Orig s1=182.2248, s2=182.2248. New s1=178.4298, s2=185.8678. Target bit=1.
+[2025-04-04 08:59:31,748] I ThreadPoolExecutor-0_19 - embed_frame_pair:825 - [P:78, R:5] Embedding Bit=0, Alpha=1.0417
+[2025-04-04 08:59:31,841] I ThreadPoolExecutor-0_19 - embed_frame_pair:858 - [P:78, R:5] SVD Mod Applied: True. Orig s1=182.2248, s2=182.2248. New s1=185.8678, s2=178.4298. Target bit=0.
+[2025-04-04 08:59:31,906] I ThreadPoolExecutor-0_6 - embed_frame_pair:941 - --- Embed Finish: Pair 67. Bits: [1, 0], Rings: [4, 5]. Mods: 2. Time: 5.3059 sec ---
+[2025-04-04 08:59:31,962] I ThreadPoolExecutor-0_7 - select_embedding_rings:438 - [F:162] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:32,068] I ThreadPoolExecutor-0_4 - select_embedding_rings:438 - [F:164] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:32,075] I ThreadPoolExecutor-0_1 - select_embedding_rings:438 - [F:166] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:32,138] I ThreadPoolExecutor-0_0 - embed_frame_pair:825 - [P:80, R:4] Embedding Bit=1, Alpha=1.0427
+[2025-04-04 08:59:32,158] I ThreadPoolExecutor-0_0 - embed_frame_pair:858 - [P:80, R:4] SVD Mod Applied: True. Orig s1=186.9041, s2=186.9041. New s1=182.9171, s2=190.7279. Target bit=1.
+[2025-04-04 08:59:32,322] I ThreadPoolExecutor-0_0 - embed_frame_pair:825 - [P:80, R:5] Embedding Bit=1, Alpha=1.0417
+[2025-04-04 08:59:32,430] I ThreadPoolExecutor-0_0 - embed_frame_pair:858 - [P:80, R:5] SVD Mod Applied: True. Orig s1=182.2248, s2=182.2248. New s1=178.4298, s2=185.8678. Target bit=1.
+[2025-04-04 08:59:32,844] I ThreadPoolExecutor-0_13 - embed_frame_pair:941 - --- Embed Finish: Pair 69. Bits: [1, 1], Rings: [4, 5]. Mods: 2. Time: 5.7011 sec ---
+[2025-04-04 08:59:32,891] I ThreadPoolExecutor-0_10 - embed_frame_pair:941 - --- Embed Finish: Pair 72. Bits: [0, 1], Rings: [4, 5]. Mods: 2. Time: 4.8371 sec ---
+[2025-04-04 08:59:32,898] I ThreadPoolExecutor-0_2 - embed_frame_pair:941 - --- Embed Finish: Pair 68. Bits: [1, 0], Rings: [4, 5]. Mods: 2. Time: 5.9434 sec ---
+[2025-04-04 08:59:33,068] I ThreadPoolExecutor-0_18 - embed_frame_pair:941 - --- Embed Finish: Pair 73. Bits: [1, 0], Rings: [4, 5]. Mods: 2. Time: 5.0283 sec ---
+[2025-04-04 08:59:33,110] I ThreadPoolExecutor-0_12 - embed_frame_pair:941 - --- Embed Finish: Pair 71. Bits: [1, 0], Rings: [4, 5]. Mods: 2. Time: 5.1208 sec ---
+[2025-04-04 08:59:33,190] I ThreadPoolExecutor-0_8 - select_embedding_rings:438 - [F:170] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:33,251] I ThreadPoolExecutor-0_9 - select_embedding_rings:438 - [F:168] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:33,327] I ThreadPoolExecutor-0_17 - embed_frame_pair:941 - --- Embed Finish: Pair 74. Bits: [1, 1], Rings: [4, 5]. Mods: 2. Time: 5.1141 sec ---
+[2025-04-04 08:59:33,352] I ThreadPoolExecutor-0_15 - select_embedding_rings:438 - [F:172] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:33,402] I ThreadPoolExecutor-0_5 - embed_frame_pair:941 - --- Embed Finish: Pair 76. Bits: [0, 1], Rings: [4, 5]. Mods: 2. Time: 4.9535 sec ---
+[2025-04-04 08:59:33,411] I ThreadPoolExecutor-0_14 - embed_frame_pair:941 - --- Embed Finish: Pair 70. Bits: [1, 1], Rings: [4, 5]. Mods: 2. Time: 5.3345 sec ---
+[2025-04-04 08:59:33,515] I ThreadPoolExecutor-0_6 - select_embedding_rings:438 - [F:174] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:33,542] I ThreadPoolExecutor-0_16 - embed_frame_pair:941 - --- Embed Finish: Pair 75. Bits: [0, 1], Rings: [4, 5]. Mods: 2. Time: 5.1721 sec ---
+[2025-04-04 08:59:33,661] I ThreadPoolExecutor-0_3 - embed_frame_pair:941 - --- Embed Finish: Pair 77. Bits: [1, 1], Rings: [4, 5]. Mods: 2. Time: 5.1364 sec ---
+[2025-04-04 08:59:33,785] I ThreadPoolExecutor-0_11 - embed_frame_pair:941 - --- Embed Finish: Pair 79. Bits: [1, 1], Rings: [4, 5]. Mods: 2. Time: 5.2452 sec ---
+[2025-04-04 08:59:33,847] I ThreadPoolExecutor-0_7 - embed_frame_pair:825 - [P:81, R:4] Embedding Bit=1, Alpha=1.0427
+[2025-04-04 08:59:33,850] I ThreadPoolExecutor-0_13 - select_embedding_rings:438 - [F:176] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:33,866] I ThreadPoolExecutor-0_7 - embed_frame_pair:858 - [P:81, R:4] SVD Mod Applied: True. Orig s1=186.9041, s2=186.9041. New s1=182.9171, s2=190.7279. Target bit=1.
+[2025-04-04 08:59:33,917] I ThreadPoolExecutor-0_10 - select_embedding_rings:438 - [F:178] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:33,966] I ThreadPoolExecutor-0_7 - embed_frame_pair:825 - [P:81, R:5] Embedding Bit=1, Alpha=1.0417
+[2025-04-04 08:59:33,987] I ThreadPoolExecutor-0_2 - select_embedding_rings:438 - [F:180] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:34,039] I ThreadPoolExecutor-0_7 - embed_frame_pair:858 - [P:81, R:5] SVD Mod Applied: True. Orig s1=182.2248, s2=182.2248. New s1=178.4298, s2=185.8678. Target bit=1.
+[2025-04-04 08:59:34,200] I ThreadPoolExecutor-0_19 - embed_frame_pair:941 - --- Embed Finish: Pair 78. Bits: [1, 0], Rings: [4, 5]. Mods: 2. Time: 5.6302 sec ---
+[2025-04-04 08:59:34,254] I ThreadPoolExecutor-0_4 - embed_frame_pair:825 - [P:82, R:4] Embedding Bit=0, Alpha=1.0427
+[2025-04-04 08:59:34,282] I ThreadPoolExecutor-0_4 - embed_frame_pair:858 - [P:82, R:4] SVD Mod Applied: True. Orig s1=186.9041, s2=186.9041. New s1=190.7279, s2=182.9171. Target bit=0.
+[2025-04-04 08:59:34,542] I ThreadPoolExecutor-0_4 - embed_frame_pair:825 - [P:82, R:5] Embedding Bit=1, Alpha=1.0417
+[2025-04-04 08:59:34,617] I ThreadPoolExecutor-0_1 - embed_frame_pair:825 - [P:83, R:4] Embedding Bit=1, Alpha=1.0427
+[2025-04-04 08:59:34,629] I ThreadPoolExecutor-0_4 - embed_frame_pair:858 - [P:82, R:5] SVD Mod Applied: True. Orig s1=182.2248, s2=182.2248. New s1=178.4298, s2=185.8678. Target bit=1.
+[2025-04-04 08:59:34,642] I ThreadPoolExecutor-0_0 - embed_frame_pair:941 - --- Embed Finish: Pair 80. Bits: [1, 1], Rings: [4, 5]. Mods: 2. Time: 4.5421 sec ---
+[2025-04-04 08:59:34,658] I ThreadPoolExecutor-0_1 - embed_frame_pair:858 - [P:83, R:4] SVD Mod Applied: True. Orig s1=186.9041, s2=186.9041. New s1=182.9171, s2=190.7279. Target bit=1.
+[2025-04-04 08:59:34,735] I ThreadPoolExecutor-0_12 - select_embedding_rings:438 - [F:184] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:34,866] I ThreadPoolExecutor-0_18 - select_embedding_rings:438 - [F:182] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:34,867] I ThreadPoolExecutor-0_1 - embed_frame_pair:825 - [P:83, R:5] Embedding Bit=1, Alpha=1.0417
+[2025-04-04 08:59:34,942] I ThreadPoolExecutor-0_1 - embed_frame_pair:858 - [P:83, R:5] SVD Mod Applied: True. Orig s1=182.2248, s2=182.2248. New s1=178.4298, s2=185.8678. Target bit=1.
+[2025-04-04 08:59:35,018] I ThreadPoolExecutor-0_17 - select_embedding_rings:438 - [F:186] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:35,054] I ThreadPoolExecutor-0_14 - select_embedding_rings:438 - [F:190] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:35,110] I ThreadPoolExecutor-0_5 - select_embedding_rings:438 - [F:188] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:35,133] I ThreadPoolExecutor-0_16 - select_embedding_rings:438 - [F:192] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:35,138] I ThreadPoolExecutor-0_11 - select_embedding_rings:438 - [F:196] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:35,165] I ThreadPoolExecutor-0_3 - select_embedding_rings:438 - [F:194] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:35,298] I ThreadPoolExecutor-0_19 - select_embedding_rings:438 - [F:198] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:35,557] I ThreadPoolExecutor-0_9 - embed_frame_pair:825 - [P:84, R:4] Embedding Bit=0, Alpha=1.0427
+[2025-04-04 08:59:35,573] I ThreadPoolExecutor-0_8 - embed_frame_pair:825 - [P:85, R:4] Embedding Bit=0, Alpha=1.0427
+[2025-04-04 08:59:35,593] I ThreadPoolExecutor-0_9 - embed_frame_pair:858 - [P:84, R:4] SVD Mod Applied: True. Orig s1=186.9041, s2=186.9041. New s1=190.7279, s2=182.9171. Target bit=0.
+[2025-04-04 08:59:35,605] I ThreadPoolExecutor-0_8 - embed_frame_pair:858 - [P:85, R:4] SVD Mod Applied: True. Orig s1=186.9041, s2=186.9041. New s1=190.7279, s2=182.9171. Target bit=0.
+[2025-04-04 08:59:35,810] I ThreadPoolExecutor-0_6 - embed_frame_pair:825 - [P:87, R:4] Embedding Bit=1, Alpha=1.0427
+[2025-04-04 08:59:35,839] I ThreadPoolExecutor-0_6 - embed_frame_pair:858 - [P:87, R:4] SVD Mod Applied: True. Orig s1=186.9043, s2=186.9043. New s1=182.9171, s2=190.7281. Target bit=1.
+[2025-04-04 08:59:35,928] I ThreadPoolExecutor-0_9 - embed_frame_pair:825 - [P:84, R:5] Embedding Bit=0, Alpha=1.0417
+[2025-04-04 08:59:35,934] I ThreadPoolExecutor-0_15 - embed_frame_pair:825 - [P:86, R:4] Embedding Bit=0, Alpha=1.0427
+[2025-04-04 08:59:35,967] I ThreadPoolExecutor-0_15 - embed_frame_pair:858 - [P:86, R:4] SVD Mod Applied: True. Orig s1=186.9041, s2=186.9043. New s1=190.7280, s2=182.9171. Target bit=0.
+[2025-04-04 08:59:35,974] I ThreadPoolExecutor-0_8 - embed_frame_pair:825 - [P:85, R:5] Embedding Bit=0, Alpha=1.0417
+[2025-04-04 08:59:36,029] I ThreadPoolExecutor-0_9 - embed_frame_pair:858 - [P:84, R:5] SVD Mod Applied: True. Orig s1=182.2248, s2=182.2248. New s1=185.8678, s2=178.4298. Target bit=0.
+[2025-04-04 08:59:36,045] I ThreadPoolExecutor-0_13 - embed_frame_pair:825 - [P:88, R:4] Embedding Bit=0, Alpha=1.0427
+[2025-04-04 08:59:36,084] I ThreadPoolExecutor-0_13 - embed_frame_pair:858 - [P:88, R:4] SVD Mod Applied: True. Orig s1=186.9043, s2=186.9043. New s1=190.7281, s2=182.9171. Target bit=0.
+[2025-04-04 08:59:36,095] I ThreadPoolExecutor-0_8 - embed_frame_pair:858 - [P:85, R:5] SVD Mod Applied: True. Orig s1=182.2248, s2=182.2248. New s1=185.8678, s2=178.4298. Target bit=0.
+[2025-04-04 08:59:36,202] I ThreadPoolExecutor-0_6 - embed_frame_pair:825 - [P:87, R:5] Embedding Bit=0, Alpha=1.0419
+[2025-04-04 08:59:36,251] I ThreadPoolExecutor-0_15 - embed_frame_pair:825 - [P:86, R:5] Embedding Bit=0, Alpha=1.0417
+[2025-04-04 08:59:36,296] I ThreadPoolExecutor-0_0 - select_embedding_rings:438 - [F:200] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:36,302] I ThreadPoolExecutor-0_7 - embed_frame_pair:941 - --- Embed Finish: Pair 81. Bits: [1, 1], Rings: [4, 5]. Mods: 2. Time: 4.3385 sec ---
+[2025-04-04 08:59:36,305] I ThreadPoolExecutor-0_6 - embed_frame_pair:858 - [P:87, R:5] SVD Mod Applied: True. Orig s1=182.1861, s2=182.1861. New s1=185.8458, s2=178.3731. Target bit=0.
+[2025-04-04 08:59:36,335] I ThreadPoolExecutor-0_15 - embed_frame_pair:858 - [P:86, R:5] SVD Mod Applied: True. Orig s1=182.2248, s2=182.1859. New s1=185.8484, s2=178.4112. Target bit=0.
+[2025-04-04 08:59:36,352] I ThreadPoolExecutor-0_2 - embed_frame_pair:825 - [P:90, R:4] Embedding Bit=0, Alpha=1.0427
+[2025-04-04 08:59:36,367] I ThreadPoolExecutor-0_13 - embed_frame_pair:825 - [P:88, R:5] Embedding Bit=0, Alpha=1.0419
+[2025-04-04 08:59:36,378] I ThreadPoolExecutor-0_2 - embed_frame_pair:858 - [P:90, R:4] SVD Mod Applied: True. Orig s1=186.9057, s2=186.9074. New s1=190.7299, s2=182.9200. Target bit=0.
+[2025-04-04 08:59:36,400] I ThreadPoolExecutor-0_10 - embed_frame_pair:825 - [P:89, R:4] Embedding Bit=1, Alpha=1.0427
+[2025-04-04 08:59:36,435] I ThreadPoolExecutor-0_10 - embed_frame_pair:858 - [P:89, R:4] SVD Mod Applied: True. Orig s1=186.9043, s2=186.9043. New s1=182.9171, s2=190.7281. Target bit=1.
+[2025-04-04 08:59:36,457] I ThreadPoolExecutor-0_13 - embed_frame_pair:858 - [P:88, R:5] SVD Mod Applied: True. Orig s1=182.1861, s2=182.1861. New s1=185.8458, s2=178.3731. Target bit=0.
+[2025-04-04 08:59:36,594] I ThreadPoolExecutor-0_4 - embed_frame_pair:941 - --- Embed Finish: Pair 82. Bits: [0, 1], Rings: [4, 5]. Mods: 2. Time: 4.5242 sec ---
+[2025-04-04 08:59:36,599] I ThreadPoolExecutor-0_12 - embed_frame_pair:825 - [P:92, R:4] Embedding Bit=0, Alpha=1.0427
+[2025-04-04 08:59:36,611] I ThreadPoolExecutor-0_2 - embed_frame_pair:825 - [P:90, R:5] Embedding Bit=1, Alpha=1.0420
+[2025-04-04 08:59:36,623] I ThreadPoolExecutor-0_12 - embed_frame_pair:858 - [P:92, R:4] SVD Mod Applied: True. Orig s1=186.9074, s2=186.9074. New s1=190.7312, s2=182.9203. Target bit=0.
+[2025-04-04 08:59:36,645] I ThreadPoolExecutor-0_10 - embed_frame_pair:825 - [P:89, R:5] Embedding Bit=1, Alpha=1.0419
+[2025-04-04 08:59:36,694] I ThreadPoolExecutor-0_2 - embed_frame_pair:858 - [P:90, R:5] SVD Mod Applied: True. Orig s1=182.1526, s2=182.1821. New s1=178.3493, s2=185.8322. Target bit=1.
+[2025-04-04 08:59:36,717] I ThreadPoolExecutor-0_10 - embed_frame_pair:858 - [P:89, R:5] SVD Mod Applied: True. Orig s1=182.1861, s2=182.1861. New s1=178.3731, s2=185.8458. Target bit=1.
+[2025-04-04 08:59:36,753] I ThreadPoolExecutor-0_17 - embed_frame_pair:825 - [P:93, R:4] Embedding Bit=1, Alpha=1.0427
+[2025-04-04 08:59:36,784] I ThreadPoolExecutor-0_17 - embed_frame_pair:858 - [P:93, R:4] SVD Mod Applied: True. Orig s1=186.9074, s2=186.9074. New s1=182.9203, s2=190.7312. Target bit=1.
+[2025-04-04 08:59:36,787] I ThreadPoolExecutor-0_12 - embed_frame_pair:825 - [P:92, R:5] Embedding Bit=1, Alpha=1.0419
+[2025-04-04 08:59:36,821] I ThreadPoolExecutor-0_1 - embed_frame_pair:941 - --- Embed Finish: Pair 83. Bits: [1, 1], Rings: [4, 5]. Mods: 2. Time: 4.7455 sec ---
+[2025-04-04 08:59:36,884] I ThreadPoolExecutor-0_12 - embed_frame_pair:858 - [P:92, R:5] SVD Mod Applied: True. Orig s1=182.1821, s2=182.1821. New s1=178.3699, s2=185.8409. Target bit=1.
+[2025-04-04 08:59:36,888] I ThreadPoolExecutor-0_18 - embed_frame_pair:825 - [P:91, R:4] Embedding Bit=1, Alpha=1.0427
+[2025-04-04 08:59:36,910] I ThreadPoolExecutor-0_18 - embed_frame_pair:858 - [P:91, R:4] SVD Mod Applied: True. Orig s1=186.9074, s2=186.9074. New s1=182.9203, s2=190.7312. Target bit=1.
+[2025-04-04 08:59:36,937] I ThreadPoolExecutor-0_16 - embed_frame_pair:825 - [P:96, R:4] Embedding Bit=1, Alpha=1.0427
+[2025-04-04 08:59:36,955] I ThreadPoolExecutor-0_16 - embed_frame_pair:858 - [P:96, R:4] SVD Mod Applied: True. Orig s1=186.9074, s2=186.9074. New s1=182.9203, s2=190.7312. Target bit=1.
+[2025-04-04 08:59:36,964] I ThreadPoolExecutor-0_17 - embed_frame_pair:825 - [P:93, R:5] Embedding Bit=1, Alpha=1.0419
+[2025-04-04 08:59:37,034] I ThreadPoolExecutor-0_17 - embed_frame_pair:858 - [P:93, R:5] SVD Mod Applied: True. Orig s1=182.1821, s2=182.1821. New s1=178.3699, s2=185.8409. Target bit=1.
+[2025-04-04 08:59:37,042] I ThreadPoolExecutor-0_18 - embed_frame_pair:825 - [P:91, R:5] Embedding Bit=1, Alpha=1.0419
+[2025-04-04 08:59:37,084] I ThreadPoolExecutor-0_5 - embed_frame_pair:825 - [P:94, R:4] Embedding Bit=1, Alpha=1.0427
+[2025-04-04 08:59:37,101] I ThreadPoolExecutor-0_16 - embed_frame_pair:825 - [P:96, R:5] Embedding Bit=0, Alpha=1.0419
+[2025-04-04 08:59:37,112] I ThreadPoolExecutor-0_5 - embed_frame_pair:858 - [P:94, R:4] SVD Mod Applied: True. Orig s1=186.9074, s2=186.9074. New s1=182.9203, s2=190.7312. Target bit=1.
+[2025-04-04 08:59:37,125] I ThreadPoolExecutor-0_18 - embed_frame_pair:858 - [P:91, R:5] SVD Mod Applied: True. Orig s1=182.1821, s2=182.1821. New s1=178.3699, s2=185.8409. Target bit=1.
+[2025-04-04 08:59:37,205] I ThreadPoolExecutor-0_16 - embed_frame_pair:858 - [P:96, R:5] SVD Mod Applied: True. Orig s1=182.1821, s2=182.1821. New s1=185.8409, s2=178.3699. Target bit=0.
+[2025-04-04 08:59:37,352] I ThreadPoolExecutor-0_3 - embed_frame_pair:825 - [P:97, R:4] Embedding Bit=1, Alpha=1.0427
+[2025-04-04 08:59:37,389] I ThreadPoolExecutor-0_3 - embed_frame_pair:858 - [P:97, R:4] SVD Mod Applied: True. Orig s1=186.9074, s2=186.9074. New s1=182.9203, s2=190.7312. Target bit=1.
+[2025-04-04 08:59:37,401] I ThreadPoolExecutor-0_14 - embed_frame_pair:825 - [P:95, R:4] Embedding Bit=1, Alpha=1.0427
+[2025-04-04 08:59:37,428] I ThreadPoolExecutor-0_5 - embed_frame_pair:825 - [P:94, R:5] Embedding Bit=1, Alpha=1.0419
+[2025-04-04 08:59:37,433] I ThreadPoolExecutor-0_14 - embed_frame_pair:858 - [P:95, R:4] SVD Mod Applied: True. Orig s1=186.9074, s2=186.9074. New s1=182.9203, s2=190.7312. Target bit=1.
+[2025-04-04 08:59:37,529] I ThreadPoolExecutor-0_5 - embed_frame_pair:858 - [P:94, R:5] SVD Mod Applied: True. Orig s1=182.1821, s2=182.1821. New s1=178.3699, s2=185.8409. Target bit=1.
+[2025-04-04 08:59:37,697] I ThreadPoolExecutor-0_3 - embed_frame_pair:825 - [P:97, R:5] Embedding Bit=0, Alpha=1.0419
+[2025-04-04 08:59:37,723] I ThreadPoolExecutor-0_14 - embed_frame_pair:825 - [P:95, R:5] Embedding Bit=1, Alpha=1.0419
+[2025-04-04 08:59:37,781] I ThreadPoolExecutor-0_3 - embed_frame_pair:858 - [P:97, R:5] SVD Mod Applied: True. Orig s1=182.1821, s2=182.1821. New s1=185.8409, s2=178.3699. Target bit=0.
+[2025-04-04 08:59:37,803] I ThreadPoolExecutor-0_14 - embed_frame_pair:858 - [P:95, R:5] SVD Mod Applied: True. Orig s1=182.1821, s2=182.1821. New s1=178.3699, s2=185.8409. Target bit=1.
+[2025-04-04 08:59:37,902] I ThreadPoolExecutor-0_11 - embed_frame_pair:825 - [P:98, R:4] Embedding Bit=0, Alpha=1.0427
+[2025-04-04 08:59:37,916] I ThreadPoolExecutor-0_19 - embed_frame_pair:825 - [P:99, R:4] Embedding Bit=1, Alpha=1.0427
+[2025-04-04 08:59:37,924] I ThreadPoolExecutor-0_11 - embed_frame_pair:858 - [P:98, R:4] SVD Mod Applied: True. Orig s1=186.9071, s2=186.9071. New s1=190.7309, s2=182.9200. Target bit=0.
+[2025-04-04 08:59:37,935] I ThreadPoolExecutor-0_19 - embed_frame_pair:858 - [P:99, R:4] SVD Mod Applied: True. Orig s1=186.9071, s2=186.9071. New s1=182.9200, s2=190.7309. Target bit=1.
+[2025-04-04 08:59:38,014] I ThreadPoolExecutor-0_4 - select_embedding_rings:438 - [F:204] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:38,038] I ThreadPoolExecutor-0_19 - embed_frame_pair:825 - [P:99, R:5] Embedding Bit=0, Alpha=1.0419
+[2025-04-04 08:59:38,052] I ThreadPoolExecutor-0_11 - embed_frame_pair:825 - [P:98, R:5] Embedding Bit=1, Alpha=1.0419
+[2025-04-04 08:59:38,059] I ThreadPoolExecutor-0_7 - select_embedding_rings:438 - [F:202] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:38,104] I ThreadPoolExecutor-0_19 - embed_frame_pair:858 - [P:99, R:5] SVD Mod Applied: True. Orig s1=182.1821, s2=182.1821. New s1=185.8409, s2=178.3699. Target bit=0.
+[2025-04-04 08:59:38,133] I ThreadPoolExecutor-0_11 - embed_frame_pair:858 - [P:98, R:5] SVD Mod Applied: True. Orig s1=182.1821, s2=182.1821. New s1=178.3699, s2=185.8409. Target bit=1.
+[2025-04-04 08:59:38,184] I ThreadPoolExecutor-0_1 - select_embedding_rings:438 - [F:206] Multi-ring selection result: [4, 5]
+[2025-04-04 08:59:38,361] I ThreadPoolExecutor-0_9 - embed_frame_pair:941 - --- Embed Finish: Pair 84. Bits: [0, 0], Rings: [4, 5]. Mods: 2. Time: 5.1107 sec ---
+[2025-04-04 08:59:38,501] I ThreadPoolExecutor-0_8 - embed_frame_pair:941 - --- Embed Finish: Pair 85. Bits: [0, 0], Rings: [4, 5]. Mods: 2. Time: 5.3114 sec ---
+[2025-04-04 08:59:38,620] I ThreadPoolExecutor-0_15 - embed_frame_pair:941 - --- Embed Finish: Pair 86. Bits: [0, 0], Rings: [4, 5]. Mods: 2. Time: 5.2669 sec ---
+[2025-04-04 08:59:38,679] I ThreadPoolExecutor-0_13 - embed_frame_pair:941 - --- Embed Finish: Pair 88. Bits: [0, 0], Rings: [4, 5]. Mods: 2. Time: 4.8287 sec ---
+[2025-04-04 08:59:38,728] I ThreadPoolExecutor-0_6 - embed_frame_pair:941 - --- Embed Finish: Pair 87. Bits: [1, 0], Rings: [4, 5]. Mods: 2. Time: 5.2119 sec ---
+[2025-04-04 08:59:38,764] I ThreadPoolExecutor-0_2 - embed_frame_pair:941 - --- Embed Finish: Pair 90. Bits: [0, 1], Rings: [4, 5]. Mods: 2. Time: 4.7740 sec ---
+[2025-04-04 08:59:38,770] I ThreadPoolExecutor-0_0 - embed_frame_pair:825 - [P:100, R:4] Embedding Bit=1, Alpha=1.0427
+[2025-04-04 08:59:38,789] I ThreadPoolExecutor-0_0 - embed_frame_pair:858 - [P:100, R:4] SVD Mod Applied: True. Orig s1=186.9071, s2=186.9071. New s1=182.9200, s2=190.7309. Target bit=1.
+[2025-04-04 08:59:38,895] I ThreadPoolExecutor-0_12 - embed_frame_pair:941 - --- Embed Finish: Pair 92. Bits: [0, 1], Rings: [4, 5]. Mods: 2. Time: 4.1580 sec ---
+[2025-04-04 08:59:38,906] I ThreadPoolExecutor-0_10 - embed_frame_pair:941 - --- Embed Finish: Pair 89. Bits: [1, 1], Rings: [4, 5]. Mods: 2. Time: 4.9876 sec ---
+[2025-04-04 08:59:38,987] I ThreadPoolExecutor-0_0 - embed_frame_pair:825 - [P:100, R:5] Embedding Bit=0, Alpha=1.0419
+[2025-04-04 08:59:39,059] I ThreadPoolExecutor-0_0 - embed_frame_pair:858 - [P:100, R:5] SVD Mod Applied: True. Orig s1=182.1821, s2=182.1821. New s1=185.8409, s2=178.3699. Target bit=0.
+[2025-04-04 08:59:39,068] I ThreadPoolExecutor-0_17 - embed_frame_pair:941 - --- Embed Finish: Pair 93. Bits: [1, 1], Rings: [4, 5]. Mods: 2. Time: 4.0494 sec ---
+[2025-04-04 08:59:39,334] I ThreadPoolExecutor-0_18 - embed_frame_pair:941 - --- Embed Finish: Pair 91. Bits: [1, 1], Rings: [4, 5]. Mods: 2. Time: 4.4632 sec ---
+[2025-04-04 08:59:39,441] I ThreadPoolExecutor-0_16 - embed_frame_pair:941 - --- Embed Finish: Pair 96. Bits: [1, 0], Rings: [4, 5]. Mods: 2. Time: 4.3076 sec ---
+[2025-04-04 08:59:39,758] I ThreadPoolExecutor-0_5 - embed_frame_pair:941 - --- Embed Finish: Pair 94. Bits: [1, 1], Rings: [4, 5]. Mods: 2. Time: 4.6473 sec ---
+[2025-04-04 08:59:39,762] I ThreadPoolExecutor-0_9 - select_embedding_rings:438 - [F:208] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:39,861] I ThreadPoolExecutor-0_14 - embed_frame_pair:941 - --- Embed Finish: Pair 95. Bits: [1, 1], Rings: [4, 5]. Mods: 2. Time: 4.8069 sec ---
+[2025-04-04 08:59:39,986] I ThreadPoolExecutor-0_8 - select_embedding_rings:438 - [F:210] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:39,988] I ThreadPoolExecutor-0_3 - embed_frame_pair:941 - --- Embed Finish: Pair 97. Bits: [1, 0], Rings: [4, 5]. Mods: 2. Time: 4.8226 sec ---
+[2025-04-04 08:59:40,262] I ThreadPoolExecutor-0_7 - embed_frame_pair:825 - [P:101, R:4] Embedding Bit=1, Alpha=1.0427
+[2025-04-04 08:59:40,293] I ThreadPoolExecutor-0_7 - embed_frame_pair:858 - [P:101, R:4] SVD Mod Applied: True. Orig s1=186.9071, s2=186.9071. New s1=182.9200, s2=190.7309. Target bit=1.
+[2025-04-04 08:59:40,322] I ThreadPoolExecutor-0_19 - embed_frame_pair:941 - --- Embed Finish: Pair 99. Bits: [1, 0], Rings: [4, 5]. Mods: 2. Time: 5.0221 sec ---
+[2025-04-04 08:59:40,330] I ThreadPoolExecutor-0_6 - select_embedding_rings:438 - [F:216] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:40,334] I ThreadPoolExecutor-0_2 - select_embedding_rings:438 - [F:218] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:40,375] I ThreadPoolExecutor-0_4 - embed_frame_pair:825 - [P:102, R:4] Embedding Bit=1, Alpha=1.0427
+[2025-04-04 08:59:40,381] I ThreadPoolExecutor-0_13 - select_embedding_rings:438 - [F:214] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:40,396] I ThreadPoolExecutor-0_15 - select_embedding_rings:438 - [F:212] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:40,400] I ThreadPoolExecutor-0_4 - embed_frame_pair:858 - [P:102, R:4] SVD Mod Applied: True. Orig s1=186.9071, s2=186.2892. New s1=182.6113, s2=190.4090. Target bit=1.
+[2025-04-04 08:59:40,406] I ThreadPoolExecutor-0_11 - embed_frame_pair:941 - --- Embed Finish: Pair 98. Bits: [0, 1], Rings: [4, 5]. Mods: 2. Time: 5.2688 sec ---
+[2025-04-04 08:59:40,471] I ThreadPoolExecutor-0_7 - embed_frame_pair:825 - [P:101, R:5] Embedding Bit=1, Alpha=1.0419
+[2025-04-04 08:59:40,472] I ThreadPoolExecutor-0_12 - select_embedding_rings:438 - [F:220] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:40,494] I ThreadPoolExecutor-0_1 - embed_frame_pair:825 - [P:103, R:4] Embedding Bit=1, Alpha=1.0422
+[2025-04-04 08:59:40,519] I ThreadPoolExecutor-0_1 - embed_frame_pair:858 - [P:103, R:4] SVD Mod Applied: True. Orig s1=185.6706, s2=185.2310. New s1=181.5404, s2=189.1941. Target bit=1.
+[2025-04-04 08:59:40,539] I ThreadPoolExecutor-0_7 - embed_frame_pair:858 - [P:101, R:5] SVD Mod Applied: True. Orig s1=182.1821, s2=182.1821. New s1=178.3699, s2=185.8409. Target bit=1.
+[2025-04-04 08:59:40,575] I ThreadPoolExecutor-0_10 - select_embedding_rings:438 - [F:222] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:40,603] I ThreadPoolExecutor-0_4 - embed_frame_pair:825 - [P:102, R:5] Embedding Bit=1, Alpha=1.0419
+[2025-04-04 08:59:40,637] I ThreadPoolExecutor-0_17 - select_embedding_rings:438 - [F:224] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:40,689] I ThreadPoolExecutor-0_4 - embed_frame_pair:858 - [P:102, R:5] SVD Mod Applied: True. Orig s1=182.1821, s2=181.9807. New s1=178.2694, s2=185.7362. Target bit=1.
+[2025-04-04 08:59:40,728] I ThreadPoolExecutor-0_1 - embed_frame_pair:825 - [P:103, R:5] Embedding Bit=0, Alpha=1.0406
+[2025-04-04 08:59:40,815] I ThreadPoolExecutor-0_1 - embed_frame_pair:858 - [P:103, R:5] SVD Mod Applied: True. Orig s1=181.7935, s2=181.4378. New s1=185.1630, s2=177.9313. Target bit=0.
+[2025-04-04 08:59:40,887] I ThreadPoolExecutor-0_18 - select_embedding_rings:438 - [F:226] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:40,926] I ThreadPoolExecutor-0_16 - select_embedding_rings:438 - [F:228] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:41,083] I ThreadPoolExecutor-0_0 - embed_frame_pair:941 - --- Embed Finish: Pair 100. Bits: [1, 0], Rings: [4, 5]. Mods: 2. Time: 4.7857 sec ---
+[2025-04-04 08:59:41,091] I ThreadPoolExecutor-0_5 - select_embedding_rings:438 - [F:230] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:41,129] I ThreadPoolExecutor-0_3 - select_embedding_rings:438 - [F:234] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:41,144] I ThreadPoolExecutor-0_14 - select_embedding_rings:438 - [F:232] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:41,462] I ThreadPoolExecutor-0_19 - select_embedding_rings:438 - [F:236] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:41,780] I ThreadPoolExecutor-0_11 - select_embedding_rings:438 - [F:238] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:41,950] I ThreadPoolExecutor-0_8 - embed_frame_pair:825 - [P:105, R:4] Embedding Bit=1, Alpha=1.0409
+[2025-04-04 08:59:41,971] I ThreadPoolExecutor-0_8 - embed_frame_pair:858 - [P:105, R:4] SVD Mod Applied: True. Orig s1=184.7734, s2=184.7795. New s1=180.9996, s2=188.4050. Target bit=1.
+[2025-04-04 08:59:41,974] I ThreadPoolExecutor-0_9 - embed_frame_pair:825 - [P:104, R:4] Embedding Bit=0, Alpha=1.0416
+[2025-04-04 08:59:41,994] I ThreadPoolExecutor-0_9 - embed_frame_pair:858 - [P:104, R:4] SVD Mod Applied: True. Orig s1=185.1522, s2=185.0330. New s1=188.7900, s2=181.2437. Target bit=0.
+[2025-04-04 08:59:42,078] I ThreadPoolExecutor-0_8 - embed_frame_pair:825 - [P:105, R:7] Embedding Bit=0, Alpha=1.0379
+[2025-04-04 08:59:42,086] I ThreadPoolExecutor-0_8 - embed_frame_pair:858 - [P:105, R:7] SVD Mod Applied: True. Orig s1=70.2286, s2=70.2281. New s1=71.5090, s2=68.8992. Target bit=0.
+[2025-04-04 08:59:42,091] I ThreadPoolExecutor-0_9 - embed_frame_pair:825 - [P:104, R:7] Embedding Bit=1, Alpha=1.0381
+[2025-04-04 08:59:42,097] I ThreadPoolExecutor-0_9 - embed_frame_pair:858 - [P:104, R:7] SVD Mod Applied: True. Orig s1=70.2635, s2=70.2727. New s1=68.9310, s2=71.5563. Target bit=1.
+[2025-04-04 08:59:42,252] I ThreadPoolExecutor-0_0 - select_embedding_rings:438 - [F:240] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:42,271] I ThreadPoolExecutor-0_6 - embed_frame_pair:825 - [P:108, R:4] Embedding Bit=0, Alpha=1.0409
+[2025-04-04 08:59:42,294] I ThreadPoolExecutor-0_6 - embed_frame_pair:858 - [P:108, R:4] SVD Mod Applied: True. Orig s1=184.7795, s2=184.7795. New s1=188.4057, s2=181.0051. Target bit=0.
+[2025-04-04 08:59:42,354] I ThreadPoolExecutor-0_2 - embed_frame_pair:825 - [P:109, R:4] Embedding Bit=1, Alpha=1.0409
+[2025-04-04 08:59:42,378] I ThreadPoolExecutor-0_2 - embed_frame_pair:858 - [P:109, R:4] SVD Mod Applied: True. Orig s1=184.7795, s2=184.7795. New s1=181.0051, s2=188.4057. Target bit=1.
+[2025-04-04 08:59:42,405] I ThreadPoolExecutor-0_12 - embed_frame_pair:825 - [P:110, R:4] Embedding Bit=1, Alpha=1.0409
+[2025-04-04 08:59:42,411] I ThreadPoolExecutor-0_6 - embed_frame_pair:825 - [P:108, R:7] Embedding Bit=1, Alpha=1.0379
+[2025-04-04 08:59:42,421] I ThreadPoolExecutor-0_6 - embed_frame_pair:858 - [P:108, R:7] SVD Mod Applied: True. Orig s1=70.2217, s2=70.2203. New s1=68.8905, s2=71.5029. Target bit=1.
+[2025-04-04 08:59:42,430] I ThreadPoolExecutor-0_12 - embed_frame_pair:858 - [P:110, R:4] SVD Mod Applied: True. Orig s1=184.7795, s2=184.7795. New s1=181.0051, s2=188.4057. Target bit=1.
+[2025-04-04 08:59:42,470] I ThreadPoolExecutor-0_13 - embed_frame_pair:825 - [P:107, R:4] Embedding Bit=0, Alpha=1.0409
+[2025-04-04 08:59:42,494] I ThreadPoolExecutor-0_13 - embed_frame_pair:858 - [P:107, R:4] SVD Mod Applied: True. Orig s1=184.7795, s2=184.7795. New s1=188.4057, s2=181.0051. Target bit=0.
+[2025-04-04 08:59:42,505] I ThreadPoolExecutor-0_2 - embed_frame_pair:825 - [P:109, R:7] Embedding Bit=1, Alpha=1.0379
+[2025-04-04 08:59:42,518] I ThreadPoolExecutor-0_2 - embed_frame_pair:858 - [P:109, R:7] SVD Mod Applied: True. Orig s1=70.2202, s2=70.2200. New s1=68.8895, s2=71.5021. Target bit=1.
+[2025-04-04 08:59:42,531] I ThreadPoolExecutor-0_7 - embed_frame_pair:941 - --- Embed Finish: Pair 101. Bits: [1, 1], Rings: [4, 5]. Mods: 2. Time: 4.4715 sec ---
+[2025-04-04 08:59:42,580] I ThreadPoolExecutor-0_12 - embed_frame_pair:825 - [P:110, R:7] Embedding Bit=0, Alpha=1.0379
+[2025-04-04 08:59:42,595] I ThreadPoolExecutor-0_12 - embed_frame_pair:858 - [P:110, R:7] SVD Mod Applied: True. Orig s1=70.2198, s2=70.2216. New s1=71.5027, s2=68.8901. Target bit=0.
+[2025-04-04 08:59:42,638] I ThreadPoolExecutor-0_13 - embed_frame_pair:825 - [P:107, R:7] Embedding Bit=1, Alpha=1.0379
+[2025-04-04 08:59:42,650] I ThreadPoolExecutor-0_13 - embed_frame_pair:858 - [P:107, R:7] SVD Mod Applied: True. Orig s1=70.2245, s2=70.2238. New s1=68.8943, s2=71.5054. Target bit=1.
+[2025-04-04 08:59:42,665] I ThreadPoolExecutor-0_10 - embed_frame_pair:825 - [P:111, R:4] Embedding Bit=1, Alpha=1.0409
+[2025-04-04 08:59:42,685] I ThreadPoolExecutor-0_10 - embed_frame_pair:858 - [P:111, R:4] SVD Mod Applied: True. Orig s1=184.7795, s2=184.7795. New s1=181.0051, s2=188.4057. Target bit=1.
+[2025-04-04 08:59:42,720] I ThreadPoolExecutor-0_17 - embed_frame_pair:825 - [P:112, R:4] Embedding Bit=1, Alpha=1.0409
+[2025-04-04 08:59:42,747] I ThreadPoolExecutor-0_17 - embed_frame_pair:858 - [P:112, R:4] SVD Mod Applied: True. Orig s1=184.7795, s2=184.6524. New s1=180.9416, s2=188.3396. Target bit=1.
+[2025-04-04 08:59:42,754] I ThreadPoolExecutor-0_15 - embed_frame_pair:825 - [P:106, R:4] Embedding Bit=1, Alpha=1.0409
+[2025-04-04 08:59:42,781] I ThreadPoolExecutor-0_15 - embed_frame_pair:858 - [P:106, R:4] SVD Mod Applied: True. Orig s1=184.7795, s2=184.7795. New s1=181.0051, s2=188.4057. Target bit=1.
+[2025-04-04 08:59:42,834] I ThreadPoolExecutor-0_10 - embed_frame_pair:825 - [P:111, R:7] Embedding Bit=1, Alpha=1.0379
+[2025-04-04 08:59:42,842] I ThreadPoolExecutor-0_4 - embed_frame_pair:941 - --- Embed Finish: Pair 102. Bits: [1, 1], Rings: [4, 5]. Mods: 2. Time: 4.8273 sec ---
+[2025-04-04 08:59:42,846] I ThreadPoolExecutor-0_10 - embed_frame_pair:858 - [P:111, R:7] SVD Mod Applied: True. Orig s1=70.2217, s2=70.2222. New s1=68.8915, s2=71.5038. Target bit=1.
+[2025-04-04 08:59:42,898] I ThreadPoolExecutor-0_1 - embed_frame_pair:941 - --- Embed Finish: Pair 103. Bits: [1, 0], Rings: [4, 5]. Mods: 2. Time: 4.7124 sec ---
+[2025-04-04 08:59:42,906] I ThreadPoolExecutor-0_17 - embed_frame_pair:825 - [P:112, R:7] Embedding Bit=1, Alpha=1.0379
+[2025-04-04 08:59:42,922] I ThreadPoolExecutor-0_17 - embed_frame_pair:858 - [P:112, R:7] SVD Mod Applied: True. Orig s1=70.2247, s2=70.1272. New s1=68.8458, s2=71.4558. Target bit=1.
+[2025-04-04 08:59:42,949] I ThreadPoolExecutor-0_15 - embed_frame_pair:825 - [P:106, R:7] Embedding Bit=1, Alpha=1.0379
+[2025-04-04 08:59:42,960] I ThreadPoolExecutor-0_15 - embed_frame_pair:858 - [P:106, R:7] SVD Mod Applied: True. Orig s1=70.2265, s2=70.2249. New s1=68.8960, s2=71.5068. Target bit=1.
+[2025-04-04 08:59:43,049] I ThreadPoolExecutor-0_18 - embed_frame_pair:825 - [P:113, R:4] Embedding Bit=1, Alpha=1.0409
+[2025-04-04 08:59:43,073] I ThreadPoolExecutor-0_18 - embed_frame_pair:858 - [P:113, R:4] SVD Mod Applied: True. Orig s1=184.6921, s2=184.6921. New s1=180.9202, s2=188.3158. Target bit=1.
+[2025-04-04 08:59:43,104] I ThreadPoolExecutor-0_16 - embed_frame_pair:825 - [P:114, R:4] Embedding Bit=0, Alpha=1.0409
+[2025-04-04 08:59:43,128] I ThreadPoolExecutor-0_16 - embed_frame_pair:858 - [P:114, R:4] SVD Mod Applied: True. Orig s1=184.6921, s2=184.6921. New s1=188.3158, s2=180.9202. Target bit=0.
+[2025-04-04 08:59:43,136] I ThreadPoolExecutor-0_14 - embed_frame_pair:825 - [P:116, R:4] Embedding Bit=0, Alpha=1.0409
+[2025-04-04 08:59:43,156] I ThreadPoolExecutor-0_14 - embed_frame_pair:858 - [P:116, R:4] SVD Mod Applied: True. Orig s1=184.6921, s2=184.6921. New s1=188.3158, s2=180.9202. Target bit=0.
+[2025-04-04 08:59:43,177] I ThreadPoolExecutor-0_3 - embed_frame_pair:825 - [P:117, R:4] Embedding Bit=0, Alpha=1.0409
+[2025-04-04 08:59:43,180] I ThreadPoolExecutor-0_5 - embed_frame_pair:825 - [P:115, R:4] Embedding Bit=1, Alpha=1.0409
+[2025-04-04 08:59:43,183] I ThreadPoolExecutor-0_18 - embed_frame_pair:825 - [P:113, R:7] Embedding Bit=1, Alpha=1.0369
+[2025-04-04 08:59:43,192] I ThreadPoolExecutor-0_18 - embed_frame_pair:858 - [P:113, R:7] SVD Mod Applied: True. Orig s1=70.1298, s2=70.1310. New s1=68.8369, s2=71.3778. Target bit=1.
+[2025-04-04 08:59:43,198] I ThreadPoolExecutor-0_3 - embed_frame_pair:858 - [P:117, R:4] SVD Mod Applied: True. Orig s1=184.6921, s2=184.6921. New s1=188.3158, s2=180.9202. Target bit=0.
+[2025-04-04 08:59:43,209] I ThreadPoolExecutor-0_5 - embed_frame_pair:858 - [P:115, R:4] SVD Mod Applied: True. Orig s1=184.6921, s2=184.6921. New s1=180.9202, s2=188.3158. Target bit=1.
+[2025-04-04 08:59:43,221] I ThreadPoolExecutor-0_16 - embed_frame_pair:825 - [P:114, R:7] Embedding Bit=1, Alpha=1.0369
+[2025-04-04 08:59:43,234] I ThreadPoolExecutor-0_16 - embed_frame_pair:858 - [P:114, R:7] SVD Mod Applied: True. Orig s1=70.1309, s2=70.1326. New s1=68.8382, s2=71.3793. Target bit=1.
+[2025-04-04 08:59:43,276] I ThreadPoolExecutor-0_14 - embed_frame_pair:825 - [P:116, R:7] Embedding Bit=0, Alpha=1.0369
+[2025-04-04 08:59:43,282] I ThreadPoolExecutor-0_14 - embed_frame_pair:858 - [P:116, R:7] SVD Mod Applied: True. Orig s1=70.1313, s2=70.1313. New s1=71.3781, s2=68.8386. Target bit=0.
+[2025-04-04 08:59:43,328] I ThreadPoolExecutor-0_3 - embed_frame_pair:825 - [P:117, R:7] Embedding Bit=0, Alpha=1.0369
+[2025-04-04 08:59:43,333] I ThreadPoolExecutor-0_5 - embed_frame_pair:825 - [P:115, R:7] Embedding Bit=1, Alpha=1.0369
+[2025-04-04 08:59:43,336] I ThreadPoolExecutor-0_3 - embed_frame_pair:858 - [P:117, R:7] SVD Mod Applied: True. Orig s1=70.1313, s2=70.1296. New s1=71.3771, s2=68.8379. Target bit=0.
+[2025-04-04 08:59:43,337] I ThreadPoolExecutor-0_5 - embed_frame_pair:858 - [P:115, R:7] SVD Mod Applied: True. Orig s1=70.1311, s2=70.1311. New s1=68.8379, s2=71.3783. Target bit=1.
+[2025-04-04 08:59:43,603] I ThreadPoolExecutor-0_19 - embed_frame_pair:825 - [P:118, R:4] Embedding Bit=0, Alpha=1.0409
+[2025-04-04 08:59:43,627] I ThreadPoolExecutor-0_19 - embed_frame_pair:858 - [P:118, R:4] SVD Mod Applied: True. Orig s1=184.6921, s2=184.6921. New s1=188.3158, s2=180.9202. Target bit=0.
+[2025-04-04 08:59:43,712] I ThreadPoolExecutor-0_7 - select_embedding_rings:438 - [F:242] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:43,745] I ThreadPoolExecutor-0_19 - embed_frame_pair:825 - [P:118, R:7] Embedding Bit=0, Alpha=1.0369
+[2025-04-04 08:59:43,752] I ThreadPoolExecutor-0_19 - embed_frame_pair:858 - [P:118, R:7] SVD Mod Applied: True. Orig s1=70.1298, s2=70.1295. New s1=71.3768, s2=68.8365. Target bit=0.
+[2025-04-04 08:59:43,890] I ThreadPoolExecutor-0_11 - embed_frame_pair:825 - [P:119, R:4] Embedding Bit=1, Alpha=1.0409
+[2025-04-04 08:59:43,908] I ThreadPoolExecutor-0_11 - embed_frame_pair:858 - [P:119, R:4] SVD Mod Applied: True. Orig s1=184.6921, s2=184.6921. New s1=180.9202, s2=188.3158. Target bit=1.
+[2025-04-04 08:59:44,055] I ThreadPoolExecutor-0_11 - embed_frame_pair:825 - [P:119, R:7] Embedding Bit=0, Alpha=1.0369
+[2025-04-04 08:59:44,074] I ThreadPoolExecutor-0_11 - embed_frame_pair:858 - [P:119, R:7] SVD Mod Applied: True. Orig s1=70.1274, s2=70.1273. New s1=71.3753, s2=68.8333. Target bit=0.
+[2025-04-04 08:59:44,084] I ThreadPoolExecutor-0_9 - embed_frame_pair:941 - --- Embed Finish: Pair 104. Bits: [0, 1], Rings: [4, 7]. Mods: 2. Time: 4.3133 sec ---
+[2025-04-04 08:59:44,094] I ThreadPoolExecutor-0_4 - select_embedding_rings:438 - [F:244] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:44,152] I ThreadPoolExecutor-0_8 - embed_frame_pair:941 - --- Embed Finish: Pair 105. Bits: [1, 0], Rings: [4, 7]. Mods: 2. Time: 4.1653 sec ---
+[2025-04-04 08:59:44,173] I ThreadPoolExecutor-0_1 - select_embedding_rings:438 - [F:246] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:44,305] I ThreadPoolExecutor-0_6 - embed_frame_pair:941 - --- Embed Finish: Pair 108. Bits: [0, 1], Rings: [4, 7]. Mods: 2. Time: 3.9725 sec ---
+[2025-04-04 08:59:44,337] I ThreadPoolExecutor-0_2 - embed_frame_pair:941 - --- Embed Finish: Pair 109. Bits: [1, 1], Rings: [4, 7]. Mods: 2. Time: 4.0020 sec ---
+[2025-04-04 08:59:44,401] I ThreadPoolExecutor-0_0 - embed_frame_pair:825 - [P:120, R:4] Embedding Bit=0, Alpha=1.0409
+[2025-04-04 08:59:44,432] I ThreadPoolExecutor-0_0 - embed_frame_pair:858 - [P:120, R:4] SVD Mod Applied: True. Orig s1=184.7753, s2=184.7806. New s1=188.4079, s2=180.9994. Target bit=0.
+[2025-04-04 08:59:44,524] I ThreadPoolExecutor-0_12 - embed_frame_pair:941 - --- Embed Finish: Pair 110. Bits: [1, 0], Rings: [4, 7]. Mods: 2. Time: 4.0520 sec ---
+[2025-04-04 08:59:44,564] I ThreadPoolExecutor-0_0 - embed_frame_pair:825 - [P:120, R:7] Embedding Bit=0, Alpha=1.0379
+[2025-04-04 08:59:44,574] I ThreadPoolExecutor-0_13 - embed_frame_pair:941 - --- Embed Finish: Pair 107. Bits: [0, 1], Rings: [4, 7]. Mods: 2. Time: 4.1916 sec ---
+[2025-04-04 08:59:44,575] I ThreadPoolExecutor-0_0 - embed_frame_pair:858 - [P:120, R:7] SVD Mod Applied: True. Orig s1=70.2218, s2=70.2199. New s1=71.5028, s2=68.8903. Target bit=0.
+[2025-04-04 08:59:44,603] I ThreadPoolExecutor-0_15 - embed_frame_pair:941 - --- Embed Finish: Pair 106. Bits: [1, 1], Rings: [4, 7]. Mods: 2. Time: 4.2066 sec ---
+[2025-04-04 08:59:44,694] I ThreadPoolExecutor-0_10 - embed_frame_pair:941 - --- Embed Finish: Pair 111. Bits: [1, 1], Rings: [4, 7]. Mods: 2. Time: 4.1173 sec ---
+[2025-04-04 08:59:44,710] I ThreadPoolExecutor-0_17 - embed_frame_pair:941 - --- Embed Finish: Pair 112. Bits: [1, 1], Rings: [4, 7]. Mods: 2. Time: 4.0703 sec ---
+[2025-04-04 08:59:44,987] I ThreadPoolExecutor-0_18 - embed_frame_pair:941 - --- Embed Finish: Pair 113. Bits: [1, 1], Rings: [4, 7]. Mods: 2. Time: 4.0972 sec ---
+[2025-04-04 08:59:45,341] I ThreadPoolExecutor-0_14 - embed_frame_pair:941 - --- Embed Finish: Pair 116. Bits: [0, 0], Rings: [4, 7]. Mods: 2. Time: 4.1958 sec ---
+[2025-04-04 08:59:45,403] I ThreadPoolExecutor-0_16 - embed_frame_pair:941 - --- Embed Finish: Pair 114. Bits: [0, 1], Rings: [4, 7]. Mods: 2. Time: 4.4776 sec ---
+[2025-04-04 08:59:45,456] I ThreadPoolExecutor-0_5 - embed_frame_pair:941 - --- Embed Finish: Pair 115. Bits: [1, 1], Rings: [4, 7]. Mods: 2. Time: 4.3642 sec ---
+[2025-04-04 08:59:45,520] I ThreadPoolExecutor-0_3 - embed_frame_pair:941 - --- Embed Finish: Pair 117. Bits: [0, 0], Rings: [4, 7]. Mods: 2. Time: 4.3888 sec ---
+[2025-04-04 08:59:45,654] I ThreadPoolExecutor-0_19 - embed_frame_pair:941 - --- Embed Finish: Pair 118. Bits: [0, 0], Rings: [4, 7]. Mods: 2. Time: 4.1917 sec ---
+[2025-04-04 08:59:45,787] I ThreadPoolExecutor-0_9 - select_embedding_rings:438 - [F:248] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:45,841] I ThreadPoolExecutor-0_6 - select_embedding_rings:438 - [F:252] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:45,849] I ThreadPoolExecutor-0_7 - embed_frame_pair:825 - [P:121, R:4] Embedding Bit=1, Alpha=1.0409
+[2025-04-04 08:59:45,868] I ThreadPoolExecutor-0_7 - embed_frame_pair:858 - [P:121, R:4] SVD Mod Applied: True. Orig s1=184.7793, s2=184.6322. New s1=180.9333, s2=188.3272. Target bit=1.
+[2025-04-04 08:59:45,944] I ThreadPoolExecutor-0_12 - select_embedding_rings:438 - [F:256] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:45,954] I ThreadPoolExecutor-0_11 - embed_frame_pair:941 - --- Embed Finish: Pair 119. Bits: [1, 0], Rings: [4, 7]. Mods: 2. Time: 4.1727 sec ---
+[2025-04-04 08:59:45,960] I ThreadPoolExecutor-0_8 - select_embedding_rings:438 - [F:250] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:45,972] I ThreadPoolExecutor-0_2 - select_embedding_rings:438 - [F:254] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:45,999] I ThreadPoolExecutor-0_7 - embed_frame_pair:825 - [P:121, R:7] Embedding Bit=1, Alpha=1.0379
+[2025-04-04 08:59:46,004] I ThreadPoolExecutor-0_7 - embed_frame_pair:858 - [P:121, R:7] SVD Mod Applied: True. Orig s1=70.2199, s2=70.3272. New s1=68.9428, s2=71.5576. Target bit=1.
+[2025-04-04 08:59:46,011] I ThreadPoolExecutor-0_13 - select_embedding_rings:438 - [F:258] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:46,060] I ThreadPoolExecutor-0_10 - select_embedding_rings:438 - [F:262] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:46,102] I ThreadPoolExecutor-0_15 - select_embedding_rings:438 - [F:260] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:46,103] I ThreadPoolExecutor-0_17 - select_embedding_rings:438 - [F:264] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:46,261] I ThreadPoolExecutor-0_18 - select_embedding_rings:438 - [F:266] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:46,265] I ThreadPoolExecutor-0_4 - embed_frame_pair:825 - [P:122, R:4] Embedding Bit=0, Alpha=1.0407
+[2025-04-04 08:59:46,285] I ThreadPoolExecutor-0_4 - embed_frame_pair:858 - [P:122, R:4] SVD Mod Applied: True. Orig s1=184.6346, s2=184.6338. New s1=188.2419, s2=180.8796. Target bit=0.
+[2025-04-04 08:59:46,330] I ThreadPoolExecutor-0_1 - embed_frame_pair:825 - [P:123, R:4] Embedding Bit=1, Alpha=1.0407
+[2025-04-04 08:59:46,355] I ThreadPoolExecutor-0_1 - embed_frame_pair:858 - [P:123, R:4] SVD Mod Applied: True. Orig s1=184.6301, s2=184.6301. New s1=180.8749, s2=188.2384. Target bit=1.
+[2025-04-04 08:59:46,392] I ThreadPoolExecutor-0_4 - embed_frame_pair:825 - [P:122, R:7] Embedding Bit=1, Alpha=1.0385
+[2025-04-04 08:59:46,398] I ThreadPoolExecutor-0_4 - embed_frame_pair:858 - [P:122, R:7] SVD Mod Applied: True. Orig s1=70.3272, s2=70.3284. New s1=68.9742, s2=71.6312. Target bit=1.
+[2025-04-04 08:59:46,473] I ThreadPoolExecutor-0_1 - embed_frame_pair:825 - [P:123, R:7] Embedding Bit=1, Alpha=1.0385
+[2025-04-04 08:59:46,481] I ThreadPoolExecutor-0_1 - embed_frame_pair:858 - [P:123, R:7] SVD Mod Applied: True. Orig s1=70.3283, s2=70.3312. New s1=68.9764, s2=71.6330. Target bit=1.
+[2025-04-04 08:59:46,522] I ThreadPoolExecutor-0_0 - embed_frame_pair:941 - --- Embed Finish: Pair 120. Bits: [0, 0], Rings: [4, 7]. Mods: 2. Time: 4.2663 sec ---
+[2025-04-04 08:59:46,640] I ThreadPoolExecutor-0_14 - select_embedding_rings:438 - [F:268] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:46,713] I ThreadPoolExecutor-0_5 - select_embedding_rings:438 - [F:272] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:46,744] I ThreadPoolExecutor-0_16 - select_embedding_rings:438 - [F:270] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:46,754] I ThreadPoolExecutor-0_3 - select_embedding_rings:438 - [F:274] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:46,917] I ThreadPoolExecutor-0_19 - select_embedding_rings:438 - [F:276] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:47,154] I ThreadPoolExecutor-0_11 - select_embedding_rings:438 - [F:278] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:47,770] I ThreadPoolExecutor-0_9 - embed_frame_pair:825 - [P:124, R:4] Embedding Bit=0, Alpha=1.0407
+[2025-04-04 08:59:47,795] I ThreadPoolExecutor-0_9 - embed_frame_pair:858 - [P:124, R:4] SVD Mod Applied: True. Orig s1=184.6301, s2=184.6307. New s1=188.2387, s2=180.8752. Target bit=0.
+[2025-04-04 08:59:47,797] I ThreadPoolExecutor-0_6 - embed_frame_pair:825 - [P:126, R:4] Embedding Bit=1, Alpha=1.0407
+[2025-04-04 08:59:47,804] I ThreadPoolExecutor-0_0 - select_embedding_rings:438 - [F:280] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:47,815] I ThreadPoolExecutor-0_12 - embed_frame_pair:825 - [P:128, R:4] Embedding Bit=1, Alpha=1.0407
+[2025-04-04 08:59:47,841] I ThreadPoolExecutor-0_6 - embed_frame_pair:858 - [P:126, R:4] SVD Mod Applied: True. Orig s1=184.6307, s2=184.6307. New s1=180.8757, s2=188.2389. Target bit=1.
+[2025-04-04 08:59:47,854] I ThreadPoolExecutor-0_12 - embed_frame_pair:858 - [P:128, R:4] SVD Mod Applied: True. Orig s1=184.6307, s2=184.6307. New s1=180.8757, s2=188.2389. Target bit=1.
+[2025-04-04 08:59:47,877] I ThreadPoolExecutor-0_7 - embed_frame_pair:941 - --- Embed Finish: Pair 121. Bits: [1, 1], Rings: [4, 7]. Mods: 2. Time: 4.1614 sec ---
+[2025-04-04 08:59:47,962] I ThreadPoolExecutor-0_9 - embed_frame_pair:825 - [P:124, R:7] Embedding Bit=1, Alpha=1.0385
+[2025-04-04 08:59:47,968] I ThreadPoolExecutor-0_9 - embed_frame_pair:858 - [P:124, R:7] SVD Mod Applied: True. Orig s1=70.3302, s2=70.3316. New s1=68.9779, s2=71.6337. Target bit=1.
+[2025-04-04 08:59:47,980] I ThreadPoolExecutor-0_6 - embed_frame_pair:825 - [P:126, R:7] Embedding Bit=1, Alpha=1.0385
+[2025-04-04 08:59:47,988] I ThreadPoolExecutor-0_8 - embed_frame_pair:825 - [P:125, R:4] Embedding Bit=1, Alpha=1.0407
+[2025-04-04 08:59:47,991] I ThreadPoolExecutor-0_6 - embed_frame_pair:858 - [P:126, R:7] SVD Mod Applied: True. Orig s1=70.3335, s2=70.3336. New s1=68.9811, s2=71.6360. Target bit=1.
+[2025-04-04 08:59:48,008] I ThreadPoolExecutor-0_12 - embed_frame_pair:825 - [P:128, R:7] Embedding Bit=0, Alpha=1.0385
+[2025-04-04 08:59:48,012] I ThreadPoolExecutor-0_8 - embed_frame_pair:858 - [P:125, R:4] SVD Mod Applied: True. Orig s1=184.6307, s2=184.6307. New s1=180.8757, s2=188.2389. Target bit=1.
+[2025-04-04 08:59:48,015] I ThreadPoolExecutor-0_10 - embed_frame_pair:825 - [P:131, R:4] Embedding Bit=1, Alpha=1.0407
+[2025-04-04 08:59:48,018] I ThreadPoolExecutor-0_12 - embed_frame_pair:858 - [P:128, R:7] SVD Mod Applied: True. Orig s1=70.3366, s2=70.3366. New s1=71.6384, s2=68.9848. Target bit=0.
+[2025-04-04 08:59:48,042] I ThreadPoolExecutor-0_10 - embed_frame_pair:858 - [P:131, R:4] SVD Mod Applied: True. Orig s1=184.6307, s2=184.6307. New s1=180.8757, s2=188.2389. Target bit=1.
+[2025-04-04 08:59:48,117] I ThreadPoolExecutor-0_8 - embed_frame_pair:825 - [P:125, R:7] Embedding Bit=1, Alpha=1.0385
+[2025-04-04 08:59:48,122] I ThreadPoolExecutor-0_8 - embed_frame_pair:858 - [P:125, R:7] SVD Mod Applied: True. Orig s1=70.3334, s2=70.3334. New s1=68.9810, s2=71.6357. Target bit=1.
+[2025-04-04 08:59:48,138] I ThreadPoolExecutor-0_2 - embed_frame_pair:825 - [P:127, R:4] Embedding Bit=1, Alpha=1.0407
+[2025-04-04 08:59:48,140] I ThreadPoolExecutor-0_15 - embed_frame_pair:825 - [P:130, R:4] Embedding Bit=0, Alpha=1.0407
+[2025-04-04 08:59:48,147] I ThreadPoolExecutor-0_13 - embed_frame_pair:825 - [P:129, R:4] Embedding Bit=1, Alpha=1.0407
+[2025-04-04 08:59:48,155] I ThreadPoolExecutor-0_15 - embed_frame_pair:858 - [P:130, R:4] SVD Mod Applied: True. Orig s1=184.6307, s2=184.6307. New s1=188.2389, s2=180.8757. Target bit=0.
+[2025-04-04 08:59:48,157] I ThreadPoolExecutor-0_2 - embed_frame_pair:858 - [P:127, R:4] SVD Mod Applied: True. Orig s1=184.6307, s2=184.6307. New s1=180.8757, s2=188.2389. Target bit=1.
+[2025-04-04 08:59:48,172] I ThreadPoolExecutor-0_13 - embed_frame_pair:858 - [P:129, R:4] SVD Mod Applied: True. Orig s1=184.6307, s2=184.6307. New s1=180.8757, s2=188.2389. Target bit=1.
+[2025-04-04 08:59:48,175] I ThreadPoolExecutor-0_10 - embed_frame_pair:825 - [P:131, R:7] Embedding Bit=0, Alpha=1.0385
+[2025-04-04 08:59:48,183] I ThreadPoolExecutor-0_10 - embed_frame_pair:858 - [P:131, R:7] SVD Mod Applied: True. Orig s1=70.3329, s2=70.3307. New s1=71.6345, s2=68.9790. Target bit=0.
+[2025-04-04 08:59:48,194] I ThreadPoolExecutor-0_18 - embed_frame_pair:825 - [P:133, R:4] Embedding Bit=1, Alpha=1.0407
+[2025-04-04 08:59:48,215] I ThreadPoolExecutor-0_18 - embed_frame_pair:858 - [P:133, R:4] SVD Mod Applied: True. Orig s1=184.6307, s2=184.6307. New s1=180.8757, s2=188.2389. Target bit=1.
+[2025-04-04 08:59:48,262] I ThreadPoolExecutor-0_4 - embed_frame_pair:941 - --- Embed Finish: Pair 122. Bits: [0, 1], Rings: [4, 7]. Mods: 2. Time: 4.1679 sec ---
+[2025-04-04 08:59:48,263] I ThreadPoolExecutor-0_2 - embed_frame_pair:825 - [P:127, R:7] Embedding Bit=1, Alpha=1.0385
+[2025-04-04 08:59:48,267] I ThreadPoolExecutor-0_2 - embed_frame_pair:858 - [P:127, R:7] SVD Mod Applied: True. Orig s1=70.3351, s2=70.3366. New s1=68.9837, s2=71.6380. Target bit=1.
+[2025-04-04 08:59:48,270] I ThreadPoolExecutor-0_15 - embed_frame_pair:825 - [P:130, R:7] Embedding Bit=1, Alpha=1.0385
+[2025-04-04 08:59:48,279] I ThreadPoolExecutor-0_15 - embed_frame_pair:858 - [P:130, R:7] SVD Mod Applied: True. Orig s1=70.3347, s2=70.3327. New s1=68.9813, s2=71.6359. Target bit=1.
+[2025-04-04 08:59:48,291] I ThreadPoolExecutor-0_17 - embed_frame_pair:825 - [P:132, R:4] Embedding Bit=1, Alpha=1.0407
+[2025-04-04 08:59:48,298] I ThreadPoolExecutor-0_13 - embed_frame_pair:825 - [P:129, R:7] Embedding Bit=0, Alpha=1.0385
+[2025-04-04 08:59:48,304] I ThreadPoolExecutor-0_13 - embed_frame_pair:858 - [P:129, R:7] SVD Mod Applied: True. Orig s1=70.3364, s2=70.3347. New s1=71.6373, s2=68.9837. Target bit=0.
+[2025-04-04 08:59:48,313] I ThreadPoolExecutor-0_17 - embed_frame_pair:858 - [P:132, R:4] SVD Mod Applied: True. Orig s1=184.6307, s2=184.6307. New s1=180.8757, s2=188.2389. Target bit=1.
+[2025-04-04 08:59:48,326] I ThreadPoolExecutor-0_18 - embed_frame_pair:825 - [P:133, R:7] Embedding Bit=1, Alpha=1.0385
+[2025-04-04 08:59:48,334] I ThreadPoolExecutor-0_18 - embed_frame_pair:858 - [P:133, R:7] SVD Mod Applied: True. Orig s1=70.3277, s2=70.3280. New s1=68.9740, s2=71.6314. Target bit=1.
+[2025-04-04 08:59:48,339] I ThreadPoolExecutor-0_1 - embed_frame_pair:941 - --- Embed Finish: Pair 123. Bits: [1, 1], Rings: [4, 7]. Mods: 2. Time: 4.1662 sec ---
+[2025-04-04 08:59:48,402] I ThreadPoolExecutor-0_17 - embed_frame_pair:825 - [P:132, R:7] Embedding Bit=0, Alpha=1.0385
+[2025-04-04 08:59:48,408] I ThreadPoolExecutor-0_17 - embed_frame_pair:858 - [P:132, R:7] SVD Mod Applied: True. Orig s1=70.3307, s2=70.3280. New s1=71.6324, s2=68.9762. Target bit=0.
+[2025-04-04 08:59:48,583] I ThreadPoolExecutor-0_5 - embed_frame_pair:825 - [P:136, R:4] Embedding Bit=0, Alpha=1.0406
+[2025-04-04 08:59:48,590] I ThreadPoolExecutor-0_14 - embed_frame_pair:825 - [P:134, R:4] Embedding Bit=1, Alpha=1.0407
+[2025-04-04 08:59:48,603] I ThreadPoolExecutor-0_5 - embed_frame_pair:858 - [P:136, R:4] SVD Mod Applied: True. Orig s1=184.5981, s2=184.5981. New s1=188.1973, s2=180.8528. Target bit=0.
+[2025-04-04 08:59:48,610] I ThreadPoolExecutor-0_14 - embed_frame_pair:858 - [P:134, R:4] SVD Mod Applied: True. Orig s1=184.6307, s2=184.6307. New s1=180.8757, s2=188.2389. Target bit=1.
+[2025-04-04 08:59:48,743] I ThreadPoolExecutor-0_14 - embed_frame_pair:825 - [P:134, R:7] Embedding Bit=1, Alpha=1.0385
+[2025-04-04 08:59:48,748] I ThreadPoolExecutor-0_5 - embed_frame_pair:825 - [P:136, R:7] Embedding Bit=1, Alpha=1.0383
+[2025-04-04 08:59:48,751] I ThreadPoolExecutor-0_14 - embed_frame_pair:858 - [P:134, R:7] SVD Mod Applied: True. Orig s1=70.3261, s2=70.3285. New s1=68.9731, s2=71.6313. Target bit=1.
+[2025-04-04 08:59:48,757] I ThreadPoolExecutor-0_5 - embed_frame_pair:858 - [P:136, R:7] SVD Mod Applied: True. Orig s1=70.3723, s2=70.3724. New s1=69.0272, s2=71.6679. Target bit=1.
+[2025-04-04 08:59:48,778] I ThreadPoolExecutor-0_16 - embed_frame_pair:825 - [P:135, R:4] Embedding Bit=1, Alpha=1.0406
+[2025-04-04 08:59:48,800] I ThreadPoolExecutor-0_16 - embed_frame_pair:858 - [P:135, R:4] SVD Mod Applied: True. Orig s1=184.5866, s2=184.5981. New s1=180.8440, s2=188.1946. Target bit=1.
+[2025-04-04 08:59:48,887] I ThreadPoolExecutor-0_3 - embed_frame_pair:825 - [P:137, R:4] Embedding Bit=1, Alpha=1.0406
+[2025-04-04 08:59:48,923] I ThreadPoolExecutor-0_3 - embed_frame_pair:858 - [P:137, R:4] SVD Mod Applied: True. Orig s1=184.5981, s2=184.5981. New s1=180.8528, s2=188.1973. Target bit=1.
+[2025-04-04 08:59:48,958] I ThreadPoolExecutor-0_16 - embed_frame_pair:825 - [P:135, R:7] Embedding Bit=0, Alpha=1.0383
+[2025-04-04 08:59:48,968] I ThreadPoolExecutor-0_16 - embed_frame_pair:858 - [P:135, R:7] SVD Mod Applied: True. Orig s1=70.3496, s2=70.3723. New s1=71.6589, s2=69.0129. Target bit=0.
+[2025-04-04 08:59:49,021] I ThreadPoolExecutor-0_19 - embed_frame_pair:825 - [P:138, R:4] Embedding Bit=1, Alpha=1.0406
+[2025-04-04 08:59:49,049] I ThreadPoolExecutor-0_19 - embed_frame_pair:858 - [P:138, R:4] SVD Mod Applied: True. Orig s1=184.5981, s2=184.5981. New s1=180.8528, s2=188.1973. Target bit=1.
+[2025-04-04 08:59:49,121] I ThreadPoolExecutor-0_3 - embed_frame_pair:825 - [P:137, R:7] Embedding Bit=0, Alpha=1.0382
+[2025-04-04 08:59:49,133] I ThreadPoolExecutor-0_3 - embed_frame_pair:858 - [P:137, R:7] SVD Mod Applied: True. Orig s1=70.3759, s2=70.3759. New s1=71.6708, s2=69.0315. Target bit=0.
+[2025-04-04 08:59:49,223] I ThreadPoolExecutor-0_19 - embed_frame_pair:825 - [P:138, R:7] Embedding Bit=1, Alpha=1.0382
+[2025-04-04 08:59:49,230] I ThreadPoolExecutor-0_19 - embed_frame_pair:858 - [P:138, R:7] SVD Mod Applied: True. Orig s1=70.3780, s2=70.3772. New s1=69.0337, s2=71.6720. Target bit=1.
+[2025-04-04 08:59:49,335] I ThreadPoolExecutor-0_11 - embed_frame_pair:825 - [P:139, R:4] Embedding Bit=0, Alpha=1.0406
+[2025-04-04 08:59:49,341] I ThreadPoolExecutor-0_7 - select_embedding_rings:438 - [F:282] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:49,356] I ThreadPoolExecutor-0_11 - embed_frame_pair:858 - [P:139, R:4] SVD Mod Applied: True. Orig s1=184.5981, s2=184.5981. New s1=188.1973, s2=180.8528. Target bit=0.
+[2025-04-04 08:59:49,425] I ThreadPoolExecutor-0_11 - embed_frame_pair:825 - [P:139, R:7] Embedding Bit=1, Alpha=1.0382
+[2025-04-04 08:59:49,430] I ThreadPoolExecutor-0_11 - embed_frame_pair:858 - [P:139, R:7] SVD Mod Applied: True. Orig s1=70.3777, s2=70.3794. New s1=69.0345, s2=71.6731. Target bit=1.
+[2025-04-04 08:59:49,478] I ThreadPoolExecutor-0_4 - select_embedding_rings:438 - [F:284] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:49,504] I ThreadPoolExecutor-0_1 - select_embedding_rings:438 - [F:286] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:49,792] I ThreadPoolExecutor-0_9 - embed_frame_pair:941 - --- Embed Finish: Pair 124. Bits: [0, 1], Rings: [4, 7]. Mods: 2. Time: 4.0041 sec ---
+[2025-04-04 08:59:49,853] I ThreadPoolExecutor-0_0 - embed_frame_pair:825 - [P:140, R:4] Embedding Bit=0, Alpha=1.0406
+[2025-04-04 08:59:49,875] I ThreadPoolExecutor-0_0 - embed_frame_pair:858 - [P:140, R:4] SVD Mod Applied: True. Orig s1=184.5981, s2=184.5981. New s1=188.1973, s2=180.8528. Target bit=0.
+[2025-04-04 08:59:49,980] I ThreadPoolExecutor-0_12 - embed_frame_pair:941 - --- Embed Finish: Pair 128. Bits: [1, 0], Rings: [4, 7]. Mods: 2. Time: 4.0355 sec ---
+[2025-04-04 08:59:49,982] I ThreadPoolExecutor-0_8 - embed_frame_pair:941 - --- Embed Finish: Pair 125. Bits: [1, 1], Rings: [4, 7]. Mods: 2. Time: 4.0164 sec ---
+[2025-04-04 08:59:50,055] I ThreadPoolExecutor-0_0 - embed_frame_pair:825 - [P:140, R:7] Embedding Bit=1, Alpha=1.0382
+[2025-04-04 08:59:50,062] I ThreadPoolExecutor-0_0 - embed_frame_pair:858 - [P:140, R:7] SVD Mod Applied: True. Orig s1=70.3792, s2=70.3791. New s1=69.0358, s2=71.6732. Target bit=1.
+[2025-04-04 08:59:50,157] I ThreadPoolExecutor-0_6 - embed_frame_pair:941 - --- Embed Finish: Pair 126. Bits: [1, 1], Rings: [4, 7]. Mods: 2. Time: 4.3155 sec ---
+[2025-04-04 08:59:50,172] I ThreadPoolExecutor-0_18 - embed_frame_pair:941 - --- Embed Finish: Pair 133. Bits: [1, 1], Rings: [4, 7]. Mods: 2. Time: 3.9100 sec ---
+[2025-04-04 08:59:50,188] I ThreadPoolExecutor-0_2 - embed_frame_pair:941 - --- Embed Finish: Pair 127. Bits: [1, 1], Rings: [4, 7]. Mods: 2. Time: 4.2161 sec ---
+[2025-04-04 08:59:50,191] I ThreadPoolExecutor-0_15 - embed_frame_pair:941 - --- Embed Finish: Pair 130. Bits: [0, 1], Rings: [4, 7]. Mods: 2. Time: 4.0854 sec ---
+[2025-04-04 08:59:50,257] I ThreadPoolExecutor-0_10 - embed_frame_pair:941 - --- Embed Finish: Pair 131. Bits: [1, 0], Rings: [4, 7]. Mods: 2. Time: 4.1948 sec ---
+[2025-04-04 08:59:50,367] I ThreadPoolExecutor-0_17 - embed_frame_pair:941 - --- Embed Finish: Pair 132. Bits: [1, 0], Rings: [4, 7]. Mods: 2. Time: 4.2604 sec ---
+[2025-04-04 08:59:50,435] I ThreadPoolExecutor-0_13 - embed_frame_pair:941 - --- Embed Finish: Pair 129. Bits: [1, 0], Rings: [4, 7]. Mods: 2. Time: 4.4192 sec ---
+[2025-04-04 08:59:50,623] I ThreadPoolExecutor-0_14 - embed_frame_pair:941 - --- Embed Finish: Pair 134. Bits: [1, 1], Rings: [4, 7]. Mods: 2. Time: 3.9784 sec ---
+[2025-04-04 08:59:50,633] I ThreadPoolExecutor-0_5 - embed_frame_pair:941 - --- Embed Finish: Pair 136. Bits: [0, 1], Rings: [4, 7]. Mods: 2. Time: 3.9185 sec ---
+[2025-04-04 08:59:50,818] I ThreadPoolExecutor-0_16 - embed_frame_pair:941 - --- Embed Finish: Pair 135. Bits: [1, 0], Rings: [4, 7]. Mods: 2. Time: 4.0747 sec ---
+[2025-04-04 08:59:51,001] I ThreadPoolExecutor-0_3 - embed_frame_pair:941 - --- Embed Finish: Pair 137. Bits: [1, 0], Rings: [4, 7]. Mods: 2. Time: 4.2449 sec ---
+[2025-04-04 08:59:51,099] I ThreadPoolExecutor-0_9 - select_embedding_rings:438 - [F:288] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:51,175] I ThreadPoolExecutor-0_19 - embed_frame_pair:941 - --- Embed Finish: Pair 138. Bits: [1, 1], Rings: [4, 7]. Mods: 2. Time: 4.2546 sec ---
+[2025-04-04 08:59:51,401] I ThreadPoolExecutor-0_12 - select_embedding_rings:438 - [F:290] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:51,446] I ThreadPoolExecutor-0_8 - select_embedding_rings:438 - [F:292] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:51,534] I ThreadPoolExecutor-0_11 - embed_frame_pair:941 - --- Embed Finish: Pair 139. Bits: [0, 1], Rings: [4, 7]. Mods: 2. Time: 4.3788 sec ---
+[2025-04-04 08:59:51,601] I ThreadPoolExecutor-0_6 - select_embedding_rings:438 - [F:294] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:51,626] I ThreadPoolExecutor-0_7 - embed_frame_pair:825 - [P:141, R:4] Embedding Bit=1, Alpha=1.0406
+[2025-04-04 08:59:51,631] I ThreadPoolExecutor-0_18 - select_embedding_rings:438 - [F:296] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:51,639] I ThreadPoolExecutor-0_1 - embed_frame_pair:825 - [P:143, R:4] Embedding Bit=1, Alpha=1.0398
+[2025-04-04 08:59:51,652] I ThreadPoolExecutor-0_7 - embed_frame_pair:858 - [P:141, R:4] SVD Mod Applied: True. Orig s1=184.5981, s2=184.4189. New s1=180.7633, s2=188.1041. Target bit=1.
+[2025-04-04 08:59:51,667] I ThreadPoolExecutor-0_1 - embed_frame_pair:858 - [P:143, R:4] SVD Mod Applied: True. Orig s1=184.0657, s2=184.0211. New s1=180.3789, s2=187.5666. Target bit=1.
+[2025-04-04 08:59:51,727] I ThreadPoolExecutor-0_4 - embed_frame_pair:825 - [P:142, R:4] Embedding Bit=1, Alpha=1.0399
+[2025-04-04 08:59:51,746] I ThreadPoolExecutor-0_4 - embed_frame_pair:858 - [P:142, R:4] SVD Mod Applied: True. Orig s1=184.1672, s2=184.0896. New s1=180.4531, s2=187.6609. Target bit=1.
+[2025-04-04 08:59:51,780] I ThreadPoolExecutor-0_2 - select_embedding_rings:438 - [F:298] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:51,784] I ThreadPoolExecutor-0_7 - embed_frame_pair:825 - [P:141, R:7] Embedding Bit=1, Alpha=1.0382
+[2025-04-04 08:59:51,798] I ThreadPoolExecutor-0_7 - embed_frame_pair:858 - [P:141, R:7] SVD Mod Applied: True. Orig s1=70.3792, s2=70.3781. New s1=69.0349, s2=71.6730. Target bit=1.
+[2025-04-04 08:59:51,800] I ThreadPoolExecutor-0_1 - embed_frame_pair:825 - [P:143, R:7] Embedding Bit=1, Alpha=1.0382
+[2025-04-04 08:59:51,808] I ThreadPoolExecutor-0_15 - select_embedding_rings:438 - [F:300] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:51,818] I ThreadPoolExecutor-0_1 - embed_frame_pair:858 - [P:143, R:7] SVD Mod Applied: True. Orig s1=70.3689, s2=70.3689. New s1=69.0266, s2=71.6618. Target bit=1.
+[2025-04-04 08:59:51,862] I ThreadPoolExecutor-0_10 - select_embedding_rings:438 - [F:302] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:51,869] I ThreadPoolExecutor-0_4 - embed_frame_pair:825 - [P:142, R:7] Embedding Bit=0, Alpha=1.0382
+[2025-04-04 08:59:51,891] I ThreadPoolExecutor-0_4 - embed_frame_pair:858 - [P:142, R:7] SVD Mod Applied: True. Orig s1=70.3776, s2=70.3690. New s1=71.6684, s2=69.0289. Target bit=0.
+[2025-04-04 08:59:51,899] I ThreadPoolExecutor-0_17 - select_embedding_rings:438 - [F:304] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:51,905] I ThreadPoolExecutor-0_13 - select_embedding_rings:438 - [F:306] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:51,942] I ThreadPoolExecutor-0_0 - embed_frame_pair:941 - --- Embed Finish: Pair 140. Bits: [0, 1], Rings: [4, 7]. Mods: 2. Time: 4.1352 sec ---
+[2025-04-04 08:59:52,014] I ThreadPoolExecutor-0_14 - select_embedding_rings:438 - [F:308] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:52,059] I ThreadPoolExecutor-0_5 - select_embedding_rings:438 - [F:310] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:52,140] I ThreadPoolExecutor-0_16 - select_embedding_rings:438 - [F:312] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:52,291] I ThreadPoolExecutor-0_3 - select_embedding_rings:438 - [F:314] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:52,378] I ThreadPoolExecutor-0_19 - select_embedding_rings:438 - [F:316] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:52,642] I ThreadPoolExecutor-0_11 - select_embedding_rings:438 - [F:318] Multi-ring selection result: [4, 7]
+[2025-04-04 08:59:53,110] I ThreadPoolExecutor-0_9 - embed_frame_pair:825 - [P:144, R:4] Embedding Bit=1, Alpha=1.0398
+[2025-04-04 08:59:53,126] I ThreadPoolExecutor-0_9 - embed_frame_pair:858 - [P:144, R:4] SVD Mod Applied: True. Orig s1=184.0266, s2=184.0266. New s1=180.3703, s2=187.5430. Target bit=1.
+[2025-04-04 08:59:53,169] I ThreadPoolExecutor-0_12 - embed_frame_pair:825 - [P:145, R:4] Embedding Bit=1, Alpha=1.0398
+[2025-04-04 08:59:53,194] I ThreadPoolExecutor-0_12 - embed_frame_pair:858 - [P:145, R:4] SVD Mod Applied: True. Orig s1=184.0266, s2=184.0266. New s1=180.3703, s2=187.5430. Target bit=1.
+[2025-04-04 08:59:53,241] I ThreadPoolExecutor-0_9 - embed_frame_pair:825 - [P:144, R:7] Embedding Bit=1, Alpha=1.0382
+[2025-04-04 08:59:53,250] I ThreadPoolExecutor-0_9 - embed_frame_pair:858 - [P:144, R:7] SVD Mod Applied: True. Orig s1=70.3677, s2=70.3655. New s1=69.0234, s2=71.6603. Target bit=1.
+[2025-04-04 08:59:53,317] I ThreadPoolExecutor-0_12 - embed_frame_pair:825 - [P:145, R:7] Embedding Bit=1, Alpha=1.0382
+[2025-04-04 08:59:53,333] I ThreadPoolExecutor-0_8 - embed_frame_pair:825 - [P:146, R:4] Embedding Bit=0, Alpha=1.0398
+[2025-04-04 08:59:53,338] I ThreadPoolExecutor-0_12 - embed_frame_pair:858 - [P:145, R:7] SVD Mod Applied: True. Orig s1=70.3638, s2=70.3637. New s1=69.0204, s2=71.6577. Target bit=1.
+[2025-04-04 08:59:53,353] I ThreadPoolExecutor-0_8 - embed_frame_pair:858 - [P:146, R:4] SVD Mod Applied: True. Orig s1=184.0266, s2=184.0266. New s1=187.5430, s2=180.3703. Target bit=0.
+[2025-04-04 08:59:53,413] I ThreadPoolExecutor-0_18 - embed_frame_pair:825 - [P:148, R:4] Embedding Bit=0, Alpha=1.0398
+[2025-04-04 08:59:53,437] I ThreadPoolExecutor-0_18 - embed_frame_pair:858 - [P:148, R:4] SVD Mod Applied: True. Orig s1=184.0266, s2=184.0266. New s1=187.5430, s2=180.3703. Target bit=0.
+[2025-04-04 08:59:53,460] I ThreadPoolExecutor-0_6 - embed_frame_pair:825 - [P:147, R:4] Embedding Bit=1, Alpha=1.0398
+[2025-04-04 08:59:53,489] I ThreadPoolExecutor-0_6 - embed_frame_pair:858 - [P:147, R:4] SVD Mod Applied: True. Orig s1=184.0266, s2=184.0266. New s1=180.3703, s2=187.5430. Target bit=1.
+[2025-04-04 08:59:53,491] I ThreadPoolExecutor-0_8 - embed_frame_pair:825 - [P:146, R:7] Embedding Bit=1, Alpha=1.0382
+[2025-04-04 08:59:53,499] I ThreadPoolExecutor-0_8 - embed_frame_pair:858 - [P:146, R:7] SVD Mod Applied: True. Orig s1=70.3660, s2=70.3660. New s1=69.0231, s2=71.6595. Target bit=1.
+[2025-04-04 08:59:53,556] I ThreadPoolExecutor-0_7 - embed_frame_pair:941 - --- Embed Finish: Pair 141. Bits: [1, 1], Rings: [4, 7]. Mods: 2. Time: 4.2145 sec ---
+[2025-04-04 08:59:53,570] I ThreadPoolExecutor-0_18 - embed_frame_pair:825 - [P:148, R:7] Embedding Bit=0, Alpha=1.0382
+[2025-04-04 08:59:53,576] I ThreadPoolExecutor-0_18 - embed_frame_pair:858 - [P:148, R:7] SVD Mod Applied: True. Orig s1=70.3674, s2=70.3690. New s1=71.6613, s2=69.0256. Target bit=0.
+[2025-04-04 08:59:53,611] I ThreadPoolExecutor-0_6 - embed_frame_pair:825 - [P:147, R:7] Embedding Bit=1, Alpha=1.0382
+[2025-04-04 08:59:53,618] I ThreadPoolExecutor-0_6 - embed_frame_pair:858 - [P:147, R:7] SVD Mod Applied: True. Orig s1=70.3678, s2=70.3671. New s1=69.0247, s2=71.6608. Target bit=1.
+[2025-04-04 08:59:53,640] I ThreadPoolExecutor-0_2 - embed_frame_pair:825 - [P:149, R:4] Embedding Bit=0, Alpha=1.0398
+[2025-04-04 08:59:53,661] I ThreadPoolExecutor-0_15 - embed_frame_pair:825 - [P:150, R:4] Embedding Bit=0, Alpha=1.0400
+[2025-04-04 08:59:53,666] I ThreadPoolExecutor-0_2 - embed_frame_pair:858 - [P:149, R:4] SVD Mod Applied: True. Orig s1=184.0266, s2=184.0266. New s1=187.5430, s2=180.3703. Target bit=0.
+[2025-04-04 08:59:53,681] I ThreadPoolExecutor-0_1 - embed_frame_pair:941 - --- Embed Finish: Pair 143. Bits: [1, 1], Rings: [4, 7]. Mods: 2. Time: 4.1754 sec ---
+[2025-04-04 08:59:53,684] I ThreadPoolExecutor-0_15 - embed_frame_pair:858 - [P:150, R:4] SVD Mod Applied: True. Orig s1=184.0114, s2=184.0219. New s1=187.5538, s2=180.3378. Target bit=0.
+[2025-04-04 08:59:53,823] I ThreadPoolExecutor-0_15 - embed_frame_pair:825 - [P:150, R:7] Embedding Bit=0, Alpha=1.0383
+[2025-04-04 08:59:53,827] I ThreadPoolExecutor-0_15 - embed_frame_pair:858 - [P:150, R:7] SVD Mod Applied: True. Orig s1=70.3547, s2=70.3771. New s1=71.6629, s2=69.0188. Target bit=0.
+[2025-04-04 08:59:53,836] I ThreadPoolExecutor-0_2 - embed_frame_pair:825 - [P:149, R:7] Embedding Bit=0, Alpha=1.0382
+[2025-04-04 08:59:53,852] I ThreadPoolExecutor-0_13 - embed_frame_pair:825 - [P:153, R:4] Embedding Bit=1, Alpha=1.0398
+[2025-04-04 08:59:53,857] I ThreadPoolExecutor-0_2 - embed_frame_pair:858 - [P:149, R:7] SVD Mod Applied: True. Orig s1=70.3690, s2=70.3685. New s1=71.6616, s2=69.0266. Target bit=0.
+[2025-04-04 08:59:53,871] I ThreadPoolExecutor-0_13 - embed_frame_pair:858 - [P:153, R:4] SVD Mod Applied: True. Orig s1=183.9332, s2=183.9332. New s1=180.2762, s2=187.4502. Target bit=1.
+[2025-04-04 08:59:53,885] I ThreadPoolExecutor-0_10 - embed_frame_pair:825 - [P:151, R:4] Embedding Bit=1, Alpha=1.0400
+[2025-04-04 08:59:53,914] I ThreadPoolExecutor-0_10 - embed_frame_pair:858 - [P:151, R:4] SVD Mod Applied: True. Orig s1=184.0219, s2=184.0219. New s1=180.3443, s2=187.5581. Target bit=1.
+[2025-04-04 08:59:53,919] I ThreadPoolExecutor-0_5 - embed_frame_pair:825 - [P:155, R:4] Embedding Bit=1, Alpha=1.0398
+[2025-04-04 08:59:53,947] I ThreadPoolExecutor-0_4 - embed_frame_pair:941 - --- Embed Finish: Pair 142. Bits: [1, 0], Rings: [4, 7]. Mods: 2. Time: 4.4680 sec ---
+[2025-04-04 08:59:53,949] I ThreadPoolExecutor-0_5 - embed_frame_pair:858 - [P:155, R:4] SVD Mod Applied: True. Orig s1=183.9332, s2=183.9332. New s1=180.2762, s2=187.4502. Target bit=1.
+[2025-04-04 08:59:54,018] I ThreadPoolExecutor-0_13 - embed_frame_pair:825 - [P:153, R:7] Embedding Bit=1, Alpha=1.0372
+[2025-04-04 08:59:54,024] I ThreadPoolExecutor-0_16 - embed_frame_pair:825 - [P:156, R:4] Embedding Bit=0, Alpha=1.0398
+[2025-04-04 08:59:54,026] I ThreadPoolExecutor-0_13 - embed_frame_pair:858 - [P:153, R:7] SVD Mod Applied: True. Orig s1=70.2552, s2=70.2535. New s1=68.9489, s2=71.5130. Target bit=1.
+[2025-04-04 08:59:54,042] I ThreadPoolExecutor-0_10 - embed_frame_pair:825 - [P:151, R:7] Embedding Bit=0, Alpha=1.0382
+[2025-04-04 08:59:54,047] I ThreadPoolExecutor-0_10 - embed_frame_pair:858 - [P:151, R:7] SVD Mod Applied: True. Orig s1=70.3771, s2=70.3789. New s1=71.6726, s2=69.0339. Target bit=0.
+[2025-04-04 08:59:54,052] I ThreadPoolExecutor-0_16 - embed_frame_pair:858 - [P:156, R:4] SVD Mod Applied: True. Orig s1=183.9332, s2=183.9332. New s1=187.4502, s2=180.2762. Target bit=0.
+[2025-04-04 08:59:54,097] I ThreadPoolExecutor-0_14 - embed_frame_pair:825 - [P:154, R:4] Embedding Bit=0, Alpha=1.0398
+[2025-04-04 08:59:54,099] I ThreadPoolExecutor-0_5 - embed_frame_pair:825 - [P:155, R:7] Embedding Bit=1, Alpha=1.0372
+[2025-04-04 08:59:54,112] I ThreadPoolExecutor-0_5 - embed_frame_pair:858 - [P:155, R:7] SVD Mod Applied: True. Orig s1=70.2515, s2=70.2517. New s1=68.9446, s2=71.5116. Target bit=1.
+[2025-04-04 08:59:54,122] I ThreadPoolExecutor-0_14 - embed_frame_pair:858 - [P:154, R:4] SVD Mod Applied: True. Orig s1=183.9332, s2=183.9332. New s1=187.4502, s2=180.2762. Target bit=0.
+[2025-04-04 08:59:54,181] I ThreadPoolExecutor-0_16 - embed_frame_pair:825 - [P:156, R:7] Embedding Bit=1, Alpha=1.0372
+[2025-04-04 08:59:54,191] I ThreadPoolExecutor-0_16 - embed_frame_pair:858 - [P:156, R:7] SVD Mod Applied: True. Orig s1=70.2507, s2=70.2482. New s1=68.9420, s2=71.5099. Target bit=1.
+[2025-04-04 08:59:54,209] I ThreadPoolExecutor-0_3 - embed_frame_pair:825 - [P:157, R:4] Embedding Bit=1, Alpha=1.0398
+[2025-04-04 08:59:54,222] I ThreadPoolExecutor-0_17 - embed_frame_pair:825 - [P:152, R:4] Embedding Bit=0, Alpha=1.0398
+[2025-04-04 08:59:54,235] I ThreadPoolExecutor-0_3 - embed_frame_pair:858 - [P:157, R:4] SVD Mod Applied: True. Orig s1=183.9332, s2=183.9332. New s1=180.2762, s2=187.4502. Target bit=1.
+[2025-04-04 08:59:54,243] I ThreadPoolExecutor-0_17 - embed_frame_pair:858 - [P:152, R:4] SVD Mod Applied: True. Orig s1=183.8781, s2=183.9332. New s1=187.4218, s2=180.2484. Target bit=0.
+[2025-04-04 08:59:54,272] I ThreadPoolExecutor-0_14 - embed_frame_pair:825 - [P:154, R:7] Embedding Bit=1, Alpha=1.0372
+[2025-04-04 08:59:54,278] I ThreadPoolExecutor-0_14 - embed_frame_pair:858 - [P:154, R:7] SVD Mod Applied: True. Orig s1=70.2543, s2=70.2515. New s1=68.9462, s2=71.5127. Target bit=1.
+[2025-04-04 08:59:54,288] I ThreadPoolExecutor-0_19 - embed_frame_pair:825 - [P:158, R:4] Embedding Bit=1, Alpha=1.0398
+[2025-04-04 08:59:54,305] I ThreadPoolExecutor-0_19 - embed_frame_pair:858 - [P:158, R:4] SVD Mod Applied: True. Orig s1=183.9332, s2=183.9331. New s1=180.2762, s2=187.4502. Target bit=1.
+[2025-04-04 08:59:54,328] I ThreadPoolExecutor-0_3 - embed_frame_pair:825 - [P:157, R:7] Embedding Bit=1, Alpha=1.0372
+[2025-04-04 08:59:54,336] I ThreadPoolExecutor-0_3 - embed_frame_pair:858 - [P:157, R:7] SVD Mod Applied: True. Orig s1=70.2480, s2=70.2469. New s1=68.9400, s2=71.5079. Target bit=1.
+[2025-04-04 08:59:54,341] I ThreadPoolExecutor-0_17 - embed_frame_pair:825 - [P:152, R:7] Embedding Bit=0, Alpha=1.0371
+[2025-04-04 08:59:54,346] I ThreadPoolExecutor-0_17 - embed_frame_pair:858 - [P:152, R:7] SVD Mod Applied: True. Orig s1=70.2467, s2=70.2552. New s1=71.5062, s2=68.9490. Target bit=0.
+[2025-04-04 08:59:54,394] I ThreadPoolExecutor-0_19 - embed_frame_pair:825 - [P:158, R:7] Embedding Bit=1, Alpha=1.0373
+[2025-04-04 08:59:54,398] I ThreadPoolExecutor-0_19 - embed_frame_pair:858 - [P:158, R:7] SVD Mod Applied: True. Orig s1=70.2464, s2=70.2488. New s1=68.9400, s2=71.5083. Target bit=1.
+[2025-04-04 08:59:54,443] I ThreadPoolExecutor-0_11 - embed_frame_pair:825 - [P:159, R:4] Embedding Bit=1, Alpha=1.0398
+[2025-04-04 08:59:54,457] I ThreadPoolExecutor-0_11 - embed_frame_pair:858 - [P:159, R:4] SVD Mod Applied: True. Orig s1=183.9324, s2=183.9321. New s1=180.2761, s2=187.4485. Target bit=1.
+[2025-04-04 08:59:54,545] I ThreadPoolExecutor-0_11 - embed_frame_pair:825 - [P:159, R:7] Embedding Bit=1, Alpha=1.0372
+[2025-04-04 08:59:54,552] I ThreadPoolExecutor-0_11 - embed_frame_pair:858 - [P:159, R:7] SVD Mod Applied: True. Orig s1=70.2511, s2=70.2503. New s1=68.9432, s2=71.5112. Target bit=1.
+[2025-04-04 08:59:54,922] I ThreadPoolExecutor-0_12 - embed_frame_pair:941 - --- Embed Finish: Pair 145. Bits: [1, 1], Rings: [4, 7]. Mods: 2. Time: 3.5211 sec ---
+[2025-04-04 08:59:54,933] I ThreadPoolExecutor-0_9 - embed_frame_pair:941 - --- Embed Finish: Pair 144. Bits: [1, 1], Rings: [4, 7]. Mods: 2. Time: 3.8339 sec ---
+[2025-04-04 08:59:54,975] I ThreadPoolExecutor-0_8 - embed_frame_pair:941 - --- Embed Finish: Pair 146. Bits: [0, 1], Rings: [4, 7]. Mods: 2. Time: 3.5277 sec ---
+[2025-04-04 08:59:55,144] I ThreadPoolExecutor-0_18 - embed_frame_pair:941 - --- Embed Finish: Pair 148. Bits: [0, 0], Rings: [4, 7]. Mods: 2. Time: 3.5115 sec ---
+[2025-04-04 08:59:55,160] I ThreadPoolExecutor-0_6 - embed_frame_pair:941 - --- Embed Finish: Pair 147. Bits: [1, 1], Rings: [4, 7]. Mods: 2. Time: 3.5584 sec ---
+[2025-04-04 08:59:55,329] I ThreadPoolExecutor-0_2 - embed_frame_pair:941 - --- Embed Finish: Pair 149. Bits: [0, 0], Rings: [4, 7]. Mods: 2. Time: 3.5471 sec ---
+[2025-04-04 08:59:55,355] I ThreadPoolExecutor-0_15 - embed_frame_pair:941 - --- Embed Finish: Pair 150. Bits: [0, 0], Rings: [4, 7]. Mods: 2. Time: 3.5459 sec ---
+[2025-04-04 08:59:55,401] I ThreadPoolExecutor-0_13 - embed_frame_pair:941 - --- Embed Finish: Pair 153. Bits: [1, 1], Rings: [4, 7]. Mods: 2. Time: 3.4950 sec ---
+[2025-04-04 08:59:55,474] I ThreadPoolExecutor-0_10 - embed_frame_pair:941 - --- Embed Finish: Pair 151. Bits: [1, 0], Rings: [4, 7]. Mods: 2. Time: 3.6107 sec ---
+[2025-04-04 08:59:55,574] I ThreadPoolExecutor-0_5 - embed_frame_pair:941 - --- Embed Finish: Pair 155. Bits: [1, 1], Rings: [4, 7]. Mods: 2. Time: 3.5141 sec ---
+[2025-04-04 08:59:55,605] I ThreadPoolExecutor-0_16 - embed_frame_pair:941 - --- Embed Finish: Pair 156. Bits: [0, 1], Rings: [4, 7]. Mods: 2. Time: 3.4652 sec ---
+[2025-04-04 08:59:55,700] I ThreadPoolExecutor-0_14 - embed_frame_pair:941 - --- Embed Finish: Pair 154. Bits: [0, 1], Rings: [4, 7]. Mods: 2. Time: 3.6864 sec ---
+[2025-04-04 08:59:55,764] I ThreadPoolExecutor-0_3 - embed_frame_pair:941 - --- Embed Finish: Pair 157. Bits: [1, 1], Rings: [4, 7]. Mods: 2. Time: 3.4711 sec ---
+[2025-04-04 08:59:55,796] I ThreadPoolExecutor-0_17 - embed_frame_pair:941 - --- Embed Finish: Pair 152. Bits: [0, 0], Rings: [4, 7]. Mods: 2. Time: 3.8965 sec ---
+[2025-04-04 08:59:55,833] I ThreadPoolExecutor-0_19 - embed_frame_pair:941 - --- Embed Finish: Pair 158. Bits: [1, 1], Rings: [4, 7]. Mods: 2. Time: 3.4530 sec ---
+[2025-04-04 08:59:55,879] I ThreadPoolExecutor-0_11 - embed_frame_pair:941 - --- Embed Finish: Pair 159. Bits: [1, 1], Rings: [4, 7]. Mods: 2. Time: 3.2373 sec ---
+[2025-04-04 08:59:55,894] I MainThread - embed_watermark_in_video:1150 - ThreadPoolExecutor finished. Successful pairs processed: 160, Failed pairs: 0.
+[2025-04-04 08:59:55,895] I MainThread - embed_watermark_in_video:1159 - Applied results from 160 pairs to frames.
+[2025-04-04 08:59:55,907] I MainThread - embed_watermark_in_video:1168 - Saved selected ring indices for 160 pairs to selected_rings.json
+[2025-04-04 08:59:55,907] I MainThread - embed_watermark_in_video:1177 - Embedding process finished. Total time: 52.31 sec.
+[2025-04-04 08:59:55,909] I MainThread - write_video:648 - Starting video writing to: watermarked_video_n2.avi (FPS: 30.00, Codec: XVID)
+[2025-04-04 08:59:55,909] I MainThread - write_video:660 - Output resolution: 842x720
+[2025-04-04 09:00:02,832] I MainThread - write_video:702 - Finished writing with codec 'XVID'. Frames written: 907, Skipped/Replaced with black: 0
+[2025-04-04 09:00:02,836] I MainThread - main:1263 - Watermarked video saved to: watermarked_video_n2.avi
+[2025-04-04 09:00:02,837] I MainThread - main:1267 - Output file size: 6.43 MB
+[2025-04-04 09:00:02,838] I MainThread - main:1275 - --- Embedding Main Process Finished ---
+[2025-04-04 09:00:02,838] I MainThread - main:1277 - --- Total Embedder Script Time: 63.15 sec ---
+[2025-04-04 09:00:03,310] I MainThread - <module>:1311 - Profiling stats saved to profile_stats_embed_n2.txt

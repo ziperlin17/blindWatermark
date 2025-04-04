@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Файл: embedder.py (Версия N=2, 64bit ID, Max 5 repeats, Pad to k)
 import cv2
 import numpy as np
@@ -14,8 +13,8 @@ from scipy.fftpack import dct, idct
 from scipy.linalg import svd
 from dtcwt import Transform2d, Pyramid
 from typing import List, Tuple, Optional, Dict, Any
-import functools  # Для кэширования
-import uuid  # Используем только для типа UUID, не для генерации
+import functools
+import uuid
 from math import ceil
 
 try:
@@ -27,7 +26,6 @@ except ImportError:
 import cProfile
 import pstats
 
-#Константы
 LAMBDA_PARAM: float = 0.04
 ALPHA_MIN: float = 1.005
 ALPHA_MAX: float = 1.1
@@ -38,8 +36,8 @@ LOG_FILENAME: str = 'watermarking_embed.log'
 MAX_WORKERS: Optional[int] = None
 SELECTED_RINGS_FILE: str = 'selected_rings.json'
 ORIGINAL_WATERMARK_FILE: str = 'original_watermark_id.txt'
+MAX_THEORETICAL_ENTROPY = 8.0
 
-#Настройки Адаптивности и Multi-Ring ---
 BITS_PER_PAIR: int = 2
 RING_SELECTION_METHOD: str = 'multi_ring' if BITS_PER_PAIR > 1 else 'deterministic'
 NUM_RINGS_TO_USE: int = BITS_PER_PAIR if BITS_PER_PAIR > 1 else 1
@@ -47,24 +45,24 @@ RING_SELECTION_METRIC: str = 'entropy'
 USE_PERCEPTUAL_MASKING: bool = True
 EMBED_COMPONENT: int = 1  # 0=Y, 1=Cr, 2=Cb
 
-#Настройки Встраивания и ECC
+# Встраивание и ECC
 PAYLOAD_LEN_BYTES: int = 8
 USE_ECC: bool = True
 BCH_M: int = 8
 BCH_T: int = 5
 MAX_PACKET_REPEATS: int = 5
 
-#Настройка output
+# output
 OUTPUT_CODEC: str = 'XVID'
 OUTPUT_EXTENSION: str = '.avi'
 
-# --- Настройка Логирования ---
+# логи
 for handler in logging.root.handlers[:]: logging.root.removeHandler(handler)
 logging.basicConfig(
     filename=LOG_FILENAME, filemode='w', level=logging.INFO,
     format='[%(asctime)s] %(levelname).1s %(threadName)s - %(funcName)s:%(lineno)d - %(message)s'
 )
-# logging.getLogger().setLevel(logging.DEBUG) # Раскомментировать для DEBUG логов
+# logging.getLogger().setLevel(logging.DEBUG)
 
 effective_use_ecc = USE_ECC and BCHLIB_AVAILABLE
 logging.info(
@@ -75,7 +73,7 @@ logging.info(f"Альфа: MIN={ALPHA_MIN}, MAX={ALPHA_MAX}")
 logging.info(f"Маскировка: {USE_PERCEPTUAL_MASKING}, Компонент: {['Y', 'Cr', 'Cb'][EMBED_COMPONENT]}")
 logging.info(f"Выход: Кодек={OUTPUT_CODEC}, Расширение={OUTPUT_EXTENSION}")
 if effective_use_ecc:
-    # Логируем параметры BCH ПОСЛЕ инициализации объекта bch в main
+    # Лог BCH
     pass
 elif USE_ECC and not BCHLIB_AVAILABLE:
     logging.warning("ECC включен (USE_ECC=True), но bchlib не доступна! Встраивание без ECC.")
@@ -92,15 +90,6 @@ if BITS_PER_PAIR > 1 and NUM_RINGS_TO_USE != BITS_PER_PAIR:
     NUM_RINGS_TO_USE = BITS_PER_PAIR
 
 
-# ============================================================
-# --- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ---
-# ============================================================
-# (dct_1d, idct_1d, dtcwt_transform, dtcwt_inverse,
-# _ring_division_internal, get_ring_coords_cached, ring_division,
-# calculate_entropies, compute_adaptive_alpha_entropy,
-# deterministic_ring_selection, keypoint_based_ring_selection,
-# calculate_perceptual_mask, calculate_spatial_weights_vectorized
-# ОСТАЮТСЯ БЕЗ ИЗМЕНЕНИЙ)
 def dct_1d(signal_1d: np.ndarray) -> np.ndarray:
     return dct(signal_1d, type=2, norm='ortho')
 
@@ -124,14 +113,17 @@ def dtcwt_transform(y_plane: np.ndarray, frame_number: int = -1) -> Optional[Pyr
             y_plane_padded = y_plane
         pyramid = t.forward(y_plane_padded.astype(np.float32), nlevels=1)
         if hasattr(pyramid, 'lowpass') and pyramid.lowpass is not None:
-            lp = pyramid.lowpass; logging.debug(f"[F:{frame_number}] DTCWT lowpass shape: {lp.shape}");
+            lp = pyramid.lowpass;
+            logging.debug(f"[F:{frame_number}] DTCWT lowpass shape: {lp.shape}");
         else:
-            logging.error(f"[F:{frame_number}] DTCWT no valid lowpass!"); return None
+            logging.error(f"[F:{frame_number}] DTCWT no valid lowpass!");
+            return None
         logging.debug(f"[F:{frame_number}] DTCWT transform time: {time.time() - func_start_time:.4f}s");
         pyramid.padding_info = (pad_rows, pad_cols);
         return pyramid
     except Exception as e:
-        logging.error(f"[F:{frame_number}] Exception during DTCWT transform: {e}", exc_info=True); return None
+        logging.error(f"[F:{frame_number}] Exception during DTCWT transform: {e}", exc_info=True);
+        return None
 
 
 def dtcwt_inverse(pyramid: Pyramid, frame_number: int = -1) -> Optional[np.ndarray]:
@@ -144,9 +136,10 @@ def dtcwt_inverse(pyramid: Pyramid, frame_number: int = -1) -> Optional[np.ndarr
         reconstructed_padded = t.inverse(pyramid).astype(np.float32)
         pad_rows, pad_cols = getattr(pyramid, 'padding_info', (False, False))
         if pad_rows or pad_cols:
-            rows, cols = reconstructed_padded.shape; reconstructed_y = reconstructed_padded[
-                                                                       :rows - pad_rows if pad_rows else rows,
-                                                                       :cols - pad_cols if pad_cols else cols]
+            rows, cols = reconstructed_padded.shape;
+            reconstructed_y = reconstructed_padded[
+                              :rows - pad_rows if pad_rows else rows,
+                              :cols - pad_cols if pad_cols else cols]
         else:
             reconstructed_y = reconstructed_padded
         logging.debug(f"[F:{frame_number}] DTCWT inverse output shape: {reconstructed_y.shape}");
@@ -154,7 +147,8 @@ def dtcwt_inverse(pyramid: Pyramid, frame_number: int = -1) -> Optional[np.ndarr
         logging.debug(f"[F:{frame_number}] DTCWT inverse time: {time.time() - func_start_time:.4f}s");
         return reconstructed_y
     except Exception as e:
-        logging.error(f"[F:{frame_number}] Exception during DTCWT inverse: {e}", exc_info=True); return None
+        logging.error(f"[F:{frame_number}] Exception during DTCWT inverse: {e}", exc_info=True);
+        return None
 
 
 @functools.lru_cache(maxsize=8)
@@ -167,9 +161,11 @@ def _ring_division_internal(subband_shape: Tuple[int, int], n_rings: int) -> Lis
     distances = np.sqrt((rr - center_r) ** 2 + (cc - center_c) ** 2);
     min_dist, max_dist = np.min(distances), np.max(distances)
     if max_dist < 1e-6:
-        ring_bins = np.array([0.0, 1.0]); n_rings_eff = 1
+        ring_bins = np.array([0.0, 1.0]);
+        n_rings_eff = 1
     else:
-        ring_bins = np.linspace(0.0, max_dist + 1e-6, n_rings + 1); n_rings_eff = n_rings
+        ring_bins = np.linspace(0.0, max_dist + 1e-6, n_rings + 1);
+        n_rings_eff = n_rings
     if len(ring_bins) < 2: logging.error(f"_ring_division_internal: Invalid bins!"); return [None] * n_rings
     ring_indices = np.digitize(distances, ring_bins) - 1;
     ring_indices[distances < ring_bins[1]] = 0;
@@ -241,46 +237,67 @@ def calculate_entropies(ring_vals: np.ndarray, frame_number: int = -1, ring_inde
     return visual_entropy, edge_entropy
 
 
-def compute_adaptive_alpha_entropy(ring_vals: np.ndarray, ring_index: int, frame_number: int) -> float:
-    if ring_vals.size == 0: logging.warning(
-        f"[F:{frame_number}, R:{ring_index}] compute_adaptive_alpha empty ring_vals."); return ALPHA_MIN
-    visual_entropy, edge_entropy = calculate_entropies(ring_vals, frame_number, ring_index);
-    local_variance = np.var(ring_vals)
-    texture_factor = 1.0 / (1.0 + np.clip(local_variance, 0, 1) * 10.0)  # Меньший фактор для большей текстуры/вариации
-    eps = 1e-12
-    if abs(visual_entropy) < eps:
-        entropy_ratio = 0.0; logging.debug(f"[F:{frame_number}, R:{ring_index}] Visual entropy near zero.")
+def calculate_entropies(ring_vals: np.ndarray, frame_number: int = -1, ring_index: int = -1) -> Tuple[float, float]:
+    eps = 1e-12;
+    if ring_vals.size == 0: return 0.0, 0.0
+    min_v, max_v = np.min(ring_vals), np.max(ring_vals)
+    if min_v < 0.0 or max_v > 1.0:
+        ring_vals_clipped = np.clip(ring_vals, 0.0, 1.0)
     else:
-        entropy_ratio = edge_entropy / visual_entropy  # Отношение Ee/Ev
-    # Сигмоида для преобразования отношения в [0, 1], умноженная на текстурный фактор
-    # sigmoid_input = entropy_ratio * texture_factor # Можно комбинировать здесь
-    sigmoid_input = entropy_ratio  # Или использовать только отношение энтропий
-    sigmoid_output = 1.0 / (1.0 + np.exp(-sigmoid_input))
-    # Комбинируем с текстурным фактором - возможно, обратная зависимость нужна?
-    # Если текстура высокая (фактор низкий), хотим меньшую альфа? Или наоборот?
-    # Допустим, высокая текстура маскирует -> можно большую альфа.
-    # Тогда final_alpha ~ sigmoid * (1 / texture_factor)? Или final_alpha ~ sigmoid + (1-texture_factor)?
-    # Попробуем простой вариант: чем выше отношение Ee/Ev и чем ниже вариация, тем выше альфа.
-    final_alpha = ALPHA_MIN + (ALPHA_MAX - ALPHA_MIN) * sigmoid_output * (
-                1.0 - texture_factor * 0.5)  # Примерная формула
-    final_alpha = np.clip(final_alpha, ALPHA_MIN, ALPHA_MAX)
+        ring_vals_clipped = ring_vals
+    hist, _ = np.histogram(ring_vals_clipped, bins=256, range=(0.0, 1.0), density=False)
+    total_count = ring_vals_clipped.size;
+    if total_count == 0: return 0.0, 0.0
+    probabilities = hist / total_count;
+    probabilities = probabilities[probabilities > eps]
+    if probabilities.size == 0: return 0.0, 0.0
+    visual_entropy = -np.sum(probabilities * np.log2(probabilities));
+    edge_entropy = -np.sum(probabilities * np.exp(1.0 - probabilities));
+    return visual_entropy, edge_entropy
+
+
+def compute_adaptive_alpha_entropy(ring_vals: np.ndarray, ring_index: int, frame_number: int) -> float:
+    """
+    Вычисляет адаптивную альфа на основе визуальной энтропии и локальной вариации кольца.
+    Альфа выше в текстурных/сложных областях, ниже - в гладких.
+    """
+    if ring_vals.size < 10:
+        logging.warning(f"[F:{frame_number}, R:{ring_index}] Not enough pixels "
+                        f"({ring_vals.size}) to compute adaptive alpha. Returning ALPHA_MIN.")
+        return ALPHA_MIN
+    visual_entropy, _ = calculate_entropies(ring_vals, frame_number, ring_index)
+    local_variance = np.var(ring_vals)
+    entropy_norm = np.clip(visual_entropy / MAX_THEORETICAL_ENTROPY, 0.0, 1.0)
+    variance_midpoint = 0.01
+    variance_scale = 450
+    texture_norm = 1.0 / (1.0 + np.exp(-variance_scale * (local_variance - variance_midpoint)))
+    w_entropy = 0.6
+    w_texture = 0.4
+    masking_factor = (w_entropy * entropy_norm + w_texture * texture_norm)
+    masking_factor = np.clip(masking_factor, 0.0, 1.0)
+    final_alpha = ALPHA_MIN + (ALPHA_MAX - ALPHA_MIN) * masking_factor
+
     logging.debug(
-        f"[F:{frame_number}, R:{ring_index}] Ev={visual_entropy:.4f}, Ee={edge_entropy:.4f}, Var={local_variance:.4f}, TxtrF={texture_factor:.4f}, Ratio={entropy_ratio:.4f}, Sig={sigmoid_output:.4f} -> final_alpha={final_alpha:.4f}")
-    return final_alpha
+        f"[F:{frame_number}, R:{ring_index}] "
+        f"Ev={visual_entropy:.4f}(Norm={entropy_norm:.3f}), "
+        f"Var={local_variance:.6f}(Norm={texture_norm:.3f}), "
+        f"MaskFactor={masking_factor:.3f} -> final_alpha={final_alpha:.4f}"
+    )
+
+    return np.clip(final_alpha, ALPHA_MIN, ALPHA_MAX)
 
 
 def deterministic_ring_selection(frame: np.ndarray, n_rings: int, frame_number: int = -1) -> int:
     try:
-        # Используем серый кадр для хеша
         if frame.ndim == 3 and frame.shape[2] == 3:
             gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         elif frame.ndim == 2:
             gray_frame = frame
         else:
-            logging.error(f"[F:{frame_number}] Invalid frame dim for hashing."); return random.randrange(
+            logging.error(f"[F:{frame_number}] Invalid frame dim for hashing.");
+            return random.randrange(
                 n_rings)  # Случайное при ошибке
 
-        # Уменьшаем размер для ускорения хеширования
         small_frame = cv2.resize(gray_frame, (64, 64), interpolation=cv2.INTER_LINEAR)
         pil_img = Image.fromarray(small_frame);
         phash = imagehash.phash(pil_img);
@@ -289,24 +306,26 @@ def deterministic_ring_selection(frame: np.ndarray, n_rings: int, frame_number: 
         try:
             hash_int = int(hash_str, 16)
         except ValueError:
-            logging.error(f"[F:{frame_number}] Invalid hash format '{hash_str}'."); return random.randrange(n_rings)
+            logging.error(f"[F:{frame_number}] Invalid hash format '{hash_str}'.");
+            return random.randrange(n_rings)
         selected_ring = hash_int % n_rings;
         logging.debug(f"[F:{frame_number}] Deterministic ring: hash={hash_str}, ring={selected_ring}");
         return selected_ring
     except Exception as e:
         logging.error(f"[F:{frame_number}] Error in deterministic_ring_selection: {e}",
-                      exc_info=True); return random.randrange(n_rings)
+                      exc_info=True);
+        return random.randrange(n_rings)
 
 
 def keypoint_based_ring_selection(frame: np.ndarray, n_rings: int, frame_number: int = -1) -> int:
-    # (Код без изменений)
     try:
         if frame.ndim == 3 and frame.shape[2] == 3:
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         elif frame.ndim == 2:
             gray = frame
         else:
-            logging.error(f"[F:{frame_number}] Invalid frame dim for keypoints."); return random.randrange(n_rings)
+            logging.error(f"[F:{frame_number}] Invalid frame dim for keypoints.");
+            return random.randrange(n_rings)
         fast = cv2.FastFeatureDetector_create(threshold=10, nonmaxSuppression=True);
         keypoints = fast.detect(gray, None)
         if not keypoints: logging.warning(
@@ -325,10 +344,11 @@ def keypoint_based_ring_selection(frame: np.ndarray, n_rings: int, frame_number:
         return selected_ring
     except Exception as e:
         logging.error(f"[F:{frame_number}] Error in keypoint_based_ring_selection: {e}",
-                      exc_info=True); return random.randrange(n_rings)
+                      exc_info=True);
+        return random.randrange(n_rings)
 
 
-# --- ИЗМЕНЕННАЯ select_embedding_ring (возвращает список лучших колец) ---
+# список лучших колец
 def select_embedding_rings(
         lowpass_subband: np.ndarray, rings_coords_np: List[Optional[np.ndarray]],
         num_to_select: int = NUM_RINGS_TO_USE, metric: str = RING_SELECTION_METRIC,
@@ -368,13 +388,15 @@ def select_embedding_rings(
                 continue
 
             if metric_to_use == 'entropy':
-                v_e, _ = calculate_entropies(ring_vals, frame_number, i); current_metric = v_e
+                v_e, _ = calculate_entropies(ring_vals, frame_number, i);
+                current_metric = v_e
             elif metric_to_use == 'energy':
                 current_metric = np.sum(ring_vals ** 2)
             elif metric_to_use == 'variance':
                 current_metric = np.var(ring_vals)
             elif metric_to_use == 'mean_abs_dev':
-                mean_val = np.mean(ring_vals); current_metric = np.mean(np.abs(ring_vals - mean_val))
+                mean_val = np.mean(ring_vals);
+                current_metric = np.mean(np.abs(ring_vals - mean_val))
 
             if not np.isfinite(current_metric):
                 logging.warning(f"[F:{frame_number}, R:{i}] Metric is not finite ({current_metric}). Skipping.")
@@ -384,10 +406,12 @@ def select_embedding_rings(
 
         except IndexError:
             logging.error(f"[F:{frame_number}, R:{i}] IndexError calculating metric.",
-                          exc_info=False); metric_values.append((-float('inf'), i))
+                          exc_info=False);
+            metric_values.append((-float('inf'), i))
         except Exception as e:
             logging.error(f"[F:{frame_number}, R:{i}] Error calculating metric: {e}",
-                          exc_info=False); metric_values.append((-float('inf'), i))
+                          exc_info=False);
+            metric_values.append((-float('inf'), i))
 
     # Сортируем по убыванию метрики
     metric_values.sort(key=lambda x: x[0], reverse=True)
@@ -430,65 +454,61 @@ def select_embedding_rings(
         logging.error(
             f"[F:{frame_number}] Could not select {num_to_select} valid rings! Selected only: {selected_indices}")
         # Можно либо вернуть то что есть, либо пустой список, либо вызвать исключение
-        # Вернем то, что есть
 
     logging.debug(f"[F:{frame_number}] Ring selection process time: {time.time() - func_start_time:.4f}s")
-    return selected_indices[:num_to_select]  # Возвращаем не более num_to_select
+    return selected_indices[:num_to_select]
 
 
 def calculate_perceptual_mask(input_plane: np.ndarray, frame_number: int = -1) -> Optional[np.ndarray]:
     if not isinstance(input_plane, np.ndarray) or input_plane.ndim != 2: logging.error(
         f"[F:{frame_number}] Invalid input for perceptual mask."); return None
     try:
-        # Используем input_plane напрямую (предполагаем, что он уже 0-1)
         plane_32f = input_plane.astype(np.float32)
         gx = cv2.Sobel(plane_32f, cv2.CV_32F, 1, 0, ksize=3);
         gy = cv2.Sobel(plane_32f, cv2.CV_32F, 0, 1, ksize=3)
+        # магнитуда градиента
         grad_mag = np.sqrt(gx ** 2 + gy ** 2)
-        # Локальная яркость и вариация (текстура)
+
+        # локальное стандартное отклонение
         local_mean = cv2.GaussianBlur(plane_32f, (11, 11), 5)
         mean_sq = cv2.GaussianBlur(plane_32f ** 2, (11, 11), 5);
         sq_mean = local_mean ** 2
         local_variance = np.maximum(mean_sq - sq_mean, 0);
         local_stddev = np.sqrt(local_variance)
-        # Маска яркости (ближе к 0.5 -> менее заметно)
+        # маска яркости (ближе к 0.5 -> менее заметно)
         brightness_mask = 1.0 - np.abs(local_mean - 0.5) * 2.0  # 1 = маскирует, 0 = заметно
-        # Нормализация градиента и стандартного отклонения
+        # Нормализация mean /grad
         eps = 1e-9;
         max_grad = np.max(grad_mag);
         grad_norm = grad_mag / (max_grad + eps) if max_grad > eps else np.zeros_like(grad_mag)
         max_stddev = np.max(local_stddev);
         stddev_norm = local_stddev / (max_stddev + eps) if max_stddev > eps else np.zeros_like(local_stddev)
-        # Комбинируем компоненты маски: градиенты и текстура маскируют лучше
-        # w_grad = 0.4; w_texture = 0.4; w_brightness = 0.2
-        # mask = (grad_norm * w_grad + stddev_norm * w_texture + np.clip(brightness_mask, 0, 1) * w_brightness)
-        # Простая маска: чем выше градиент или текстура, тем лучше маскировка (ближе к 1)
+
         mask = np.maximum(grad_norm, stddev_norm)
         # Нормализуем итоговую маску
         max_mask = np.max(mask);
         mask_norm = mask / (max_mask + eps) if max_mask > eps else np.zeros_like(mask)
-        mask_norm = np.clip(mask_norm, 0.0, 1.0)  # Ограничиваем [0, 1]
-        # Инвертируем? Нет, маска должна быть 1 там, где можно сильно менять, 0 - где нельзя.
+        mask_norm = np.clip(mask_norm, 0.0, 1.0)
         logging.debug(
             f"[F:{frame_number}] Perceptual mask calculated. Shape: {mask_norm.shape}, Min: {np.min(mask_norm):.4f}, Max: {np.max(mask_norm):.4f}, Mean: {np.mean(mask_norm):.4f}")
         return mask_norm.astype(np.float32)
     except Exception as e:
-        logging.error(f"[F:{frame_number}] Error calculating perceptual mask: {e}", exc_info=True); return np.ones_like(
-            input_plane, dtype=np.float32)  # Возвращаем 1, чтобы не блокировать встраивание
+        logging.error(f"[F:{frame_number}] Error calculating perceptual mask: {e}", exc_info=True);
+        return np.ones_like(
+            input_plane, dtype=np.float32)
 
 
-def calculate_spatial_weights_vectorized(shape: Tuple[int, int], rows: np.ndarray, cols: np.ndarray) -> np.ndarray:
-    h, w = shape;
-    center_r, center_c = (h - 1) / 2.0, (w - 1) / 2.0
-    max_dist = np.sqrt(center_r ** 2 + center_c ** 2) + 1e-9
-    dists = np.sqrt((rows - center_r) ** 2 + (cols - center_c) ** 2)
-    norm_dists = dists / max_dist
-    # Веса: от 0.5 в центре до 1.0 на краях (больше меняем на краях)
-    weights = 0.5 + 0.5 * norm_dists
-    return np.clip(weights, 0.5, 1.0)
+# def calculate_spatial_weights_vectorized(shape: Tuple[int, int], rows: np.ndarray, cols: np.ndarray) -> np.ndarray:
+#     h, w = shape;
+#     center_r, center_c = (h - 1) / 2.0, (w - 1) / 2.0
+#     max_dist = np.sqrt(center_r ** 2 + center_c ** 2) + 1e-9
+#     dists = np.sqrt((rows - center_r) ** 2 + (cols - center_c) ** 2)
+#     norm_dists = dists / max_dist
+#     #от 0.5 в центре до 1.0 на краях (больше меняем на краях)
+#     weights = 0.5 + 0.5 * norm_dists
+#     return np.clip(weights, 0.5, 1.0)
 
 
-# --- ИЗМЕНЕННАЯ add_ecc (работает с битами, паддинг до k) ---
 def add_ecc(data_bits: np.ndarray, bch: 'bchlib.BCH') -> Optional[np.ndarray]:
     """
     Добавляет ECC к массиву битов данных, дополняя их до bch.k нулями.
@@ -498,15 +518,14 @@ def add_ecc(data_bits: np.ndarray, bch: 'bchlib.BCH') -> Optional[np.ndarray]:
         logging.warning("bchlib не доступна или не инициализирована, ECC не добавляется.")
         return data_bits  # Возвращаем исходные биты
 
-    k = bch.k  # Длина данных, ожидаемая BCH
-    n = bch.n  # Полная длина блока BCH
-    ecc_len = bch.ecc_bits  # Длина ECC части
+    k = bch.k
+    n = bch.n
+    ecc_len = bch.ecc_bits
 
     if data_bits.size > k:
         logging.error(f"Размер данных ({data_bits.size} бит) больше, чем вместимость BCH k={k} бит.")
         return None
     elif data_bits.size < k:
-        # Дополняем нулями до k бит
         padding_len = k - data_bits.size
         padded_data_bits = np.pad(data_bits, (0, padding_len), 'constant', constant_values=0).astype(np.uint8)
         logging.debug(f"Данные ({data_bits.size} бит) дополнены {padding_len} нулями до {k} бит.")
@@ -514,25 +533,19 @@ def add_ecc(data_bits: np.ndarray, bch: 'bchlib.BCH') -> Optional[np.ndarray]:
         padded_data_bits = data_bits.astype(np.uint8)
 
     try:
-        # Конвертируем дополненные данные в байты для bchlib
+        # to bytes for bchlib
         data_bytes = np.packbits(padded_data_bits).tobytes()
-
-        # Кодируем
         ecc_computed_bytes = bch.encode(data_bytes)
 
-        # Конвертируем ECC байты в биты
+        # ecc bytes to bits
         ecc_computed_bits = np.unpackbits(np.frombuffer(ecc_computed_bytes, dtype=np.uint8))
-        # Убедимся, что ECC имеет правильную длину (отсекаем лишние нули от packbits)
         ecc_computed_bits = ecc_computed_bits[:ecc_len]
 
-        # Соединяем дополненные данные и ECC
         packet_bits = np.concatenate((padded_data_bits, ecc_computed_bits)).astype(np.uint8)
 
-        # Проверка итоговой длины
         if packet_bits.size != n:
             logging.warning(
                 f"Итоговая длина пакета ({packet_bits.size}) не совпадает с ожидаемой n={n}. Это может быть проблемой.")
-            # Обрежем или дополним до n? Лучше пока выдать предупреждение.
 
         logging.info(
             f"ECC: К {data_bits.size} битам данных (дополнено до {k}) добавлено {ecc_len} бит ECC. Итого пакет: {packet_bits.size} бит.")
@@ -543,12 +556,7 @@ def add_ecc(data_bits: np.ndarray, bch: 'bchlib.BCH') -> Optional[np.ndarray]:
         return None
 
 
-# ============================================================
-# --- Функции Работы с Видео (I/O) ---
-# ============================================================
-# (read_video и write_video без изменений)
 def read_video(video_path: str) -> Tuple[List[np.ndarray], float]:
-    # (Код read_video без изменений)
     func_start_time = time.time();
     logging.info(f"Reading video from: {video_path}")
     frames = [];
@@ -560,7 +568,8 @@ def read_video(video_path: str) -> Tuple[List[np.ndarray], float]:
         if not cap.isOpened(): logging.error(f"Failed to open video: {video_path}"); return frames, fps
         fps_read = cap.get(cv2.CAP_PROP_FPS);
         if fps_read > 0:
-            fps = float(fps_read); logging.info(f"Detected FPS: {fps:.2f}")
+            fps = float(fps_read);
+            logging.info(f"Detected FPS: {fps:.2f}")
         else:
             logging.warning(f"Failed to get FPS. Using default: {fps}")
         width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH));
@@ -581,13 +590,16 @@ def read_video(video_path: str) -> Tuple[List[np.ndarray], float]:
             if frame.ndim == 3 and frame.shape[2] == 3 and frame.dtype == np.uint8:
                 current_h, current_w = frame.shape[:2]
                 if current_h == expected_height and current_w == expected_width:
-                    frames.append(frame); read_count += 1;
+                    frames.append(frame);
+                    read_count += 1;
                 else:
                     logging.warning(
-                        f"Frame {frame_number_log} shape mismatch ({current_w}x{current_h} vs {expected_width}x{expected_height}). Skipping."); invalid_shape_count += 1
+                        f"Frame {frame_number_log} shape mismatch ({current_w}x{current_h} vs {expected_width}x{expected_height}). Skipping.");
+                    invalid_shape_count += 1
             else:
                 logging.warning(
-                    f"Frame {frame_number_log} not valid BGR (ndim={frame.ndim}, dtype={frame.dtype}). Skipping."); invalid_shape_count += 1
+                    f"Frame {frame_number_log} not valid BGR (ndim={frame.ndim}, dtype={frame.dtype}). Skipping.");
+                invalid_shape_count += 1
             frame_index += 1
         logging.info(
             f"Finished reading. Valid frames: {len(frames)}. Skipped None: {none_frame_count}, Invalid shape: {invalid_shape_count}")
@@ -601,13 +613,12 @@ def read_video(video_path: str) -> Tuple[List[np.ndarray], float]:
 
 
 def write_video(frames: List[np.ndarray], out_path: str, fps: float, codec: str = OUTPUT_CODEC):
-    # (Код write_video без изменений)
     func_start_time = time.time();
     if not frames: logging.error("No frames to write."); return
     logging.info(f"Starting video writing to: {out_path} (FPS: {fps:.2f}, Codec: {codec})")
     writer = None
     try:
-        # Ищем первый валидный кадр для определения размера
+        # первый кадр
         first_valid = None
         for f in frames:
             if f is not None and f.ndim == 3 and f.shape[2] == 3 and f.dtype == np.uint8:
@@ -626,18 +637,20 @@ def write_video(frames: List[np.ndarray], out_path: str, fps: float, codec: str 
         writer_codec_used = codec
         if not writer.isOpened():
             logging.error(f"Failed to create VideoWriter with codec '{codec}'.")
-            # Попытка использовать MJPG как fallback для AVI
             if OUTPUT_EXTENSION.lower() == '.avi' and codec.upper() != 'MJPG':
                 fallback_codec = 'MJPG';
                 logging.warning(f"Trying fallback codec '{fallback_codec}'.")
                 fourcc_fallback = cv2.VideoWriter_fourcc(*fallback_codec);
                 writer = cv2.VideoWriter(out_path, fourcc_fallback, fps, (w, h))
                 if writer.isOpened():
-                    logging.info(f"Using fallback codec '{fallback_codec}'."); writer_codec_used = fallback_codec
+                    logging.info(f"Using fallback codec '{fallback_codec}'.");
+                    writer_codec_used = fallback_codec
                 else:
-                    logging.critical(f"Fallback codec '{fallback_codec}' also failed."); return
+                    logging.critical(f"Fallback codec '{fallback_codec}' also failed.");
+                    return
             else:
-                logging.critical(f"Cannot initialize VideoWriter."); return
+                logging.critical(f"Cannot initialize VideoWriter.");
+                return
 
         written_count = 0;
         skipped_count = 0;
@@ -664,20 +677,14 @@ def write_video(frames: List[np.ndarray], out_path: str, fps: float, codec: str 
     logging.debug(f"Write video total time: {time.time() - func_start_time:.4f}s")
 
 
-# ============================================================
-# --- ЛОГИКА ВСТРАИВАНИЯ (Embed) ---
-# ============================================================
-
-# --- ИЗМЕНЕННАЯ embed_frame_pair (для N=2) ---
 def embed_frame_pair(
         frame1_bgr: np.ndarray, frame2_bgr: np.ndarray, bits: List[int],
-        selected_ring_indices: List[int],  # Теперь ожидает список выбранных колец
+        selected_ring_indices: List[int],  # список выбранных колец
         n_rings: int = N_RINGS,
         frame_number: int = 0,
         use_perceptual_masking: bool = USE_PERCEPTUAL_MASKING,
         embed_component: int = EMBED_COMPONENT
 ) -> Tuple[Optional[np.ndarray], Optional[np.ndarray]]:
-    """Встраивает несколько бит (len(bits)) в соответствующие кольца (selected_ring_indices)."""
     func_start_time = time.time();
     pair_num_log = frame_number // 2
     logging.debug(
@@ -689,7 +696,7 @@ def embed_frame_pair(
         return None, None
     if not bits or not selected_ring_indices:
         logging.warning(f"[P:{pair_num_log}] Empty bits or rings list. Skipping embedding for this pair.")
-        return frame1_bgr, frame2_bgr  # Возвращаем оригиналы
+        return frame1_bgr, frame2_bgr  # оригиналы
 
     try:
         if frame1_bgr is None or frame2_bgr is None: logging.error(
@@ -698,15 +705,17 @@ def embed_frame_pair(
             f"[P:{pair_num_log}] Frame shapes mismatch."); return None, None
 
         try:
-            frame1_ycrcb = cv2.cvtColor(frame1_bgr, cv2.COLOR_BGR2YCrCb); frame2_ycrcb = cv2.cvtColor(frame2_bgr,
-                                                                                                      cv2.COLOR_BGR2YCrCb)
+            frame1_ycrcb = cv2.cvtColor(frame1_bgr, cv2.COLOR_BGR2YCrCb);
+            frame2_ycrcb = cv2.cvtColor(frame2_bgr,
+                                        cv2.COLOR_BGR2YCrCb)
         except cv2.error as e:
-            logging.error(f"[P:{pair_num_log}] Color conversion failed: {e}"); return None, None
+            logging.error(f"[P:{pair_num_log}] Color conversion failed: {e}");
+            return None, None
 
         comp_name = ['Y', 'Cr', 'Cb'][embed_component];
         logging.debug(f"[P:{pair_num_log}] Using {comp_name}")
         try:
-            # Извлекаем нужный компонент и нормализуем
+            # извлечение и нормализация комп.
             comp1 = frame1_ycrcb[:, :, embed_component].astype(np.float32) / 255.0
             comp2 = frame2_ycrcb[:, :, embed_component].astype(np.float32) / 255.0
             # Сохраняем остальные компоненты для сборки
@@ -717,7 +726,8 @@ def embed_frame_pair(
             Cr2 = frame2_ycrcb[:, :, 1];
             Cb2 = frame2_ycrcb[:, :, 2]
         except IndexError:
-            logging.error(f"[P:{pair_num_log}] Invalid component index."); return None, None
+            logging.error(f"[P:{pair_num_log}] Invalid component index.");
+            return None, None
 
         # DTCWT
         pyr1 = dtcwt_transform(comp1, frame_number=frame_number);
@@ -726,7 +736,7 @@ def embed_frame_pair(
             logging.error(f"[P:{pair_num_log}] DTCWT failed.");
             return None, None
         L1 = pyr1.lowpass.copy();
-        L2 = pyr2.lowpass.copy()  # Работаем с копиями
+        L2 = pyr2.lowpass.copy()
 
         # Деление на кольца (координаты)
         rings1_coords_np = ring_division(L1, n_rings=n_rings, frame_number=frame_number)
@@ -742,7 +752,7 @@ def embed_frame_pair(
             elif perceptual_mask is None:
                 logging.warning(f"[P:{pair_num_log}] Failed perceptual mask calculation. Proceeding without masking.")
 
-        # --- Цикл встраивания по выбранным кольцам ---
+        # Цикл встраивания
         modifications_applied_count = 0
         for ring_idx, bit_to_embed in zip(selected_ring_indices, bits):
             logging.debug(f"[P:{pair_num_log}] Processing Ring {ring_idx} for Bit {bit_to_embed}")
@@ -762,16 +772,18 @@ def embed_frame_pair(
                 ring_vals_2 = L2[rows2, cols2].astype(np.float32)
             except IndexError:
                 logging.error(f"[P:{pair_num_log}, R:{ring_idx}] IndexError extracting ring values.",
-                              exc_info=False); continue
+                              exc_info=False);
+                continue
             except Exception as e:
                 logging.error(f"[P:{pair_num_log}, R:{ring_idx}] Error extracting ring values: {e}",
-                              exc_info=False); continue
+                              exc_info=False);
+                continue
 
             if ring_vals_1.size == 0 or ring_vals_2.size == 0:
                 logging.error(f"[P:{pair_num_log}, R:{ring_idx}] Extracted empty ring values.");
                 continue
 
-            # Адаптивная альфа для текущего кольца
+            # альфа
             alpha = compute_adaptive_alpha_entropy(ring_vals_1, ring_idx, frame_number)
             logging.info(f"[P:{pair_num_log}, R:{ring_idx}] Embedding Bit={bit_to_embed}, Alpha={alpha:.4f}")
 
@@ -779,10 +791,12 @@ def embed_frame_pair(
             dct1 = dct_1d(ring_vals_1);
             dct2 = dct_1d(ring_vals_2)
             try:
-                U1, S1, Vt1 = svd(dct1.reshape(-1, 1), full_matrices=False); U2, S2, Vt2 = svd(dct2.reshape(-1, 1),
-                                                                                               full_matrices=False)
+                U1, S1, Vt1 = svd(dct1.reshape(-1, 1), full_matrices=False);
+                U2, S2, Vt2 = svd(dct2.reshape(-1, 1),
+                                  full_matrices=False)
             except np.linalg.LinAlgError as e:
-                logging.error(f"[P:{pair_num_log}, R:{ring_idx}] SVD failed: {e}. Skipping ring."); continue
+                logging.error(f"[P:{pair_num_log}, R:{ring_idx}] SVD failed: {e}. Skipping ring.");
+                continue
 
             s1 = S1[0] if S1.size > 0 else 0.0;
             s2 = S2[0] if S2.size > 0 else 0.0
@@ -796,12 +810,12 @@ def embed_frame_pair(
             # Модификация SVD значений
             if bit_to_embed == 0:
                 if ratio < alpha: new_s1 = (s1 * alpha_sq + alpha * s2) / (alpha_sq + 1.0); new_s2 = (
-                                                                                                                 alpha * s1 + s2) / (
-                                                                                                                 alpha_sq + 1.0); modified = True
-            else:  # bit_to_embed == 1
-                if ratio >= inv_alpha: new_s1 = (s1 + alpha * s2) / (1.0 + alpha_sq); new_s2 = (
-                                                                                                           alpha * s1 + alpha_sq * s2) / (
-                                                                                                           1.0 + alpha_sq); modified = True
+                                                                                                             alpha * s1 + s2) / (
+                                                                                                             alpha_sq + 1.0); modified = True
+            else:
+                if ratio >= inv_alpha: new_s1 = (s1 + alpha * s2) / (1.0 + alpha_sq);
+                new_s2 = (alpha * s1 + alpha_sq * s2) / (1.0 + alpha_sq);
+                modified = True
 
             log_lvl = logging.INFO if modified else logging.DEBUG
             logging.log(log_lvl,
@@ -818,20 +832,18 @@ def embed_frame_pair(
                 ring_vals_1_mod = idct_1d(dct1_mod);
                 ring_vals_2_mod = idct_1d(dct2_mod)
 
-                # Применение изменений к L1, L2 с маскировкой
                 if len(ring_vals_1_mod) == len(rows1):
                     delta1 = ring_vals_1_mod - ring_vals_1;
                     mod_factors1 = np.ones_like(delta1)
                     if perceptual_mask is not None:
-                        # Применяем маску (1=сильно менять, 0=слабо)
+                        # маска (1=сильно менять, 0=слабо)
                         mask_vals = perceptual_mask[rows1, cols1]
                         mod_factors1 *= (LAMBDA_PARAM + (1.0 - LAMBDA_PARAM) * mask_vals)  # От LAMBDA до 1.0
-                    # Пространственное взвешивание (если нужно)
-                    # spatial_weights1 = calculate_spatial_weights_vectorized(L1.shape, rows1, cols1); mod_factors1 *= spatial_weights1
                     L1[rows1, cols1] += delta1 * mod_factors1
                 else:
                     logging.error(
-                        f"[P:{pair_num_log}, R:{ring_idx}] Length mismatch L1. Skipping update for this ring."); continue
+                        f"[P:{pair_num_log}, R:{ring_idx}] Length mismatch L1. Skipping update for this ring.");
+                    continue
 
                 if len(ring_vals_2_mod) == len(rows2):
                     delta2 = ring_vals_2_mod - ring_vals_2;
@@ -839,17 +851,15 @@ def embed_frame_pair(
                     if perceptual_mask is not None:
                         mask_vals = perceptual_mask[rows2, cols2]
                         mod_factors2 *= (LAMBDA_PARAM + (1.0 - LAMBDA_PARAM) * mask_vals)
-                    # spatial_weights2 = calculate_spatial_weights_vectorized(L2.shape, rows2, cols2); mod_factors2 *= spatial_weights2
                     L2[rows2, cols2] += delta2 * mod_factors2
                 else:
                     logging.error(
-                        f"[P:{pair_num_log}, R:{ring_idx}] Length mismatch L2. Skipping update for this ring."); continue
-        # --- Конец цикла по кольцам ---
+                        f"[P:{pair_num_log}, R:{ring_idx}] Length mismatch L2. Skipping update for this ring.");
+                    continue
 
         if modifications_applied_count == 0:
             logging.warning(
                 f"[P:{pair_num_log}] No SVD modifications were applied for bits {bits} in rings {selected_ring_indices}.")
-            # Все равно продолжаем, чтобы вернуть кадры (возможно, не измененные)
 
         # Обратный DTCWT
         pyr1.lowpass = L1;
@@ -860,7 +870,7 @@ def embed_frame_pair(
             logging.error(f"[P:{pair_num_log}] Inverse DTCWT failed.");
             return None, None
 
-        # Проверка и изменение размера, если нужно
+        # Проверка + изменение размера
         target_shape = (Y1_orig.shape[0], Y1_orig.shape[1])
         if comp1_mod.shape != target_shape:
             comp1_mod = cv2.resize(comp1_mod, (target_shape[1], target_shape[0]), interpolation=cv2.INTER_LINEAR);
@@ -869,14 +879,12 @@ def embed_frame_pair(
             comp2_mod = cv2.resize(comp2_mod, (target_shape[1], target_shape[0]), interpolation=cv2.INTER_LINEAR);
             logging.warning(f"[P:{pair_num_log}] Resized comp2 after inverse")
 
-        # Масштабирование и клиппинг
         comp1_mod_scaled = np.clip(comp1_mod * 255.0, 0, 255).astype(np.uint8)
         comp2_mod_scaled = np.clip(comp2_mod * 255.0, 0, 255).astype(np.uint8)
 
-        # Сборка кадров YCrCb
+        # сборка YCrCb
         new_ycrcb1 = np.stack((Y1_orig, Cr1, Cb1), axis=-1);
         new_ycrcb2 = np.stack((Y2_orig, Cr2, Cb2), axis=-1)
-        # Вставка модифицированного компонента
         new_ycrcb1[:, :, embed_component] = comp1_mod_scaled
         new_ycrcb2[:, :, embed_component] = comp2_mod_scaled
 
@@ -895,7 +903,6 @@ def embed_frame_pair(
         return None, None
 
 
-# --- ИЗМЕНЕННЫЙ _embed_frame_pair_worker (для N=2) ---
 def _embed_frame_pair_worker(args: Dict[str, Any]) -> Tuple[int, Optional[np.ndarray], Optional[np.ndarray], List[int]]:
     """Воркер для встраивания N бит в N лучших колец."""
     idx1 = args['idx1'];
@@ -909,21 +916,22 @@ def _embed_frame_pair_worker(args: Dict[str, Any]) -> Tuple[int, Optional[np.nda
     embed_component: int = args['embed_component']
     frame1_orig = args['frame1']
     frame2_orig = args['frame2']
-    selected_rings_indices = []  # Список выбранных колец для возврата
+    selected_rings_indices = []
 
     try:
         logging.debug(f"[Worker P:{pair_num_log}] Received bits: {bits_to_embed}")
         if len(bits_to_embed) != num_rings_to_use:
             raise ValueError(f"Worker expected {num_rings_to_use} bits, but received {len(bits_to_embed)}")
 
-        # 1. Преобразование и выбор колец (делаем здесь, чтобы не передавать lowpass)
         try:
             comp1 = frame1_orig[:, :, embed_component].astype(np.float32) / 255.0
             comp2 = frame2_orig[:, :, embed_component].astype(np.float32) / 255.0
         except IndexError:
-            logging.error(f"[Worker P:{pair_num_log}] Invalid component index."); return idx1, None, None, []
+            logging.error(f"[Worker P:{pair_num_log}] Invalid component index.");
+            return idx1, None, None, []
         except Exception as e:
-            logging.error(f"[Worker P:{pair_num_log}] Error getting component: {e}"); return idx1, None, None, []
+            logging.error(f"[Worker P:{pair_num_log}] Error getting component: {e}");
+            return idx1, None, None, []
 
         pyr1 = dtcwt_transform(comp1, frame_number=frame_number)
         if pyr1 is None or pyr1.lowpass is None:
@@ -932,19 +940,16 @@ def _embed_frame_pair_worker(args: Dict[str, Any]) -> Tuple[int, Optional[np.nda
         L1 = pyr1.lowpass
         rings_coords_np = ring_division(L1, n_rings=n_rings, frame_number=frame_number)
 
-        # Выбираем ЛУЧШИЕ кольца
         if ring_selection_method == 'multi_ring':
             selected_rings_indices = select_embedding_rings(
                 L1, rings_coords_np, num_to_select=num_rings_to_use,
                 metric=ring_selection_metric, frame_number=frame_number
             )
         elif ring_selection_method == 'deterministic':
-            # Для детерминированного выбираем одно и дублируем (не лучший вариант, но для совместимости)
             ring_idx = deterministic_ring_selection(frame1_orig, n_rings, frame_number)
             selected_rings_indices = [ring_idx] * num_rings_to_use
             logging.warning(
                 f"[Worker P:{pair_num_log}] Deterministic selection used for multi-bit embedding. Using ring {ring_idx} multiple times.")
-        # Добавить другие методы если нужно, или выдать ошибку
         else:
             logging.error(
                 f"[Worker P:{pair_num_log}] Unsupported ring selection method '{ring_selection_method}' for multi-bit embedding.")
@@ -953,34 +958,30 @@ def _embed_frame_pair_worker(args: Dict[str, Any]) -> Tuple[int, Optional[np.nda
         if len(selected_rings_indices) < num_rings_to_use:
             logging.error(
                 f"[Worker P:{pair_num_log}] Failed to select enough valid rings ({len(selected_rings_indices)}/{num_rings_to_use}).")
-            # Попытка встроить в то, что есть? Или пропустить? Пропустим.
-            return idx1, None, None, selected_rings_indices  # Возвращаем то, что выбрали, но кадры не будут изменены
+            return idx1, None, None, selected_rings_indices
 
-        # 2. Вызов embed_frame_pair с выбранными кольцами и битами
         f1_mod, f2_mod = embed_frame_pair(
             frame1_orig, frame2_orig, bits=bits_to_embed,
-            selected_ring_indices=selected_rings_indices,  # Передаем список колец
+            selected_ring_indices=selected_rings_indices,
             n_rings=n_rings, frame_number=frame_number,
             use_perceptual_masking=args.get('use_perceptual_masking', USE_PERCEPTUAL_MASKING),
             embed_component=embed_component,
         )
 
-        # Возвращаем результат и список колец, которые *фактически* были использованы
         return idx1, f1_mod, f2_mod, selected_rings_indices
 
     except Exception as e:
         logging.error(f"Exception in worker for pair {pair_num_log} (Frame {idx1}): {e}", exc_info=True)
-        return idx1, None, None, []  # Возвращаем пустой список колец при ошибке
+        return idx1, None, None, []
 
 
-# --- ИЗМЕНЕННАЯ embed_watermark_in_video (для N=2 и Max Repeats) ---
 def embed_watermark_in_video(
-        frames: List[np.ndarray], packet_bits: np.ndarray,  # Теперь numpy массив
+        frames: List[np.ndarray], packet_bits: np.ndarray,
         n_rings: int = N_RINGS,
         ring_selection_method: str = RING_SELECTION_METHOD, ring_selection_metric: str = RING_SELECTION_METRIC,
         num_rings_to_use: int = NUM_RINGS_TO_USE, bits_per_pair: int = BITS_PER_PAIR,
         max_packet_repeats: int = MAX_PACKET_REPEATS,
-        default_ring_index: int = DEFAULT_RING_INDEX,  # Все еще нужен для select_embedding_rings
+        default_ring_index: int = DEFAULT_RING_INDEX,
         fps: float = FPS, max_workers: Optional[int] = MAX_WORKERS,
         use_perceptual_masking: bool = USE_PERCEPTUAL_MASKING,
         embed_component: int = EMBED_COMPONENT
@@ -991,18 +992,16 @@ def embed_watermark_in_video(
 
     if total_pairs == 0 or packet_len_bits == 0:
         logging.warning("Нет пар кадров или нулевая длина пакета ВЗ. Встраивание не выполняется.")
-        return frames[:]  # Возвращаем копию оригинальных кадров
+        return frames[:]  # копия оригинальных кадров
 
-    # Расчет количества пар, необходимых для N повторов
+    # количество пар, необходимых для N повторов
     pairs_needed_for_repeats = ceil(max_packet_repeats * packet_len_bits / bits_per_pair)
 
-    # Количество пар для обработки ограничено и видео, и макс. повторами
     num_pairs_to_process = min(total_pairs, pairs_needed_for_repeats)
 
     # Общее количество бит для встраивания
     total_bits_to_embed = num_pairs_to_process * bits_per_pair
 
-    # Создаем полный поток бит для встраивания
     repeats_needed = ceil(total_bits_to_embed / packet_len_bits) if packet_len_bits > 0 else 1
     bits_for_embedding_flat = np.tile(packet_bits, repeats_needed)[:total_bits_to_embed]
 
@@ -1013,7 +1012,7 @@ def embed_watermark_in_video(
     logging.info(f"Actual bits embedded correspond to {total_bits_to_embed / packet_len_bits:.2f} packets.")
 
     start_time = time.time();
-    watermarked_frames = frames[:]  # Работаем с копией
+    watermarked_frames = frames[:]
     if num_pairs_to_process == 0: return watermarked_frames
 
     tasks_args = []
@@ -1025,7 +1024,6 @@ def embed_watermark_in_video(
                 f"Skipping pair {pair_idx} (Frames {idx1}, {idx2}) due to missing frames within processing range.")
             continue
 
-        # Извлекаем нужные биты для этой пары
         start_bit_idx = pair_idx * bits_per_pair
         end_bit_idx = start_bit_idx + bits_per_pair
         current_bits = bits_for_embedding_flat[start_bit_idx:end_bit_idx].tolist()  # Преобразуем в список int
@@ -1037,10 +1035,10 @@ def embed_watermark_in_video(
 
         args = {
             'idx1': idx1, 'frame1': frames[idx1], 'frame2': frames[idx2],
-            'bits': current_bits,  # Передаем список бит
+            'bits': current_bits,
             'n_rings': n_rings, 'ring_selection_method': ring_selection_method,
             'ring_selection_metric': ring_selection_metric,
-            'num_rings_to_use': num_rings_to_use,  # Теперь это BITS_PER_PAIR
+            'num_rings_to_use': num_rings_to_use,
             'default_ring_index': default_ring_index,
             'frame_number': idx1,
             'use_perceptual_masking': use_perceptual_masking,
@@ -1053,7 +1051,7 @@ def embed_watermark_in_video(
         return watermarked_frames
 
     results: Dict[int, Tuple[Optional[np.ndarray], Optional[np.ndarray]]] = {}
-    # Теперь храним список списков индексов колец
+    # список списков индексов колец
     selected_rings_log: Dict[int, List[int]] = {}  # {pair_idx: [ring1, ring2]}
     processed_count = 0;
     error_count = 0;
@@ -1062,16 +1060,15 @@ def embed_watermark_in_video(
     try:
         logging.info(f"Submitting {task_count} embedding tasks to ThreadPoolExecutor (max_workers={max_workers})...")
         with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
-            # В future_to_idx1 храним индекс первого кадра пары
+            # индекс первого кадра пары
             future_to_idx1 = {executor.submit(_embed_frame_pair_worker, arg): arg['idx1'] for arg in tasks_args}
             for i, future in enumerate(concurrent.futures.as_completed(future_to_idx1)):
                 idx1 = future_to_idx1[future];
-                pair_idx = idx1 // 2  # Получаем индекс пары
+                pair_idx = idx1 // 2
                 try:
-                    # Воркер возвращает (idx1, f1_mod, f2_mod, selected_rings_list)
                     _, f1_mod, f2_mod, selected_rings_list = future.result()
 
-                    if selected_rings_list:  # Записываем только если список не пустой
+                    if selected_rings_list:
                         selected_rings_log[pair_idx] = selected_rings_list
                     else:
                         logging.warning(f"Pair {pair_idx} worker returned empty ring list.")
@@ -1095,7 +1092,6 @@ def embed_watermark_in_video(
     logging.info(
         f"ThreadPoolExecutor finished. Successful pairs processed: {processed_count}, Failed pairs: {error_count}.")
 
-    # Применение результатов
     update_count = 0
     for idx1, (f1_mod, f2_mod) in results.items():
         idx2 = idx1 + 1
@@ -1103,10 +1099,8 @@ def embed_watermark_in_video(
         if idx2 < len(watermarked_frames): watermarked_frames[idx2] = f2_mod; update_count += 1
     logging.info(f"Applied results from {len(results)} pairs to frames.")  # Логируем кол-во пар
 
-    # Сохранение лога колец (списки для каждой пары)
     if selected_rings_log:
         try:
-            # Преобразуем ключи в строки для JSON
             serializable_rings_log = {str(k): v for k, v in selected_rings_log.items()}
             with open(SELECTED_RINGS_FILE, 'w') as f:
                 json.dump(serializable_rings_log, f, indent=4)
@@ -1123,9 +1117,6 @@ def embed_watermark_in_video(
     return watermarked_frames
 
 
-# ============================================================
-# --- ГЛАВНЫЙ БЛОК ИСПОЛНЕНИЯ ---
-# ============================================================
 def main():
     main_start_time = time.time()
     input_video = "input.mp4";
@@ -1139,13 +1130,13 @@ def main():
     total_pairs_available = len(frames) // 2
     if total_pairs_available == 0: logging.error("Not enough frames for any pairs."); return
 
-    # 1. Генерация Payload (64-bit ID)
-    original_id_bytes = os.urandom(PAYLOAD_LEN_BYTES)  # 8 байт
+    # payload = 64 bit (ID)
+    original_id_bytes = os.urandom(PAYLOAD_LEN_BYTES)
     original_id_hex = original_id_bytes.hex()
     logging.info(f"Generated Payload ID (Hex): {original_id_hex}")
     logging.info(f"Payload size: {PAYLOAD_LEN_BYTES} bytes ({PAYLOAD_LEN_BYTES * 8} bits)")
 
-    # 2. Добавление ECC (если включено)
+    # ECC (если включено)
     packet_bits: Optional[np.ndarray] = None
     bch = None
     local_use_ecc = USE_ECC and BCHLIB_AVAILABLE
@@ -1153,17 +1144,14 @@ def main():
     if local_use_ecc:
         try:
             bch = bchlib.BCH(m=BCH_M, t=BCH_T)
-            # Логируем параметры BCH здесь, после успешной инициализации
             k_bits = bch.k
             n_bits = bch.n
             ecc_bits = bch.ecc_bits
             logging.info(
                 f"BCH initialized (m={BCH_M}, t={BCH_T}). Params: n={n_bits}, k={k_bits}, ecc={ecc_bits} bits.")
 
-            # Конвертируем ID в биты
             payload_bits_np = np.unpackbits(np.frombuffer(original_id_bytes, dtype=np.uint8))
 
-            # Добавляем ECC (функция сама сделает паддинг до k)
             packet_bits = add_ecc(payload_bits_np, bch)
 
             if packet_bits is None:
@@ -1171,18 +1159,16 @@ def main():
 
         except Exception as e:
             logging.error(f"Failed to initialize/use BCH: {e}. Proceeding without ECC.", exc_info=True)
-            local_use_ecc = False  # Отключаем ECC только для этого запуска
+            local_use_ecc = False
     else:
         logging.info("ECC is disabled or bchlib not available.")
 
-    # Если ECC не использовался или не удался, используем просто биты payload
     if packet_bits is None:
         packet_bits = np.unpackbits(np.frombuffer(original_id_bytes, dtype=np.uint8))
         logging.info(f"Using raw payload bits (No ECC). Packet length: {packet_bits.size} bits.")
     else:
         logging.info(f"Final packet length (Payload + Padding + ECC): {packet_bits.size} bits.")
 
-    # 3. Сохранение оригинального ID
     try:
         with open(ORIGINAL_WATERMARK_FILE, "w") as f:
             f.write(original_id_hex)
@@ -1190,19 +1176,17 @@ def main():
     except IOError as e:
         logging.error(f"Could not save original ID: {e}")
 
-    # 4. Запуск встраивания
     watermarked_frames = embed_watermark_in_video(
         frames=frames, packet_bits=packet_bits, n_rings=N_RINGS,
         ring_selection_method=RING_SELECTION_METHOD, ring_selection_metric=RING_SELECTION_METRIC,
         num_rings_to_use=NUM_RINGS_TO_USE, bits_per_pair=BITS_PER_PAIR,
         max_packet_repeats=MAX_PACKET_REPEATS,
-        default_ring_index=DEFAULT_RING_INDEX,  # Передаем для select_rings
+        default_ring_index=DEFAULT_RING_INDEX,
         fps=fps_to_use, max_workers=MAX_WORKERS,
         use_perceptual_masking=USE_PERCEPTUAL_MASKING,
         embed_component=EMBED_COMPONENT
     )
 
-    # 5. Запись результата
     if watermarked_frames and len(watermarked_frames) == len(frames):
         write_video(watermarked_frames, output_video, fps=fps_to_use, codec=OUTPUT_CODEC)
         logging.info(f"Watermarked video saved to: {output_video}")
@@ -1227,7 +1211,6 @@ def main():
     print("\nRun extractor to verify.")
 
 
-# --- Запуск с Профилированием ---
 if __name__ == "__main__":
     if USE_ECC and not BCHLIB_AVAILABLE:
         print("\nERROR: USE_ECC is True, but bchlib library is not installed.")
@@ -1239,15 +1222,17 @@ if __name__ == "__main__":
     try:
         main()
     except ValueError as ve:
-        logging.critical(f"Value Error: {ve}"); print(f"\nERROR: {ve}.")
+        logging.critical(f"Value Error: {ve}");
+        print(f"\nERROR: {ve}.")
     except Exception as e:
-        logging.critical(f"Unhandled exception: {e}", exc_info=True); print(
+        logging.critical(f"Unhandled exception: {e}", exc_info=True);
+        print(
             f"\nCRITICAL ERROR: {e}. See {LOG_FILENAME}")
     finally:
         profiler.disable()
         stats = pstats.Stats(profiler)
         stats.strip_dirs().sort_stats("cumulative").print_stats(30)
-        profile_file = "profile_stats_embed_n2.txt"  # Изменено имя файла профиля
+        profile_file = "profile_stats_embed_n2.txt"
         try:
             with open(profile_file, "w") as f:
                 stats_file = pstats.Stats(profiler, stream=f)

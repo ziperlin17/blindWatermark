@@ -1,520 +1,516 @@
-[2025-04-03 20:36:38,664] I MainThread - <module>:70 - --- Запуск Скрипта Извлечения (Bits/Pair: 2, Payload: 64bit, ECC Ожид.: True, Доступно: True, Max Repeats: 5) ---
-[2025-04-03 20:36:38,664] I MainThread - <module>:71 - Ожид. настройки эмбеддера: Метод='multi_ring', Метрика='entropy', Колец исп.=2, N_RINGS_Total=8
-[2025-04-03 20:36:38,664] I MainThread - <module>:72 - Альфа (ожид.): MIN=1.005, MAX=1.1
-[2025-04-03 20:36:38,664] I MainThread - <module>:73 - Компонент: Cr, Исп. сохр. кольца: True
-[2025-04-03 20:36:38,665] I MainThread - main:883 - Read original ID (Hex) from original_watermark_id.txt
-[2025-04-03 20:36:38,665] I MainThread - main:893 - --- Starting Extraction Main Process ---
-[2025-04-03 20:36:38,665] I MainThread - read_video:399 - Reading video from: watermarked_video_n2_try.avi
-[2025-04-03 20:36:38,675] I MainThread - read_video:405 - Detected FPS: 30.00
-[2025-04-03 20:36:38,675] I MainThread - read_video:408 - Video properties: 842x720 @ 30.00 FPS, ~907 frames
-[2025-04-03 20:36:39,720] I MainThread - read_video:412 - End of stream after reading 907 frames (index 907).
-[2025-04-03 20:36:39,720] I MainThread - read_video:420 - Finished reading. Valid frames: 907. Skipped None: 0, Invalid shape: 0
-[2025-04-03 20:36:39,728] I MainThread - main:898 - Read 907 frames for extraction (Reported FPS: 30.00)
-[2025-04-03 20:36:39,728] I MainThread - extract_watermark_from_video:640 - Starting parallel extraction (Bits/Pair: 2) with packet voting (Max Repeats: 5).
-[2025-04-03 20:36:39,728] I MainThread - extract_watermark_from_video:641 - Ring Selection: Saved, Component: Cr, Expect ECC: True
-[2025-04-03 20:36:39,729] E MainThread - extract_watermark_from_video:676 - Failed to initialize BCH: 'bchlib.BCH' object has no attribute 'k'. Disabling ECC.
-[2025-04-03 20:36:39,729] I MainThread - load_saved_rings:282 - Loaded 160 valid ring entries from selected_rings.json
-[2025-04-03 20:36:39,730] I MainThread - extract_watermark_from_video:694 - Attempting to extract from 160 pairs (up to 453 available, covers up to 5 repeats).
-[2025-04-03 20:36:39,733] I MainThread - extract_watermark_from_video:728 - Submitting 160 extraction tasks to ThreadPoolExecutor (max_workers=None)...
-[2025-04-03 20:36:40,732] I ThreadPoolExecutor-0_14 - extract_frame_pair:506 - [P:14, R:4] s1=186.7893, s2=186.5295, ratio=1.0014 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:40,916] I ThreadPoolExecutor-0_10 - extract_frame_pair:506 - [P:10, R:4] s1=186.4449, s2=186.7850, ratio=0.9982 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:41,022] I ThreadPoolExecutor-0_3 - extract_frame_pair:506 - [P:3, R:4] s1=186.4434, s2=186.7771, ratio=0.9982 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:41,054] I ThreadPoolExecutor-0_4 - extract_frame_pair:506 - [P:4, R:4] s1=186.4376, s2=186.7812, ratio=0.9982 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:41,063] I ThreadPoolExecutor-0_0 - extract_frame_pair:506 - [P:0, R:4] s1=188.1099, s2=186.9211, ratio=1.0064 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:41,148] I ThreadPoolExecutor-0_15 - extract_frame_pair:506 - [P:15, R:4] s1=186.3107, s2=186.7491, ratio=0.9977 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:41,193] I ThreadPoolExecutor-0_12 - extract_frame_pair:506 - [P:12, R:4] s1=186.1651, s2=186.6500, ratio=0.9974 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:41,320] I ThreadPoolExecutor-0_11 - extract_frame_pair:506 - [P:11, R:4] s1=186.1728, s2=186.7027, ratio=0.9972 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:41,415] I ThreadPoolExecutor-0_13 - extract_frame_pair:506 - [P:13, R:4] s1=186.3113, s2=186.8189, ratio=0.9973 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:41,429] I ThreadPoolExecutor-0_8 - extract_frame_pair:506 - [P:8, R:4] s1=186.5142, s2=186.7870, ratio=0.9985 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:41,502] I ThreadPoolExecutor-0_6 - extract_frame_pair:506 - [P:6, R:4] s1=186.4354, s2=186.7693, ratio=0.9982 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:41,516] I ThreadPoolExecutor-0_5 - extract_frame_pair:506 - [P:5, R:4] s1=186.8414, s2=186.4740, ratio=1.0020 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:41,527] I ThreadPoolExecutor-0_1 - extract_frame_pair:506 - [P:1, R:4] s1=186.6497, s2=186.3190, ratio=1.0018 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:41,533] I ThreadPoolExecutor-0_7 - extract_frame_pair:506 - [P:7, R:4] s1=186.8413, s2=186.4439, ratio=1.0021 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:41,542] I ThreadPoolExecutor-0_9 - extract_frame_pair:506 - [P:9, R:4] s1=186.8333, s2=186.1415, ratio=1.0037 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:41,557] I ThreadPoolExecutor-0_2 - extract_frame_pair:506 - [P:2, R:4] s1=186.5251, s2=186.4135, ratio=1.0006 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:41,565] I ThreadPoolExecutor-0_19 - extract_frame_pair:506 - [P:19, R:4] s1=186.2372, s2=186.7096, ratio=0.9975 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:41,587] I ThreadPoolExecutor-0_16 - extract_frame_pair:506 - [P:16, R:4] s1=186.6959, s2=186.4168, ratio=1.0015 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:41,593] I ThreadPoolExecutor-0_18 - extract_frame_pair:506 - [P:18, R:4] s1=186.0334, s2=186.6098, ratio=0.9969 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:41,625] I ThreadPoolExecutor-0_17 - extract_frame_pair:506 - [P:17, R:4] s1=186.2444, s2=186.6358, ratio=0.9979 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:42,640] I ThreadPoolExecutor-0_14 - extract_frame_pair:506 - [P:14, R:5] s1=180.8933, s2=181.4684, ratio=0.9968 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:42,641] I ThreadPoolExecutor-0_14 - extract_frame_pair_multi_ring:537 - [P:14] Multi-ring extracted bits: [0, 1] from rings [4, 5]
-[2025-04-03 20:36:42,643] I ThreadPoolExecutor-0_10 - extract_frame_pair:506 - [P:10, R:5] s1=181.4982, s2=180.7360, ratio=1.0042 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:42,646] I ThreadPoolExecutor-0_10 - extract_frame_pair_multi_ring:537 - [P:10] Multi-ring extracted bits: [1, 0] from rings [4, 5]
-[2025-04-03 20:36:42,657] I ThreadPoolExecutor-0_3 - extract_frame_pair:506 - [P:3, R:5] s1=180.8226, s2=181.3551, ratio=0.9971 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:42,661] I ThreadPoolExecutor-0_3 - extract_frame_pair_multi_ring:537 - [P:3] Multi-ring extracted bits: [1, 1] from rings [4, 5]
-[2025-04-03 20:36:42,740] I ThreadPoolExecutor-0_0 - extract_frame_pair:506 - [P:0, R:5] s1=179.3339, s2=180.6497, ratio=0.9927 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:42,741] I ThreadPoolExecutor-0_0 - extract_frame_pair_multi_ring:537 - [P:0] Multi-ring extracted bits: [0, 1] from rings [4, 5]
-[2025-04-03 20:36:42,745] I ThreadPoolExecutor-0_4 - extract_frame_pair:506 - [P:4, R:5] s1=180.8072, s2=181.3499, ratio=0.9970 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:42,746] I ThreadPoolExecutor-0_4 - extract_frame_pair_multi_ring:537 - [P:4] Multi-ring extracted bits: [1, 1] from rings [4, 5]
-[2025-04-03 20:36:42,849] I ThreadPoolExecutor-0_12 - extract_frame_pair:506 - [P:12, R:5] s1=181.5081, s2=180.9526, ratio=1.0031 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:42,850] I ThreadPoolExecutor-0_12 - extract_frame_pair_multi_ring:537 - [P:12] Multi-ring extracted bits: [1, 0] from rings [4, 5]
-[2025-04-03 20:36:42,895] I ThreadPoolExecutor-0_11 - extract_frame_pair:506 - [P:11, R:5] s1=180.6729, s2=181.5105, ratio=0.9954 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:42,897] I ThreadPoolExecutor-0_11 - extract_frame_pair_multi_ring:537 - [P:11] Multi-ring extracted bits: [1, 1] from rings [4, 5]
-[2025-04-03 20:36:42,902] I ThreadPoolExecutor-0_15 - extract_frame_pair:506 - [P:15, R:5] s1=180.7997, s2=181.3126, ratio=0.9972 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:42,902] I ThreadPoolExecutor-0_15 - extract_frame_pair_multi_ring:537 - [P:15] Multi-ring extracted bits: [1, 1] from rings [4, 5]
-[2025-04-03 20:36:42,960] I ThreadPoolExecutor-0_6 - extract_frame_pair:506 - [P:6, R:5] s1=181.3330, s2=180.6801, ratio=1.0036 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:42,962] I ThreadPoolExecutor-0_6 - extract_frame_pair_multi_ring:537 - [P:6] Multi-ring extracted bits: [1, 0] from rings [4, 5]
-[2025-04-03 20:36:42,979] I ThreadPoolExecutor-0_8 - extract_frame_pair:506 - [P:8, R:5] s1=180.8620, s2=181.4107, ratio=0.9970 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:42,979] I ThreadPoolExecutor-0_13 - extract_frame_pair:506 - [P:13, R:5] s1=180.8673, s2=181.4395, ratio=0.9968 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:42,982] I ThreadPoolExecutor-0_8 - extract_frame_pair_multi_ring:537 - [P:8] Multi-ring extracted bits: [1, 1] from rings [4, 5]
-[2025-04-03 20:36:42,992] I ThreadPoolExecutor-0_13 - extract_frame_pair_multi_ring:537 - [P:13] Multi-ring extracted bits: [1, 1] from rings [4, 5]
-[2025-04-03 20:36:43,036] I ThreadPoolExecutor-0_5 - extract_frame_pair:506 - [P:5, R:5] s1=180.8941, s2=181.3835, ratio=0.9973 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:43,038] I ThreadPoolExecutor-0_5 - extract_frame_pair_multi_ring:537 - [P:5] Multi-ring extracted bits: [0, 1] from rings [4, 5]
-[2025-04-03 20:36:43,282] I ThreadPoolExecutor-0_1 - extract_frame_pair:506 - [P:1, R:5] s1=181.3448, s2=180.7903, ratio=1.0031 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:43,284] I ThreadPoolExecutor-0_1 - extract_frame_pair_multi_ring:537 - [P:1] Multi-ring extracted bits: [0, 0] from rings [4, 5]
-[2025-04-03 20:36:43,448] I ThreadPoolExecutor-0_18 - extract_frame_pair:506 - [P:18, R:5] s1=180.5249, s2=181.2433, ratio=0.9960 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:43,449] I ThreadPoolExecutor-0_18 - extract_frame_pair_multi_ring:537 - [P:18] Multi-ring extracted bits: [1, 1] from rings [4, 5]
-[2025-04-03 20:36:43,462] I ThreadPoolExecutor-0_2 - extract_frame_pair:506 - [P:2, R:5] s1=180.7864, s2=181.3344, ratio=0.9970 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:43,464] I ThreadPoolExecutor-0_2 - extract_frame_pair_multi_ring:537 - [P:2] Multi-ring extracted bits: [0, 1] from rings [4, 5]
-[2025-04-03 20:36:43,515] I ThreadPoolExecutor-0_19 - extract_frame_pair:506 - [P:19, R:5] s1=180.7204, s2=181.3668, ratio=0.9964 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:43,517] I ThreadPoolExecutor-0_19 - extract_frame_pair_multi_ring:537 - [P:19] Multi-ring extracted bits: [1, 1] from rings [4, 5]
-[2025-04-03 20:36:43,585] I ThreadPoolExecutor-0_7 - extract_frame_pair:506 - [P:7, R:5] s1=181.3324, s2=180.7872, ratio=1.0030 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:43,588] I ThreadPoolExecutor-0_7 - extract_frame_pair_multi_ring:537 - [P:7] Multi-ring extracted bits: [0, 0] from rings [4, 5]
-[2025-04-03 20:36:43,699] I ThreadPoolExecutor-0_9 - extract_frame_pair:506 - [P:9, R:5] s1=180.8996, s2=181.4569, ratio=0.9969 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:43,699] I ThreadPoolExecutor-0_9 - extract_frame_pair_multi_ring:537 - [P:9] Multi-ring extracted bits: [0, 1] from rings [4, 5]
-[2025-04-03 20:36:43,703] I ThreadPoolExecutor-0_16 - extract_frame_pair:506 - [P:16, R:5] s1=180.7942, s2=181.3066, ratio=0.9972 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:43,704] I ThreadPoolExecutor-0_16 - extract_frame_pair_multi_ring:537 - [P:16] Multi-ring extracted bits: [0, 1] from rings [4, 5]
-[2025-04-03 20:36:43,716] I ThreadPoolExecutor-0_17 - extract_frame_pair:506 - [P:17, R:5] s1=180.6962, s2=181.2517, ratio=0.9969 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:43,716] I ThreadPoolExecutor-0_17 - extract_frame_pair_multi_ring:537 - [P:17] Multi-ring extracted bits: [1, 1] from rings [4, 5]
-[2025-04-03 20:36:44,076] I ThreadPoolExecutor-0_10 - extract_frame_pair:506 - [P:21, R:4] s1=186.8928, s2=186.5666, ratio=1.0017 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:44,152] I ThreadPoolExecutor-0_3 - extract_frame_pair:506 - [P:22, R:4] s1=186.8578, s2=186.5895, ratio=1.0014 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:44,205] I ThreadPoolExecutor-0_0 - extract_frame_pair:506 - [P:23, R:4] s1=186.9485, s2=186.6812, ratio=1.0014 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:44,565] I ThreadPoolExecutor-0_4 - extract_frame_pair:506 - [P:24, R:4] s1=187.0390, s2=186.6342, ratio=1.0022 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:44,771] I ThreadPoolExecutor-0_14 - extract_frame_pair:506 - [P:20, R:4] s1=186.3563, s2=186.8941, ratio=0.9971 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:44,783] I ThreadPoolExecutor-0_12 - extract_frame_pair:506 - [P:25, R:4] s1=186.9241, s2=186.6171, ratio=1.0016 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:44,837] I ThreadPoolExecutor-0_11 - extract_frame_pair:506 - [P:26, R:4] s1=186.9503, s2=186.5458, ratio=1.0022 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:44,883] I ThreadPoolExecutor-0_13 - extract_frame_pair:506 - [P:30, R:4] s1=186.3256, s2=186.9537, ratio=0.9966 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:44,890] I ThreadPoolExecutor-0_15 - extract_frame_pair:506 - [P:27, R:4] s1=186.2841, s2=186.6148, ratio=0.9982 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:44,914] I ThreadPoolExecutor-0_6 - extract_frame_pair:506 - [P:28, R:4] s1=186.2064, s2=186.6239, ratio=0.9978 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:44,946] I ThreadPoolExecutor-0_1 - extract_frame_pair:506 - [P:32, R:4] s1=186.9349, s2=186.6235, ratio=1.0017 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:44,948] I ThreadPoolExecutor-0_2 - extract_frame_pair:506 - [P:34, R:4] s1=186.8555, s2=186.4878, ratio=1.0020 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:44,956] I ThreadPoolExecutor-0_8 - extract_frame_pair:506 - [P:29, R:4] s1=186.2535, s2=186.7500, ratio=0.9973 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:44,962] I ThreadPoolExecutor-0_18 - extract_frame_pair:506 - [P:33, R:4] s1=186.9368, s2=186.5955, ratio=1.0018 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:44,982] I ThreadPoolExecutor-0_19 - extract_frame_pair:506 - [P:35, R:4] s1=186.3541, s2=186.7476, ratio=0.9979 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:45,008] I ThreadPoolExecutor-0_5 - extract_frame_pair:506 - [P:31, R:4] s1=186.9463, s2=186.6411, ratio=1.0016 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:45,047] I ThreadPoolExecutor-0_7 - extract_frame_pair:506 - [P:36, R:4] s1=186.2957, s2=186.8893, ratio=0.9968 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:45,162] I ThreadPoolExecutor-0_16 - extract_frame_pair:506 - [P:38, R:4] s1=186.4632, s2=186.8945, ratio=0.9977 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:45,290] I ThreadPoolExecutor-0_9 - extract_frame_pair:506 - [P:37, R:4] s1=186.8896, s2=186.5883, ratio=1.0016 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:45,396] I ThreadPoolExecutor-0_17 - extract_frame_pair:506 - [P:39, R:4] s1=186.9002, s2=186.5871, ratio=1.0017 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:45,655] I ThreadPoolExecutor-0_10 - extract_frame_pair:506 - [P:21, R:5] s1=181.3729, s2=180.8508, ratio=1.0029 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:45,655] I ThreadPoolExecutor-0_10 - extract_frame_pair_multi_ring:537 - [P:21] Multi-ring extracted bits: [0, 0] from rings [4, 5]
-[2025-04-03 20:36:46,196] I ThreadPoolExecutor-0_3 - extract_frame_pair:506 - [P:22, R:5] s1=180.7707, s2=181.3839, ratio=0.9966 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:46,197] I ThreadPoolExecutor-0_3 - extract_frame_pair_multi_ring:537 - [P:22] Multi-ring extracted bits: [0, 1] from rings [4, 5]
-[2025-04-03 20:36:46,209] I ThreadPoolExecutor-0_0 - extract_frame_pair:506 - [P:23, R:5] s1=181.4060, s2=180.8936, ratio=1.0028 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:46,213] I ThreadPoolExecutor-0_0 - extract_frame_pair_multi_ring:537 - [P:23] Multi-ring extracted bits: [0, 0] from rings [4, 5]
-[2025-04-03 20:36:46,314] I ThreadPoolExecutor-0_12 - extract_frame_pair:506 - [P:25, R:5] s1=180.7977, s2=181.3824, ratio=0.9968 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:46,314] I ThreadPoolExecutor-0_12 - extract_frame_pair_multi_ring:537 - [P:25] Multi-ring extracted bits: [0, 1] from rings [4, 5]
-[2025-04-03 20:36:46,355] I ThreadPoolExecutor-0_14 - extract_frame_pair:506 - [P:20, R:5] s1=181.3527, s2=180.8748, ratio=1.0026 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:46,357] I ThreadPoolExecutor-0_14 - extract_frame_pair_multi_ring:537 - [P:20] Multi-ring extracted bits: [1, 0] from rings [4, 5]
-[2025-04-03 20:36:46,367] I ThreadPoolExecutor-0_11 - extract_frame_pair:506 - [P:26, R:5] s1=181.3923, s2=180.8900, ratio=1.0028 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:46,367] I ThreadPoolExecutor-0_11 - extract_frame_pair_multi_ring:537 - [P:26] Multi-ring extracted bits: [0, 0] from rings [4, 5]
-[2025-04-03 20:36:46,386] I ThreadPoolExecutor-0_4 - extract_frame_pair:506 - [P:24, R:5] s1=181.4745, s2=180.8993, ratio=1.0032 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:46,387] I ThreadPoolExecutor-0_4 - extract_frame_pair_multi_ring:537 - [P:24] Multi-ring extracted bits: [0, 0] from rings [4, 5]
-[2025-04-03 20:36:46,438] I ThreadPoolExecutor-0_15 - extract_frame_pair:506 - [P:27, R:5] s1=181.3609, s2=180.9053, ratio=1.0025 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:46,441] I ThreadPoolExecutor-0_15 - extract_frame_pair_multi_ring:537 - [P:27] Multi-ring extracted bits: [1, 0] from rings [4, 5]
-[2025-04-03 20:36:46,472] I ThreadPoolExecutor-0_13 - extract_frame_pair:506 - [P:30, R:5] s1=180.6529, s2=181.3075, ratio=0.9964 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:46,472] I ThreadPoolExecutor-0_13 - extract_frame_pair_multi_ring:537 - [P:30] Multi-ring extracted bits: [1, 1] from rings [4, 5]
-[2025-04-03 20:36:46,509] I ThreadPoolExecutor-0_6 - extract_frame_pair:506 - [P:28, R:5] s1=181.3627, s2=180.9203, ratio=1.0024 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:46,510] I ThreadPoolExecutor-0_6 - extract_frame_pair_multi_ring:537 - [P:28] Multi-ring extracted bits: [1, 0] from rings [4, 5]
-[2025-04-03 20:36:46,550] I ThreadPoolExecutor-0_18 - extract_frame_pair:506 - [P:33, R:5] s1=181.3190, s2=180.8044, ratio=1.0028 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:46,551] I ThreadPoolExecutor-0_18 - extract_frame_pair_multi_ring:537 - [P:33] Multi-ring extracted bits: [0, 0] from rings [4, 5]
-[2025-04-03 20:36:46,553] I ThreadPoolExecutor-0_5 - extract_frame_pair:506 - [P:31, R:5] s1=180.8135, s2=181.3066, ratio=0.9973 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:46,553] I ThreadPoolExecutor-0_5 - extract_frame_pair_multi_ring:537 - [P:31] Multi-ring extracted bits: [0, 1] from rings [4, 5]
-[2025-04-03 20:36:46,579] I ThreadPoolExecutor-0_1 - extract_frame_pair:506 - [P:32, R:5] s1=180.8010, s2=181.3174, ratio=0.9972 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:46,580] I ThreadPoolExecutor-0_1 - extract_frame_pair_multi_ring:537 - [P:32] Multi-ring extracted bits: [0, 1] from rings [4, 5]
-[2025-04-03 20:36:46,621] I ThreadPoolExecutor-0_19 - extract_frame_pair:506 - [P:35, R:5] s1=180.6821, s2=181.2459, ratio=0.9969 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:46,622] I ThreadPoolExecutor-0_19 - extract_frame_pair_multi_ring:537 - [P:35] Multi-ring extracted bits: [1, 1] from rings [4, 5]
-[2025-04-03 20:36:46,805] I ThreadPoolExecutor-0_16 - extract_frame_pair:506 - [P:38, R:5] s1=181.3735, s2=180.8554, ratio=1.0029 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:46,808] I ThreadPoolExecutor-0_16 - extract_frame_pair_multi_ring:537 - [P:38] Multi-ring extracted bits: [1, 0] from rings [4, 5]
-[2025-04-03 20:36:47,241] I ThreadPoolExecutor-0_8 - extract_frame_pair:506 - [P:29, R:5] s1=181.3571, s2=180.9117, ratio=1.0025 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:47,249] I ThreadPoolExecutor-0_8 - extract_frame_pair_multi_ring:537 - [P:29] Multi-ring extracted bits: [1, 0] from rings [4, 5]
-[2025-04-03 20:36:47,267] I ThreadPoolExecutor-0_7 - extract_frame_pair:506 - [P:36, R:5] s1=180.6195, s2=181.3265, ratio=0.9961 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:47,275] I ThreadPoolExecutor-0_7 - extract_frame_pair_multi_ring:537 - [P:36] Multi-ring extracted bits: [1, 1] from rings [4, 5]
-[2025-04-03 20:36:47,338] I ThreadPoolExecutor-0_10 - extract_frame_pair:506 - [P:40, R:4] s1=186.4704, s2=186.8826, ratio=0.9978 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:47,368] I ThreadPoolExecutor-0_9 - extract_frame_pair:506 - [P:37, R:5] s1=180.8281, s2=181.3855, ratio=0.9969 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:47,369] I ThreadPoolExecutor-0_9 - extract_frame_pair_multi_ring:537 - [P:37] Multi-ring extracted bits: [0, 1] from rings [4, 5]
-[2025-04-03 20:36:47,373] I ThreadPoolExecutor-0_17 - extract_frame_pair:506 - [P:39, R:5] s1=181.3780, s2=180.8213, ratio=1.0031 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:47,374] I ThreadPoolExecutor-0_17 - extract_frame_pair_multi_ring:537 - [P:39] Multi-ring extracted bits: [0, 0] from rings [4, 5]
-[2025-04-03 20:36:47,408] I ThreadPoolExecutor-0_2 - extract_frame_pair:506 - [P:34, R:5] s1=180.7106, s2=181.2286, ratio=0.9971 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:47,409] I ThreadPoolExecutor-0_2 - extract_frame_pair_multi_ring:537 - [P:34] Multi-ring extracted bits: [0, 1] from rings [4, 5]
-[2025-04-03 20:36:47,743] I ThreadPoolExecutor-0_0 - extract_frame_pair:506 - [P:42, R:4] s1=186.2790, s2=186.8604, ratio=0.9969 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:47,791] I ThreadPoolExecutor-0_3 - extract_frame_pair:506 - [P:41, R:4] s1=186.8828, s2=186.5238, ratio=1.0019 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:47,808] I ThreadPoolExecutor-0_12 - extract_frame_pair:506 - [P:43, R:4] s1=186.0863, s2=186.7166, ratio=0.9966 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:47,963] I ThreadPoolExecutor-0_15 - extract_frame_pair:506 - [P:47, R:4] s1=185.8411, s2=186.1741, ratio=0.9982 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:47,965] I ThreadPoolExecutor-0_4 - extract_frame_pair:506 - [P:46, R:4] s1=186.3842, s2=185.6680, ratio=1.0039 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:48,066] I ThreadPoolExecutor-0_11 - extract_frame_pair:506 - [P:45, R:4] s1=186.0302, s2=186.3790, ratio=0.9981 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:48,609] I ThreadPoolExecutor-0_18 - extract_frame_pair:506 - [P:50, R:4] s1=186.0912, s2=186.4113, ratio=0.9983 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:48,616] I ThreadPoolExecutor-0_19 - extract_frame_pair:506 - [P:53, R:4] s1=186.4003, s2=185.6930, ratio=1.0038 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:48,790] I ThreadPoolExecutor-0_0 - extract_frame_pair:506 - [P:42, R:5] s1=181.3956, s2=181.0794, ratio=1.0017 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:48,791] I ThreadPoolExecutor-0_0 - extract_frame_pair_multi_ring:537 - [P:42] Multi-ring extracted bits: [1, 0] from rings [4, 5]
-[2025-04-03 20:36:49,028] I ThreadPoolExecutor-0_12 - extract_frame_pair:506 - [P:43, R:5] s1=180.4026, s2=181.0770, ratio=0.9963 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:49,029] I ThreadPoolExecutor-0_12 - extract_frame_pair_multi_ring:537 - [P:43] Multi-ring extracted bits: [1, 1] from rings [4, 5]
-[2025-04-03 20:36:49,115] I ThreadPoolExecutor-0_9 - extract_frame_pair:506 - [P:57, R:4] s1=185.9524, s2=185.5838, ratio=1.0020 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:49,390] I ThreadPoolExecutor-0_8 - extract_frame_pair:506 - [P:55, R:4] s1=185.9847, s2=185.5842, ratio=1.0022 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:49,507] I ThreadPoolExecutor-0_16 - extract_frame_pair:506 - [P:54, R:4] s1=186.1485, s2=185.6087, ratio=1.0029 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:49,544] I ThreadPoolExecutor-0_10 - extract_frame_pair:506 - [P:40, R:5] s1=180.6967, s2=181.2868, ratio=0.9967 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:49,546] I ThreadPoolExecutor-0_10 - extract_frame_pair_multi_ring:537 - [P:40] Multi-ring extracted bits: [1, 1] from rings [4, 5]
-[2025-04-03 20:36:49,615] I ThreadPoolExecutor-0_13 - extract_frame_pair:506 - [P:48, R:4] s1=186.3362, s2=185.8626, ratio=1.0025 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:49,638] I ThreadPoolExecutor-0_6 - extract_frame_pair:506 - [P:49, R:4] s1=186.0464, s2=186.3878, ratio=0.9982 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:49,638] I ThreadPoolExecutor-0_5 - extract_frame_pair:506 - [P:51, R:4] s1=186.0965, s2=186.4023, ratio=0.9984 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:49,657] I ThreadPoolExecutor-0_1 - extract_frame_pair:506 - [P:52, R:4] s1=186.1024, s2=186.4107, ratio=0.9983 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:49,661] I ThreadPoolExecutor-0_14 - extract_frame_pair:506 - [P:44, R:4] s1=186.1880, s2=186.4289, ratio=0.9987 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:49,836] I ThreadPoolExecutor-0_17 - extract_frame_pair:506 - [P:58, R:4] s1=185.9406, s2=185.6240, ratio=1.0017 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:49,856] I ThreadPoolExecutor-0_11 - extract_frame_pair:506 - [P:45, R:7] s1=69.8360, s2=69.8631, ratio=0.9996 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:49,857] I ThreadPoolExecutor-0_11 - extract_frame_pair_multi_ring:537 - [P:45] Multi-ring extracted bits: [1, 1] from rings [4, 7]
-[2025-04-03 20:36:49,947] I ThreadPoolExecutor-0_7 - extract_frame_pair:506 - [P:56, R:4] s1=185.9563, s2=185.5941, ratio=1.0020 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:50,075] I ThreadPoolExecutor-0_3 - extract_frame_pair:506 - [P:41, R:5] s1=180.7929, s2=181.3598, ratio=0.9969 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:50,075] I ThreadPoolExecutor-0_3 - extract_frame_pair_multi_ring:537 - [P:41] Multi-ring extracted bits: [0, 1] from rings [4, 5]
-[2025-04-03 20:36:50,256] I ThreadPoolExecutor-0_2 - extract_frame_pair:506 - [P:59, R:4] s1=185.1355, s2=185.3230, ratio=0.9990 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:50,481] I ThreadPoolExecutor-0_4 - extract_frame_pair:506 - [P:46, R:7] s1=69.8555, s2=69.8599, ratio=0.9999 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:50,482] I ThreadPoolExecutor-0_4 - extract_frame_pair_multi_ring:537 - [P:46] Multi-ring extracted bits: [0, 1] from rings [4, 7]
-[2025-04-03 20:36:50,502] I ThreadPoolExecutor-0_15 - extract_frame_pair:506 - [P:47, R:7] s1=69.8465, s2=69.8583, ratio=0.9998 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:50,504] I ThreadPoolExecutor-0_15 - extract_frame_pair_multi_ring:537 - [P:47] Multi-ring extracted bits: [1, 1] from rings [4, 7]
-[2025-04-03 20:36:50,623] I ThreadPoolExecutor-0_19 - extract_frame_pair:506 - [P:53, R:7] s1=69.8100, s2=69.7669, ratio=1.0006 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:50,626] I ThreadPoolExecutor-0_19 - extract_frame_pair_multi_ring:537 - [P:53] Multi-ring extracted bits: [0, 0] from rings [4, 7]
-[2025-04-03 20:36:50,628] I ThreadPoolExecutor-0_18 - extract_frame_pair:506 - [P:50, R:7] s1=69.8247, s2=69.8374, ratio=0.9998 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:50,629] I ThreadPoolExecutor-0_18 - extract_frame_pair_multi_ring:537 - [P:50] Multi-ring extracted bits: [1, 1] from rings [4, 7]
-[2025-04-03 20:36:50,730] I ThreadPoolExecutor-0_12 - extract_frame_pair:506 - [P:61, R:4] s1=185.1544, s2=185.7086, ratio=0.9970 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:50,737] I ThreadPoolExecutor-0_0 - extract_frame_pair:506 - [P:60, R:4] s1=184.9321, s2=185.3856, ratio=0.9976 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:50,964] I ThreadPoolExecutor-0_9 - extract_frame_pair:506 - [P:57, R:7] s1=69.7107, s2=69.6137, ratio=1.0014 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:50,979] I ThreadPoolExecutor-0_9 - extract_frame_pair_multi_ring:537 - [P:57] Multi-ring extracted bits: [0, 0] from rings [4, 7]
-[2025-04-03 20:36:50,983] I ThreadPoolExecutor-0_8 - extract_frame_pair:506 - [P:55, R:7] s1=69.7908, s2=69.7224, ratio=1.0010 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:50,984] I ThreadPoolExecutor-0_8 - extract_frame_pair_multi_ring:537 - [P:55] Multi-ring extracted bits: [0, 0] from rings [4, 7]
-[2025-04-03 20:36:51,456] I ThreadPoolExecutor-0_16 - extract_frame_pair:506 - [P:54, R:7] s1=69.7655, s2=69.7887, ratio=0.9997 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:51,458] I ThreadPoolExecutor-0_16 - extract_frame_pair_multi_ring:537 - [P:54] Multi-ring extracted bits: [0, 1] from rings [4, 7]
-[2025-04-03 20:36:51,505] I ThreadPoolExecutor-0_10 - extract_frame_pair:506 - [P:62, R:4] s1=185.5981, s2=186.0289, ratio=0.9977 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:51,530] I ThreadPoolExecutor-0_13 - extract_frame_pair:506 - [P:48, R:7] s1=69.8264, s2=69.8537, ratio=0.9996 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:51,539] I ThreadPoolExecutor-0_13 - extract_frame_pair_multi_ring:537 - [P:48] Multi-ring extracted bits: [0, 1] from rings [4, 7]
-[2025-04-03 20:36:51,651] I ThreadPoolExecutor-0_5 - extract_frame_pair:506 - [P:51, R:7] s1=69.8267, s2=69.8291, ratio=1.0000 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:51,652] I ThreadPoolExecutor-0_5 - extract_frame_pair_multi_ring:537 - [P:51] Multi-ring extracted bits: [1, 1] from rings [4, 7]
-[2025-04-03 20:36:51,700] I ThreadPoolExecutor-0_14 - extract_frame_pair:506 - [P:44, R:7] s1=69.9957, s2=69.7332, ratio=1.0038 vs thr=1.0002 -> Bit=0
-[2025-04-03 20:36:51,701] I ThreadPoolExecutor-0_14 - extract_frame_pair_multi_ring:537 - [P:44] Multi-ring extracted bits: [1, 0] from rings [4, 7]
-[2025-04-03 20:36:51,727] I ThreadPoolExecutor-0_6 - extract_frame_pair:506 - [P:49, R:7] s1=69.8335, s2=69.8358, ratio=1.0000 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:51,729] I ThreadPoolExecutor-0_6 - extract_frame_pair_multi_ring:537 - [P:49] Multi-ring extracted bits: [1, 1] from rings [4, 7]
-[2025-04-03 20:36:51,739] I ThreadPoolExecutor-0_11 - extract_frame_pair:506 - [P:63, R:4] s1=186.0311, s2=185.6703, ratio=1.0019 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:51,827] I ThreadPoolExecutor-0_1 - extract_frame_pair:506 - [P:52, R:7] s1=69.8354, s2=69.7886, ratio=1.0007 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:51,833] I ThreadPoolExecutor-0_1 - extract_frame_pair_multi_ring:537 - [P:52] Multi-ring extracted bits: [1, 0] from rings [4, 7]
-[2025-04-03 20:36:51,839] I ThreadPoolExecutor-0_17 - extract_frame_pair:506 - [P:58, R:7] s1=69.6139, s2=69.6255, ratio=0.9998 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:51,844] I ThreadPoolExecutor-0_17 - extract_frame_pair_multi_ring:537 - [P:58] Multi-ring extracted bits: [0, 1] from rings [4, 7]
-[2025-04-03 20:36:51,990] I ThreadPoolExecutor-0_7 - extract_frame_pair:506 - [P:56, R:7] s1=69.7427, s2=69.7092, ratio=1.0005 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:51,991] I ThreadPoolExecutor-0_7 - extract_frame_pair_multi_ring:537 - [P:56] Multi-ring extracted bits: [0, 0] from rings [4, 7]
-[2025-04-03 20:36:52,064] I ThreadPoolExecutor-0_3 - extract_frame_pair:506 - [P:64, R:4] s1=186.1347, s2=185.8189, ratio=1.0017 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:52,096] I ThreadPoolExecutor-0_2 - extract_frame_pair:506 - [P:59, R:7] s1=69.4886, s2=69.4491, ratio=1.0006 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:52,098] I ThreadPoolExecutor-0_2 - extract_frame_pair_multi_ring:537 - [P:59] Multi-ring extracted bits: [1, 0] from rings [4, 7]
-[2025-04-03 20:36:52,222] I ThreadPoolExecutor-0_4 - extract_frame_pair:506 - [P:65, R:4] s1=186.2113, s2=185.7221, ratio=1.0026 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:52,245] I ThreadPoolExecutor-0_15 - extract_frame_pair:506 - [P:66, R:4] s1=186.2487, s2=185.7649, ratio=1.0026 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:52,255] I ThreadPoolExecutor-0_19 - extract_frame_pair:506 - [P:67, R:4] s1=185.6997, s2=185.8989, ratio=0.9989 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:52,369] I ThreadPoolExecutor-0_0 - extract_frame_pair:506 - [P:60, R:5] s1=181.2072, s2=180.7001, ratio=1.0028 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:52,370] I ThreadPoolExecutor-0_0 - extract_frame_pair_multi_ring:537 - [P:60] Multi-ring extracted bits: [1, 0] from rings [4, 5]
-[2025-04-03 20:36:52,460] I ThreadPoolExecutor-0_12 - extract_frame_pair:506 - [P:61, R:5] s1=181.3210, s2=180.8250, ratio=1.0027 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:52,463] I ThreadPoolExecutor-0_12 - extract_frame_pair_multi_ring:537 - [P:61] Multi-ring extracted bits: [1, 0] from rings [4, 5]
-[2025-04-03 20:36:52,620] I ThreadPoolExecutor-0_18 - extract_frame_pair:506 - [P:68, R:4] s1=185.5640, s2=185.9627, ratio=0.9979 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:52,979] I ThreadPoolExecutor-0_8 - extract_frame_pair:506 - [P:70, R:4] s1=185.4729, s2=185.8445, ratio=0.9980 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:53,151] I ThreadPoolExecutor-0_9 - extract_frame_pair:506 - [P:69, R:4] s1=185.9700, s2=185.4548, ratio=1.0028 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:53,469] I ThreadPoolExecutor-0_16 - extract_frame_pair:506 - [P:71, R:4] s1=185.8620, s2=185.3871, ratio=1.0026 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:53,531] I ThreadPoolExecutor-0_13 - extract_frame_pair:506 - [P:72, R:4] s1=185.3284, s2=185.7850, ratio=0.9975 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:53,553] I ThreadPoolExecutor-0_11 - extract_frame_pair:506 - [P:63, R:5] s1=180.8591, s2=181.2234, ratio=0.9980 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:53,554] I ThreadPoolExecutor-0_11 - extract_frame_pair_multi_ring:537 - [P:63] Multi-ring extracted bits: [0, 1] from rings [4, 5]
-[2025-04-03 20:36:53,576] I ThreadPoolExecutor-0_10 - extract_frame_pair:506 - [P:62, R:5] s1=180.8222, s2=181.3261, ratio=0.9972 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:53,578] I ThreadPoolExecutor-0_5 - extract_frame_pair:506 - [P:73, R:4] s1=185.7842, s2=185.3617, ratio=1.0023 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:53,578] I ThreadPoolExecutor-0_10 - extract_frame_pair_multi_ring:537 - [P:62] Multi-ring extracted bits: [1, 1] from rings [4, 5]
-[2025-04-03 20:36:53,600] I ThreadPoolExecutor-0_14 - extract_frame_pair:506 - [P:74, R:4] s1=185.3734, s2=185.7799, ratio=0.9978 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:53,611] I ThreadPoolExecutor-0_7 - extract_frame_pair:506 - [P:78, R:4] s1=186.3319, s2=185.8267, ratio=1.0027 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:53,633] I ThreadPoolExecutor-0_1 - extract_frame_pair:506 - [P:76, R:4] s1=185.6767, s2=186.0223, ratio=0.9981 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:53,740] I ThreadPoolExecutor-0_6 - extract_frame_pair:506 - [P:75, R:4] s1=185.4486, s2=185.8073, ratio=0.9981 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:53,745] I ThreadPoolExecutor-0_3 - extract_frame_pair:506 - [P:64, R:5] s1=180.7888, s2=181.2888, ratio=0.9972 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:53,748] I ThreadPoolExecutor-0_3 - extract_frame_pair_multi_ring:537 - [P:64] Multi-ring extracted bits: [0, 1] from rings [4, 5]
-[2025-04-03 20:36:54,174] I ThreadPoolExecutor-0_0 - extract_frame_pair:506 - [P:80, R:4] s1=186.2236, s2=185.7501, ratio=1.0025 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:54,176] I ThreadPoolExecutor-0_2 - extract_frame_pair:506 - [P:79, R:4] s1=185.8504, s2=186.2176, ratio=0.9980 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:54,240] I ThreadPoolExecutor-0_15 - extract_frame_pair:506 - [P:66, R:5] s1=180.6389, s2=181.1584, ratio=0.9971 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:54,243] I ThreadPoolExecutor-0_15 - extract_frame_pair_multi_ring:537 - [P:66] Multi-ring extracted bits: [0, 1] from rings [4, 5]
-[2025-04-03 20:36:54,332] I ThreadPoolExecutor-0_12 - extract_frame_pair:506 - [P:81, R:4] s1=185.6672, s2=185.9220, ratio=0.9986 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:54,372] I ThreadPoolExecutor-0_17 - extract_frame_pair:506 - [P:77, R:4] s1=185.7123, s2=186.2188, ratio=0.9973 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:54,394] I ThreadPoolExecutor-0_19 - extract_frame_pair:506 - [P:67, R:5] s1=180.6546, s2=181.1462, ratio=0.9973 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:54,395] I ThreadPoolExecutor-0_19 - extract_frame_pair_multi_ring:537 - [P:67] Multi-ring extracted bits: [1, 1] from rings [4, 5]
-[2025-04-03 20:36:54,434] I ThreadPoolExecutor-0_18 - extract_frame_pair:506 - [P:68, R:5] s1=180.7752, s2=181.3049, ratio=0.9971 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:54,434] I ThreadPoolExecutor-0_18 - extract_frame_pair_multi_ring:537 - [P:68] Multi-ring extracted bits: [1, 1] from rings [4, 5]
-[2025-04-03 20:36:54,473] I ThreadPoolExecutor-0_4 - extract_frame_pair:506 - [P:65, R:5] s1=181.3006, s2=180.7102, ratio=1.0033 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:54,477] I ThreadPoolExecutor-0_4 - extract_frame_pair_multi_ring:537 - [P:65] Multi-ring extracted bits: [0, 0] from rings [4, 5]
-[2025-04-03 20:36:54,640] I ThreadPoolExecutor-0_8 - extract_frame_pair:506 - [P:70, R:5] s1=181.3097, s2=180.7678, ratio=1.0030 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:54,640] I ThreadPoolExecutor-0_8 - extract_frame_pair_multi_ring:537 - [P:70] Multi-ring extracted bits: [1, 0] from rings [4, 5]
-[2025-04-03 20:36:54,655] I ThreadPoolExecutor-0_9 - extract_frame_pair:506 - [P:69, R:5] s1=180.7765, s2=181.2824, ratio=0.9972 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:54,660] I ThreadPoolExecutor-0_9 - extract_frame_pair_multi_ring:537 - [P:69] Multi-ring extracted bits: [0, 1] from rings [4, 5]
-[2025-04-03 20:36:54,773] I ThreadPoolExecutor-0_11 - extract_frame_pair:506 - [P:82, R:4] s1=185.5529, s2=185.9079, ratio=0.9981 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:55,111] I ThreadPoolExecutor-0_10 - extract_frame_pair:506 - [P:83, R:4] s1=185.5088, s2=185.8493, ratio=0.9982 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:55,361] I ThreadPoolExecutor-0_7 - extract_frame_pair:506 - [P:78, R:5] s1=180.6358, s2=181.1433, ratio=0.9972 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:55,363] I ThreadPoolExecutor-0_7 - extract_frame_pair_multi_ring:537 - [P:78] Multi-ring extracted bits: [0, 1] from rings [4, 5]
-[2025-04-03 20:36:55,444] I ThreadPoolExecutor-0_13 - extract_frame_pair:506 - [P:72, R:5] s1=180.6260, s2=181.2294, ratio=0.9967 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:55,448] I ThreadPoolExecutor-0_13 - extract_frame_pair_multi_ring:537 - [P:72] Multi-ring extracted bits: [1, 1] from rings [4, 5]
-[2025-04-03 20:36:55,516] I ThreadPoolExecutor-0_14 - extract_frame_pair:506 - [P:74, R:5] s1=181.2969, s2=180.7988, ratio=1.0028 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:55,518] I ThreadPoolExecutor-0_14 - extract_frame_pair_multi_ring:537 - [P:74] Multi-ring extracted bits: [1, 0] from rings [4, 5]
-[2025-04-03 20:36:55,532] I ThreadPoolExecutor-0_16 - extract_frame_pair:506 - [P:71, R:5] s1=181.2575, s2=180.6667, ratio=1.0033 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:55,534] I ThreadPoolExecutor-0_16 - extract_frame_pair_multi_ring:537 - [P:71] Multi-ring extracted bits: [0, 0] from rings [4, 5]
-[2025-04-03 20:36:55,587] I ThreadPoolExecutor-0_3 - extract_frame_pair:506 - [P:84, R:4] s1=185.5205, s2=186.0640, ratio=0.9971 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:55,606] I ThreadPoolExecutor-0_1 - extract_frame_pair:506 - [P:76, R:5] s1=181.3602, s2=180.8381, ratio=1.0029 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:55,607] I ThreadPoolExecutor-0_1 - extract_frame_pair_multi_ring:537 - [P:76] Multi-ring extracted bits: [1, 0] from rings [4, 5]
-[2025-04-03 20:36:55,613] I ThreadPoolExecutor-0_6 - extract_frame_pair:506 - [P:75, R:5] s1=180.8100, s2=181.3363, ratio=0.9971 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:55,614] I ThreadPoolExecutor-0_6 - extract_frame_pair_multi_ring:537 - [P:75] Multi-ring extracted bits: [1, 1] from rings [4, 5]
-[2025-04-03 20:36:55,615] I ThreadPoolExecutor-0_5 - extract_frame_pair:506 - [P:73, R:5] s1=180.7805, s2=181.2349, ratio=0.9975 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:55,620] I ThreadPoolExecutor-0_5 - extract_frame_pair_multi_ring:537 - [P:73] Multi-ring extracted bits: [0, 1] from rings [4, 5]
-[2025-04-03 20:36:55,633] I ThreadPoolExecutor-0_2 - extract_frame_pair:506 - [P:79, R:5] s1=180.6521, s2=181.1002, ratio=0.9975 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:55,635] I ThreadPoolExecutor-0_2 - extract_frame_pair_multi_ring:537 - [P:79] Multi-ring extracted bits: [1, 1] from rings [4, 5]
-[2025-04-03 20:36:55,664] I ThreadPoolExecutor-0_0 - extract_frame_pair:506 - [P:80, R:5] s1=180.6553, s2=181.1076, ratio=0.9975 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:55,667] I ThreadPoolExecutor-0_0 - extract_frame_pair_multi_ring:537 - [P:80] Multi-ring extracted bits: [0, 1] from rings [4, 5]
-[2025-04-03 20:36:55,730] I ThreadPoolExecutor-0_15 - extract_frame_pair:506 - [P:85, R:4] s1=186.1133, s2=185.6150, ratio=1.0027 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:55,738] I ThreadPoolExecutor-0_19 - extract_frame_pair:506 - [P:86, R:4] s1=186.0928, s2=185.7174, ratio=1.0020 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:55,762] I ThreadPoolExecutor-0_12 - extract_frame_pair:506 - [P:81, R:5] s1=180.6054, s2=181.0835, ratio=0.9974 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:55,764] I ThreadPoolExecutor-0_12 - extract_frame_pair_multi_ring:537 - [P:81] Multi-ring extracted bits: [1, 1] from rings [4, 5]
-[2025-04-03 20:36:55,821] I ThreadPoolExecutor-0_17 - extract_frame_pair:506 - [P:77, R:5] s1=180.7779, s2=181.2176, ratio=0.9976 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:55,822] I ThreadPoolExecutor-0_17 - extract_frame_pair_multi_ring:537 - [P:77] Multi-ring extracted bits: [1, 1] from rings [4, 5]
-[2025-04-03 20:36:55,937] I ThreadPoolExecutor-0_4 - extract_frame_pair:506 - [P:88, R:4] s1=186.2152, s2=185.7980, ratio=1.0022 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:55,962] I ThreadPoolExecutor-0_18 - extract_frame_pair:506 - [P:87, R:4] s1=186.1471, s2=185.7017, ratio=1.0024 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:56,273] I ThreadPoolExecutor-0_8 - extract_frame_pair:506 - [P:89, R:4] s1=186.1417, s2=185.7760, ratio=1.0020 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:56,302] I ThreadPoolExecutor-0_9 - extract_frame_pair:506 - [P:90, R:4] s1=186.3021, s2=185.7641, ratio=1.0029 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:56,475] I ThreadPoolExecutor-0_11 - extract_frame_pair:506 - [P:82, R:5] s1=180.8510, s2=181.4279, ratio=0.9968 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:56,476] I ThreadPoolExecutor-0_11 - extract_frame_pair_multi_ring:537 - [P:82] Multi-ring extracted bits: [1, 1] from rings [4, 5]
-[2025-04-03 20:36:56,546] I ThreadPoolExecutor-0_10 - extract_frame_pair:506 - [P:83, R:5] s1=180.9743, s2=181.5523, ratio=0.9968 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:56,547] I ThreadPoolExecutor-0_10 - extract_frame_pair_multi_ring:537 - [P:83] Multi-ring extracted bits: [1, 1] from rings [4, 5]
-[2025-04-03 20:36:56,786] I ThreadPoolExecutor-0_7 - extract_frame_pair:506 - [P:91, R:4] s1=185.6770, s2=185.8750, ratio=0.9989 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:56,963] I ThreadPoolExecutor-0_13 - extract_frame_pair:506 - [P:92, R:4] s1=185.4809, s2=185.7320, ratio=0.9986 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:57,026] I ThreadPoolExecutor-0_16 - extract_frame_pair:506 - [P:94, R:4] s1=185.6218, s2=186.1299, ratio=0.9973 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:57,110] I ThreadPoolExecutor-0_14 - extract_frame_pair:506 - [P:93, R:4] s1=185.4015, s2=185.6554, ratio=0.9986 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:57,210] I ThreadPoolExecutor-0_6 - extract_frame_pair:506 - [P:96, R:4] s1=186.3376, s2=185.8658, ratio=1.0025 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:57,318] I ThreadPoolExecutor-0_1 - extract_frame_pair:506 - [P:95, R:4] s1=186.1511, s2=185.7561, ratio=1.0021 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:57,333] I ThreadPoolExecutor-0_3 - extract_frame_pair:506 - [P:84, R:5] s1=181.6538, s2=181.0004, ratio=1.0036 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:57,336] I ThreadPoolExecutor-0_3 - extract_frame_pair_multi_ring:537 - [P:84] Multi-ring extracted bits: [1, 0] from rings [4, 5]
-[2025-04-03 20:36:57,370] I ThreadPoolExecutor-0_0 - extract_frame_pair:506 - [P:99, R:4] s1=185.6586, s2=185.8903, ratio=0.9988 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:57,400] I ThreadPoolExecutor-0_5 - extract_frame_pair:506 - [P:97, R:4] s1=186.2702, s2=185.8345, ratio=1.0023 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:57,415] I ThreadPoolExecutor-0_12 - extract_frame_pair:506 - [P:100, R:4] s1=185.5004, s2=185.9685, ratio=0.9975 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:57,468] I ThreadPoolExecutor-0_17 - extract_frame_pair:506 - [P:101, R:4] s1=185.9613, s2=185.4667, ratio=1.0027 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:57,481] I ThreadPoolExecutor-0_2 - extract_frame_pair:506 - [P:98, R:4] s1=186.1983, s2=185.6973, ratio=1.0027 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:57,486] I ThreadPoolExecutor-0_19 - extract_frame_pair:506 - [P:86, R:5] s1=180.8947, s2=181.3238, ratio=0.9976 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:57,489] I ThreadPoolExecutor-0_19 - extract_frame_pair_multi_ring:537 - [P:86] Multi-ring extracted bits: [0, 1] from rings [4, 5]
-[2025-04-03 20:36:57,505] I ThreadPoolExecutor-0_15 - extract_frame_pair:506 - [P:85, R:5] s1=181.5189, s2=180.8909, ratio=1.0035 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:57,508] I ThreadPoolExecutor-0_15 - extract_frame_pair_multi_ring:537 - [P:85] Multi-ring extracted bits: [0, 0] from rings [4, 5]
-[2025-04-03 20:36:57,632] I ThreadPoolExecutor-0_18 - extract_frame_pair:506 - [P:87, R:5] s1=181.3493, s2=180.7548, ratio=1.0033 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:57,633] I ThreadPoolExecutor-0_18 - extract_frame_pair_multi_ring:537 - [P:87] Multi-ring extracted bits: [0, 0] from rings [4, 5]
-[2025-04-03 20:36:57,641] I ThreadPoolExecutor-0_4 - extract_frame_pair:506 - [P:88, R:5] s1=181.4883, s2=180.9873, ratio=1.0028 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:57,644] I ThreadPoolExecutor-0_4 - extract_frame_pair_multi_ring:537 - [P:88] Multi-ring extracted bits: [0, 0] from rings [4, 5]
-[2025-04-03 20:36:57,780] I ThreadPoolExecutor-0_8 - extract_frame_pair:506 - [P:89, R:5] s1=181.0092, s2=181.5023, ratio=0.9973 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:57,784] I ThreadPoolExecutor-0_8 - extract_frame_pair_multi_ring:537 - [P:89] Multi-ring extracted bits: [0, 1] from rings [4, 5]
-[2025-04-03 20:36:57,798] I ThreadPoolExecutor-0_11 - extract_frame_pair:506 - [P:102, R:4] s1=185.5491, s2=185.5643, ratio=0.9999 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:57,807] I ThreadPoolExecutor-0_9 - extract_frame_pair:506 - [P:90, R:5] s1=181.6012, s2=181.0159, ratio=1.0032 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:57,813] I ThreadPoolExecutor-0_9 - extract_frame_pair_multi_ring:537 - [P:90] Multi-ring extracted bits: [0, 0] from rings [4, 5]
-[2025-04-03 20:36:58,319] I ThreadPoolExecutor-0_10 - extract_frame_pair:506 - [P:103, R:4] s1=185.0569, s2=184.0494, ratio=1.0055 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:58,643] I ThreadPoolExecutor-0_13 - extract_frame_pair:506 - [P:92, R:5] s1=181.4204, s2=180.9172, ratio=1.0028 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:58,645] I ThreadPoolExecutor-0_13 - extract_frame_pair_multi_ring:537 - [P:92] Multi-ring extracted bits: [1, 0] from rings [4, 5]
-[2025-04-03 20:36:58,674] I ThreadPoolExecutor-0_16 - extract_frame_pair:506 - [P:94, R:5] s1=180.7121, s2=181.1799, ratio=0.9974 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:58,675] I ThreadPoolExecutor-0_16 - extract_frame_pair_multi_ring:537 - [P:94] Multi-ring extracted bits: [1, 1] from rings [4, 5]
-[2025-04-03 20:36:58,691] I ThreadPoolExecutor-0_7 - extract_frame_pair:506 - [P:91, R:5] s1=181.5123, s2=180.9579, ratio=1.0031 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:58,691] I ThreadPoolExecutor-0_7 - extract_frame_pair_multi_ring:537 - [P:91] Multi-ring extracted bits: [1, 0] from rings [4, 5]
-[2025-04-03 20:36:58,714] I ThreadPoolExecutor-0_14 - extract_frame_pair:506 - [P:93, R:5] s1=181.3629, s2=180.7637, ratio=1.0033 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:58,715] I ThreadPoolExecutor-0_14 - extract_frame_pair_multi_ring:537 - [P:93] Multi-ring extracted bits: [1, 0] from rings [4, 5]
-[2025-04-03 20:36:58,719] I ThreadPoolExecutor-0_1 - extract_frame_pair:506 - [P:95, R:5] s1=180.7295, s2=181.1398, ratio=0.9977 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:58,720] I ThreadPoolExecutor-0_1 - extract_frame_pair_multi_ring:537 - [P:95] Multi-ring extracted bits: [0, 1] from rings [4, 5]
-[2025-04-03 20:36:58,721] I ThreadPoolExecutor-0_6 - extract_frame_pair:506 - [P:96, R:5] s1=180.5482, s2=181.0719, ratio=0.9971 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:58,723] I ThreadPoolExecutor-0_6 - extract_frame_pair_multi_ring:537 - [P:96] Multi-ring extracted bits: [0, 1] from rings [4, 5]
-[2025-04-03 20:36:58,730] I ThreadPoolExecutor-0_3 - extract_frame_pair:506 - [P:104, R:4] s1=183.5886, s2=184.2057, ratio=0.9967 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:58,783] I ThreadPoolExecutor-0_5 - extract_frame_pair:506 - [P:97, R:5] s1=181.0883, s2=180.5507, ratio=1.0030 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:58,786] I ThreadPoolExecutor-0_5 - extract_frame_pair_multi_ring:537 - [P:97] Multi-ring extracted bits: [0, 0] from rings [4, 5]
-[2025-04-03 20:36:58,806] I ThreadPoolExecutor-0_12 - extract_frame_pair:506 - [P:100, R:5] s1=180.6972, s2=181.2537, ratio=0.9969 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:58,811] I ThreadPoolExecutor-0_12 - extract_frame_pair_multi_ring:537 - [P:100] Multi-ring extracted bits: [1, 1] from rings [4, 5]
-[2025-04-03 20:36:58,821] I ThreadPoolExecutor-0_0 - extract_frame_pair:506 - [P:99, R:5] s1=180.5376, s2=181.0126, ratio=0.9974 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:58,827] I ThreadPoolExecutor-0_0 - extract_frame_pair_multi_ring:537 - [P:99] Multi-ring extracted bits: [1, 1] from rings [4, 5]
-[2025-04-03 20:36:58,882] I ThreadPoolExecutor-0_2 - extract_frame_pair:506 - [P:98, R:5] s1=180.5502, s2=180.9967, ratio=0.9975 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:58,884] I ThreadPoolExecutor-0_2 - extract_frame_pair_multi_ring:537 - [P:98] Multi-ring extracted bits: [0, 1] from rings [4, 5]
-[2025-04-03 20:36:58,890] I ThreadPoolExecutor-0_15 - extract_frame_pair:506 - [P:106, R:4] s1=183.5665, s2=183.9828, ratio=0.9977 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:59,333] I ThreadPoolExecutor-0_17 - extract_frame_pair:506 - [P:101, R:5] s1=180.8619, s2=181.3637, ratio=0.9972 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:59,340] I ThreadPoolExecutor-0_17 - extract_frame_pair_multi_ring:537 - [P:101] Multi-ring extracted bits: [0, 1] from rings [4, 5]
-[2025-04-03 20:36:59,404] I ThreadPoolExecutor-0_18 - extract_frame_pair:506 - [P:107, R:4] s1=183.6669, s2=184.0316, ratio=0.9980 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:59,542] I ThreadPoolExecutor-0_19 - extract_frame_pair:506 - [P:105, R:4] s1=183.9818, s2=183.5692, ratio=1.0022 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:59,562] I ThreadPoolExecutor-0_8 - extract_frame_pair:506 - [P:109, R:4] s1=183.6572, s2=183.9919, ratio=0.9982 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:59,585] I ThreadPoolExecutor-0_4 - extract_frame_pair:506 - [P:108, R:4] s1=183.5764, s2=183.9964, ratio=0.9977 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:59,603] I ThreadPoolExecutor-0_9 - extract_frame_pair:506 - [P:110, R:4] s1=183.9951, s2=183.3508, ratio=1.0035 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:59,611] I ThreadPoolExecutor-0_11 - extract_frame_pair:506 - [P:102, R:5] s1=181.4668, s2=180.4106, ratio=1.0059 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:59,619] I ThreadPoolExecutor-0_11 - extract_frame_pair_multi_ring:537 - [P:102] Multi-ring extracted bits: [1, 0] from rings [4, 5]
-[2025-04-03 20:36:59,797] I ThreadPoolExecutor-0_10 - extract_frame_pair:506 - [P:103, R:5] s1=180.9617, s2=180.0382, ratio=1.0051 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:36:59,797] I ThreadPoolExecutor-0_10 - extract_frame_pair_multi_ring:537 - [P:103] Multi-ring extracted bits: [0, 0] from rings [4, 5]
-[2025-04-03 20:36:59,922] I ThreadPoolExecutor-0_7 - extract_frame_pair:506 - [P:113, R:4] s1=183.4205, s2=183.8957, ratio=0.9974 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:59,972] I ThreadPoolExecutor-0_14 - extract_frame_pair:506 - [P:114, R:4] s1=183.4518, s2=183.9057, ratio=0.9975 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:36:59,979] I ThreadPoolExecutor-0_13 - extract_frame_pair:506 - [P:111, R:4] s1=183.4706, s2=183.7864, ratio=0.9983 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:00,380] I ThreadPoolExecutor-0_6 - extract_frame_pair:506 - [P:116, R:4] s1=183.4919, s2=183.8870, ratio=0.9979 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:00,501] I ThreadPoolExecutor-0_1 - extract_frame_pair:506 - [P:115, R:4] s1=183.5061, s2=183.8936, ratio=0.9979 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:00,555] I ThreadPoolExecutor-0_5 - extract_frame_pair:506 - [P:117, R:4] s1=183.8900, s2=183.1609, ratio=1.0040 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:37:00,588] I ThreadPoolExecutor-0_3 - extract_frame_pair:506 - [P:104, R:7] s1=69.8045, s2=69.9141, ratio=0.9984 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:00,589] I ThreadPoolExecutor-0_3 - extract_frame_pair_multi_ring:537 - [P:104] Multi-ring extracted bits: [1, 1] from rings [4, 7]
-[2025-04-03 20:37:00,628] I ThreadPoolExecutor-0_16 - extract_frame_pair:506 - [P:112, R:4] s1=183.8477, s2=183.2801, ratio=1.0031 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:37:00,645] I ThreadPoolExecutor-0_12 - extract_frame_pair:506 - [P:118, R:4] s1=183.5779, s2=183.1568, ratio=1.0023 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:37:00,661] I ThreadPoolExecutor-0_2 - extract_frame_pair:506 - [P:120, R:4] s1=183.7400, s2=183.2503, ratio=1.0027 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:37:00,664] I ThreadPoolExecutor-0_0 - extract_frame_pair:506 - [P:119, R:4] s1=183.5532, s2=183.1358, ratio=1.0023 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:37:00,691] I ThreadPoolExecutor-0_15 - extract_frame_pair:506 - [P:106, R:7] s1=69.9066, s2=69.8301, ratio=1.0011 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:37:00,695] I ThreadPoolExecutor-0_15 - extract_frame_pair_multi_ring:537 - [P:106] Multi-ring extracted bits: [1, 0] from rings [4, 7]
-[2025-04-03 20:37:00,699] I ThreadPoolExecutor-0_18 - extract_frame_pair:506 - [P:107, R:7] s1=69.8424, s2=69.7997, ratio=1.0006 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:37:00,704] I ThreadPoolExecutor-0_18 - extract_frame_pair_multi_ring:537 - [P:107] Multi-ring extracted bits: [1, 0] from rings [4, 7]
-[2025-04-03 20:37:00,725] I ThreadPoolExecutor-0_17 - extract_frame_pair:506 - [P:121, R:4] s1=183.6676, s2=183.1630, ratio=1.0028 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:37:00,865] I ThreadPoolExecutor-0_19 - extract_frame_pair:506 - [P:105, R:7] s1=69.8906, s2=69.9128, ratio=0.9997 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:00,867] I ThreadPoolExecutor-0_19 - extract_frame_pair_multi_ring:537 - [P:105] Multi-ring extracted bits: [0, 1] from rings [4, 7]
-[2025-04-03 20:37:00,932] I ThreadPoolExecutor-0_11 - extract_frame_pair:506 - [P:122, R:4] s1=183.6822, s2=183.3178, ratio=1.0020 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:37:00,948] I ThreadPoolExecutor-0_9 - extract_frame_pair:506 - [P:110, R:7] s1=69.8885, s2=69.9021, ratio=0.9998 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:00,954] I ThreadPoolExecutor-0_9 - extract_frame_pair_multi_ring:537 - [P:110] Multi-ring extracted bits: [0, 1] from rings [4, 7]
-[2025-04-03 20:37:01,075] I ThreadPoolExecutor-0_10 - extract_frame_pair:506 - [P:123, R:4] s1=183.4028, s2=183.8695, ratio=0.9975 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:01,096] I ThreadPoolExecutor-0_8 - extract_frame_pair:506 - [P:109, R:7] s1=69.9022, s2=69.9037, ratio=1.0000 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:01,101] I ThreadPoolExecutor-0_8 - extract_frame_pair_multi_ring:537 - [P:109] Multi-ring extracted bits: [1, 1] from rings [4, 7]
-[2025-04-03 20:37:01,144] I ThreadPoolExecutor-0_4 - extract_frame_pair:506 - [P:108, R:7] s1=69.9162, s2=69.8540, ratio=1.0009 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:37:01,148] I ThreadPoolExecutor-0_4 - extract_frame_pair_multi_ring:537 - [P:108] Multi-ring extracted bits: [1, 0] from rings [4, 7]
-[2025-04-03 20:37:01,757] I ThreadPoolExecutor-0_14 - extract_frame_pair:506 - [P:114, R:7] s1=69.8584, s2=69.8436, ratio=1.0002 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:01,759] I ThreadPoolExecutor-0_14 - extract_frame_pair_multi_ring:537 - [P:114] Multi-ring extracted bits: [1, 1] from rings [4, 7]
-[2025-04-03 20:37:01,790] I ThreadPoolExecutor-0_7 - extract_frame_pair:506 - [P:113, R:7] s1=69.8966, s2=69.8897, ratio=1.0001 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:01,791] I ThreadPoolExecutor-0_7 - extract_frame_pair_multi_ring:537 - [P:113] Multi-ring extracted bits: [1, 1] from rings [4, 7]
-[2025-04-03 20:37:01,797] I ThreadPoolExecutor-0_13 - extract_frame_pair:506 - [P:111, R:7] s1=69.8799, s2=69.9013, ratio=0.9997 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:01,799] I ThreadPoolExecutor-0_13 - extract_frame_pair_multi_ring:537 - [P:111] Multi-ring extracted bits: [1, 1] from rings [4, 7]
-[2025-04-03 20:37:01,829] I ThreadPoolExecutor-0_1 - extract_frame_pair:506 - [P:115, R:7] s1=69.8404, s2=69.8238, ratio=1.0002 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:01,832] I ThreadPoolExecutor-0_1 - extract_frame_pair_multi_ring:537 - [P:115] Multi-ring extracted bits: [1, 1] from rings [4, 7]
-[2025-04-03 20:37:01,854] I ThreadPoolExecutor-0_6 - extract_frame_pair:506 - [P:116, R:7] s1=69.8283, s2=69.8274, ratio=1.0000 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:01,855] I ThreadPoolExecutor-0_6 - extract_frame_pair_multi_ring:537 - [P:116] Multi-ring extracted bits: [1, 1] from rings [4, 7]
-[2025-04-03 20:37:01,908] I ThreadPoolExecutor-0_5 - extract_frame_pair:506 - [P:117, R:7] s1=69.8277, s2=69.7315, ratio=1.0014 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:37:01,915] I ThreadPoolExecutor-0_5 - extract_frame_pair_multi_ring:537 - [P:117] Multi-ring extracted bits: [0, 0] from rings [4, 7]
-[2025-04-03 20:37:01,959] I ThreadPoolExecutor-0_16 - extract_frame_pair:506 - [P:112, R:7] s1=69.9025, s2=69.9026, ratio=1.0000 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:01,961] I ThreadPoolExecutor-0_12 - extract_frame_pair:506 - [P:118, R:7] s1=69.7498, s2=69.7580, ratio=0.9999 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:01,961] I ThreadPoolExecutor-0_16 - extract_frame_pair_multi_ring:537 - [P:112] Multi-ring extracted bits: [0, 1] from rings [4, 7]
-[2025-04-03 20:37:01,963] I ThreadPoolExecutor-0_12 - extract_frame_pair_multi_ring:537 - [P:118] Multi-ring extracted bits: [0, 1] from rings [4, 7]
-[2025-04-03 20:37:01,998] I ThreadPoolExecutor-0_3 - extract_frame_pair:506 - [P:124, R:4] s1=183.4347, s2=183.8714, ratio=0.9976 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:02,062] I ThreadPoolExecutor-0_0 - extract_frame_pair:506 - [P:119, R:7] s1=69.7840, s2=69.7876, ratio=0.9999 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:02,064] I ThreadPoolExecutor-0_0 - extract_frame_pair_multi_ring:537 - [P:119] Multi-ring extracted bits: [0, 1] from rings [4, 7]
-[2025-04-03 20:37:02,163] I ThreadPoolExecutor-0_18 - extract_frame_pair:506 - [P:126, R:4] s1=183.2934, s2=183.9151, ratio=0.9966 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:02,174] I ThreadPoolExecutor-0_2 - extract_frame_pair:506 - [P:120, R:7] s1=69.8098, s2=69.6716, ratio=1.0020 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:37:02,180] I ThreadPoolExecutor-0_2 - extract_frame_pair_multi_ring:537 - [P:120] Multi-ring extracted bits: [0, 0] from rings [4, 7]
-[2025-04-03 20:37:02,215] I ThreadPoolExecutor-0_17 - extract_frame_pair:506 - [P:121, R:7] s1=69.6955, s2=69.7862, ratio=0.9987 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:02,220] I ThreadPoolExecutor-0_17 - extract_frame_pair_multi_ring:537 - [P:121] Multi-ring extracted bits: [0, 1] from rings [4, 7]
-[2025-04-03 20:37:02,264] I ThreadPoolExecutor-0_11 - extract_frame_pair:506 - [P:122, R:7] s1=69.7945, s2=69.7453, ratio=1.0007 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:37:02,266] I ThreadPoolExecutor-0_11 - extract_frame_pair_multi_ring:537 - [P:122] Multi-ring extracted bits: [0, 0] from rings [4, 7]
-[2025-04-03 20:37:02,268] I ThreadPoolExecutor-0_15 - extract_frame_pair:506 - [P:125, R:4] s1=183.1953, s2=183.8695, ratio=0.9963 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:02,304] I ThreadPoolExecutor-0_10 - extract_frame_pair:506 - [P:123, R:7] s1=69.7694, s2=69.7452, ratio=1.0003 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:37:02,305] I ThreadPoolExecutor-0_10 - extract_frame_pair_multi_ring:537 - [P:123] Multi-ring extracted bits: [1, 0] from rings [4, 7]
-[2025-04-03 20:37:02,901] I ThreadPoolExecutor-0_8 - extract_frame_pair:506 - [P:129, R:4] s1=183.8313, s2=183.3823, ratio=1.0024 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:37:02,963] I ThreadPoolExecutor-0_9 - extract_frame_pair:506 - [P:128, R:4] s1=183.8459, s2=183.4225, ratio=1.0023 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:37:02,969] I ThreadPoolExecutor-0_19 - extract_frame_pair:506 - [P:127, R:4] s1=183.8475, s2=183.4427, ratio=1.0022 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:37:03,022] I ThreadPoolExecutor-0_4 - extract_frame_pair:506 - [P:130, R:4] s1=183.8295, s2=183.3559, ratio=1.0026 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:37:03,158] I ThreadPoolExecutor-0_7 - extract_frame_pair:506 - [P:132, R:4] s1=183.2217, s2=183.8273, ratio=0.9967 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:03,193] I ThreadPoolExecutor-0_6 - extract_frame_pair:506 - [P:135, R:4] s1=183.8093, s2=183.3420, ratio=1.0025 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:37:03,220] I ThreadPoolExecutor-0_1 - extract_frame_pair:506 - [P:134, R:4] s1=183.2316, s2=183.8080, ratio=0.9969 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:03,288] I ThreadPoolExecutor-0_12 - extract_frame_pair:506 - [P:138, R:4] s1=183.1219, s2=183.5903, ratio=0.9974 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:03,316] I ThreadPoolExecutor-0_13 - extract_frame_pair:506 - [P:133, R:4] s1=183.8274, s2=183.3829, ratio=1.0024 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:37:03,333] I ThreadPoolExecutor-0_14 - extract_frame_pair:506 - [P:131, R:4] s1=183.0167, s2=183.7035, ratio=0.9963 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:03,374] I ThreadPoolExecutor-0_5 - extract_frame_pair:506 - [P:136, R:4] s1=183.2220, s2=183.7834, ratio=0.9969 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:03,486] I ThreadPoolExecutor-0_16 - extract_frame_pair:506 - [P:137, R:4] s1=183.7797, s2=183.3192, ratio=1.0025 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:37:03,578] I ThreadPoolExecutor-0_0 - extract_frame_pair:506 - [P:139, R:4] s1=182.9903, s2=183.3326, ratio=0.9981 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:03,719] I ThreadPoolExecutor-0_17 - extract_frame_pair:506 - [P:141, R:4] s1=182.9849, s2=183.2904, ratio=0.9983 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:03,812] I ThreadPoolExecutor-0_3 - extract_frame_pair:506 - [P:124, R:7] s1=69.7683, s2=69.7458, ratio=1.0003 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:37:03,813] I ThreadPoolExecutor-0_3 - extract_frame_pair_multi_ring:537 - [P:124] Multi-ring extracted bits: [1, 0] from rings [4, 7]
-[2025-04-03 20:37:03,858] I ThreadPoolExecutor-0_18 - extract_frame_pair:506 - [P:126, R:7] s1=69.9458, s2=69.9934, ratio=0.9993 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:03,859] I ThreadPoolExecutor-0_18 - extract_frame_pair_multi_ring:537 - [P:126] Multi-ring extracted bits: [1, 1] from rings [4, 7]
-[2025-04-03 20:37:03,884] I ThreadPoolExecutor-0_15 - extract_frame_pair:506 - [P:125, R:7] s1=70.0130, s2=69.9721, ratio=1.0006 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:37:03,887] I ThreadPoolExecutor-0_11 - extract_frame_pair:506 - [P:142, R:4] s1=183.0713, s2=182.6484, ratio=1.0023 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:37:03,888] I ThreadPoolExecutor-0_15 - extract_frame_pair_multi_ring:537 - [P:125] Multi-ring extracted bits: [1, 0] from rings [4, 7]
-[2025-04-03 20:37:03,920] I ThreadPoolExecutor-0_2 - extract_frame_pair:506 - [P:140, R:4] s1=182.9953, s2=183.3317, ratio=0.9982 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:03,926] I ThreadPoolExecutor-0_10 - extract_frame_pair:506 - [P:143, R:4] s1=182.4605, s2=183.2093, ratio=0.9959 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:04,388] I ThreadPoolExecutor-0_9 - extract_frame_pair:506 - [P:128, R:7] s1=69.9518, s2=69.9880, ratio=0.9995 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:04,390] I ThreadPoolExecutor-0_9 - extract_frame_pair_multi_ring:537 - [P:128] Multi-ring extracted bits: [0, 1] from rings [4, 7]
-[2025-04-03 20:37:04,479] I ThreadPoolExecutor-0_8 - extract_frame_pair:506 - [P:129, R:7] s1=69.9804, s2=69.9580, ratio=1.0003 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:37:04,482] I ThreadPoolExecutor-0_8 - extract_frame_pair_multi_ring:537 - [P:129] Multi-ring extracted bits: [0, 0] from rings [4, 7]
-[2025-04-03 20:37:04,582] I ThreadPoolExecutor-0_19 - extract_frame_pair:506 - [P:127, R:7] s1=69.8059, s2=69.9680, ratio=0.9977 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:04,586] I ThreadPoolExecutor-0_19 - extract_frame_pair_multi_ring:537 - [P:127] Multi-ring extracted bits: [0, 1] from rings [4, 7]
-[2025-04-03 20:37:04,694] I ThreadPoolExecutor-0_4 - extract_frame_pair:506 - [P:130, R:7] s1=69.9438, s2=69.9511, ratio=0.9999 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:04,695] I ThreadPoolExecutor-0_4 - extract_frame_pair_multi_ring:537 - [P:130] Multi-ring extracted bits: [0, 1] from rings [4, 7]
-[2025-04-03 20:37:04,731] I ThreadPoolExecutor-0_13 - extract_frame_pair:506 - [P:133, R:7] s1=69.7916, s2=69.9752, ratio=0.9974 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:04,732] I ThreadPoolExecutor-0_13 - extract_frame_pair_multi_ring:537 - [P:133] Multi-ring extracted bits: [0, 1] from rings [4, 7]
-[2025-04-03 20:37:04,769] I ThreadPoolExecutor-0_12 - extract_frame_pair:506 - [P:138, R:7] s1=69.9259, s2=69.9058, ratio=1.0003 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:37:04,770] I ThreadPoolExecutor-0_12 - extract_frame_pair_multi_ring:537 - [P:138] Multi-ring extracted bits: [1, 0] from rings [4, 7]
-[2025-04-03 20:37:04,776] I ThreadPoolExecutor-0_7 - extract_frame_pair:506 - [P:132, R:7] s1=69.7571, s2=69.8042, ratio=0.9993 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:04,777] I ThreadPoolExecutor-0_7 - extract_frame_pair_multi_ring:537 - [P:132] Multi-ring extracted bits: [1, 1] from rings [4, 7]
-[2025-04-03 20:37:04,779] I ThreadPoolExecutor-0_1 - extract_frame_pair:506 - [P:134, R:7] s1=69.9740, s2=69.9833, ratio=0.9999 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:04,780] I ThreadPoolExecutor-0_1 - extract_frame_pair_multi_ring:537 - [P:134] Multi-ring extracted bits: [1, 1] from rings [4, 7]
-[2025-04-03 20:37:04,790] I ThreadPoolExecutor-0_6 - extract_frame_pair:506 - [P:135, R:7] s1=69.9903, s2=69.9524, ratio=1.0005 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:37:04,794] I ThreadPoolExecutor-0_6 - extract_frame_pair_multi_ring:537 - [P:135] Multi-ring extracted bits: [0, 0] from rings [4, 7]
-[2025-04-03 20:37:04,805] I ThreadPoolExecutor-0_14 - extract_frame_pair:506 - [P:131, R:7] s1=69.7958, s2=69.8036, ratio=0.9999 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:04,809] I ThreadPoolExecutor-0_14 - extract_frame_pair_multi_ring:537 - [P:131] Multi-ring extracted bits: [1, 1] from rings [4, 7]
-[2025-04-03 20:37:04,824] I ThreadPoolExecutor-0_5 - extract_frame_pair:506 - [P:136, R:7] s1=69.9242, s2=69.9482, ratio=0.9997 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:04,829] I ThreadPoolExecutor-0_5 - extract_frame_pair_multi_ring:537 - [P:136] Multi-ring extracted bits: [1, 1] from rings [4, 7]
-[2025-04-03 20:37:04,841] I ThreadPoolExecutor-0_16 - extract_frame_pair:506 - [P:137, R:7] s1=69.8230, s2=69.9209, ratio=0.9986 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:04,844] I ThreadPoolExecutor-0_16 - extract_frame_pair_multi_ring:537 - [P:137] Multi-ring extracted bits: [0, 1] from rings [4, 7]
-[2025-04-03 20:37:04,849] I ThreadPoolExecutor-0_0 - extract_frame_pair:506 - [P:139, R:7] s1=69.8315, s2=69.8916, ratio=0.9991 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:04,854] I ThreadPoolExecutor-0_0 - extract_frame_pair_multi_ring:537 - [P:139] Multi-ring extracted bits: [1, 1] from rings [4, 7]
-[2025-04-03 20:37:05,336] I ThreadPoolExecutor-0_17 - extract_frame_pair:506 - [P:141, R:7] s1=69.8403, s2=69.8910, ratio=0.9993 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:05,339] I ThreadPoolExecutor-0_17 - extract_frame_pair_multi_ring:537 - [P:141] Multi-ring extracted bits: [1, 1] from rings [4, 7]
-[2025-04-03 20:37:05,438] I ThreadPoolExecutor-0_3 - extract_frame_pair:506 - [P:144, R:4] s1=183.2625, s2=182.7957, ratio=1.0026 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:37:05,467] I ThreadPoolExecutor-0_11 - extract_frame_pair:506 - [P:142, R:7] s1=69.8692, s2=69.8703, ratio=1.0000 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:05,468] I ThreadPoolExecutor-0_11 - extract_frame_pair_multi_ring:537 - [P:142] Multi-ring extracted bits: [0, 1] from rings [4, 7]
-[2025-04-03 20:37:05,525] I ThreadPoolExecutor-0_18 - extract_frame_pair:506 - [P:145, R:4] s1=182.8283, s2=183.3237, ratio=0.9973 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:05,535] I ThreadPoolExecutor-0_10 - extract_frame_pair:506 - [P:143, R:7] s1=69.8321, s2=69.9961, ratio=0.9977 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:05,536] I ThreadPoolExecutor-0_10 - extract_frame_pair_multi_ring:537 - [P:143] Multi-ring extracted bits: [1, 1] from rings [4, 7]
-[2025-04-03 20:37:05,540] I ThreadPoolExecutor-0_15 - extract_frame_pair:506 - [P:146, R:4] s1=182.8860, s2=183.3060, ratio=0.9977 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:05,561] I ThreadPoolExecutor-0_2 - extract_frame_pair:506 - [P:140, R:7] s1=69.8918, s2=69.8804, ratio=1.0002 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:05,565] I ThreadPoolExecutor-0_2 - extract_frame_pair_multi_ring:537 - [P:140] Multi-ring extracted bits: [1, 1] from rings [4, 7]
-[2025-04-03 20:37:05,701] I ThreadPoolExecutor-0_9 - extract_frame_pair:506 - [P:147, R:4] s1=182.8623, s2=183.3182, ratio=0.9975 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:05,757] I ThreadPoolExecutor-0_8 - extract_frame_pair:506 - [P:148, R:4] s1=182.8768, s2=183.3180, ratio=0.9976 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:05,880] I ThreadPoolExecutor-0_19 - extract_frame_pair:506 - [P:149, R:4] s1=183.3146, s2=182.7661, ratio=1.0030 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:37:05,940] I ThreadPoolExecutor-0_4 - extract_frame_pair:506 - [P:150, R:4] s1=183.1491, s2=182.6928, ratio=1.0025 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:37:06,030] I ThreadPoolExecutor-0_6 - extract_frame_pair:506 - [P:155, R:4] s1=182.6845, s2=183.1794, ratio=0.9973 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:06,066] I ThreadPoolExecutor-0_13 - extract_frame_pair:506 - [P:151, R:4] s1=182.9512, s2=182.5773, ratio=1.0020 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:37:06,315] I ThreadPoolExecutor-0_7 - extract_frame_pair:506 - [P:153, R:4] s1=182.8738, s2=182.5714, ratio=1.0017 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:37:06,326] I ThreadPoolExecutor-0_12 - extract_frame_pair:506 - [P:152, R:4] s1=182.9407, s2=182.4911, ratio=1.0025 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:37:06,371] I ThreadPoolExecutor-0_1 - extract_frame_pair:506 - [P:154, R:4] s1=183.0467, s2=182.6462, ratio=1.0022 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:37:06,381] I ThreadPoolExecutor-0_5 - extract_frame_pair:506 - [P:157, R:4] s1=182.6691, s2=183.1479, ratio=0.9974 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:06,459] I ThreadPoolExecutor-0_0 - extract_frame_pair:506 - [P:159, R:4] s1=183.1205, s2=182.7055, ratio=1.0023 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:37:06,467] I ThreadPoolExecutor-0_14 - extract_frame_pair:506 - [P:156, R:4] s1=182.6108, s2=183.1748, ratio=0.9969 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:06,471] I ThreadPoolExecutor-0_16 - extract_frame_pair:506 - [P:158, R:4] s1=182.6461, s2=183.1415, ratio=0.9973 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:06,534] I ThreadPoolExecutor-0_3 - extract_frame_pair:506 - [P:144, R:7] s1=69.9628, s2=70.0037, ratio=0.9994 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:06,535] I ThreadPoolExecutor-0_3 - extract_frame_pair_multi_ring:537 - [P:144] Multi-ring extracted bits: [0, 1] from rings [4, 7]
-[2025-04-03 20:37:06,587] I ThreadPoolExecutor-0_18 - extract_frame_pair:506 - [P:145, R:7] s1=69.9419, s2=69.9891, ratio=0.9993 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:06,587] I ThreadPoolExecutor-0_18 - extract_frame_pair_multi_ring:537 - [P:145] Multi-ring extracted bits: [1, 1] from rings [4, 7]
-[2025-04-03 20:37:06,618] I ThreadPoolExecutor-0_15 - extract_frame_pair:506 - [P:146, R:7] s1=69.9625, s2=69.9735, ratio=0.9998 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:06,619] I ThreadPoolExecutor-0_15 - extract_frame_pair_multi_ring:537 - [P:146] Multi-ring extracted bits: [1, 1] from rings [4, 7]
-[2025-04-03 20:37:06,660] I ThreadPoolExecutor-0_9 - extract_frame_pair:506 - [P:147, R:7] s1=69.9493, s2=69.9696, ratio=0.9997 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:06,660] I ThreadPoolExecutor-0_9 - extract_frame_pair_multi_ring:537 - [P:147] Multi-ring extracted bits: [1, 1] from rings [4, 7]
-[2025-04-03 20:37:06,925] I ThreadPoolExecutor-0_8 - extract_frame_pair:506 - [P:148, R:7] s1=69.9698, s2=69.9671, ratio=1.0000 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:06,926] I ThreadPoolExecutor-0_8 - extract_frame_pair_multi_ring:537 - [P:148] Multi-ring extracted bits: [1, 1] from rings [4, 7]
-[2025-04-03 20:37:07,067] I ThreadPoolExecutor-0_19 - extract_frame_pair:506 - [P:149, R:7] s1=69.9541, s2=69.9068, ratio=1.0007 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:37:07,067] I ThreadPoolExecutor-0_19 - extract_frame_pair_multi_ring:537 - [P:149] Multi-ring extracted bits: [0, 0] from rings [4, 7]
-[2025-04-03 20:37:07,078] I ThreadPoolExecutor-0_6 - extract_frame_pair:506 - [P:155, R:7] s1=69.8941, s2=69.9197, ratio=0.9996 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:07,079] I ThreadPoolExecutor-0_6 - extract_frame_pair_multi_ring:537 - [P:155] Multi-ring extracted bits: [1, 1] from rings [4, 7]
-[2025-04-03 20:37:07,085] I ThreadPoolExecutor-0_4 - extract_frame_pair:506 - [P:150, R:7] s1=69.8514, s2=69.8996, ratio=0.9993 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:07,086] I ThreadPoolExecutor-0_4 - extract_frame_pair_multi_ring:537 - [P:150] Multi-ring extracted bits: [0, 1] from rings [4, 7]
-[2025-04-03 20:37:07,096] I ThreadPoolExecutor-0_13 - extract_frame_pair:506 - [P:151, R:7] s1=69.8746, s2=69.9245, ratio=0.9993 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:07,101] I ThreadPoolExecutor-0_13 - extract_frame_pair_multi_ring:537 - [P:151] Multi-ring extracted bits: [0, 1] from rings [4, 7]
-[2025-04-03 20:37:07,162] I ThreadPoolExecutor-0_7 - extract_frame_pair:506 - [P:153, R:7] s1=69.9086, s2=69.9343, ratio=0.9996 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:07,165] I ThreadPoolExecutor-0_7 - extract_frame_pair_multi_ring:537 - [P:153] Multi-ring extracted bits: [0, 1] from rings [4, 7]
-[2025-04-03 20:37:07,188] I ThreadPoolExecutor-0_12 - extract_frame_pair:506 - [P:152, R:7] s1=69.9526, s2=69.9324, ratio=1.0003 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:37:07,191] I ThreadPoolExecutor-0_12 - extract_frame_pair_multi_ring:537 - [P:152] Multi-ring extracted bits: [0, 0] from rings [4, 7]
-[2025-04-03 20:37:07,247] I ThreadPoolExecutor-0_0 - extract_frame_pair:506 - [P:159, R:7] s1=69.9050, s2=69.9735, ratio=0.9990 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:07,248] I ThreadPoolExecutor-0_0 - extract_frame_pair_multi_ring:537 - [P:159] Multi-ring extracted bits: [0, 1] from rings [4, 7]
-[2025-04-03 20:37:07,252] I ThreadPoolExecutor-0_5 - extract_frame_pair:506 - [P:157, R:7] s1=69.7583, s2=69.8844, ratio=0.9982 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:07,257] I ThreadPoolExecutor-0_5 - extract_frame_pair_multi_ring:537 - [P:157] Multi-ring extracted bits: [1, 1] from rings [4, 7]
-[2025-04-03 20:37:07,257] I ThreadPoolExecutor-0_1 - extract_frame_pair:506 - [P:154, R:7] s1=69.9328, s2=69.9117, ratio=1.0003 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:37:07,262] I ThreadPoolExecutor-0_1 - extract_frame_pair_multi_ring:537 - [P:154] Multi-ring extracted bits: [0, 0] from rings [4, 7]
-[2025-04-03 20:37:07,283] I ThreadPoolExecutor-0_16 - extract_frame_pair:506 - [P:158, R:7] s1=69.8982, s2=69.9208, ratio=0.9997 vs thr=1.0003 -> Bit=1
-[2025-04-03 20:37:07,287] I ThreadPoolExecutor-0_16 - extract_frame_pair_multi_ring:537 - [P:158] Multi-ring extracted bits: [1, 1] from rings [4, 7]
-[2025-04-03 20:37:07,290] I ThreadPoolExecutor-0_14 - extract_frame_pair:506 - [P:156, R:7] s1=69.9633, s2=69.9311, ratio=1.0005 vs thr=1.0003 -> Bit=0
-[2025-04-03 20:37:07,294] I ThreadPoolExecutor-0_14 - extract_frame_pair_multi_ring:537 - [P:156] Multi-ring extracted bits: [1, 0] from rings [4, 7]
-[2025-04-03 20:37:07,296] I MainThread - extract_watermark_from_video:757 - Parallel extraction finished. Pairs submitted: 160. Pairs processed: 160.
-[2025-04-03 20:37:07,296] I MainThread - extract_watermark_from_video:758 - Pairs with failed extraction (None bits): 0.
-[2025-04-03 20:37:07,297] I MainThread - extract_watermark_from_video:771 - Total bits collected: 320 (Expected based on pairs processed: 320)
-[2025-04-03 20:37:07,297] I MainThread - extract_watermark_from_video:777 - Attempting to decode 5 potential packets (Packet Size: 64 bits)...
-[2025-04-03 20:37:07,297] I MainThread - extract_watermark_from_video:831 - Successfully decoded payload from packet #1 (ECC corrected: 0).
-[2025-04-03 20:37:07,297] I MainThread - extract_watermark_from_video:831 - Successfully decoded payload from packet #2 (ECC corrected: 0).
-[2025-04-03 20:37:07,297] I MainThread - extract_watermark_from_video:831 - Successfully decoded payload from packet #3 (ECC corrected: 0).
-[2025-04-03 20:37:07,297] I MainThread - extract_watermark_from_video:831 - Successfully decoded payload from packet #4 (ECC corrected: 0).
-[2025-04-03 20:37:07,297] I MainThread - extract_watermark_from_video:831 - Successfully decoded payload from packet #5 (ECC corrected: 0).
-[2025-04-03 20:37:07,297] I MainThread - extract_watermark_from_video:840 - Packet decoding summary: Success=5, Failed=0. Total ECC corrections: 0.
-[2025-04-03 20:37:07,297] I MainThread - extract_watermark_from_video:848 - Payload voting results:
-[2025-04-03 20:37:07,297] I MainThread - extract_watermark_from_video:853 -   Payload (Hex ID: 47d8dbb77f8412ad): 2 votes
-[2025-04-03 20:37:07,297] I MainThread - extract_watermark_from_video:853 -   Payload (Hex ID: 47d8dbb77f8406ad): 1 votes
-[2025-04-03 20:37:07,297] I MainThread - extract_watermark_from_video:853 -   Payload (Hex ID: 47d8dab77fc512ad): 1 votes
-[2025-04-03 20:37:07,298] I MainThread - extract_watermark_from_video:853 -   Payload (Hex ID: 47dcdbf77fc513bd): 1 votes
-[2025-04-03 20:37:07,298] I MainThread - extract_watermark_from_video:860 - Most common payload selected with 2/5 votes (Confidence: 40.0%).
-[2025-04-03 20:37:07,298] I MainThread - extract_watermark_from_video:866 - Extraction and processing finished. Total time: 27.57 sec.
-[2025-04-03 20:37:07,298] I MainThread - main:919 - Successfully decoded extracted payload to Hex ID: 47d8dbb77f8412ad
-[2025-04-03 20:37:07,298] I MainThread - main:933 - ID verification successful.
-[2025-04-03 20:37:07,298] I MainThread - main:940 - --- Extraction Main Process Finished ---
-[2025-04-03 20:37:07,298] I MainThread - main:942 - --- Total Extractor Script Time: 28.63 sec ---
-[2025-04-03 20:37:07,453] I MainThread - <module>:967 - Profiling stats saved to profile_stats_extract_n2.txt
+[2025-04-04 09:05:01,368] I MainThread - <module>:71 - --- Запуск Скрипта Извлечения (Bits/Pair: 2, Payload: 64bit, ECC Ожид.: True, Доступно: True, Max Repeats: 5) ---
+[2025-04-04 09:05:01,368] I MainThread - <module>:73 - Ожид. настройки эмбеддера: Метод='multi_ring', Метрика='entropy', Колец исп.=2, N_RINGS_Total=8
+[2025-04-04 09:05:01,368] I MainThread - <module>:75 - Альфа (ожид.): MIN=1.005, MAX=1.1
+[2025-04-04 09:05:01,368] I MainThread - <module>:76 - Компонент: Cr, Исп. сохр. кольца: True
+[2025-04-04 09:05:01,370] I MainThread - main:1095 - Read original ID (Hex) from original_watermark_id.txt
+[2025-04-04 09:05:01,370] I MainThread - main:1108 - --- Starting Extraction Main Process ---
+[2025-04-04 09:05:01,370] I MainThread - read_video:515 - Reading video from: watermarked_video_n2.avi
+[2025-04-04 09:05:01,385] I MainThread - read_video:525 - Detected FPS: 30.00
+[2025-04-04 09:05:01,385] I MainThread - read_video:531 - Video properties: 842x720 @ 30.00 FPS, ~907 frames
+[2025-04-04 09:05:03,751] I MainThread - read_video:540 - End of stream after reading 907 frames (index 907).
+[2025-04-04 09:05:03,751] I MainThread - read_video:554 - Finished reading. Valid frames: 907. Skipped None: 0, Invalid shape: 0
+[2025-04-04 09:05:03,770] I MainThread - main:1114 - Read 907 frames for extraction (Reported FPS: 30.00)
+[2025-04-04 09:05:03,770] I MainThread - extract_watermark_from_video:827 - Starting parallel extraction (Bits/Pair: 2) with packet voting (Max Repeats: 5).
+[2025-04-04 09:05:03,771] I MainThread - extract_watermark_from_video:829 - Ring Selection: Saved, Component: Cr, Expect ECC: True
+[2025-04-04 09:05:03,772] E MainThread - extract_watermark_from_video:871 - Failed to initialize BCH: 'bchlib.BCH' object has no attribute 'k'. Disabling ECC.
+[2025-04-04 09:05:03,775] I MainThread - load_saved_rings:384 - Loaded 160 valid ring entries from selected_rings.json
+[2025-04-04 09:05:03,775] I MainThread - extract_watermark_from_video:890 - Attempting to extract from 160 pairs (up to 453 available, covers up to 5 repeats).
+[2025-04-04 09:05:03,786] I MainThread - extract_watermark_from_video:930 - Submitting 160 extraction tasks to ThreadPoolExecutor (max_workers=None)...
+[2025-04-04 09:05:05,323] I ThreadPoolExecutor-0_6 - extract_frame_pair:675 - [P:6, R:4] s1=185.4491, s2=186.8490, ratio=0.9925 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:05,371] I ThreadPoolExecutor-0_1 - extract_frame_pair:675 - [P:1, R:4] s1=185.9944, s2=186.7418, ratio=0.9960 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:05,390] I ThreadPoolExecutor-0_11 - extract_frame_pair:675 - [P:11, R:4] s1=187.0184, s2=186.2611, ratio=1.0041 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:05,393] I ThreadPoolExecutor-0_13 - extract_frame_pair:675 - [P:13, R:4] s1=186.2057, s2=187.0704, ratio=0.9954 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:05,399] I ThreadPoolExecutor-0_8 - extract_frame_pair:675 - [P:8, R:4] s1=186.8188, s2=185.9958, ratio=1.0044 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:05,459] I ThreadPoolExecutor-0_0 - extract_frame_pair:675 - [P:0, R:4] s1=186.4321, s2=187.5133, ratio=0.9942 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:05,460] I ThreadPoolExecutor-0_4 - extract_frame_pair:675 - [P:4, R:4] s1=186.0260, s2=186.7294, ratio=0.9962 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:05,641] I ThreadPoolExecutor-0_2 - extract_frame_pair:675 - [P:2, R:4] s1=186.7545, s2=186.0209, ratio=1.0039 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:05,643] I ThreadPoolExecutor-0_3 - extract_frame_pair:675 - [P:3, R:4] s1=186.0229, s2=186.7281, ratio=0.9962 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:05,763] I ThreadPoolExecutor-0_14 - extract_frame_pair:675 - [P:14, R:4] s1=186.3066, s2=187.0636, ratio=0.9960 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:05,783] I ThreadPoolExecutor-0_15 - extract_frame_pair:675 - [P:15, R:4] s1=186.1522, s2=187.0162, ratio=0.9954 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:05,851] I ThreadPoolExecutor-0_7 - extract_frame_pair:675 - [P:7, R:4] s1=186.0435, s2=186.8188, ratio=0.9959 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:05,891] I ThreadPoolExecutor-0_12 - extract_frame_pair:675 - [P:12, R:4] s1=187.4339, s2=186.2871, ratio=1.0062 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:06,003] I ThreadPoolExecutor-0_5 - extract_frame_pair:675 - [P:5, R:4] s1=185.9913, s2=186.7669, ratio=0.9958 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:06,049] I ThreadPoolExecutor-0_16 - extract_frame_pair:675 - [P:16, R:4] s1=186.2674, s2=186.9924, ratio=0.9961 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:06,057] I ThreadPoolExecutor-0_9 - extract_frame_pair:675 - [P:9, R:4] s1=185.9353, s2=186.8360, ratio=0.9952 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:06,071] I ThreadPoolExecutor-0_19 - extract_frame_pair:675 - [P:19, R:4] s1=186.0632, s2=187.0105, ratio=0.9949 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:06,082] I ThreadPoolExecutor-0_17 - extract_frame_pair:675 - [P:17, R:4] s1=186.1886, s2=186.9066, ratio=0.9962 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:06,101] I ThreadPoolExecutor-0_10 - extract_frame_pair:675 - [P:10, R:4] s1=185.9779, s2=186.8619, ratio=0.9953 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:06,132] I ThreadPoolExecutor-0_18 - extract_frame_pair:675 - [P:18, R:4] s1=187.3224, s2=186.1562, ratio=1.0063 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:07,222] I ThreadPoolExecutor-0_6 - extract_frame_pair:675 - [P:6, R:5] s1=179.9551, s2=181.4299, ratio=0.9919 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:07,223] I ThreadPoolExecutor-0_6 - extract_frame_pair_multi_ring:711 - [P:6] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-04 09:05:07,295] I ThreadPoolExecutor-0_1 - extract_frame_pair:675 - [P:1, R:5] s1=181.4434, s2=180.5374, ratio=1.0050 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:07,296] I ThreadPoolExecutor-0_1 - extract_frame_pair_multi_ring:711 - [P:1] Multi-ring extracted bits: [1, 0] from rings [4, 5]
+[2025-04-04 09:05:07,433] I ThreadPoolExecutor-0_13 - extract_frame_pair:675 - [P:13, R:5] s1=180.5570, s2=181.5390, ratio=0.9946 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:07,435] I ThreadPoolExecutor-0_13 - extract_frame_pair_multi_ring:711 - [P:13] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-04 09:05:07,580] I ThreadPoolExecutor-0_11 - extract_frame_pair:675 - [P:11, R:5] s1=180.6407, s2=181.5518, ratio=0.9950 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:07,582] I ThreadPoolExecutor-0_0 - extract_frame_pair:675 - [P:0, R:5] s1=181.0539, s2=179.7983, ratio=1.0070 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:07,583] I ThreadPoolExecutor-0_11 - extract_frame_pair_multi_ring:711 - [P:11] Multi-ring extracted bits: [0, 1] from rings [4, 5]
+[2025-04-04 09:05:07,585] I ThreadPoolExecutor-0_8 - extract_frame_pair:675 - [P:8, R:5] s1=180.5662, s2=181.4378, ratio=0.9952 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:07,589] I ThreadPoolExecutor-0_0 - extract_frame_pair_multi_ring:711 - [P:0] Multi-ring extracted bits: [1, 0] from rings [4, 5]
+[2025-04-04 09:05:07,598] I ThreadPoolExecutor-0_8 - extract_frame_pair_multi_ring:711 - [P:8] Multi-ring extracted bits: [0, 1] from rings [4, 5]
+[2025-04-04 09:05:07,621] I ThreadPoolExecutor-0_4 - extract_frame_pair:675 - [P:4, R:5] s1=181.4291, s2=180.5418, ratio=1.0049 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:07,622] I ThreadPoolExecutor-0_4 - extract_frame_pair_multi_ring:711 - [P:4] Multi-ring extracted bits: [1, 0] from rings [4, 5]
+[2025-04-04 09:05:07,730] I ThreadPoolExecutor-0_3 - extract_frame_pair:675 - [P:3, R:5] s1=181.4375, s2=180.5380, ratio=1.0050 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:07,731] I ThreadPoolExecutor-0_3 - extract_frame_pair_multi_ring:711 - [P:3] Multi-ring extracted bits: [1, 0] from rings [4, 5]
+[2025-04-04 09:05:07,764] I ThreadPoolExecutor-0_2 - extract_frame_pair:675 - [P:2, R:5] s1=180.5362, s2=181.4352, ratio=0.9950 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:07,767] I ThreadPoolExecutor-0_2 - extract_frame_pair_multi_ring:711 - [P:2] Multi-ring extracted bits: [0, 1] from rings [4, 5]
+[2025-04-04 09:05:07,796] I ThreadPoolExecutor-0_15 - extract_frame_pair:675 - [P:15, R:5] s1=180.4147, s2=181.4755, ratio=0.9942 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:07,797] I ThreadPoolExecutor-0_15 - extract_frame_pair_multi_ring:711 - [P:15] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-04 09:05:07,810] I ThreadPoolExecutor-0_7 - extract_frame_pair:675 - [P:7, R:5] s1=181.4291, s2=180.5652, ratio=1.0048 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:07,813] I ThreadPoolExecutor-0_14 - extract_frame_pair:675 - [P:14, R:5] s1=181.5345, s2=180.6567, ratio=1.0049 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:07,815] I ThreadPoolExecutor-0_7 - extract_frame_pair_multi_ring:711 - [P:7] Multi-ring extracted bits: [1, 0] from rings [4, 5]
+[2025-04-04 09:05:07,826] I ThreadPoolExecutor-0_14 - extract_frame_pair_multi_ring:711 - [P:14] Multi-ring extracted bits: [1, 0] from rings [4, 5]
+[2025-04-04 09:05:07,954] I ThreadPoolExecutor-0_12 - extract_frame_pair:675 - [P:12, R:5] s1=180.1382, s2=181.4865, ratio=0.9926 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:07,956] I ThreadPoolExecutor-0_12 - extract_frame_pair_multi_ring:711 - [P:12] Multi-ring extracted bits: [0, 1] from rings [4, 5]
+[2025-04-04 09:05:08,098] I ThreadPoolExecutor-0_18 - extract_frame_pair:675 - [P:18, R:5] s1=180.1060, s2=181.3304, ratio=0.9932 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:08,099] I ThreadPoolExecutor-0_18 - extract_frame_pair_multi_ring:711 - [P:18] Multi-ring extracted bits: [0, 1] from rings [4, 5]
+[2025-04-04 09:05:08,106] I ThreadPoolExecutor-0_19 - extract_frame_pair:675 - [P:19, R:5] s1=180.3846, s2=181.3924, ratio=0.9944 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:08,108] I ThreadPoolExecutor-0_19 - extract_frame_pair_multi_ring:711 - [P:19] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-04 09:05:08,173] I ThreadPoolExecutor-0_10 - extract_frame_pair:675 - [P:10, R:5] s1=180.4023, s2=181.4988, ratio=0.9940 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:08,175] I ThreadPoolExecutor-0_10 - extract_frame_pair_multi_ring:711 - [P:10] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-04 09:05:08,187] I ThreadPoolExecutor-0_5 - extract_frame_pair:675 - [P:5, R:5] s1=180.4878, s2=181.4487, ratio=0.9947 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:08,188] I ThreadPoolExecutor-0_5 - extract_frame_pair_multi_ring:711 - [P:5] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-04 09:05:08,202] I ThreadPoolExecutor-0_16 - extract_frame_pair:675 - [P:16, R:5] s1=180.5991, s2=181.4782, ratio=0.9952 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:08,203] I ThreadPoolExecutor-0_16 - extract_frame_pair_multi_ring:711 - [P:16] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-04 09:05:08,228] I ThreadPoolExecutor-0_17 - extract_frame_pair:675 - [P:17, R:5] s1=180.4242, s2=181.3587, ratio=0.9948 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:08,229] I ThreadPoolExecutor-0_17 - extract_frame_pair_multi_ring:711 - [P:17] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-04 09:05:08,293] I ThreadPoolExecutor-0_9 - extract_frame_pair:675 - [P:9, R:5] s1=181.5683, s2=180.5153, ratio=1.0058 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:08,299] I ThreadPoolExecutor-0_9 - extract_frame_pair_multi_ring:711 - [P:9] Multi-ring extracted bits: [1, 0] from rings [4, 5]
+[2025-04-04 09:05:09,097] I ThreadPoolExecutor-0_6 - extract_frame_pair:675 - [P:20, R:4] s1=187.0141, s2=186.1174, ratio=1.0048 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:09,203] I ThreadPoolExecutor-0_13 - extract_frame_pair:675 - [P:22, R:4] s1=187.0084, s2=186.1174, ratio=1.0048 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:09,209] I ThreadPoolExecutor-0_1 - extract_frame_pair:675 - [P:21, R:4] s1=187.0089, s2=186.1172, ratio=1.0048 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:09,410] I ThreadPoolExecutor-0_8 - extract_frame_pair:675 - [P:25, R:4] s1=186.0832, s2=187.0160, ratio=0.9950 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:09,438] I ThreadPoolExecutor-0_4 - extract_frame_pair:675 - [P:26, R:4] s1=187.0106, s2=186.1819, ratio=1.0045 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:09,468] I ThreadPoolExecutor-0_0 - extract_frame_pair:675 - [P:24, R:4] s1=187.3948, s2=186.0818, ratio=1.0071 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:09,516] I ThreadPoolExecutor-0_14 - extract_frame_pair:675 - [P:31, R:4] s1=186.0829, s2=186.9570, ratio=0.9953 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:09,529] I ThreadPoolExecutor-0_3 - extract_frame_pair:675 - [P:27, R:4] s1=186.0971, s2=187.0130, ratio=0.9951 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:09,578] I ThreadPoolExecutor-0_11 - extract_frame_pair:675 - [P:23, R:4] s1=186.1243, s2=186.9400, ratio=0.9956 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:09,610] I ThreadPoolExecutor-0_2 - extract_frame_pair:675 - [P:28, R:4] s1=187.0074, s2=186.1816, ratio=1.0044 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:09,623] I ThreadPoolExecutor-0_12 - extract_frame_pair:675 - [P:32, R:4] s1=186.1729, s2=186.9418, ratio=0.9959 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:09,688] I ThreadPoolExecutor-0_7 - extract_frame_pair:675 - [P:30, R:4] s1=185.5979, s2=186.9638, ratio=0.9927 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:09,742] I ThreadPoolExecutor-0_15 - extract_frame_pair:675 - [P:29, R:4] s1=186.0370, s2=186.9479, ratio=0.9951 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:09,783] I ThreadPoolExecutor-0_18 - extract_frame_pair:675 - [P:33, R:4] s1=186.1717, s2=186.9415, ratio=0.9959 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:09,933] I ThreadPoolExecutor-0_10 - extract_frame_pair:675 - [P:35, R:4] s1=186.1684, s2=186.9382, ratio=0.9959 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:10,002] I ThreadPoolExecutor-0_17 - extract_frame_pair:675 - [P:38, R:4] s1=186.0703, s2=186.9563, ratio=0.9953 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:10,009] I ThreadPoolExecutor-0_19 - extract_frame_pair:675 - [P:34, R:4] s1=186.9415, s2=186.1687, ratio=1.0042 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:10,028] I ThreadPoolExecutor-0_16 - extract_frame_pair:675 - [P:37, R:4] s1=186.0674, s2=186.9556, ratio=0.9952 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:10,107] I ThreadPoolExecutor-0_9 - extract_frame_pair:675 - [P:39, R:4] s1=186.1635, s2=186.9436, ratio=0.9958 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:10,119] I ThreadPoolExecutor-0_5 - extract_frame_pair:675 - [P:36, R:4] s1=185.6488, s2=186.8757, ratio=0.9934 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:10,814] I ThreadPoolExecutor-0_6 - extract_frame_pair:675 - [P:20, R:5] s1=181.3926, s2=180.4178, ratio=1.0054 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:10,814] I ThreadPoolExecutor-0_6 - extract_frame_pair_multi_ring:711 - [P:20] Multi-ring extracted bits: [0, 0] from rings [4, 5]
+[2025-04-04 09:05:11,006] I ThreadPoolExecutor-0_13 - extract_frame_pair:675 - [P:22, R:5] s1=181.3846, s2=180.4203, ratio=1.0053 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:11,007] I ThreadPoolExecutor-0_13 - extract_frame_pair_multi_ring:711 - [P:22] Multi-ring extracted bits: [0, 0] from rings [4, 5]
+[2025-04-04 09:05:11,109] I ThreadPoolExecutor-0_1 - extract_frame_pair:675 - [P:21, R:5] s1=181.3890, s2=180.4196, ratio=1.0054 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:11,110] I ThreadPoolExecutor-0_1 - extract_frame_pair_multi_ring:711 - [P:21] Multi-ring extracted bits: [0, 0] from rings [4, 5]
+[2025-04-04 09:05:11,199] I ThreadPoolExecutor-0_8 - extract_frame_pair:675 - [P:25, R:5] s1=180.4877, s2=181.4846, ratio=0.9945 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:11,201] I ThreadPoolExecutor-0_8 - extract_frame_pair_multi_ring:711 - [P:25] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-04 09:05:11,245] I ThreadPoolExecutor-0_14 - extract_frame_pair:675 - [P:31, R:5] s1=180.5314, s2=181.4414, ratio=0.9950 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:11,246] I ThreadPoolExecutor-0_14 - extract_frame_pair_multi_ring:711 - [P:31] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-04 09:05:11,347] I ThreadPoolExecutor-0_4 - extract_frame_pair:675 - [P:26, R:5] s1=180.5855, s2=181.4783, ratio=0.9951 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:11,349] I ThreadPoolExecutor-0_4 - extract_frame_pair_multi_ring:711 - [P:26] Multi-ring extracted bits: [0, 1] from rings [4, 5]
+[2025-04-04 09:05:11,390] I ThreadPoolExecutor-0_0 - extract_frame_pair:675 - [P:24, R:5] s1=182.0374, s2=180.4839, ratio=1.0086 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:11,390] I ThreadPoolExecutor-0_0 - extract_frame_pair_multi_ring:711 - [P:24] Multi-ring extracted bits: [0, 0] from rings [4, 5]
+[2025-04-04 09:05:11,440] I ThreadPoolExecutor-0_3 - extract_frame_pair:675 - [P:27, R:5] s1=180.5107, s2=181.4893, ratio=0.9946 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:11,440] I ThreadPoolExecutor-0_3 - extract_frame_pair_multi_ring:711 - [P:27] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-04 09:05:11,525] I ThreadPoolExecutor-0_11 - extract_frame_pair:675 - [P:23, R:5] s1=181.3135, s2=180.4457, ratio=1.0048 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:11,528] I ThreadPoolExecutor-0_7 - extract_frame_pair:675 - [P:30, R:5] s1=180.1540, s2=181.4645, ratio=0.9928 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:11,529] I ThreadPoolExecutor-0_11 - extract_frame_pair_multi_ring:711 - [P:23] Multi-ring extracted bits: [1, 0] from rings [4, 5]
+[2025-04-04 09:05:11,531] I ThreadPoolExecutor-0_7 - extract_frame_pair_multi_ring:711 - [P:30] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-04 09:05:11,603] I ThreadPoolExecutor-0_2 - extract_frame_pair:675 - [P:28, R:5] s1=180.5926, s2=181.4764, ratio=0.9951 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:11,605] I ThreadPoolExecutor-0_2 - extract_frame_pair_multi_ring:711 - [P:28] Multi-ring extracted bits: [0, 1] from rings [4, 5]
+[2025-04-04 09:05:11,734] I ThreadPoolExecutor-0_18 - extract_frame_pair:675 - [P:33, R:5] s1=181.4310, s2=180.6026, ratio=1.0046 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:11,734] I ThreadPoolExecutor-0_18 - extract_frame_pair_multi_ring:711 - [P:33] Multi-ring extracted bits: [1, 0] from rings [4, 5]
+[2025-04-04 09:05:11,738] I ThreadPoolExecutor-0_15 - extract_frame_pair:675 - [P:29, R:5] s1=180.4667, s2=181.4220, ratio=0.9947 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:11,740] I ThreadPoolExecutor-0_15 - extract_frame_pair_multi_ring:711 - [P:29] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-04 09:05:11,804] I ThreadPoolExecutor-0_12 - extract_frame_pair:675 - [P:32, R:5] s1=181.4395, s2=180.5987, ratio=1.0047 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:11,804] I ThreadPoolExecutor-0_12 - extract_frame_pair_multi_ring:711 - [P:32] Multi-ring extracted bits: [1, 0] from rings [4, 5]
+[2025-04-04 09:05:11,894] I ThreadPoolExecutor-0_10 - extract_frame_pair:675 - [P:35, R:5] s1=181.4306, s2=180.5990, ratio=1.0046 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:11,902] I ThreadPoolExecutor-0_10 - extract_frame_pair_multi_ring:711 - [P:35] Multi-ring extracted bits: [1, 0] from rings [4, 5]
+[2025-04-04 09:05:11,956] I ThreadPoolExecutor-0_17 - extract_frame_pair:675 - [P:38, R:5] s1=180.6264, s2=181.5482, ratio=0.9949 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:11,960] I ThreadPoolExecutor-0_17 - extract_frame_pair_multi_ring:711 - [P:38] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-04 09:05:12,018] I ThreadPoolExecutor-0_16 - extract_frame_pair:675 - [P:37, R:5] s1=180.6057, s2=181.5466, ratio=0.9948 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:12,019] I ThreadPoolExecutor-0_16 - extract_frame_pair_multi_ring:711 - [P:37] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-04 09:05:12,035] I ThreadPoolExecutor-0_19 - extract_frame_pair:675 - [P:34, R:5] s1=180.6026, s2=181.4300, ratio=0.9954 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:12,042] I ThreadPoolExecutor-0_19 - extract_frame_pair_multi_ring:711 - [P:34] Multi-ring extracted bits: [0, 1] from rings [4, 5]
+[2025-04-04 09:05:12,545] I ThreadPoolExecutor-0_9 - extract_frame_pair:675 - [P:39, R:5] s1=181.5463, s2=180.6941, ratio=1.0047 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:12,546] I ThreadPoolExecutor-0_9 - extract_frame_pair_multi_ring:711 - [P:39] Multi-ring extracted bits: [1, 0] from rings [4, 5]
+[2025-04-04 09:05:12,836] I ThreadPoolExecutor-0_5 - extract_frame_pair:675 - [P:36, R:5] s1=182.0399, s2=180.6750, ratio=1.0076 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:12,837] I ThreadPoolExecutor-0_5 - extract_frame_pair_multi_ring:711 - [P:36] Multi-ring extracted bits: [1, 0] from rings [4, 5]
+[2025-04-04 09:05:12,959] I ThreadPoolExecutor-0_6 - extract_frame_pair:675 - [P:40, R:4] s1=186.9436, s2=186.1573, ratio=1.0042 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:14,052] I ThreadPoolExecutor-0_8 - extract_frame_pair:675 - [P:43, R:4] s1=187.0204, s2=185.9149, ratio=1.0059 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:14,065] I ThreadPoolExecutor-0_0 - extract_frame_pair:675 - [P:46, R:4] s1=185.5793, s2=186.4003, ratio=0.9956 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:14,088] I ThreadPoolExecutor-0_15 - extract_frame_pair:675 - [P:52, R:4] s1=186.3523, s2=185.5075, ratio=1.0046 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:14,320] I ThreadPoolExecutor-0_3 - extract_frame_pair:675 - [P:47, R:4] s1=185.5796, s2=186.4003, ratio=0.9956 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:14,416] I ThreadPoolExecutor-0_13 - extract_frame_pair:675 - [P:41, R:4] s1=186.1573, s2=186.9394, ratio=0.9958 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:14,478] I ThreadPoolExecutor-0_7 - extract_frame_pair:675 - [P:49, R:4] s1=185.5082, s2=186.3584, ratio=0.9954 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:14,490] I ThreadPoolExecutor-0_14 - extract_frame_pair:675 - [P:44, R:4] s1=186.6025, s2=185.5669, ratio=1.0056 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:14,643] I ThreadPoolExecutor-0_4 - extract_frame_pair:675 - [P:45, R:4] s1=185.4908, s2=186.4094, ratio=0.9951 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:14,657] I ThreadPoolExecutor-0_16 - extract_frame_pair:675 - [P:56, R:4] s1=186.4031, s2=185.5319, ratio=1.0047 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:14,724] I ThreadPoolExecutor-0_1 - extract_frame_pair:675 - [P:42, R:4] s1=185.6110, s2=187.1729, ratio=0.9917 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:15,007] I ThreadPoolExecutor-0_11 - extract_frame_pair:675 - [P:48, R:4] s1=185.0137, s2=186.3572, ratio=0.9928 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:15,375] I ThreadPoolExecutor-0_2 - extract_frame_pair:675 - [P:50, R:4] s1=186.3593, s2=185.5047, ratio=1.0046 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:15,450] I ThreadPoolExecutor-0_19 - extract_frame_pair:675 - [P:57, R:4] s1=185.5319, s2=186.4031, ratio=0.9953 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:15,988] I ThreadPoolExecutor-0_15 - extract_frame_pair:675 - [P:52, R:7] s1=69.8830, s2=69.6324, ratio=1.0036 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:15,989] I ThreadPoolExecutor-0_15 - extract_frame_pair_multi_ring:711 - [P:52] Multi-ring extracted bits: [0, 0] from rings [4, 7]
+[2025-04-04 09:05:16,051] I ThreadPoolExecutor-0_12 - extract_frame_pair:675 - [P:53, R:4] s1=186.2896, s2=185.4178, ratio=1.0047 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:16,265] I ThreadPoolExecutor-0_6 - extract_frame_pair:675 - [P:40, R:5] s1=180.6941, s2=181.5325, ratio=0.9954 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:16,330] I ThreadPoolExecutor-0_6 - extract_frame_pair_multi_ring:711 - [P:40] Multi-ring extracted bits: [0, 1] from rings [4, 5]
+[2025-04-04 09:05:16,402] I ThreadPoolExecutor-0_18 - extract_frame_pair:675 - [P:51, R:4] s1=185.5047, s2=186.3523, ratio=0.9955 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:16,435] I ThreadPoolExecutor-0_7 - extract_frame_pair:675 - [P:49, R:7] s1=69.6268, s2=69.8778, ratio=0.9964 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:16,436] I ThreadPoolExecutor-0_7 - extract_frame_pair_multi_ring:711 - [P:49] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-04 09:05:16,496] I ThreadPoolExecutor-0_16 - extract_frame_pair:675 - [P:56, R:7] s1=69.8805, s2=69.5441, ratio=1.0048 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:16,496] I ThreadPoolExecutor-0_16 - extract_frame_pair_multi_ring:711 - [P:56] Multi-ring extracted bits: [0, 0] from rings [4, 7]
+[2025-04-04 09:05:16,705] I ThreadPoolExecutor-0_10 - extract_frame_pair:675 - [P:54, R:4] s1=186.7335, s2=185.5185, ratio=1.0065 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:16,764] I ThreadPoolExecutor-0_17 - extract_frame_pair:675 - [P:55, R:4] s1=185.5195, s2=186.4031, ratio=0.9953 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:16,809] I ThreadPoolExecutor-0_8 - extract_frame_pair:675 - [P:43, R:5] s1=180.3661, s2=181.0987, ratio=0.9960 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:16,811] I ThreadPoolExecutor-0_8 - extract_frame_pair_multi_ring:711 - [P:43] Multi-ring extracted bits: [0, 1] from rings [4, 5]
+[2025-04-04 09:05:16,904] I ThreadPoolExecutor-0_5 - extract_frame_pair:675 - [P:59, R:4] s1=185.0438, s2=185.7653, ratio=0.9961 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:17,002] I ThreadPoolExecutor-0_9 - extract_frame_pair:675 - [P:58, R:4] s1=186.4031, s2=185.5319, ratio=1.0047 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:17,059] I ThreadPoolExecutor-0_0 - extract_frame_pair:675 - [P:46, R:7] s1=69.9260, s2=69.6620, ratio=1.0038 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:17,061] I ThreadPoolExecutor-0_0 - extract_frame_pair_multi_ring:711 - [P:46] Multi-ring extracted bits: [1, 0] from rings [4, 7]
+[2025-04-04 09:05:17,274] I ThreadPoolExecutor-0_14 - extract_frame_pair:675 - [P:44, R:7] s1=69.6671, s2=69.9314, ratio=0.9962 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:17,275] I ThreadPoolExecutor-0_14 - extract_frame_pair_multi_ring:711 - [P:44] Multi-ring extracted bits: [0, 1] from rings [4, 7]
+[2025-04-04 09:05:17,488] I ThreadPoolExecutor-0_4 - extract_frame_pair:675 - [P:45, R:7] s1=69.6502, s2=69.9266, ratio=0.9960 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:17,489] I ThreadPoolExecutor-0_4 - extract_frame_pair_multi_ring:711 - [P:45] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-04 09:05:17,570] I ThreadPoolExecutor-0_13 - extract_frame_pair:675 - [P:41, R:5] s1=181.5325, s2=180.6924, ratio=1.0046 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:17,572] I ThreadPoolExecutor-0_13 - extract_frame_pair_multi_ring:711 - [P:41] Multi-ring extracted bits: [1, 0] from rings [4, 5]
+[2025-04-04 09:05:17,636] I ThreadPoolExecutor-0_3 - extract_frame_pair:675 - [P:47, R:7] s1=69.6612, s2=69.9227, ratio=0.9963 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:17,642] I ThreadPoolExecutor-0_3 - extract_frame_pair_multi_ring:711 - [P:47] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-04 09:05:17,655] I ThreadPoolExecutor-0_11 - extract_frame_pair:675 - [P:48, R:7] s1=69.4130, s2=69.8805, ratio=0.9933 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:17,656] I ThreadPoolExecutor-0_11 - extract_frame_pair_multi_ring:711 - [P:48] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-04 09:05:17,746] I ThreadPoolExecutor-0_19 - extract_frame_pair:675 - [P:57, R:7] s1=69.5429, s2=69.8789, ratio=0.9952 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:17,748] I ThreadPoolExecutor-0_19 - extract_frame_pair_multi_ring:711 - [P:57] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-04 09:05:18,258] I ThreadPoolExecutor-0_1 - extract_frame_pair:675 - [P:42, R:5] s1=180.1855, s2=181.7201, ratio=0.9916 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:18,264] I ThreadPoolExecutor-0_1 - extract_frame_pair_multi_ring:711 - [P:42] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-04 09:05:18,358] I ThreadPoolExecutor-0_15 - extract_frame_pair:675 - [P:60, R:4] s1=186.0718, s2=184.9625, ratio=1.0060 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:18,445] I ThreadPoolExecutor-0_12 - extract_frame_pair:675 - [P:53, R:7] s1=69.8358, s2=69.5088, ratio=1.0047 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:18,446] I ThreadPoolExecutor-0_12 - extract_frame_pair_multi_ring:711 - [P:53] Multi-ring extracted bits: [0, 0] from rings [4, 7]
+[2025-04-04 09:05:18,596] I ThreadPoolExecutor-0_16 - extract_frame_pair:675 - [P:63, R:4] s1=185.2802, s2=186.1938, ratio=0.9951 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:18,653] I ThreadPoolExecutor-0_7 - extract_frame_pair:675 - [P:62, R:4] s1=185.2796, s2=186.1926, ratio=0.9951 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:18,732] I ThreadPoolExecutor-0_2 - extract_frame_pair:675 - [P:50, R:7] s1=69.6287, s2=69.8830, ratio=0.9964 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:18,733] I ThreadPoolExecutor-0_2 - extract_frame_pair_multi_ring:711 - [P:50] Multi-ring extracted bits: [0, 1] from rings [4, 7]
+[2025-04-04 09:05:18,764] I ThreadPoolExecutor-0_6 - extract_frame_pair:675 - [P:61, R:4] s1=184.9765, s2=186.2285, ratio=0.9933 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:18,836] I ThreadPoolExecutor-0_18 - extract_frame_pair:675 - [P:51, R:7] s1=69.6323, s2=69.8834, ratio=0.9964 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:18,837] I ThreadPoolExecutor-0_18 - extract_frame_pair_multi_ring:711 - [P:51] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-04 09:05:18,921] I ThreadPoolExecutor-0_10 - extract_frame_pair:675 - [P:54, R:7] s1=70.0053, s2=69.5370, ratio=1.0067 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:18,924] I ThreadPoolExecutor-0_10 - extract_frame_pair_multi_ring:711 - [P:54] Multi-ring extracted bits: [0, 0] from rings [4, 7]
+[2025-04-04 09:05:18,973] I ThreadPoolExecutor-0_8 - extract_frame_pair:675 - [P:64, R:4] s1=185.3748, s2=186.1849, ratio=0.9956 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:19,041] I ThreadPoolExecutor-0_0 - extract_frame_pair:675 - [P:65, R:4] s1=185.3758, s2=186.1853, ratio=0.9957 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:19,062] I ThreadPoolExecutor-0_17 - extract_frame_pair:675 - [P:55, R:7] s1=69.8800, s2=69.5439, ratio=1.0048 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:19,062] I ThreadPoolExecutor-0_17 - extract_frame_pair_multi_ring:711 - [P:55] Multi-ring extracted bits: [1, 0] from rings [4, 7]
+[2025-04-04 09:05:19,192] I ThreadPoolExecutor-0_5 - extract_frame_pair:675 - [P:59, R:7] s1=69.2608, s2=69.4850, ratio=0.9968 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:19,194] I ThreadPoolExecutor-0_5 - extract_frame_pair_multi_ring:711 - [P:59] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-04 09:05:19,243] I ThreadPoolExecutor-0_9 - extract_frame_pair:675 - [P:58, R:7] s1=69.5409, s2=69.8761, ratio=0.9952 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:19,243] I ThreadPoolExecutor-0_9 - extract_frame_pair_multi_ring:711 - [P:58] Multi-ring extracted bits: [0, 1] from rings [4, 7]
+[2025-04-04 09:05:19,636] I ThreadPoolExecutor-0_14 - extract_frame_pair:675 - [P:66, R:4] s1=186.5931, s2=185.3437, ratio=1.0067 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:19,789] I ThreadPoolExecutor-0_13 - extract_frame_pair:675 - [P:68, R:4] s1=185.3613, s2=186.1950, ratio=0.9955 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:19,898] I ThreadPoolExecutor-0_4 - extract_frame_pair:675 - [P:67, R:4] s1=185.3431, s2=186.1933, ratio=0.9954 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:19,952] I ThreadPoolExecutor-0_19 - extract_frame_pair:675 - [P:71, R:4] s1=185.2812, s2=186.1056, ratio=0.9956 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:19,960] I ThreadPoolExecutor-0_11 - extract_frame_pair:675 - [P:70, R:4] s1=185.1818, s2=186.1137, ratio=0.9950 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:19,984] I ThreadPoolExecutor-0_3 - extract_frame_pair:675 - [P:69, R:4] s1=185.1335, s2=186.1053, ratio=0.9948 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:20,687] I ThreadPoolExecutor-0_12 - extract_frame_pair:675 - [P:73, R:4] s1=185.2368, s2=186.1233, ratio=0.9952 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:20,763] I ThreadPoolExecutor-0_15 - extract_frame_pair:675 - [P:60, R:5] s1=179.5180, s2=180.9653, ratio=0.9920 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:20,766] I ThreadPoolExecutor-0_15 - extract_frame_pair_multi_ring:711 - [P:60] Multi-ring extracted bits: [0, 1] from rings [4, 5]
+[2025-04-04 09:05:20,815] I ThreadPoolExecutor-0_1 - extract_frame_pair:675 - [P:72, R:4] s1=186.5066, s2=185.2373, ratio=1.0069 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:20,956] I ThreadPoolExecutor-0_16 - extract_frame_pair:675 - [P:63, R:5] s1=180.5495, s2=181.4004, ratio=0.9953 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:20,961] I ThreadPoolExecutor-0_16 - extract_frame_pair_multi_ring:711 - [P:63] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-04 09:05:21,089] I ThreadPoolExecutor-0_7 - extract_frame_pair:675 - [P:62, R:5] s1=180.5401, s2=181.4023, ratio=0.9952 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:21,092] I ThreadPoolExecutor-0_7 - extract_frame_pair_multi_ring:711 - [P:62] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-04 09:05:21,097] I ThreadPoolExecutor-0_2 - extract_frame_pair:675 - [P:74, R:4] s1=185.1703, s2=186.1383, ratio=0.9948 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:21,168] I ThreadPoolExecutor-0_18 - extract_frame_pair:675 - [P:75, R:4] s1=186.2805, s2=185.3078, ratio=1.0052 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:21,202] I ThreadPoolExecutor-0_8 - extract_frame_pair:675 - [P:64, R:5] s1=181.3997, s2=180.6081, ratio=1.0044 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:21,205] I ThreadPoolExecutor-0_8 - extract_frame_pair_multi_ring:711 - [P:64] Multi-ring extracted bits: [1, 0] from rings [4, 5]
+[2025-04-04 09:05:21,237] I ThreadPoolExecutor-0_10 - extract_frame_pair:675 - [P:76, R:4] s1=186.1770, s2=185.3177, ratio=1.0046 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:21,270] I ThreadPoolExecutor-0_6 - extract_frame_pair:675 - [P:61, R:5] s1=180.2501, s2=181.4446, ratio=0.9934 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:21,271] I ThreadPoolExecutor-0_6 - extract_frame_pair_multi_ring:711 - [P:61] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-04 09:05:21,272] I ThreadPoolExecutor-0_17 - extract_frame_pair:675 - [P:77, R:4] s1=185.2339, s2=186.1882, ratio=0.9949 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:21,284] I ThreadPoolExecutor-0_0 - extract_frame_pair:675 - [P:65, R:5] s1=181.4018, s2=180.6150, ratio=1.0044 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:21,297] I ThreadPoolExecutor-0_0 - extract_frame_pair_multi_ring:711 - [P:65] Multi-ring extracted bits: [1, 0] from rings [4, 5]
+[2025-04-04 09:05:21,319] I ThreadPoolExecutor-0_5 - extract_frame_pair:675 - [P:78, R:4] s1=184.7794, s2=186.0842, ratio=0.9930 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:21,354] I ThreadPoolExecutor-0_9 - extract_frame_pair:675 - [P:79, R:4] s1=185.1287, s2=186.1751, ratio=0.9944 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:21,402] I ThreadPoolExecutor-0_14 - extract_frame_pair:675 - [P:66, R:5] s1=180.1729, s2=181.3993, ratio=0.9932 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:21,412] I ThreadPoolExecutor-0_14 - extract_frame_pair_multi_ring:711 - [P:66] Multi-ring extracted bits: [0, 1] from rings [4, 5]
+[2025-04-04 09:05:21,802] I ThreadPoolExecutor-0_4 - extract_frame_pair:675 - [P:67, R:5] s1=181.4051, s2=180.5631, ratio=1.0047 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:21,803] I ThreadPoolExecutor-0_4 - extract_frame_pair_multi_ring:711 - [P:67] Multi-ring extracted bits: [1, 0] from rings [4, 5]
+[2025-04-04 09:05:21,806] I ThreadPoolExecutor-0_13 - extract_frame_pair:675 - [P:68, R:5] s1=181.3916, s2=180.5651, ratio=1.0046 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:21,809] I ThreadPoolExecutor-0_13 - extract_frame_pair_multi_ring:711 - [P:68] Multi-ring extracted bits: [1, 0] from rings [4, 5]
+[2025-04-04 09:05:22,038] I ThreadPoolExecutor-0_19 - extract_frame_pair:675 - [P:71, R:5] s1=181.2969, s2=180.4709, ratio=1.0046 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:22,041] I ThreadPoolExecutor-0_19 - extract_frame_pair_multi_ring:711 - [P:71] Multi-ring extracted bits: [1, 0] from rings [4, 5]
+[2025-04-04 09:05:22,191] I ThreadPoolExecutor-0_3 - extract_frame_pair:675 - [P:69, R:5] s1=180.3329, s2=181.2919, ratio=0.9947 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:22,193] I ThreadPoolExecutor-0_3 - extract_frame_pair_multi_ring:711 - [P:69] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-04 09:05:22,322] I ThreadPoolExecutor-0_11 - extract_frame_pair:675 - [P:70, R:5] s1=180.3946, s2=181.2971, ratio=0.9950 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:22,324] I ThreadPoolExecutor-0_11 - extract_frame_pair_multi_ring:711 - [P:70] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-04 09:05:22,527] I ThreadPoolExecutor-0_15 - extract_frame_pair:675 - [P:80, R:4] s1=185.1363, s2=186.1788, ratio=0.9944 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:22,531] I ThreadPoolExecutor-0_12 - extract_frame_pair:675 - [P:73, R:5] s1=181.2815, s2=180.4205, ratio=1.0048 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:22,532] I ThreadPoolExecutor-0_12 - extract_frame_pair_multi_ring:711 - [P:73] Multi-ring extracted bits: [1, 0] from rings [4, 5]
+[2025-04-04 09:05:22,665] I ThreadPoolExecutor-0_1 - extract_frame_pair:675 - [P:72, R:5] s1=180.0159, s2=181.2725, ratio=0.9931 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:22,666] I ThreadPoolExecutor-0_1 - extract_frame_pair_multi_ring:711 - [P:72] Multi-ring extracted bits: [0, 1] from rings [4, 5]
+[2025-04-04 09:05:22,696] I ThreadPoolExecutor-0_16 - extract_frame_pair:675 - [P:81, R:4] s1=185.1350, s2=186.1752, ratio=0.9944 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:22,888] I ThreadPoolExecutor-0_7 - extract_frame_pair:675 - [P:82, R:4] s1=186.1665, s2=185.2287, ratio=1.0051 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:22,892] I ThreadPoolExecutor-0_18 - extract_frame_pair:675 - [P:75, R:5] s1=180.4604, s2=181.3822, ratio=0.9949 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:22,893] I ThreadPoolExecutor-0_18 - extract_frame_pair_multi_ring:711 - [P:75] Multi-ring extracted bits: [0, 1] from rings [4, 5]
+[2025-04-04 09:05:23,202] I ThreadPoolExecutor-0_8 - extract_frame_pair:675 - [P:83, R:4] s1=185.1304, s2=186.1671, ratio=0.9944 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:23,233] I ThreadPoolExecutor-0_2 - extract_frame_pair:675 - [P:74, R:5] s1=180.3822, s2=181.2943, ratio=0.9950 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:23,235] I ThreadPoolExecutor-0_2 - extract_frame_pair_multi_ring:711 - [P:74] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-04 09:05:23,479] I ThreadPoolExecutor-0_10 - extract_frame_pair:675 - [P:76, R:5] s1=180.5290, s2=181.3349, ratio=0.9956 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:23,480] I ThreadPoolExecutor-0_10 - extract_frame_pair_multi_ring:711 - [P:76] Multi-ring extracted bits: [0, 1] from rings [4, 5]
+[2025-04-04 09:05:23,525] I ThreadPoolExecutor-0_14 - extract_frame_pair:675 - [P:86, R:4] s1=186.2328, s2=185.2086, ratio=1.0055 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:23,644] I ThreadPoolExecutor-0_0 - extract_frame_pair:675 - [P:85, R:4] s1=186.2363, s2=185.2076, ratio=1.0056 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:23,669] I ThreadPoolExecutor-0_5 - extract_frame_pair:675 - [P:78, R:5] s1=181.9848, s2=180.5728, ratio=1.0078 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:23,669] I ThreadPoolExecutor-0_6 - extract_frame_pair:675 - [P:84, R:4] s1=186.6410, s2=185.1970, ratio=1.0078 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:23,671] I ThreadPoolExecutor-0_5 - extract_frame_pair_multi_ring:711 - [P:78] Multi-ring extracted bits: [1, 0] from rings [4, 5]
+[2025-04-04 09:05:23,709] I ThreadPoolExecutor-0_9 - extract_frame_pair:675 - [P:79, R:5] s1=180.5298, s2=181.4468, ratio=0.9949 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:23,709] I ThreadPoolExecutor-0_9 - extract_frame_pair_multi_ring:711 - [P:79] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-04 09:05:23,722] I ThreadPoolExecutor-0_4 - extract_frame_pair:675 - [P:87, R:4] s1=185.2129, s2=186.1502, ratio=0.9950 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:23,734] I ThreadPoolExecutor-0_13 - extract_frame_pair:675 - [P:88, R:4] s1=186.2396, s2=185.2188, ratio=1.0055 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:23,751] I ThreadPoolExecutor-0_17 - extract_frame_pair:675 - [P:77, R:5] s1=180.4764, s2=181.3595, ratio=0.9951 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:23,764] I ThreadPoolExecutor-0_17 - extract_frame_pair_multi_ring:711 - [P:77] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-04 09:05:23,897] I ThreadPoolExecutor-0_19 - extract_frame_pair:675 - [P:89, R:4] s1=185.2188, s2=186.2392, ratio=0.9945 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:24,115] I ThreadPoolExecutor-0_3 - extract_frame_pair:675 - [P:90, R:4] s1=186.5981, s2=185.2911, ratio=1.0071 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:24,393] I ThreadPoolExecutor-0_12 - extract_frame_pair:675 - [P:92, R:4] s1=186.2339, s2=185.3339, ratio=1.0049 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:24,396] I ThreadPoolExecutor-0_11 - extract_frame_pair:675 - [P:91, R:4] s1=185.1986, s2=186.2397, ratio=0.9944 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:24,596] I ThreadPoolExecutor-0_15 - extract_frame_pair:675 - [P:80, R:5] s1=180.5505, s2=181.4478, ratio=0.9951 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:24,597] I ThreadPoolExecutor-0_15 - extract_frame_pair_multi_ring:711 - [P:80] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-04 09:05:24,693] I ThreadPoolExecutor-0_1 - extract_frame_pair:675 - [P:93, R:4] s1=185.2390, s2=186.2412, ratio=0.9946 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:24,875] I ThreadPoolExecutor-0_16 - extract_frame_pair:675 - [P:81, R:5] s1=180.5500, s2=181.4467, ratio=0.9951 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:24,876] I ThreadPoolExecutor-0_16 - extract_frame_pair_multi_ring:711 - [P:81] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-04 09:05:24,918] I ThreadPoolExecutor-0_18 - extract_frame_pair:675 - [P:94, R:4] s1=185.2384, s2=186.2406, ratio=0.9946 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:24,939] I ThreadPoolExecutor-0_7 - extract_frame_pair:675 - [P:82, R:5] s1=180.6187, s2=181.4421, ratio=0.9955 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:24,940] I ThreadPoolExecutor-0_7 - extract_frame_pair_multi_ring:711 - [P:82] Multi-ring extracted bits: [0, 1] from rings [4, 5]
+[2025-04-04 09:05:25,146] I ThreadPoolExecutor-0_2 - extract_frame_pair:675 - [P:95, R:4] s1=185.2379, s2=186.2406, ratio=0.9946 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:25,184] I ThreadPoolExecutor-0_8 - extract_frame_pair:675 - [P:83, R:5] s1=180.5543, s2=181.4503, ratio=0.9951 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:25,185] I ThreadPoolExecutor-0_8 - extract_frame_pair_multi_ring:711 - [P:83] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-04 09:05:25,240] I ThreadPoolExecutor-0_14 - extract_frame_pair:675 - [P:86, R:5] s1=181.4355, s2=180.5053, ratio=1.0052 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:25,240] I ThreadPoolExecutor-0_14 - extract_frame_pair_multi_ring:711 - [P:86] Multi-ring extracted bits: [0, 0] from rings [4, 5]
+[2025-04-04 09:05:25,252] I ThreadPoolExecutor-0_10 - extract_frame_pair:675 - [P:96, R:4] s1=184.7825, s2=186.0933, ratio=0.9930 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:25,595] I ThreadPoolExecutor-0_5 - extract_frame_pair:675 - [P:97, R:4] s1=185.1589, s2=186.0917, ratio=0.9950 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:25,888] I ThreadPoolExecutor-0_13 - extract_frame_pair:675 - [P:88, R:5] s1=181.3859, s2=180.5041, ratio=1.0049 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:25,890] I ThreadPoolExecutor-0_13 - extract_frame_pair_multi_ring:711 - [P:88] Multi-ring extracted bits: [0, 0] from rings [4, 5]
+[2025-04-04 09:05:25,942] I ThreadPoolExecutor-0_17 - extract_frame_pair:675 - [P:99, R:4] s1=185.1604, s2=186.0886, ratio=0.9950 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:25,969] I ThreadPoolExecutor-0_4 - extract_frame_pair:675 - [P:87, R:5] s1=181.3318, s2=180.5255, ratio=1.0045 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:25,972] I ThreadPoolExecutor-0_4 - extract_frame_pair_multi_ring:711 - [P:87] Multi-ring extracted bits: [1, 0] from rings [4, 5]
+[2025-04-04 09:05:26,017] I ThreadPoolExecutor-0_0 - extract_frame_pair:675 - [P:85, R:5] s1=181.4361, s2=180.5341, ratio=1.0050 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:26,018] I ThreadPoolExecutor-0_0 - extract_frame_pair_multi_ring:711 - [P:85] Multi-ring extracted bits: [0, 0] from rings [4, 5]
+[2025-04-04 09:05:26,033] I ThreadPoolExecutor-0_9 - extract_frame_pair:675 - [P:98, R:4] s1=186.0937, s2=185.1574, ratio=1.0051 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:26,079] I ThreadPoolExecutor-0_6 - extract_frame_pair:675 - [P:84, R:5] s1=182.0349, s2=180.5076, ratio=1.0085 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:26,080] I ThreadPoolExecutor-0_6 - extract_frame_pair_multi_ring:711 - [P:84] Multi-ring extracted bits: [0, 0] from rings [4, 5]
+[2025-04-04 09:05:26,164] I ThreadPoolExecutor-0_3 - extract_frame_pair:675 - [P:90, R:5] s1=180.1155, s2=181.2755, ratio=0.9936 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:26,170] I ThreadPoolExecutor-0_3 - extract_frame_pair_multi_ring:711 - [P:90] Multi-ring extracted bits: [0, 1] from rings [4, 5]
+[2025-04-04 09:05:26,281] I ThreadPoolExecutor-0_19 - extract_frame_pair:675 - [P:89, R:5] s1=180.5046, s2=181.3836, ratio=0.9952 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:26,283] I ThreadPoolExecutor-0_19 - extract_frame_pair_multi_ring:711 - [P:89] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-04 09:05:26,391] I ThreadPoolExecutor-0_12 - extract_frame_pair:675 - [P:92, R:5] s1=180.4895, s2=181.2802, ratio=0.9956 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:26,392] I ThreadPoolExecutor-0_12 - extract_frame_pair_multi_ring:711 - [P:92] Multi-ring extracted bits: [0, 1] from rings [4, 5]
+[2025-04-04 09:05:26,399] I ThreadPoolExecutor-0_11 - extract_frame_pair:675 - [P:91, R:5] s1=180.4156, s2=181.2896, ratio=0.9952 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:26,400] I ThreadPoolExecutor-0_11 - extract_frame_pair_multi_ring:711 - [P:91] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-04 09:05:26,431] I ThreadPoolExecutor-0_15 - extract_frame_pair:675 - [P:100, R:4] s1=185.1611, s2=186.0898, ratio=0.9950 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:26,492] I ThreadPoolExecutor-0_1 - extract_frame_pair:675 - [P:93, R:5] s1=180.4223, s2=181.2836, ratio=0.9952 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:26,495] I ThreadPoolExecutor-0_1 - extract_frame_pair_multi_ring:711 - [P:93] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-04 09:05:26,546] I ThreadPoolExecutor-0_7 - extract_frame_pair:675 - [P:102, R:4] s1=184.7418, s2=185.6619, ratio=0.9950 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:26,934] I ThreadPoolExecutor-0_16 - extract_frame_pair:675 - [P:101, R:4] s1=185.1318, s2=186.1765, ratio=0.9944 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:27,226] I ThreadPoolExecutor-0_18 - extract_frame_pair:675 - [P:94, R:5] s1=180.4216, s2=181.2829, ratio=0.9952 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:27,229] I ThreadPoolExecutor-0_18 - extract_frame_pair_multi_ring:711 - [P:94] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-04 09:05:27,450] I ThreadPoolExecutor-0_8 - extract_frame_pair:675 - [P:103, R:4] s1=184.0200, s2=184.5710, ratio=0.9970 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:27,494] I ThreadPoolExecutor-0_14 - extract_frame_pair:675 - [P:104, R:4] s1=184.5616, s2=183.3903, ratio=1.0064 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:27,549] I ThreadPoolExecutor-0_13 - extract_frame_pair:675 - [P:105, R:4] s1=183.0693, s2=184.0708, ratio=0.9946 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:27,559] I ThreadPoolExecutor-0_5 - extract_frame_pair:675 - [P:97, R:5] s1=181.3686, s2=180.5752, ratio=1.0044 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:27,561] I ThreadPoolExecutor-0_5 - extract_frame_pair_multi_ring:711 - [P:97] Multi-ring extracted bits: [1, 0] from rings [4, 5]
+[2025-04-04 09:05:27,561] I ThreadPoolExecutor-0_10 - extract_frame_pair:675 - [P:96, R:5] s1=181.9417, s2=180.5549, ratio=1.0077 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:27,570] I ThreadPoolExecutor-0_2 - extract_frame_pair:675 - [P:95, R:5] s1=180.4216, s2=181.2828, ratio=0.9952 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:27,574] I ThreadPoolExecutor-0_10 - extract_frame_pair_multi_ring:711 - [P:96] Multi-ring extracted bits: [1, 0] from rings [4, 5]
+[2025-04-04 09:05:27,576] I ThreadPoolExecutor-0_2 - extract_frame_pair_multi_ring:711 - [P:95] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-04 09:05:27,668] I ThreadPoolExecutor-0_17 - extract_frame_pair:675 - [P:99, R:5] s1=181.3685, s2=180.5782, ratio=1.0044 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:27,669] I ThreadPoolExecutor-0_17 - extract_frame_pair_multi_ring:711 - [P:99] Multi-ring extracted bits: [1, 0] from rings [4, 5]
+[2025-04-04 09:05:27,843] I ThreadPoolExecutor-0_0 - extract_frame_pair:675 - [P:107, R:4] s1=184.0643, s2=183.1333, ratio=1.0051 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:27,847] I ThreadPoolExecutor-0_9 - extract_frame_pair:675 - [P:98, R:5] s1=180.5738, s2=181.3685, ratio=0.9956 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:27,848] I ThreadPoolExecutor-0_9 - extract_frame_pair_multi_ring:711 - [P:98] Multi-ring extracted bits: [0, 1] from rings [4, 5]
+[2025-04-04 09:05:27,901] I ThreadPoolExecutor-0_6 - extract_frame_pair:675 - [P:108, R:4] s1=184.5118, s2=183.2103, ratio=1.0071 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:27,934] I ThreadPoolExecutor-0_4 - extract_frame_pair:675 - [P:106, R:4] s1=183.1349, s2=184.0626, ratio=0.9950 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:28,241] I ThreadPoolExecutor-0_3 - extract_frame_pair:675 - [P:109, R:4] s1=183.2102, s2=184.1783, ratio=0.9947 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:28,242] I ThreadPoolExecutor-0_11 - extract_frame_pair:675 - [P:112, R:4] s1=183.2229, s2=184.0842, ratio=0.9953 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:28,393] I ThreadPoolExecutor-0_19 - extract_frame_pair:675 - [P:110, R:4] s1=183.2229, s2=184.1806, ratio=0.9948 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:28,484] I ThreadPoolExecutor-0_1 - extract_frame_pair:675 - [P:113, R:4] s1=183.0953, s2=184.0485, ratio=0.9948 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:28,565] I ThreadPoolExecutor-0_15 - extract_frame_pair:675 - [P:100, R:5] s1=181.3692, s2=180.5786, ratio=1.0044 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:28,569] I ThreadPoolExecutor-0_15 - extract_frame_pair_multi_ring:711 - [P:100] Multi-ring extracted bits: [1, 0] from rings [4, 5]
+[2025-04-04 09:05:28,607] I ThreadPoolExecutor-0_12 - extract_frame_pair:675 - [P:111, R:4] s1=183.2229, s2=184.1806, ratio=0.9948 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:28,692] I ThreadPoolExecutor-0_7 - extract_frame_pair:675 - [P:102, R:5] s1=180.0938, s2=181.2022, ratio=0.9939 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:28,693] I ThreadPoolExecutor-0_7 - extract_frame_pair_multi_ring:711 - [P:102] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-04 09:05:28,857] I ThreadPoolExecutor-0_16 - extract_frame_pair:675 - [P:101, R:5] s1=180.5223, s2=181.3824, ratio=0.9953 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:28,858] I ThreadPoolExecutor-0_16 - extract_frame_pair_multi_ring:711 - [P:101] Multi-ring extracted bits: [1, 1] from rings [4, 5]
+[2025-04-04 09:05:29,192] I ThreadPoolExecutor-0_18 - extract_frame_pair:675 - [P:114, R:4] s1=184.4038, s2=183.0829, ratio=1.0072 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:29,273] I ThreadPoolExecutor-0_14 - extract_frame_pair:675 - [P:104, R:7] s1=69.6976, s2=69.9604, ratio=0.9962 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:29,275] I ThreadPoolExecutor-0_14 - extract_frame_pair_multi_ring:711 - [P:104] Multi-ring extracted bits: [0, 1] from rings [4, 7]
+[2025-04-04 09:05:29,322] I ThreadPoolExecutor-0_5 - extract_frame_pair:675 - [P:115, R:4] s1=183.0811, s2=184.0646, ratio=0.9947 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:29,419] I ThreadPoolExecutor-0_13 - extract_frame_pair:675 - [P:105, R:7] s1=69.9728, s2=69.7149, ratio=1.0037 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:29,422] I ThreadPoolExecutor-0_13 - extract_frame_pair_multi_ring:711 - [P:105] Multi-ring extracted bits: [1, 0] from rings [4, 7]
+[2025-04-04 09:05:29,516] I ThreadPoolExecutor-0_8 - extract_frame_pair:675 - [P:103, R:5] s1=181.0578, s2=179.7308, ratio=1.0074 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:29,519] I ThreadPoolExecutor-0_8 - extract_frame_pair_multi_ring:711 - [P:103] Multi-ring extracted bits: [1, 0] from rings [4, 5]
+[2025-04-04 09:05:29,541] I ThreadPoolExecutor-0_2 - extract_frame_pair:675 - [P:117, R:4] s1=184.0642, s2=183.0906, ratio=1.0053 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:29,557] I ThreadPoolExecutor-0_10 - extract_frame_pair:675 - [P:116, R:4] s1=184.0646, s2=183.0906, ratio=1.0053 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:29,597] I ThreadPoolExecutor-0_17 - extract_frame_pair:675 - [P:118, R:4] s1=184.0642, s2=183.0906, ratio=1.0053 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:29,648] I ThreadPoolExecutor-0_6 - extract_frame_pair:675 - [P:108, R:7] s1=69.4269, s2=69.8845, ratio=0.9935 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:29,649] I ThreadPoolExecutor-0_6 - extract_frame_pair_multi_ring:711 - [P:108] Multi-ring extracted bits: [0, 1] from rings [4, 7]
+[2025-04-04 09:05:29,688] I ThreadPoolExecutor-0_9 - extract_frame_pair:675 - [P:119, R:4] s1=183.0906, s2=184.0642, ratio=0.9947 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:29,716] I ThreadPoolExecutor-0_0 - extract_frame_pair:675 - [P:107, R:7] s1=69.7097, s2=69.9322, ratio=0.9968 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:29,725] I ThreadPoolExecutor-0_0 - extract_frame_pair_multi_ring:711 - [P:107] Multi-ring extracted bits: [0, 1] from rings [4, 7]
+[2025-04-04 09:05:29,788] I ThreadPoolExecutor-0_4 - extract_frame_pair:675 - [P:106, R:7] s1=69.7138, s2=69.9330, ratio=0.9969 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:29,795] I ThreadPoolExecutor-0_4 - extract_frame_pair_multi_ring:711 - [P:106] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-04 09:05:30,048] I ThreadPoolExecutor-0_11 - extract_frame_pair:675 - [P:112, R:7] s1=69.6291, s2=69.8476, ratio=0.9969 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:30,048] I ThreadPoolExecutor-0_11 - extract_frame_pair_multi_ring:711 - [P:112] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-04 09:05:30,113] I ThreadPoolExecutor-0_3 - extract_frame_pair:675 - [P:109, R:7] s1=69.6247, s2=69.8688, ratio=0.9965 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:30,113] I ThreadPoolExecutor-0_3 - extract_frame_pair_multi_ring:711 - [P:109] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-04 09:05:30,408] I ThreadPoolExecutor-0_19 - extract_frame_pair:675 - [P:110, R:7] s1=69.8834, s2=69.6270, ratio=1.0037 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:30,408] I ThreadPoolExecutor-0_19 - extract_frame_pair_multi_ring:711 - [P:110] Multi-ring extracted bits: [1, 0] from rings [4, 7]
+[2025-04-04 09:05:30,411] I ThreadPoolExecutor-0_1 - extract_frame_pair:675 - [P:113, R:7] s1=69.5345, s2=69.8269, ratio=0.9958 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:30,413] I ThreadPoolExecutor-0_1 - extract_frame_pair_multi_ring:711 - [P:113] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-04 09:05:30,584] I ThreadPoolExecutor-0_12 - extract_frame_pair:675 - [P:111, R:7] s1=69.6268, s2=69.8736, ratio=0.9965 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:30,584] I ThreadPoolExecutor-0_12 - extract_frame_pair_multi_ring:711 - [P:111] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-04 09:05:30,612] I ThreadPoolExecutor-0_7 - extract_frame_pair:675 - [P:121, R:4] s1=183.2058, s2=184.0060, ratio=0.9957 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:30,643] I ThreadPoolExecutor-0_15 - extract_frame_pair:675 - [P:120, R:4] s1=184.5162, s2=183.2090, ratio=1.0071 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:30,677] I ThreadPoolExecutor-0_16 - extract_frame_pair:675 - [P:122, R:4] s1=184.0081, s2=183.1318, ratio=1.0048 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:31,015] I ThreadPoolExecutor-0_18 - extract_frame_pair:675 - [P:114, R:7] s1=69.3190, s2=69.8145, ratio=0.9929 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:31,016] I ThreadPoolExecutor-0_18 - extract_frame_pair_multi_ring:711 - [P:114] Multi-ring extracted bits: [0, 1] from rings [4, 7]
+[2025-04-04 09:05:31,049] I ThreadPoolExecutor-0_5 - extract_frame_pair:675 - [P:115, R:7] s1=69.5157, s2=69.8130, ratio=0.9957 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:31,051] I ThreadPoolExecutor-0_5 - extract_frame_pair_multi_ring:711 - [P:115] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-04 09:05:31,104] I ThreadPoolExecutor-0_2 - extract_frame_pair:675 - [P:117, R:7] s1=69.8147, s2=69.5163, ratio=1.0043 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:31,105] I ThreadPoolExecutor-0_2 - extract_frame_pair_multi_ring:711 - [P:117] Multi-ring extracted bits: [0, 0] from rings [4, 7]
+[2025-04-04 09:05:31,203] I ThreadPoolExecutor-0_14 - extract_frame_pair:675 - [P:123, R:4] s1=183.1244, s2=183.9642, ratio=0.9954 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:31,213] I ThreadPoolExecutor-0_13 - extract_frame_pair:675 - [P:124, R:4] s1=183.9644, s2=183.1194, ratio=1.0046 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:31,351] I ThreadPoolExecutor-0_10 - extract_frame_pair:675 - [P:116, R:7] s1=69.8147, s2=69.5174, ratio=1.0043 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:31,352] I ThreadPoolExecutor-0_10 - extract_frame_pair_multi_ring:711 - [P:116] Multi-ring extracted bits: [0, 0] from rings [4, 7]
+[2025-04-04 09:05:31,410] I ThreadPoolExecutor-0_6 - extract_frame_pair:675 - [P:126, R:4] s1=182.4781, s2=183.8494, ratio=0.9925 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:31,470] I ThreadPoolExecutor-0_0 - extract_frame_pair:675 - [P:127, R:4] s1=182.8931, s2=183.8551, ratio=0.9948 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:31,475] I ThreadPoolExecutor-0_9 - extract_frame_pair:675 - [P:119, R:7] s1=69.8108, s2=69.5135, ratio=1.0043 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:31,476] I ThreadPoolExecutor-0_9 - extract_frame_pair_multi_ring:711 - [P:119] Multi-ring extracted bits: [1, 0] from rings [4, 7]
+[2025-04-04 09:05:31,532] I ThreadPoolExecutor-0_17 - extract_frame_pair:675 - [P:118, R:7] s1=69.8139, s2=69.5156, ratio=1.0043 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:31,533] I ThreadPoolExecutor-0_17 - extract_frame_pair_multi_ring:711 - [P:118] Multi-ring extracted bits: [0, 0] from rings [4, 7]
+[2025-04-04 09:05:31,534] I ThreadPoolExecutor-0_4 - extract_frame_pair:675 - [P:128, R:4] s1=182.8975, s2=183.8555, ratio=0.9948 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:31,534] I ThreadPoolExecutor-0_8 - extract_frame_pair:675 - [P:125, R:4] s1=183.1194, s2=183.9642, ratio=0.9954 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:31,812] I ThreadPoolExecutor-0_11 - extract_frame_pair:675 - [P:129, R:4] s1=182.9002, s2=183.8555, ratio=0.9948 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:31,814] I ThreadPoolExecutor-0_3 - extract_frame_pair:675 - [P:130, R:4] s1=183.8555, s2=182.8995, ratio=1.0052 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:32,056] I ThreadPoolExecutor-0_1 - extract_frame_pair:675 - [P:132, R:4] s1=182.4781, s2=183.8494, ratio=0.9925 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:32,281] I ThreadPoolExecutor-0_19 - extract_frame_pair:675 - [P:131, R:4] s1=182.8995, s2=183.8519, ratio=0.9948 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:32,286] I ThreadPoolExecutor-0_12 - extract_frame_pair:675 - [P:133, R:4] s1=182.8931, s2=183.8551, ratio=0.9948 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:32,293] I ThreadPoolExecutor-0_7 - extract_frame_pair:675 - [P:121, R:7] s1=69.6714, s2=70.0131, ratio=0.9951 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:32,300] I ThreadPoolExecutor-0_7 - extract_frame_pair_multi_ring:711 - [P:121] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-04 09:05:32,460] I ThreadPoolExecutor-0_15 - extract_frame_pair:675 - [P:120, R:7] s1=70.0675, s2=69.6714, ratio=1.0057 vs thr=1.0002 -> Bit=0
+[2025-04-04 09:05:32,461] I ThreadPoolExecutor-0_15 - extract_frame_pair_multi_ring:711 - [P:120] Multi-ring extracted bits: [0, 0] from rings [4, 7]
+[2025-04-04 09:05:32,461] I ThreadPoolExecutor-0_16 - extract_frame_pair:675 - [P:122, R:7] s1=69.7381, s2=70.0034, ratio=0.9962 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:32,464] I ThreadPoolExecutor-0_16 - extract_frame_pair_multi_ring:711 - [P:122] Multi-ring extracted bits: [0, 1] from rings [4, 7]
+[2025-04-04 09:05:32,798] I ThreadPoolExecutor-0_18 - extract_frame_pair:675 - [P:134, R:4] s1=182.8975, s2=183.8555, ratio=0.9948 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:32,840] I ThreadPoolExecutor-0_2 - extract_frame_pair:675 - [P:136, R:4] s1=183.8076, s2=182.8776, ratio=1.0051 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:32,873] I ThreadPoolExecutor-0_5 - extract_frame_pair:675 - [P:135, R:4] s1=182.8552, s2=183.8073, ratio=0.9948 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:32,911] I ThreadPoolExecutor-0_13 - extract_frame_pair:675 - [P:124, R:7] s1=69.7384, s2=70.0009, ratio=0.9963 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:32,913] I ThreadPoolExecutor-0_13 - extract_frame_pair_multi_ring:711 - [P:124] Multi-ring extracted bits: [0, 1] from rings [4, 7]
+[2025-04-04 09:05:32,949] I ThreadPoolExecutor-0_14 - extract_frame_pair:675 - [P:123, R:7] s1=69.7381, s2=70.0033, ratio=0.9962 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:32,949] I ThreadPoolExecutor-0_14 - extract_frame_pair_multi_ring:711 - [P:123] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-04 09:05:33,147] I ThreadPoolExecutor-0_6 - extract_frame_pair:675 - [P:126, R:7] s1=69.5250, s2=69.9968, ratio=0.9933 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:33,148] I ThreadPoolExecutor-0_6 - extract_frame_pair_multi_ring:711 - [P:126] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-04 09:05:33,156] I ThreadPoolExecutor-0_10 - extract_frame_pair:675 - [P:137, R:4] s1=182.8776, s2=183.8040, ratio=0.9950 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:33,251] I ThreadPoolExecutor-0_0 - extract_frame_pair:675 - [P:127, R:7] s1=69.7187, s2=69.9983, ratio=0.9960 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:33,252] I ThreadPoolExecutor-0_0 - extract_frame_pair_multi_ring:711 - [P:127] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-04 09:05:33,410] I ThreadPoolExecutor-0_4 - extract_frame_pair:675 - [P:128, R:7] s1=69.9997, s2=69.7241, ratio=1.0040 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:33,410] I ThreadPoolExecutor-0_4 - extract_frame_pair_multi_ring:711 - [P:128] Multi-ring extracted bits: [1, 0] from rings [4, 7]
+[2025-04-04 09:05:33,415] I ThreadPoolExecutor-0_9 - extract_frame_pair:675 - [P:138, R:4] s1=182.4476, s2=183.8102, ratio=0.9926 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:33,420] I ThreadPoolExecutor-0_8 - extract_frame_pair:675 - [P:125, R:7] s1=69.7386, s2=70.0041, ratio=0.9962 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:33,421] I ThreadPoolExecutor-0_8 - extract_frame_pair_multi_ring:711 - [P:125] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-04 09:05:33,448] I ThreadPoolExecutor-0_17 - extract_frame_pair:675 - [P:139, R:4] s1=183.8150, s2=182.8658, ratio=1.0052 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:33,658] I ThreadPoolExecutor-0_11 - extract_frame_pair:675 - [P:129, R:7] s1=69.9997, s2=69.7230, ratio=1.0040 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:33,659] I ThreadPoolExecutor-0_11 - extract_frame_pair_multi_ring:711 - [P:129] Multi-ring extracted bits: [1, 0] from rings [4, 7]
+[2025-04-04 09:05:33,739] I ThreadPoolExecutor-0_3 - extract_frame_pair:675 - [P:130, R:7] s1=69.7229, s2=69.9964, ratio=0.9961 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:33,741] I ThreadPoolExecutor-0_3 - extract_frame_pair_multi_ring:711 - [P:130] Multi-ring extracted bits: [0, 1] from rings [4, 7]
+[2025-04-04 09:05:33,839] I ThreadPoolExecutor-0_1 - extract_frame_pair:675 - [P:132, R:7] s1=70.1849, s2=69.7327, ratio=1.0065 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:33,840] I ThreadPoolExecutor-0_1 - extract_frame_pair_multi_ring:711 - [P:132] Multi-ring extracted bits: [1, 0] from rings [4, 7]
+[2025-04-04 09:05:33,946] I ThreadPoolExecutor-0_19 - extract_frame_pair:675 - [P:131, R:7] s1=69.9964, s2=69.7207, ratio=1.0040 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:33,947] I ThreadPoolExecutor-0_19 - extract_frame_pair_multi_ring:711 - [P:131] Multi-ring extracted bits: [1, 0] from rings [4, 7]
+[2025-04-04 09:05:34,014] I ThreadPoolExecutor-0_12 - extract_frame_pair:675 - [P:133, R:7] s1=69.7327, s2=70.0139, ratio=0.9960 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:34,015] I ThreadPoolExecutor-0_12 - extract_frame_pair_multi_ring:711 - [P:133] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-04 09:05:34,146] I ThreadPoolExecutor-0_7 - extract_frame_pair:675 - [P:140, R:4] s1=183.8084, s2=182.8735, ratio=1.0051 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:34,353] I ThreadPoolExecutor-0_16 - extract_frame_pair:675 - [P:142, R:4] s1=182.4576, s2=183.3186, ratio=0.9953 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:34,368] I ThreadPoolExecutor-0_15 - extract_frame_pair:675 - [P:141, R:4] s1=182.8735, s2=183.6648, ratio=0.9957 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:34,589] I ThreadPoolExecutor-0_2 - extract_frame_pair:675 - [P:136, R:7] s1=69.7814, s2=70.0280, ratio=0.9965 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:34,589] I ThreadPoolExecutor-0_2 - extract_frame_pair_multi_ring:711 - [P:136] Multi-ring extracted bits: [0, 1] from rings [4, 7]
+[2025-04-04 09:05:34,652] I ThreadPoolExecutor-0_5 - extract_frame_pair:675 - [P:135, R:7] s1=70.0447, s2=69.7813, ratio=1.0038 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:34,654] I ThreadPoolExecutor-0_5 - extract_frame_pair_multi_ring:711 - [P:135] Multi-ring extracted bits: [1, 0] from rings [4, 7]
+[2025-04-04 09:05:34,667] I ThreadPoolExecutor-0_13 - extract_frame_pair:675 - [P:143, R:4] s1=182.3350, s2=183.2712, ratio=0.9949 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:34,718] I ThreadPoolExecutor-0_18 - extract_frame_pair:675 - [P:134, R:7] s1=69.7443, s2=70.0124, ratio=0.9962 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:34,726] I ThreadPoolExecutor-0_18 - extract_frame_pair_multi_ring:711 - [P:134] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-04 09:05:34,851] I ThreadPoolExecutor-0_10 - extract_frame_pair:675 - [P:137, R:7] s1=70.0349, s2=69.7886, ratio=1.0035 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:34,852] I ThreadPoolExecutor-0_10 - extract_frame_pair_multi_ring:711 - [P:137] Multi-ring extracted bits: [1, 0] from rings [4, 7]
+[2025-04-04 09:05:34,867] I ThreadPoolExecutor-0_14 - extract_frame_pair:675 - [P:144, R:4] s1=181.8365, s2=183.2325, ratio=0.9924 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:34,934] I ThreadPoolExecutor-0_6 - extract_frame_pair:675 - [P:145, R:4] s1=182.2592, s2=183.2362, ratio=0.9947 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:35,033] I ThreadPoolExecutor-0_0 - extract_frame_pair:675 - [P:146, R:4] s1=183.2362, s2=182.2655, ratio=1.0053 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:35,131] I ThreadPoolExecutor-0_4 - extract_frame_pair:675 - [P:147, R:4] s1=182.2655, s2=183.2325, ratio=0.9947 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:35,222] I ThreadPoolExecutor-0_8 - extract_frame_pair:675 - [P:148, R:4] s1=183.2325, s2=182.2683, ratio=1.0053 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:35,232] I ThreadPoolExecutor-0_17 - extract_frame_pair:675 - [P:139, R:7] s1=69.7475, s2=70.0008, ratio=0.9964 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:35,232] I ThreadPoolExecutor-0_17 - extract_frame_pair_multi_ring:711 - [P:139] Multi-ring extracted bits: [0, 1] from rings [4, 7]
+[2025-04-04 09:05:35,294] I ThreadPoolExecutor-0_9 - extract_frame_pair:675 - [P:138, R:7] s1=69.5587, s2=70.0040, ratio=0.9936 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:35,295] I ThreadPoolExecutor-0_9 - extract_frame_pair_multi_ring:711 - [P:138] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-04 09:05:35,444] I ThreadPoolExecutor-0_3 - extract_frame_pair:675 - [P:150, R:4] s1=183.6657, s2=182.4175, ratio=1.0068 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:35,461] I ThreadPoolExecutor-0_11 - extract_frame_pair:675 - [P:149, R:4] s1=183.2325, s2=182.2683, ratio=1.0053 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:35,696] I ThreadPoolExecutor-0_1 - extract_frame_pair:675 - [P:151, R:4] s1=182.4179, s2=183.3019, ratio=0.9952 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:35,778] I ThreadPoolExecutor-0_7 - extract_frame_pair:675 - [P:140, R:7] s1=69.7496, s2=70.0027, ratio=0.9964 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:35,779] I ThreadPoolExecutor-0_7 - extract_frame_pair_multi_ring:711 - [P:140] Multi-ring extracted bits: [0, 1] from rings [4, 7]
+[2025-04-04 09:05:35,880] I ThreadPoolExecutor-0_12 - extract_frame_pair:675 - [P:153, R:4] s1=182.3027, s2=183.2066, ratio=0.9951 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:35,905] I ThreadPoolExecutor-0_19 - extract_frame_pair:675 - [P:152, R:4] s1=183.2380, s2=182.3027, ratio=1.0051 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:36,184] I ThreadPoolExecutor-0_15 - extract_frame_pair:675 - [P:141, R:7] s1=69.7500, s2=70.0028, ratio=0.9964 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:36,187] I ThreadPoolExecutor-0_15 - extract_frame_pair_multi_ring:711 - [P:141] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-04 09:05:36,205] I ThreadPoolExecutor-0_16 - extract_frame_pair:675 - [P:142, R:7] s1=70.0036, s2=69.7392, ratio=1.0038 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:36,206] I ThreadPoolExecutor-0_16 - extract_frame_pair_multi_ring:711 - [P:142] Multi-ring extracted bits: [1, 0] from rings [4, 7]
+[2025-04-04 09:05:36,335] I ThreadPoolExecutor-0_5 - extract_frame_pair:675 - [P:155, R:4] s1=182.3372, s2=183.2066, ratio=0.9953 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:36,369] I ThreadPoolExecutor-0_13 - extract_frame_pair:675 - [P:143, R:7] s1=69.7386, s2=69.9907, ratio=0.9964 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:36,369] I ThreadPoolExecutor-0_13 - extract_frame_pair_multi_ring:711 - [P:143] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-04 09:05:36,396] I ThreadPoolExecutor-0_18 - extract_frame_pair:675 - [P:156, R:4] s1=183.5804, s2=182.2791, ratio=1.0071 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:36,442] I ThreadPoolExecutor-0_2 - extract_frame_pair:675 - [P:154, R:4] s1=183.2066, s2=182.3372, ratio=1.0048 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:36,535] I ThreadPoolExecutor-0_6 - extract_frame_pair:675 - [P:145, R:7] s1=69.7337, s2=69.9844, ratio=0.9964 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:36,537] I ThreadPoolExecutor-0_6 - extract_frame_pair_multi_ring:711 - [P:145] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-04 09:05:36,563] I ThreadPoolExecutor-0_14 - extract_frame_pair:675 - [P:144, R:7] s1=69.5562, s2=69.9911, ratio=0.9938 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:36,564] I ThreadPoolExecutor-0_14 - extract_frame_pair_multi_ring:711 - [P:144] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-04 09:05:36,706] I ThreadPoolExecutor-0_0 - extract_frame_pair:675 - [P:146, R:7] s1=69.7466, s2=69.9874, ratio=0.9966 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:36,707] I ThreadPoolExecutor-0_0 - extract_frame_pair_multi_ring:711 - [P:146] Multi-ring extracted bits: [0, 1] from rings [4, 7]
+[2025-04-04 09:05:36,747] I ThreadPoolExecutor-0_10 - extract_frame_pair:675 - [P:157, R:4] s1=182.2822, s2=183.2188, ratio=0.9949 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:36,903] I ThreadPoolExecutor-0_4 - extract_frame_pair:675 - [P:147, R:7] s1=69.7335, s2=69.9871, ratio=0.9964 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:36,905] I ThreadPoolExecutor-0_4 - extract_frame_pair_multi_ring:711 - [P:147] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-04 09:05:36,914] I ThreadPoolExecutor-0_8 - extract_frame_pair:675 - [P:148, R:7] s1=69.9870, s2=69.7366, ratio=1.0036 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:36,917] I ThreadPoolExecutor-0_8 - extract_frame_pair_multi_ring:711 - [P:148] Multi-ring extracted bits: [0, 0] from rings [4, 7]
+[2025-04-04 09:05:37,018] I ThreadPoolExecutor-0_17 - extract_frame_pair:675 - [P:158, R:4] s1=182.3005, s2=183.2220, ratio=0.9950 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:37,030] I ThreadPoolExecutor-0_9 - extract_frame_pair:675 - [P:159, R:4] s1=182.3030, s2=183.2228, ratio=0.9950 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:37,038] I ThreadPoolExecutor-0_11 - extract_frame_pair:675 - [P:149, R:7] s1=69.9893, s2=69.7363, ratio=1.0036 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:37,039] I ThreadPoolExecutor-0_11 - extract_frame_pair_multi_ring:711 - [P:149] Multi-ring extracted bits: [0, 0] from rings [4, 7]
+[2025-04-04 09:05:37,052] I ThreadPoolExecutor-0_3 - extract_frame_pair:675 - [P:150, R:7] s1=70.1993, s2=69.7760, ratio=1.0061 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:37,053] I ThreadPoolExecutor-0_3 - extract_frame_pair_multi_ring:711 - [P:150] Multi-ring extracted bits: [0, 0] from rings [4, 7]
+[2025-04-04 09:05:37,114] I ThreadPoolExecutor-0_1 - extract_frame_pair:675 - [P:151, R:7] s1=70.0369, s2=69.7894, ratio=1.0035 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:37,123] I ThreadPoolExecutor-0_1 - extract_frame_pair_multi_ring:711 - [P:151] Multi-ring extracted bits: [1, 0] from rings [4, 7]
+[2025-04-04 09:05:37,173] I ThreadPoolExecutor-0_12 - extract_frame_pair:675 - [P:153, R:7] s1=69.6482, s2=69.9639, ratio=0.9955 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:37,177] I ThreadPoolExecutor-0_12 - extract_frame_pair_multi_ring:711 - [P:153] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-04 09:05:37,207] I ThreadPoolExecutor-0_19 - extract_frame_pair:675 - [P:152, R:7] s1=70.0005, s2=69.6482, ratio=1.0051 vs thr=1.0003 -> Bit=0
+[2025-04-04 09:05:37,222] I ThreadPoolExecutor-0_19 - extract_frame_pair_multi_ring:711 - [P:152] Multi-ring extracted bits: [0, 0] from rings [4, 7]
+[2025-04-04 09:05:37,429] I ThreadPoolExecutor-0_5 - extract_frame_pair:675 - [P:155, R:7] s1=69.6465, s2=69.9625, ratio=0.9955 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:37,432] I ThreadPoolExecutor-0_5 - extract_frame_pair_multi_ring:711 - [P:155] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-04 09:05:37,479] I ThreadPoolExecutor-0_2 - extract_frame_pair:675 - [P:154, R:7] s1=69.6490, s2=69.9622, ratio=0.9955 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:37,483] I ThreadPoolExecutor-0_2 - extract_frame_pair_multi_ring:711 - [P:154] Multi-ring extracted bits: [0, 1] from rings [4, 7]
+[2025-04-04 09:05:37,492] I ThreadPoolExecutor-0_18 - extract_frame_pair:675 - [P:156, R:7] s1=69.4116, s2=69.8965, ratio=0.9931 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:37,503] I ThreadPoolExecutor-0_18 - extract_frame_pair_multi_ring:711 - [P:156] Multi-ring extracted bits: [0, 1] from rings [4, 7]
+[2025-04-04 09:05:37,507] I ThreadPoolExecutor-0_10 - extract_frame_pair:675 - [P:157, R:7] s1=69.5865, s2=69.8906, ratio=0.9956 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:37,520] I ThreadPoolExecutor-0_10 - extract_frame_pair_multi_ring:711 - [P:157] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-04 09:05:37,588] I ThreadPoolExecutor-0_17 - extract_frame_pair:675 - [P:158, R:7] s1=69.5880, s2=69.8938, ratio=0.9956 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:37,597] I ThreadPoolExecutor-0_17 - extract_frame_pair_multi_ring:711 - [P:158] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-04 09:05:37,634] I ThreadPoolExecutor-0_9 - extract_frame_pair:675 - [P:159, R:7] s1=69.6034, s2=69.8936, ratio=0.9958 vs thr=1.0003 -> Bit=1
+[2025-04-04 09:05:37,645] I ThreadPoolExecutor-0_9 - extract_frame_pair_multi_ring:711 - [P:159] Multi-ring extracted bits: [1, 1] from rings [4, 7]
+[2025-04-04 09:05:37,648] I MainThread - extract_watermark_from_video:962 - Parallel extraction finished. Pairs submitted: 160. Pairs processed: 160. Pairs with failed extraction (None bits): 0.
+[2025-04-04 09:05:37,649] I MainThread - extract_watermark_from_video:977 - Total bits collected: 320 (Expected based on pairs processed: 320)
+[2025-04-04 09:05:37,649] I MainThread - extract_watermark_from_video:984 - Attempting to decode 5 potential packets (Packet Size: 64 bits)...
+[2025-04-04 09:05:37,650] I MainThread - extract_watermark_from_video:1041 - Successfully decoded payload from packet #1 (ECC corrected: 0).
+[2025-04-04 09:05:37,651] I MainThread - extract_watermark_from_video:1041 - Successfully decoded payload from packet #2 (ECC corrected: 0).
+[2025-04-04 09:05:37,651] I MainThread - extract_watermark_from_video:1041 - Successfully decoded payload from packet #3 (ECC corrected: 0).
+[2025-04-04 09:05:37,652] I MainThread - extract_watermark_from_video:1041 - Successfully decoded payload from packet #4 (ECC corrected: 0).
+[2025-04-04 09:05:37,653] I MainThread - extract_watermark_from_video:1041 - Successfully decoded payload from packet #5 (ECC corrected: 0).
+[2025-04-04 09:05:37,654] I MainThread - extract_watermark_from_video:1051 - Packet decoding summary: Success=5, Failed=0. Total ECC corrections: 0.
+[2025-04-04 09:05:37,655] I MainThread - extract_watermark_from_video:1060 - Payload voting results:
+[2025-04-04 09:05:37,655] I MainThread - extract_watermark_from_video:1064 -   Payload (Hex ID: a6be6d7bf702377f): 5 votes
+[2025-04-04 09:05:37,655] I MainThread - extract_watermark_from_video:1071 - Most common payload selected with 5/5 votes (Confidence: 100.0%).
+[2025-04-04 09:05:37,655] I MainThread - extract_watermark_from_video:1078 - Extraction and processing finished. Total time: 33.88 sec.
+[2025-04-04 09:05:37,656] I MainThread - main:1135 - Successfully decoded extracted payload to Hex ID: a6be6d7bf702377f
+[2025-04-04 09:05:37,657] I MainThread - main:1150 - ID verification successful.
+[2025-04-04 09:05:37,657] I MainThread - main:1157 - --- Extraction Main Process Finished ---
+[2025-04-04 09:05:37,658] I MainThread - main:1159 - --- Total Extractor Script Time: 36.29 sec ---
+[2025-04-04 09:05:38,049] I MainThread - <module>:1185 - Profiling stats saved to profile_stats_extract_n2.txt
