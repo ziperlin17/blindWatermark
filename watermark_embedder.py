@@ -99,36 +99,75 @@ def idct_1d(coeffs_1d: np.ndarray) -> np.ndarray:
 
 
 def dtcwt_transform(y_plane: np.ndarray, frame_number: int = -1) -> Optional[Pyramid]:
+    """
+    Выполняет прямое Двойное Древовидное Комплексное Вейвлет-Преобразование (DTCWT)
+    для одного 2D канала изображения (y_plane).
+    Args:
+        y_plane: Входной 2D NumPy массив (один цветовой канал, ожидается нормализация к [0, 1] и тип float).
+        frame_number: Номер кадра (используется только для логирования).
+    Returns:
+        Объект dtcwt.Pyramid, содержащий подполосы преобразования (lowpass и highpasses),
+        и добавленный атрибут 'padding_info', либо None в случае ошибки.
+    """
     func_start_time = time.time();
-    logging.debug(f"[F:{frame_number}] Input plane shape: {y_plane.shape}")
-    if np.any(np.isnan(y_plane)): logging.warning(f"[F:{frame_number}] NaNs detected in input plane!")
+    logging.debug(f"[F:{frame_number}] Input plane shape: {y_plane.shape}") #
+    if np.any(np.isnan(y_plane)):
+        logging.warning(f"[F:{frame_number}] NaNs detected in input plane!")
+
     try:
-        t = Transform2d();
-        rows, cols = y_plane.shape;
+        #создание объекта преобразования
+        t = Transform2d(); #экземпляр класса Transform2d из библиотеки dtcwt.
+                           #содержит методы для прямого и обратного преобразования.
+        # подготовка к паддингу (добавлению полей, если необходимо)
+        rows, cols = y_plane.shape; #текущие размеры входного массива (высота, ширина)
         pad_rows = rows % 2 != 0;
-        pad_cols = cols % 2 != 0
-        if pad_rows or pad_cols:
+        pad_cols = cols % 2 != 0;
+
+        if pad_rows or pad_cols: #если хотя бы одно измерение нечетное, то
+            # Добавляем поля к массиву y_plane с помощью np.pad
+            # mode='reflect': Значения в добавляемых полях являются отражением крайних строк/столбцов
+            #                 исходного массива. Это предпочтительнее, чем добавление нулей,
+            #                 так как вносит меньше артефактов на краях при вейвлет-преобразовании.
             y_plane_padded = np.pad(y_plane, ((0, pad_rows), (0, pad_cols)), mode='reflect')
+            logging.debug(f"[F:{frame_number}] Padded input from {y_plane.shape} to {y_plane_padded.shape}")
         else:
             y_plane_padded = y_plane
+
+        # 5. Выполнение прямого DTCWT
+        # y_plane_padded.astype(np.float32): убеждаемся, что данные имеют тип float32 (требование библиотеки).
+        # nlevels=1: Задаем выполнение только одного уровня разложения. Это разделит
+        #            изображение на одну низкочастотную (LL) и шесть высокочастотных (ВЧ) подполос.
         pyramid = t.forward(y_plane_padded.astype(np.float32), nlevels=1)
+
         if hasattr(pyramid, 'lowpass') and pyramid.lowpass is not None:
-            lp = pyramid.lowpass;
+            lp = pyramid.lowpass; #получаем саму lowpass-подполосу
             logging.debug(f"[F:{frame_number}] DTCWT lowpass shape: {lp.shape}");
         else:
+            # Если lowpass отсутствует, значит преобразование не удалось
             logging.error(f"[F:{frame_number}] DTCWT no valid lowpass!");
             return None
-        logging.debug(f"[F:{frame_number}] DTCWT transform time: {time.time() - func_start_time:.4f}s");
-        pyramid.padding_info = (pad_rows, pad_cols);
-        return pyramid
-    except Exception as e:
-        logging.error(f"[F:{frame_number}] Exception during DTCWT transform: {e}", exc_info=True);
-        return None
 
+        # 7. Сохранение информации о паддинге
+        # Добавляем пользовательский атрибут 'padding_info' к объекту 'pyramid'.
+        # Сохраняем туда кортеж (pad_rows, pad_cols), который показывает,
+        # были ли добавлены строка и/или столбец.
+        # Эта информация КРИТИЧЕСКИ ВАЖНА для функции обратного преобразования (dtcwt_inverse),
+        # чтобы она знала, нужно ли обрезать реконструированное изображение и на сколько.
+        pyramid.padding_info = (pad_rows, pad_cols);
+
+        logging.debug(f"[F:{frame_number}] DTCWT transform time: {time.time() - func_start_time:.4f}s");
+        return pyramid # Возвращаем объект 'pyramid', содержащий все подполосы и информацию о паддинге
+
+    # 9. Обработка исключений
+    except Exception as e: # Если на любом шаге внутри try возникла ошибка (любого типа)
+        # Логируем ошибку, включая traceback для детальной диагностики
+        logging.error(f"[F:{frame_number}] Exception during DTCWT transform: {e}", exc_info=True);
+        return None # Возвращаем None, сигнализируя об ошибке
 
 def dtcwt_inverse(pyramid: Pyramid, frame_number: int = -1) -> Optional[np.ndarray]:
     func_start_time = time.time();
-    if not isinstance(pyramid, Pyramid) or not hasattr(pyramid, 'lowpass'): logging.error(
+    if not isinstance(pyramid, Pyramid) or not hasattr(pyramid, 'low'
+                                                                'pass'): logging.error(
         f"[F:{frame_number}] Invalid pyramid."); return None
     logging.debug(f"[F:{frame_number}] Input lowpass shape for inverse: {pyramid.lowpass.shape}")
     try:
@@ -192,27 +231,44 @@ def get_ring_coords_cached(subband_shape: Tuple[int, int], n_rings: int) -> List
     return _ring_division_internal(subband_shape, n_rings)
 
 
-def ring_division(lowpass_subband: np.ndarray, n_rings: int = N_RINGS, frame_number: int = -1) -> List[
-    Optional[np.ndarray]]:
+def ring_division(lowpass_subband: np.ndarray, n_rings: int = N_RINGS, frame_number: int = -1) -> List[Optional[np.ndarray]]:
+    """
+    Вычисляет и возвращает координаты пикселей для каждого из n_rings концентрических колец
+    в заданной низкочастотной подполосе (lowpass_subband). Использует кэширование.
+    Args:
+        lowpass_subband: 2D NumPy массив низкочастотной подполосы, полученной после DTCWT.
+        n_rings: Желаемое количество колец (по умолчанию N_RINGS = 8).
+        frame_number: Номер кадра (для логирования).
+    Returns:
+        Список (List), содержащий n_rings элементов. Каждый элемент списка - это:
+        - NumPy массив формы (N, 2) с координатами (строка, столбец) пикселей
+          соответствующего кольца, где N - количество пикселей в кольце.
+        - None, если кольцо оказалось пустым или произошла ошибка.
+    """
     if not isinstance(lowpass_subband, np.ndarray) or lowpass_subband.ndim != 2:
-        logging.error(
-            f"[F:{frame_number}] Input to ring_division is not a 2D numpy array! Type: {type(lowpass_subband)}")
-        return [None] * n_rings
-    shape = lowpass_subband.shape
-    try:
-        coords_list_np = get_ring_coords_cached(shape, n_rings)
-        logging.debug(
-            f"[F:{frame_number}] Using cached/calculated ring coords (type: {type(coords_list_np)}) for shape {shape}")
-        if not isinstance(coords_list_np, list) or not all(
-                isinstance(item, (np.ndarray, type(None))) for item in coords_list_np):
-            logging.error(f"[F:{frame_number}] Cached ring division result has unexpected type. Recalculating.")
-            get_ring_coords_cached.cache_clear();
-            coords_list_np = _ring_division_internal(shape, n_rings)
-        return [arr.copy() if arr is not None else None for arr in coords_list_np]
-    except Exception as e:
-        logging.error(f"[F:{frame_number}] Exception in ring_division or cache lookup: {e}", exc_info=True);
         return [None] * n_rings
 
+    shape = lowpass_subband.shape # shape будет кортежем (высота, ширина), например, (211, 180)
+
+    #обращение к Кэширующей Функции
+    try:
+        #функция провеяет кэш. Если результат для данной комбинации 'shape' и 'n_rings' есть в кэше,
+        # она вернет его немедленно. Если нет - она вызовет _ring_division_internal
+        # для вычисления координат, сохранит результат в кэш и вернет его.
+        coords_list_np = get_ring_coords_cached(shape, n_rings)
+        # Проверяем, что это действительно список, и все его элементы - либо NumPy массивы, либо None.
+        if not isinstance(coords_list_np, list) or not all(
+                isinstance(item, (np.ndarray, type(None))) for item in coords_list_np):
+            get_ring_coords_cached.cache_clear(); #очистка всего кэша
+            #повторный вызов _ring_division_internal (без кэша)
+            coords_list_np = _ring_division_internal(shape, n_rings)
+
+        # Для каждого элемента arr (который является NumPy массивом координат или None):
+        #   - Если arr не None, создаем его КОПИЮ (arr.copy()) и добавляем в новый список.
+        #   - Если arr это None, добавляем None в новый список.
+        return [arr.copy() if arr is not None else None for arr in coords_list_np]
+    except Exception as e:
+        return [None] * n_rings
 
 def calculate_entropies(ring_vals: np.ndarray, frame_number: int = -1, ring_index: int = -1) -> Tuple[float, float]:
     eps = 1e-12;
@@ -679,7 +735,7 @@ def write_video(frames: List[np.ndarray], out_path: str, fps: float, codec: str 
 
 def embed_frame_pair(
         frame1_bgr: np.ndarray, frame2_bgr: np.ndarray, bits: List[int],
-        selected_ring_indices: List[int],  # список выбранных колец
+        selected_ring_indices: List[int],
         n_rings: int = N_RINGS,
         frame_number: int = 0,
         use_perceptual_masking: bool = USE_PERCEPTUAL_MASKING,
@@ -704,6 +760,7 @@ def embed_frame_pair(
         if frame1_bgr.shape != frame2_bgr.shape: logging.error(
             f"[P:{pair_num_log}] Frame shapes mismatch."); return None, None
 
+        #фрагмент функции embed_frame_pair()
         try:
             frame1_ycrcb = cv2.cvtColor(frame1_bgr, cv2.COLOR_BGR2YCrCb);
             frame2_ycrcb = cv2.cvtColor(frame2_bgr,
@@ -714,11 +771,12 @@ def embed_frame_pair(
 
         comp_name = ['Y', 'Cr', 'Cb'][embed_component];
         logging.debug(f"[P:{pair_num_log}] Using {comp_name}")
+        #фрагмент функции embed_frame_pair()
         try:
             # извлечение и нормализация комп.
             comp1 = frame1_ycrcb[:, :, embed_component].astype(np.float32) / 255.0
             comp2 = frame2_ycrcb[:, :, embed_component].astype(np.float32) / 255.0
-            # Сохраняем остальные компоненты для сборки
+            #сохранение оригинальных Y и Cb каналов
             Y1_orig = frame1_ycrcb[:, :, 0];
             Cr1 = frame1_ycrcb[:, :, 1];
             Cb1 = frame1_ycrcb[:, :, 2]
@@ -729,16 +787,16 @@ def embed_frame_pair(
             logging.error(f"[P:{pair_num_log}] Invalid component index.");
             return None, None
 
-        # DTCWT
-        pyr1 = dtcwt_transform(comp1, frame_number=frame_number);
+        # DTCWT #фрагмент кода вызова DTCWT из embed_frame_pair
+        pyr1 = dtcwt_transform(comp1, frame_number=frame_number)
         pyr2 = dtcwt_transform(comp2, frame_number=frame_number + 1)
         if pyr1 is None or pyr2 is None or pyr1.lowpass is None or pyr2.lowpass is None:
-            logging.error(f"[P:{pair_num_log}] DTCWT failed.");
+            logging.error(f"[P:{pair_num_log}] DTCWT failed.")
             return None, None
-        L1 = pyr1.lowpass.copy();
+        L1 = pyr1.lowpass.copy()
         L2 = pyr2.lowpass.copy()
 
-        # Деление на кольца (координаты)
+        # Деление на кольца (координаты)     #фрагмент кода вызова ring_division из embed_frame_pair
         rings1_coords_np = ring_division(L1, n_rings=n_rings, frame_number=frame_number)
         rings2_coords_np = ring_division(L2, n_rings=n_rings, frame_number=frame_number + 1)
 
@@ -1119,7 +1177,7 @@ def embed_watermark_in_video(
 
 def main():
     main_start_time = time.time()
-    input_video = "input.mp4";
+    input_video = "input2.mp4";
     base_output_name = "watermarked_video_n2";
     output_video = base_output_name + OUTPUT_EXTENSION
     logging.info("--- Starting Embedding Main Process ---")
