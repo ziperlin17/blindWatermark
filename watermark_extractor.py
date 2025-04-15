@@ -17,7 +17,7 @@ import functools
 import concurrent.futures
 import uuid
 from math import ceil
-
+from concurrent.futures import ProcessPoolExecutor
 # --- Попытка импорта и инициализации Galois ---
 try:
     import galois
@@ -356,45 +356,40 @@ def extract_watermark_from_video(
         mw:Optional[int]=MAX_WORKERS_EXTRACT) -> Optional[bytes]:
     logging.info(f"Starting extraction (Pool+Select, Bits/Pair:{bp})")
     start=time.time(); nf=len(frames); tpa=nf//2; ppc=0; fpe=0;
-    if tpa==0: logging.error("No frame pairs to process."); return None # Добавлена проверка
+    if tpa==0: logging.error("No frame pairs to process."); return None
 
     p_len=plb*8; eff_ecc=False; n=-1; k=-1; ecc_l=-1;
-    eff_ecc = ue and GALOIS_AVAILABLE # Флаг Galois
-    bch_code_to_use = BCH_CODE_OBJECT if eff_ecc else None # Объект Galois
+    eff_ecc = ue and GALOIS_AVAILABLE
+    bch_code_to_use = BCH_CODE_OBJECT if eff_ecc else None
 
-    # --- ИСПРАВЛЕННЫЙ БЛОК TRY...EXCEPT ---
     if eff_ecc and bch_code_to_use:
         try:
             n = bch_code_to_use.n
             k = bch_code_to_use.k
-            ecc_l = n - k # Рассчитываем ecc_len
+            ecc_l = n - k
             logging.info(f"Galois BCH OK: n={n}, k={k}, t={bch_code_to_use.t}")
             if plb*8 <= k:
-                p_len = n # Используем полную длину пакета
+                p_len = n
                 logging.info(f"Expecting ECC packets ({p_len}b).")
             else:
-                # Если payload не влезает в k, ECC не используется
                 logging.warning(f"Payload size ({plb*8}) > Galois k ({k}). Disabling ECC.")
-                p_len = plb*8 # Ожидаем только payload
+                p_len = plb*8
                 eff_ecc = False
                 bch_code_to_use = None
-        except Exception as e: # Ловим любую ошибку при доступе к атрибутам
+        except Exception as e:
             logging.error(f"Error getting Galois BCH params: {e}. Disabling ECC.")
-            p_len = plb*8 # Возвращаемся к длине payload
+            p_len = plb*8
             eff_ecc = False
             bch_code_to_use = None
     else:
-        # Этот блок выполняется, если изначально eff_ecc был False
         p_len = plb*8
         logging.info(f"ECC disabled or unavailable. Expecting raw payload ({p_len}b).")
-    # --- КОНЕЦ ИСПРАВЛЕННОГО БЛОКА ---
 
     if p_len<=0: logging.error("Calculated packet length is zero or negative."); return None
 
     pte=min(tpa, ceil(mpr*p_len/bp)); logging.info(f"Extracting from {pte} pairs (max repeats:{mpr}).");
     if pte==0: logging.warning("Zero pairs to extract."); return None
 
-    # ... (остальная часть функции extract_watermark_from_video без изменений) ...
     ebpp:Dict[int,List[Optional[int]]]={}; tasks=[]; skipped=[]
     for i in range(pte):
         i1=2*i; i2=i1+1;
@@ -403,16 +398,19 @@ def extract_watermark_from_video(
         tasks.append(args)
     if not tasks: logging.error("No valid tasks created."); return None
 
-    exec_cls=concurrent.futures.ThreadPoolExecutor; logging.info(f"Submitting {len(tasks)} tasks (mw={mw})...")
+    # ----- ИЗМЕНЕНИЕ ЗДЕСЬ -----
+    # exec_cls=concurrent.futures.ThreadPoolExecutor # Старая строка (закомментирована или удалена)
+    exec_cls=ProcessPoolExecutor # Новая строка: Устанавливаем класс пула процессов
+    logging.info(f"Submitting {len(tasks)} tasks using ProcessPoolExecutor (mw={mw})...") # Обновлено логгирование
     try:
-        with exec_cls(max_workers=mw) as executor:
+        with exec_cls(max_workers=mw) as executor: # Используем переменную exec_cls
             f2pi={executor.submit(_extract_frame_pair_worker,a):a['pair_idx'] for a in tasks}
             for f in concurrent.futures.as_completed(f2pi):
                 pi=f2pi[f];
                 try: _,brl=f.result(); ebpp[pi]=brl; ppc+=1
-                except Exception as exc: logging.error(f"Pair {pi} worker exception: {exc}"); ebpp[pi]=[None]*bp; ppc+=1; fpe+=1
+                except Exception as exc: logging.error(f"Pair {pi} worker process exception: {exc}"); ebpp[pi]=[None]*bp; ppc+=1; fpe+=1 # Обновлено логгирование
                 if ebpp.get(pi) is None or None in ebpp.get(pi,[]): fpe+=1
-    except Exception as e: logging.critical(f"Executor error: {e}")
+    except Exception as e: logging.critical(f"ProcessPoolExecutor error: {e}") # Обновлено логгирование
     logging.info(f"Extraction finished. Processed:{ppc}. Pairs w/ errors:{fpe}."); eba:List[Optional[int]]=[]; tebc=0
     for i in range(pte): bl=ebpp.get(i,[None]*bp); eba.extend(bl); tebc+=len(bl)
     logging.info(f"Total bits collected: {tebc}")
@@ -429,18 +427,16 @@ def extract_watermark_from_video(
         if pb is None: dfc+=1; continue
         payload:Optional[bytes]=None; errors:int=-1
         if eff_ecc and bch_code_to_use is not None:
-             # Передаем рассчитанные n, k, ecc_l в decode_ecc
-            payload,errors = decode_ecc(pb, bch_code_to_use, plb) # Вызываем новую decode_ecc
+            payload,errors = decode_ecc(pb, bch_code_to_use, plb)
         else:
             if len(pb)>=plb: payload=bytes(pb[:plb]); errors=0
             else: payload=None; errors=-1
         if payload is not None:
             if len(payload)==plb: dp.append(payload); dsc+=1;
-            if errors>0: dect+=errors # Считаем символьные ошибки
-            # else: dfc+=1 # Не считаем ошибкой, если 0 ошибок и payload есть
+            if errors>0: dect+=errors
         else: dfc+=1
     logging.info(f"Decode summary: Success={dsc}, Failed={dfc}. ECC fixes(symbols):{dect}.");
-    if not dp: logging.error("No valid payloads decoded."); return None # Добавлено сообщение
+    if not dp: logging.error("No valid payloads decoded."); return None
     pc=Counter(dp); logging.info("Voting results:");
     for pld,c in pc.most_common(): logging.info(f"  ID {pld.hex()}: {c} votes")
     mcp,wc=pc.most_common(1)[0]; conf=wc/dsc if dsc>0 else 0.
@@ -448,55 +444,39 @@ def extract_watermark_from_video(
     end=time.time(); logging.info(f"Extraction done. Time: {end-start:.2f} sec.")
     return fpb
 # --- Основная Функция ---
-def main():
-    start=time.time(); input_base="watermarked_galois_t4"; input_video=input_base+INPUT_EXTENSION; orig_id=None # Имя файла от embedder с t=4
-    if os.path.exists(ORIGINAL_WATERMARK_FILE):
-        try:
-            with open(ORIGINAL_WATERMARK_FILE,"r") as f: orig_id=f.read().strip();
-            if orig_id and len(orig_id)==PAYLOAD_LEN_BYTES*2: int(orig_id,16); logging.info(f"Read original ID.")
-            else: logging.error("Invalid original ID file."); orig_id=None
-        except Exception as e: logging.error(f"Read original ID failed: {e}"); orig_id=None
-    else: logging.warning(f"{ORIGINAL_WATERMARK_FILE} not found.")
-
-    logging.info("--- Starting Extraction Main Process (Galois) ---")
-    if not os.path.exists(input_video): logging.critical(f"Input missing: '{input_video}'."); print(f"ERROR: Input missing."); return
-    frames,fps = read_video(input_video);
-    if not frames: return
-    logging.info(f"Read {len(frames)} frames.")
-
-    extracted_bytes = extract_watermark_from_video(
-        frames=frames, nr=N_RINGS, nrtu=NUM_RINGS_TO_USE, bp=BITS_PER_PAIR, cps=CANDIDATE_POOL_SIZE,
-        ec=EMBED_COMPONENT, mpr=MAX_PACKET_REPEATS, ue=USE_ECC, bm=BCH_M, bt=BCH_T, # bt=4
-        plb=PAYLOAD_LEN_BYTES, mw=MAX_WORKERS_EXTRACT)
-
-    print(f"\n--- Extraction Results ---"); ext_hex=None
-    if extracted_bytes:
-        if len(extracted_bytes)==PAYLOAD_LEN_BYTES: ext_hex=extracted_bytes.hex(); print("  Payload OK."); print(f"  Decoded ID (Hex): {ext_hex}"); logging.info(f"Decoded ID: {ext_hex}")
-        else: print(f"  ERROR: Payload length mismatch! Got {len(extracted_bytes)}B."); logging.error(f"Payload length mismatch!")
-    else: print(f"  Extraction FAILED."); logging.error("Extraction failed.")
-
-    if orig_id:
-        print(f"  Original ID (Hex): {orig_id}")
-        if ext_hex and ext_hex==orig_id: print("\n  >>> ID MATCH <<<"); logging.info("ID MATCH.")
-        else: print("\n  >>> !!! ID MISMATCH or FAILED !!! <<<"); logging.warning("ID MISMATCH.")
-    else: print("\n  Original ID unavailable.")
-    logging.info("--- Extraction Main Process Finished ---")
-    total_time = time.time()-start; logging.info(f"--- Total Extractor Time: {total_time:.2f} sec ---")
-    print(f"\nExtraction finished. Log: {LOG_FILENAME}")
-
-# --- Точка Входа ---
 if __name__ == "__main__":
-    effective_use_ecc = USE_ECC and GALOIS_AVAILABLE # Пересчет флага
-    if USE_ECC and not effective_use_ecc: print("\nWARNING: USE_ECC=True, but galois unavailable/failed. ECC disabled.")
-    profiler = cProfile.Profile(); profiler.enable()
-    try: main()
-    except FileNotFoundError as e: print(f"\nERROR: File not found: {e}")
-    except Exception as e: logging.critical(f"Unhandled exception (Extractor): {e}", exc_info=True); print(f"\nCRITICAL ERROR: {e}. See log.")
+    # Проверка доступности Galois и вывод предупреждения, если ECC ожидается, но недоступен
+    effective_use_ecc = USE_ECC and GALOIS_AVAILABLE
+    if USE_ECC and not effective_use_ecc:
+        print("\nWARNING: USE_ECC is set to True, but the galois library is unavailable or failed initialization. ECC decoding will be disabled.")
+        # Не прерываем выполнение, просто отключаем ECC
+
+    # Инициализация профилировщика
+    profiler = cProfile.Profile()
+    profiler.enable()
+    try:
+        # Вызов основной функции извлечения
+        main()
+    except FileNotFoundError as e:
+        print(f"\nERROR: Input file not found: {e}")
+        logging.error(f"Input file not found: {e}", exc_info=True)
+    except Exception as e:
+        # Логируем критическую ошибку с трассировкой
+        logging.critical(f"Unhandled exception in Extractor main: {e}", exc_info=True)
+        print(f"\nCRITICAL ERROR: An unexpected error occurred: {e}. Check log file: {LOG_FILENAME}")
     finally:
-        profiler.disable(); stats = pstats.Stats(profiler)
-        stats.strip_dirs().sort_stats("cumulative").print_stats(30)
-        profile_file = f"profile_extract_galois_t{BCH_T}.txt" # Имя соответствует galois t=4
+        # Остановка и сохранение профилировщика в любом случае
+        profiler.disable()
+        stats = pstats.Stats(profiler)
+        stats.strip_dirs().sort_stats("cumulative").print_stats(30) # Вывод 30 самых долгих вызовов в консоль
+        profile_file = f"profile_extract_galois_t{BCH_T}.txt" # Имя файла для сохранения профиля
         try:
-            with open(profile_file, "w") as f: stats_file = pstats.Stats(profiler, stream=f); stats_file.strip_dirs().sort_stats("cumulative").print_stats()
-            logging.info(f"Profiling saved: {profile_file}"); print(f"Profiling saved: {profile_file}")
-        except IOError as e: logging.error(f"Could not save profiling stats: {e}")
+            # Сохранение полной статистики профилирования в файл
+            with open(profile_file, "w") as f:
+                stats_file = pstats.Stats(profiler, stream=f)
+                stats_file.strip_dirs().sort_stats("cumulative").print_stats() # Сохраняем все статсы
+            logging.info(f"Profiling statistics saved to: {profile_file}")
+            print(f"Profiling statistics saved to: {profile_file}")
+        except IOError as e:
+            logging.error(f"Failed to save profiling stats to {profile_file}: {e}")
+            print(f"Warning: Could not save profiling stats to {profile_file}.")
