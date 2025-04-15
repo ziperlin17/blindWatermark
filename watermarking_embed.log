@@ -1,0 +1,29 @@
+[2025-04-15 12:24:53,545] I MainThread - <module>:79 - --- Запуск Скрипта Встраивания (Метод: pool_entropy_selection, Pool: 4, Select: 2) ---
+[2025-04-15 12:24:53,545] I MainThread - <module>:80 - Payload: 64bit, ECC: True (Galois BCH m=8, t=4), Max Repeats: 5
+[2025-04-15 12:24:53,545] I MainThread - <module>:81 - Альфа: MIN=1.005, MAX=1.1, N_RINGS_Total=8
+[2025-04-15 12:24:53,545] I MainThread - <module>:82 - Маскировка: True (Lambda=0.04), Компонент: Cr
+[2025-04-15 12:24:53,545] I MainThread - <module>:83 - Выход: Кодек=XVID, Расширение=.avi
+[2025-04-15 12:24:53,545] W MainThread - <module>:86 - Lossy кодек 'XVID'.
+[2025-04-15 12:24:53,545] I MainThread - main:427 - --- Starting Embedding Main Process (Galois) ---
+[2025-04-15 12:24:53,545] I MainThread - read_video:237 - Reading: input2.mp4
+[2025-04-15 12:24:53,557] I MainThread - read_video:242 - Props:720x1280@30.02~411f
+[2025-04-15 12:24:54,213] I MainThread - read_video:249 - Read done. V:411,N:0,I:0
+[2025-04-15 12:24:54,225] I MainThread - main:434 - Generated Payload ID (64b, Hex): adc823da36e130b1
+[2025-04-15 12:24:54,225] I MainThread - main:440 - Using Galois BCH: n=255, k=223, t=4
+[2025-04-15 12:24:54,226] I MainThread - add_ecc:229 - Galois ECC: Data(64b->223b) -> Packet(255b, n=255).
+[2025-04-15 12:24:54,226] I MainThread - main:448 - Using ECC packet(255b).
+[2025-04-15 12:24:54,227] I MainThread - main:452 - Original ID saved: original_watermark_id.txt
+[2025-04-15 12:24:54,227] I MainThread - embed_watermark_in_video:381 - Embed: 410b (2/pair) in 205 pairs. Packet:255b. Repeats:5 target, 1.61 actual.
+[2025-04-15 12:24:54,227] I MainThread - embed_watermark_in_video:394 - Submitting 205 tasks (mw=None)...
+[2025-04-15 12:26:04,558] I MainThread - embed_watermark_in_video:405 - Executor done. Success:205, Failed:0.
+[2025-04-15 12:26:04,559] I MainThread - embed_watermark_in_video:410 - Applied results to 410 frames.
+[2025-04-15 12:26:04,563] I MainThread - embed_watermark_in_video:417 - Saved rings log: selected_rings_embed.json
+[2025-04-15 12:26:04,563] I MainThread - embed_watermark_in_video:422 - Embedding done. Time: 70.34s.
+[2025-04-15 12:26:04,564] I MainThread - write_video:257 - Writing: watermarked_galois_t4.avi(FPS:30.02,Codec:XVID)
+[2025-04-15 12:26:04,564] I MainThread - write_video:262 - Out res:720x1280
+[2025-04-15 12:26:06,743] I MainThread - write_video:275 - Write done(XVID). W:411,S:0
+[2025-04-15 12:26:06,745] I MainThread - main:463 - Video saved: watermarked_galois_t4.avi
+[2025-04-15 12:26:06,746] I MainThread - main:465 - Output size: 11.50MB
+[2025-04-15 12:26:06,746] I MainThread - main:471 - --- Embedding Finished ---
+[2025-04-15 12:26:06,746] I MainThread - main:472 - --- Total Time: 73.20s ---
+[2025-04-15 12:26:06,915] I MainThread - <module>:489 - Profiling saved: profile_embed_galois_t4.txt

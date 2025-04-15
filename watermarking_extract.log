@@ -1,0 +1,31 @@
+[2025-04-15 12:32:00,865] I MainThread - <module>:89 - --- Запуск Скрипта Извлечения (Метод: pool_entropy_selection, Pool: 4, Select: 2) ---
+[2025-04-15 12:32:00,865] I MainThread - <module>:90 - Ожид. Payload: 64bit, Ожид. ECC: True (Galois BCH m=8, t=4), Доступно/Работает: True, Max Repeats: 5
+[2025-04-15 12:32:00,865] I MainThread - <module>:91 - Ожид. Альфа: MIN=1.005, MAX=1.1, N_RINGS_Total=8
+[2025-04-15 12:32:00,866] I MainThread - <module>:92 - Компонент: Cr
+[2025-04-15 12:32:00,866] I MainThread - main:454 - Read original ID.
+[2025-04-15 12:32:00,866] I MainThread - main:459 - --- Starting Extraction Main Process (Galois) ---
+[2025-04-15 12:32:00,866] I MainThread - read_video:277 - Reading: watermarked_galois_t4.avi
+[2025-04-15 12:32:00,872] I MainThread - read_video:282 - Props:720x1280@30.02~411f
+[2025-04-15 12:32:01,556] I MainThread - read_video:289 - Read done. V:411,N:0,I:0
+[2025-04-15 12:32:01,566] I MainThread - main:463 - Read 411 frames.
+[2025-04-15 12:32:01,567] I MainThread - extract_watermark_from_video:355 - Starting extraction (Pool+Select, Bits/Pair:2)
+[2025-04-15 12:32:01,567] I MainThread - extract_watermark_from_video:369 - Galois BCH OK: n=255, k=223, t=4
+[2025-04-15 12:32:01,567] I MainThread - extract_watermark_from_video:372 - Expecting ECC packets (255b).
+[2025-04-15 12:32:01,567] I MainThread - extract_watermark_from_video:392 - Extracting from 205 pairs (max repeats:5).
+[2025-04-15 12:32:01,568] I MainThread - extract_watermark_from_video:404 - Submitting 205 tasks (mw=None)...
+[2025-04-15 12:33:03,104] I MainThread - extract_watermark_from_video:414 - Extraction finished. Processed:205. Pairs w/ errors:0.
+[2025-04-15 12:33:03,105] I MainThread - extract_watermark_from_video:416 - Total bits collected: 410
+[2025-04-15 12:33:03,105] I MainThread - extract_watermark_from_video:420 - Decoding 1 potential packets (255 bits)...
+[2025-04-15 12:33:03,105] W MainThread - decode_ecc:222 -   Padded input packet with 31 zeros.
+[2025-04-15 12:33:03,117] I MainThread - decode_ecc:251 - Galois ECC: Corrected 3 symbol errors.
+[2025-04-15 12:33:03,118] W MainThread - decode_ecc:266 - Corrected bytes length 1 < expected 8. Padding.
+[2025-04-15 12:33:03,118] I MainThread - extract_watermark_from_video:440 - Decode summary: Success=1, Failed=0. ECC fixes(symbols):3.
+[2025-04-15 12:33:03,118] I MainThread - extract_watermark_from_video:442 - Voting results:
+[2025-04-15 12:33:03,118] I MainThread - extract_watermark_from_video:443 -   ID 0000000000000000: 1 votes
+[2025-04-15 12:33:03,118] I MainThread - extract_watermark_from_video:445 - Winner selected with 1/1 votes (100.0%).
+[2025-04-15 12:33:03,119] I MainThread - extract_watermark_from_video:446 - Extraction done. Time: 61.55 sec.
+[2025-04-15 12:33:03,119] I MainThread - main:472 - Decoded ID: 0000000000000000
+[2025-04-15 12:33:03,119] W MainThread - main:479 - ID MISMATCH.
+[2025-04-15 12:33:03,120] I MainThread - main:481 - --- Extraction Main Process Finished ---
+[2025-04-15 12:33:03,120] I MainThread - main:482 - --- Total Extractor Time: 62.25 sec ---
+[2025-04-15 12:33:03,287] I MainThread - <module>:499 - Profiling saved: profile_extract_galois_t4.txt
