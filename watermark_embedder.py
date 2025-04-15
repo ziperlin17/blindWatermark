@@ -133,12 +133,14 @@ def _ring_division_internal(subband_shape: Tuple[int, int], n_rings: int) -> Lis
     ring_indices[distances < ring_bins[1]] = 0
     ring_indices = np.clip(ring_indices, 0, n_rings_eff - 1)
 
-    rc: List[Optional[np.ndarray]]
-    rc = [None] * n_rings
+    # --- ИСПРАВЛЕНО: Разделяем аннотацию и инициализацию, исправляем цикл ---
+    rc: List[Optional[np.ndarray]] # Аннотация типа
+    rc = [None] * n_rings         # Инициализация
 
-    # --- ИСПРАВЛЕНО: Цикл разбит на несколько строк ---
     for rdx in range(n_rings_eff):
+        # Находим координаты для текущего индекса кольца
         coords = np.argwhere(ring_indices == rdx)
+        # Если найдены пиксели для этого кольца, сохраняем их координаты
         if coords.shape[0] > 0:
             rc[rdx] = coords
     # --- КОНЕЦ ИСПРАВЛЕНИЯ ---
@@ -252,30 +254,43 @@ def read_video(vp:str)->Tuple[List[np.ndarray],float]:
         if cap: cap.release()
     if not fr: logging.error(f"No valid frames read.")
     return fr,fps
-def write_video(fr:List[np.ndarray], op:str, fps:float, cd:str=OUTPUT_CODEC): # cd вместо codec
-    if not fr: logging.error("No frames to write."); return
-    logging.info(f"Writing: {op}(FPS:{fps:.2f},Codec:{cd})") # Используем cd
-    wr=None
+def write_video(frames: List[np.ndarray], out_path: str, fps: float, codec: str = OUTPUT_CODEC): # Используем 'frames', 'out_path', 'fps', 'codec'
+    if not frames: logging.error("No frames to write."); return
+    logging.info(f"Writing: {out_path}(FPS:{fps:.2f},Codec:{codec})") # Используем 'codec'
+    writer = None
     try:
-        f=next((x for x in fr if x is not None and x.ndim==3),None);
-        if f is None: logging.error("No valid frames to get size."); return
-        h,w=f.shape[:2]; logging.info(f"Out res:{w}x{h}")
-        fcc=cv2.VideoWriter_fourcc(*cd) # Используем cd
-        base,_=os.path.splitext(op); op=base+OUTPUT_EXTENSION
-        wr=cv2.VideoWriter(op,fcc,fps,(w,h)); wcd=cd
-        if not wr.isOpened():
-            logging.error(f"Fail codec {cd}.");
-            if OUTPUT_EXTENSION.lower()=='.avi' and cd!='MJPG':
-                fb='MJPG'; logging.warning(f"Fallback {fb}."); fcc=cv2.VideoWriter_fourcc(*fb); wr=cv2.VideoWriter(op,fcc,fps,(w,h)); wcd=fb
-            if not wr.isOpened(): logging.critical("Writer fail."); return
-        wc,sc=0,0; bf=np.zeros((h,w,3),dtype=np.uint8)
-        for frame in fr: # Используем frame
-            if frame is not None and frame.shape[:2]==(h,w) and frame.dtype==np.uint8: wr.write(frame); wc+=1
-            else: wr.write(bf); sc+=1
-        logging.info(f"Write done({wcd}). W:{wc},S:{sc}")
-    except Exception as e: logging.error(f"Video write error: {e}", exc_info=True) # Используем 'e'
+        first_valid = next((f for f in frames if f is not None and f.ndim == 3 and f.shape[2] == 3 and f.dtype == np.uint8), None)
+        if first_valid is None: logging.error("No valid frames to get size."); return
+        h, w, c = first_valid.shape; logging.info(f"Out res:{w}x{h}")
+
+        fourcc = cv2.VideoWriter_fourcc(*codec) # Используем 'codec'
+        base, _ = os.path.splitext(out_path); out_path_corrected = base + OUTPUT_EXTENSION
+        if out_path_corrected != out_path: logging.info(f"Correcting extension to '{OUTPUT_EXTENSION}'."); out_path = out_path_corrected
+
+        writer = cv2.VideoWriter(out_path, fourcc, fps, (w, h)); writer_codec_used = codec
+
+        if not writer.isOpened():
+            logging.error(f"Fail codec {codec}.") # Используем 'codec'
+            if OUTPUT_EXTENSION.lower() == '.avi' and codec != 'MJPG': # Используем 'codec'
+                fallback_codec = 'MJPG'; logging.warning(f"Fallback {fallback_codec}.")
+                fourcc_fallback = cv2.VideoWriter_fourcc(*fallback_codec);
+                writer = cv2.VideoWriter(out_path, fourcc_fallback, fps, (w, h));
+                writer_codec_used = fallback_codec
+            if not writer.isOpened(): logging.critical("Writer fail."); return
+
+        written_count, skipped_count = 0, 0; black_frame = np.zeros((h, w, 3), dtype=np.uint8)
+        # Используем 'frame' как локальную переменную цикла
+        for frame in frames:
+            if frame is not None and frame.shape[:2] == (h, w) and frame.dtype == np.uint8:
+                 writer.write(frame); written_count += 1
+            else:
+                 writer.write(black_frame); skipped_count += 1
+        logging.info(f"Write done({writer_codec_used}). W:{written_count},S:{skipped_count}")
+
+    except Exception as e:
+        logging.error(f"Video write error: {e}", exc_info=True)
     finally:
-        if wr: wr.release()
+        if writer: writer.release()
 def embed_frame_pair(frame1_bgr:np.ndarray,frame2_bgr:np.ndarray,bits:List[int],selected_ring_indices:List[int],n_rings:int=N_RINGS,frame_number:int=0,use_perceptual_masking:bool=USE_PERCEPTUAL_MASKING,embed_component:int=EMBED_COMPONENT)->Tuple[Optional[np.ndarray],Optional[np.ndarray]]:
     pn=frame_number//2;
     if len(bits)!=len(selected_ring_indices): return None,None
@@ -423,7 +438,7 @@ def embed_watermark_in_video(
     return watermarked_frames
 # --- Основная Функция (Galois) ---
 def main():
-    start=time.time(); input_video="input2.mp4"; base_output="watermarked_galois_t4"; output_video=base_output+OUTPUT_EXTENSION
+    start=time.time(); input_video="input.mp4"; base_output="watermarked_galois_t4"; output_video=base_output+OUTPUT_EXTENSION
     logging.info("--- Starting Embedding Main Process (Galois) ---")
     frames,fps=read_video(input_video);
     if not frames: return
@@ -457,16 +472,16 @@ def main():
         bits_per_pair=BITS_PER_PAIR, candidate_pool_size=CANDIDATE_POOL_SIZE, max_packet_repeats=MAX_PACKET_REPEATS,
         fps=fps_use, max_workers=MAX_WORKERS, use_perceptual_masking=USE_PERCEPTUAL_MASKING, embed_component=EMBED_COMPONENT)
 
-    # --- ИСПРАВЛЕНО: Проверка и использование watermarked_frames ---
-    if watermarked_frames and len(watermarked_frames)==len(frames):
-        write_video(watermarked_frames, output_video, fps=fps_use, cd=OUTPUT_CODEC) # Используем cd
+    if watermarked_frames and len(watermarked_frames) == len(frames):
+        # --- ИСПРАВЛЕННЫЙ ВЫЗОВ: Используем правильные имена аргументов ---
+        write_video(frames=watermarked_frames, out_path=output_video, fps=fps_use, codec=OUTPUT_CODEC)
+        # --- КОНЕЦ ИСПРАВЛЕНИЯ ---
         logging.info(f"Video saved: {output_video}")
         try:
             if os.path.exists(output_video): logging.info(f"Output size: {os.path.getsize(output_video)/(1024*1024):.2f}MB")
             else: logging.error(f"Output missing.")
         except OSError as e: logging.error(f"Get size failed: {e}")
     else: logging.error("Embedding failed. No output.")
-    # --- КОНЕЦ ИСПРАВЛЕНИЯ ---
 
     logging.info("--- Embedding Finished ---")
     total_time=time.time()-start; logging.info(f"--- Total Time: {total_time:.2f}s ---")
