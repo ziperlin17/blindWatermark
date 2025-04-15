@@ -1,31 +1,646 @@
-[2025-04-15 12:32:00,865] I MainThread - <module>:89 - --- Запуск Скрипта Извлечения (Метод: pool_entropy_selection, Pool: 4, Select: 2) ---
-[2025-04-15 12:32:00,865] I MainThread - <module>:90 - Ожид. Payload: 64bit, Ожид. ECC: True (Galois BCH m=8, t=4), Доступно/Работает: True, Max Repeats: 5
-[2025-04-15 12:32:00,865] I MainThread - <module>:91 - Ожид. Альфа: MIN=1.005, MAX=1.1, N_RINGS_Total=8
-[2025-04-15 12:32:00,866] I MainThread - <module>:92 - Компонент: Cr
-[2025-04-15 12:32:00,866] I MainThread - main:454 - Read original ID.
-[2025-04-15 12:32:00,866] I MainThread - main:459 - --- Starting Extraction Main Process (Galois) ---
-[2025-04-15 12:32:00,866] I MainThread - read_video:277 - Reading: watermarked_galois_t4.avi
-[2025-04-15 12:32:00,872] I MainThread - read_video:282 - Props:720x1280@30.02~411f
-[2025-04-15 12:32:01,556] I MainThread - read_video:289 - Read done. V:411,N:0,I:0
-[2025-04-15 12:32:01,566] I MainThread - main:463 - Read 411 frames.
-[2025-04-15 12:32:01,567] I MainThread - extract_watermark_from_video:355 - Starting extraction (Pool+Select, Bits/Pair:2)
-[2025-04-15 12:32:01,567] I MainThread - extract_watermark_from_video:369 - Galois BCH OK: n=255, k=223, t=4
-[2025-04-15 12:32:01,567] I MainThread - extract_watermark_from_video:372 - Expecting ECC packets (255b).
-[2025-04-15 12:32:01,567] I MainThread - extract_watermark_from_video:392 - Extracting from 205 pairs (max repeats:5).
-[2025-04-15 12:32:01,568] I MainThread - extract_watermark_from_video:404 - Submitting 205 tasks (mw=None)...
-[2025-04-15 12:33:03,104] I MainThread - extract_watermark_from_video:414 - Extraction finished. Processed:205. Pairs w/ errors:0.
-[2025-04-15 12:33:03,105] I MainThread - extract_watermark_from_video:416 - Total bits collected: 410
-[2025-04-15 12:33:03,105] I MainThread - extract_watermark_from_video:420 - Decoding 1 potential packets (255 bits)...
-[2025-04-15 12:33:03,105] W MainThread - decode_ecc:222 -   Padded input packet with 31 zeros.
-[2025-04-15 12:33:03,117] I MainThread - decode_ecc:251 - Galois ECC: Corrected 3 symbol errors.
-[2025-04-15 12:33:03,118] W MainThread - decode_ecc:266 - Corrected bytes length 1 < expected 8. Padding.
-[2025-04-15 12:33:03,118] I MainThread - extract_watermark_from_video:440 - Decode summary: Success=1, Failed=0. ECC fixes(symbols):3.
-[2025-04-15 12:33:03,118] I MainThread - extract_watermark_from_video:442 - Voting results:
-[2025-04-15 12:33:03,118] I MainThread - extract_watermark_from_video:443 -   ID 0000000000000000: 1 votes
-[2025-04-15 12:33:03,118] I MainThread - extract_watermark_from_video:445 - Winner selected with 1/1 votes (100.0%).
-[2025-04-15 12:33:03,119] I MainThread - extract_watermark_from_video:446 - Extraction done. Time: 61.55 sec.
-[2025-04-15 12:33:03,119] I MainThread - main:472 - Decoded ID: 0000000000000000
-[2025-04-15 12:33:03,119] W MainThread - main:479 - ID MISMATCH.
-[2025-04-15 12:33:03,120] I MainThread - main:481 - --- Extraction Main Process Finished ---
-[2025-04-15 12:33:03,120] I MainThread - main:482 - --- Total Extractor Time: 62.25 sec ---
-[2025-04-15 12:33:03,287] I MainThread - <module>:499 - Profiling saved: profile_extract_galois_t4.txt
+[2025-04-15 13:49:11,563] I MainThread - <module>:89 - --- Запуск Скрипта Извлечения (Метод: pool_entropy_selection, Pool: 4, Select: 2) ---
+[2025-04-15 13:49:11,563] I MainThread - <module>:90 - Ожид. Payload: 64bit, Ожид. ECC: True (Galois BCH m=8, t=4), Доступно/Работает: True, Max Repeats: 5
+[2025-04-15 13:49:11,563] I MainThread - <module>:91 - Ожид. Альфа: MIN=1.005, MAX=1.12, N_RINGS_Total=8
+[2025-04-15 13:49:11,563] I MainThread - <module>:92 - Компонент: Cb
+[2025-04-15 13:49:11,564] I MainThread - main:456 - Read original ID.
+[2025-04-15 13:49:11,564] I MainThread - main:461 - --- Starting Extraction Main Process (Galois) ---
+[2025-04-15 13:49:11,564] I MainThread - read_video:270 - Reading: watermarked_galois_t4.avi
+[2025-04-15 13:49:11,573] I MainThread - read_video:275 - Props:720x1280@30.02~411f
+[2025-04-15 13:49:12,279] I MainThread - read_video:282 - Read done. V:411,N:0,I:0
+[2025-04-15 13:49:12,292] I MainThread - main:465 - Read 411 frames.
+[2025-04-15 13:49:12,292] I MainThread - extract_watermark_from_video:357 - Starting extraction (Pool+Select, Bits/Pair:2)
+[2025-04-15 13:49:12,292] I MainThread - extract_watermark_from_video:371 - Galois BCH OK: n=255, k=223, t=4
+[2025-04-15 13:49:12,292] I MainThread - extract_watermark_from_video:374 - Expecting ECC packets (255b).
+[2025-04-15 13:49:12,292] I MainThread - extract_watermark_from_video:394 - Extracting from 205 pairs (max repeats:5).
+[2025-04-15 13:49:12,305] I MainThread - extract_watermark_from_video:406 - Submitting 205 tasks (mw=None)...
+[2025-04-15 13:49:12,306] D ThreadPoolExecutor-0_0 - get_fixed_pseudo_random_rings:191 - [P:0] Candidates: [2, 7, 1, 6]
+[2025-04-15 13:49:12,307] D ThreadPoolExecutor-0_1 - get_fixed_pseudo_random_rings:191 - [P:1] Candidates: [0, 4, 5, 1]
+[2025-04-15 13:49:12,308] D ThreadPoolExecutor-0_2 - get_fixed_pseudo_random_rings:191 - [P:2] Candidates: [5, 1, 0, 6]
+[2025-04-15 13:49:12,310] D ThreadPoolExecutor-0_3 - get_fixed_pseudo_random_rings:191 - [P:3] Candidates: [0, 5, 7, 4]
+[2025-04-15 13:49:12,312] D ThreadPoolExecutor-0_4 - get_fixed_pseudo_random_rings:191 - [P:4] Candidates: [2, 3, 5, 1]
+[2025-04-15 13:49:12,314] D ThreadPoolExecutor-0_5 - get_fixed_pseudo_random_rings:191 - [P:5] Candidates: [5, 2, 3, 1]
+[2025-04-15 13:49:12,316] D ThreadPoolExecutor-0_6 - get_fixed_pseudo_random_rings:191 - [P:6] Candidates: [5, 3, 2, 6]
+[2025-04-15 13:49:12,318] D ThreadPoolExecutor-0_7 - get_fixed_pseudo_random_rings:191 - [P:7] Candidates: [4, 3, 6, 2]
+[2025-04-15 13:49:12,320] D ThreadPoolExecutor-0_8 - get_fixed_pseudo_random_rings:191 - [P:8] Candidates: [5, 4, 3, 1]
+[2025-04-15 13:49:12,321] D ThreadPoolExecutor-0_9 - get_fixed_pseudo_random_rings:191 - [P:9] Candidates: [2, 7, 5, 4]
+[2025-04-15 13:49:12,323] D ThreadPoolExecutor-0_10 - get_fixed_pseudo_random_rings:191 - [P:10] Candidates: [1, 3, 7, 4]
+[2025-04-15 13:49:12,326] D ThreadPoolExecutor-0_11 - get_fixed_pseudo_random_rings:191 - [P:11] Candidates: [4, 2, 5, 7]
+[2025-04-15 13:49:12,330] D ThreadPoolExecutor-0_12 - get_fixed_pseudo_random_rings:191 - [P:12] Candidates: [3, 0, 2, 7]
+[2025-04-15 13:49:12,334] D ThreadPoolExecutor-0_13 - get_fixed_pseudo_random_rings:191 - [P:13] Candidates: [3, 7, 2, 6]
+[2025-04-15 13:49:12,336] D ThreadPoolExecutor-0_14 - get_fixed_pseudo_random_rings:191 - [P:14] Candidates: [7, 6, 5, 0]
+[2025-04-15 13:49:12,339] D ThreadPoolExecutor-0_15 - get_fixed_pseudo_random_rings:191 - [P:15] Candidates: [6, 1, 7, 2]
+[2025-04-15 13:49:12,342] D ThreadPoolExecutor-0_16 - get_fixed_pseudo_random_rings:191 - [P:16] Candidates: [1, 7, 3, 4]
+[2025-04-15 13:49:12,345] D ThreadPoolExecutor-0_17 - get_fixed_pseudo_random_rings:191 - [P:17] Candidates: [7, 6, 0, 2]
+[2025-04-15 13:49:12,346] D ThreadPoolExecutor-0_18 - get_fixed_pseudo_random_rings:191 - [P:18] Candidates: [2, 1, 5, 0]
+[2025-04-15 13:49:12,349] D ThreadPoolExecutor-0_19 - get_fixed_pseudo_random_rings:191 - [P:19] Candidates: [3, 1, 7, 2]
+[2025-04-15 13:49:14,952] I ThreadPoolExecutor-0_3 - extract_frame_pair:317 - [P:3, R:5] s1=192.6907, s2=192.2431, ratio=1.0023 vs thr=1.0000 (alpha=1.0479) -> Bit=0
+[2025-04-15 13:49:14,987] I ThreadPoolExecutor-0_5 - extract_frame_pair:317 - [P:5, R:5] s1=193.0850, s2=192.6960, ratio=1.0020 vs thr=1.0000 (alpha=1.0473) -> Bit=0
+[2025-04-15 13:49:15,008] I ThreadPoolExecutor-0_8 - extract_frame_pair:317 - [P:8, R:4] s1=201.4562, s2=200.6740, ratio=1.0039 vs thr=1.0000 (alpha=1.0478) -> Bit=0
+[2025-04-15 13:49:15,051] I ThreadPoolExecutor-0_2 - extract_frame_pair:317 - [P:2, R:5] s1=192.1624, s2=192.4263, ratio=0.9986 vs thr=1.0000 (alpha=1.0484) -> Bit=1
+[2025-04-15 13:49:15,102] I ThreadPoolExecutor-0_0 - extract_frame_pair:317 - [P:0, R:2] s1=181.3720, s2=183.0260, ratio=0.9910 vs thr=1.0000 (alpha=1.0431) -> Bit=1
+[2025-04-15 13:49:15,130] I ThreadPoolExecutor-0_9 - extract_frame_pair:317 - [P:9, R:4] s1=200.7612, s2=199.8945, ratio=1.0043 vs thr=1.0000 (alpha=1.0477) -> Bit=0
+[2025-04-15 13:49:15,172] I ThreadPoolExecutor-0_7 - extract_frame_pair:317 - [P:7, R:4] s1=202.2874, s2=201.2014, ratio=1.0054 vs thr=1.0000 (alpha=1.0473) -> Bit=0
+[2025-04-15 13:49:15,189] I ThreadPoolExecutor-0_1 - extract_frame_pair:317 - [P:1, R:5] s1=192.2063, s2=192.5050, ratio=0.9984 vs thr=1.0000 (alpha=1.0485) -> Bit=1
+[2025-04-15 13:49:15,231] I ThreadPoolExecutor-0_15 - extract_frame_pair:317 - [P:15, R:2] s1=182.4990, s2=181.2906, ratio=1.0067 vs thr=1.0000 (alpha=1.0424) -> Bit=0
+[2025-04-15 13:49:15,242] I ThreadPoolExecutor-0_6 - extract_frame_pair:317 - [P:6, R:5] s1=193.7114, s2=192.8712, ratio=1.0044 vs thr=1.0000 (alpha=1.0470) -> Bit=0
+[2025-04-15 13:49:15,287] I ThreadPoolExecutor-0_18 - extract_frame_pair:317 - [P:18, R:5] s1=192.5408, s2=191.7741, ratio=1.0040 vs thr=1.0000 (alpha=1.0485) -> Bit=0
+[2025-04-15 13:49:15,294] I ThreadPoolExecutor-0_17 - extract_frame_pair:317 - [P:17, R:2] s1=182.1268, s2=181.1169, ratio=1.0056 vs thr=1.0000 (alpha=1.0419) -> Bit=0
+[2025-04-15 13:49:15,369] I ThreadPoolExecutor-0_10 - extract_frame_pair:317 - [P:10, R:4] s1=200.3683, s2=199.7503, ratio=1.0031 vs thr=1.0000 (alpha=1.0474) -> Bit=0
+[2025-04-15 13:49:15,775] I ThreadPoolExecutor-0_14 - extract_frame_pair:317 - [P:14, R:5] s1=191.9306, s2=192.2998, ratio=0.9981 vs thr=1.0000 (alpha=1.0482) -> Bit=1
+[2025-04-15 13:49:16,011] I ThreadPoolExecutor-0_16 - extract_frame_pair:317 - [P:16, R:4] s1=202.7409, s2=201.6889, ratio=1.0052 vs thr=1.0000 (alpha=1.0468) -> Bit=0
+[2025-04-15 13:49:16,163] I ThreadPoolExecutor-0_19 - extract_frame_pair:317 - [P:19, R:3] s1=211.8042, s2=210.3935, ratio=1.0067 vs thr=1.0000 (alpha=1.0453) -> Bit=0
+[2025-04-15 13:49:16,187] I ThreadPoolExecutor-0_11 - extract_frame_pair:317 - [P:11, R:4] s1=200.4619, s2=199.9443, ratio=1.0026 vs thr=1.0000 (alpha=1.0476) -> Bit=0
+[2025-04-15 13:49:16,245] I ThreadPoolExecutor-0_4 - extract_frame_pair:317 - [P:4, R:5] s1=192.2708, s2=192.8737, ratio=0.9969 vs thr=1.0000 (alpha=1.0475) -> Bit=1
+[2025-04-15 13:49:16,272] I ThreadPoolExecutor-0_13 - extract_frame_pair:317 - [P:13, R:3] s1=211.8528, s2=211.0549, ratio=1.0038 vs thr=1.0000 (alpha=1.0472) -> Bit=0
+[2025-04-15 13:49:16,295] I ThreadPoolExecutor-0_12 - extract_frame_pair:317 - [P:12, R:3] s1=210.2782, s2=211.6254, ratio=0.9936 vs thr=1.0000 (alpha=1.0463) -> Bit=1
+[2025-04-15 13:49:16,655] I ThreadPoolExecutor-0_3 - extract_frame_pair:317 - [P:3, R:4] s1=200.7353, s2=201.2933, ratio=0.9972 vs thr=1.0000 (alpha=1.0489) -> Bit=1
+[2025-04-15 13:49:16,659] D ThreadPoolExecutor-0_3 - get_fixed_pseudo_random_rings:191 - [P:20] Candidates: [3, 1, 5, 7]
+[2025-04-15 13:49:16,953] I ThreadPoolExecutor-0_5 - extract_frame_pair:317 - [P:5, R:3] s1=213.2290, s2=212.6071, ratio=1.0029 vs thr=1.0000 (alpha=1.0471) -> Bit=0
+[2025-04-15 13:49:16,957] D ThreadPoolExecutor-0_5 - get_fixed_pseudo_random_rings:191 - [P:21] Candidates: [5, 7, 1, 6]
+[2025-04-15 13:49:17,193] I ThreadPoolExecutor-0_8 - extract_frame_pair:317 - [P:8, R:5] s1=192.3050, s2=192.7636, ratio=0.9976 vs thr=1.0000 (alpha=1.0487) -> Bit=1
+[2025-04-15 13:49:17,201] D ThreadPoolExecutor-0_8 - get_fixed_pseudo_random_rings:191 - [P:22] Candidates: [2, 0, 1, 3]
+[2025-04-15 13:49:17,526] I ThreadPoolExecutor-0_0 - extract_frame_pair:317 - [P:0, R:1] s1=141.8926, s2=142.8689, ratio=0.9932 vs thr=1.0000 (alpha=1.0415) -> Bit=1
+[2025-04-15 13:49:17,532] D ThreadPoolExecutor-0_0 - get_fixed_pseudo_random_rings:191 - [P:23] Candidates: [3, 2, 4, 5]
+[2025-04-15 13:49:17,727] I ThreadPoolExecutor-0_6 - extract_frame_pair:317 - [P:6, R:3] s1=213.7664, s2=212.4290, ratio=1.0063 vs thr=1.0000 (alpha=1.0468) -> Bit=0
+[2025-04-15 13:49:17,733] D ThreadPoolExecutor-0_6 - get_fixed_pseudo_random_rings:191 - [P:24] Candidates: [3, 6, 1, 4]
+[2025-04-15 13:49:17,754] I ThreadPoolExecutor-0_18 - extract_frame_pair:317 - [P:18, R:1] s1=141.2686, s2=142.0204, ratio=0.9947 vs thr=1.0000 (alpha=1.0399) -> Bit=1
+[2025-04-15 13:49:17,762] D ThreadPoolExecutor-0_18 - get_fixed_pseudo_random_rings:191 - [P:25] Candidates: [4, 2, 0, 6]
+[2025-04-15 13:49:17,803] I ThreadPoolExecutor-0_2 - extract_frame_pair:317 - [P:2, R:6] s1=186.3559, s2=186.7327, ratio=0.9980 vs thr=1.0000 (alpha=1.0489) -> Bit=1
+[2025-04-15 13:49:17,820] D ThreadPoolExecutor-0_2 - get_fixed_pseudo_random_rings:191 - [P:26] Candidates: [1, 4, 5, 7]
+[2025-04-15 13:49:17,841] I ThreadPoolExecutor-0_1 - extract_frame_pair:317 - [P:1, R:4] s1=201.3851, s2=200.2586, ratio=1.0056 vs thr=1.0000 (alpha=1.0479) -> Bit=0
+[2025-04-15 13:49:17,849] D ThreadPoolExecutor-0_1 - get_fixed_pseudo_random_rings:191 - [P:27] Candidates: [5, 2, 1, 4]
+[2025-04-15 13:49:17,854] I ThreadPoolExecutor-0_17 - extract_frame_pair:317 - [P:17, R:6] s1=186.7108, s2=187.0116, ratio=0.9984 vs thr=1.0000 (alpha=1.0474) -> Bit=1
+[2025-04-15 13:49:17,869] D ThreadPoolExecutor-0_17 - get_fixed_pseudo_random_rings:191 - [P:28] Candidates: [5, 1, 6, 7]
+[2025-04-15 13:49:17,880] I ThreadPoolExecutor-0_15 - extract_frame_pair:317 - [P:15, R:1] s1=141.6555, s2=142.1094, ratio=0.9968 vs thr=1.0000 (alpha=1.0399) -> Bit=1
+[2025-04-15 13:49:17,882] I ThreadPoolExecutor-0_9 - extract_frame_pair:317 - [P:9, R:5] s1=193.0995, s2=192.3068, ratio=1.0041 vs thr=1.0000 (alpha=1.0496) -> Bit=0
+[2025-04-15 13:49:17,887] D ThreadPoolExecutor-0_15 - get_fixed_pseudo_random_rings:191 - [P:29] Candidates: [6, 3, 7, 5]
+[2025-04-15 13:49:17,893] D ThreadPoolExecutor-0_9 - get_fixed_pseudo_random_rings:191 - [P:30] Candidates: [2, 4, 0, 3]
+[2025-04-15 13:49:17,938] I ThreadPoolExecutor-0_10 - extract_frame_pair:317 - [P:10, R:3] s1=212.0718, s2=210.9013, ratio=1.0056 vs thr=1.0000 (alpha=1.0470) -> Bit=0
+[2025-04-15 13:49:17,942] D ThreadPoolExecutor-0_10 - get_fixed_pseudo_random_rings:191 - [P:31] Candidates: [7, 2, 0, 3]
+[2025-04-15 13:49:17,952] I ThreadPoolExecutor-0_7 - extract_frame_pair:317 - [P:7, R:3] s1=212.0651, s2=212.5819, ratio=0.9976 vs thr=1.0000 (alpha=1.0467) -> Bit=1
+[2025-04-15 13:49:17,956] D ThreadPoolExecutor-0_7 - get_fixed_pseudo_random_rings:191 - [P:32] Candidates: [1, 7, 5, 4]
+[2025-04-15 13:49:17,962] I ThreadPoolExecutor-0_14 - extract_frame_pair:317 - [P:14, R:6] s1=188.7012, s2=187.8117, ratio=1.0047 vs thr=1.0000 (alpha=1.0479) -> Bit=0
+[2025-04-15 13:49:17,966] D ThreadPoolExecutor-0_14 - get_fixed_pseudo_random_rings:191 - [P:33] Candidates: [5, 1, 4, 7]
+[2025-04-15 13:49:17,982] I ThreadPoolExecutor-0_19 - extract_frame_pair:317 - [P:19, R:1] s1=142.2585, s2=141.8198, ratio=1.0031 vs thr=1.0000 (alpha=1.0412) -> Bit=0
+[2025-04-15 13:49:17,990] D ThreadPoolExecutor-0_19 - get_fixed_pseudo_random_rings:191 - [P:34] Candidates: [7, 1, 5, 3]
+[2025-04-15 13:49:18,006] I ThreadPoolExecutor-0_16 - extract_frame_pair:317 - [P:16, R:3] s1=212.4090, s2=211.0305, ratio=1.0065 vs thr=1.0000 (alpha=1.0464) -> Bit=0
+[2025-04-15 13:49:18,014] D ThreadPoolExecutor-0_16 - get_fixed_pseudo_random_rings:191 - [P:35] Candidates: [2, 3, 7, 4]
+[2025-04-15 13:49:18,258] I ThreadPoolExecutor-0_11 - extract_frame_pair:317 - [P:11, R:5] s1=191.8876, s2=192.1160, ratio=0.9988 vs thr=1.0000 (alpha=1.0490) -> Bit=1
+[2025-04-15 13:49:18,262] D ThreadPoolExecutor-0_11 - get_fixed_pseudo_random_rings:191 - [P:36] Candidates: [5, 2, 1, 6]
+[2025-04-15 13:49:18,278] I ThreadPoolExecutor-0_12 - extract_frame_pair:317 - [P:12, R:2] s1=180.0007, s2=181.4732, ratio=0.9919 vs thr=1.0000 (alpha=1.0424) -> Bit=1
+[2025-04-15 13:49:18,278] I ThreadPoolExecutor-0_4 - extract_frame_pair:317 - [P:4, R:3] s1=213.4752, s2=212.4647, ratio=1.0048 vs thr=1.0000 (alpha=1.0469) -> Bit=0
+[2025-04-15 13:49:18,284] D ThreadPoolExecutor-0_12 - get_fixed_pseudo_random_rings:191 - [P:37] Candidates: [4, 2, 5, 0]
+[2025-04-15 13:49:18,297] D ThreadPoolExecutor-0_4 - get_fixed_pseudo_random_rings:191 - [P:38] Candidates: [4, 3, 6, 0]
+[2025-04-15 13:49:18,370] I ThreadPoolExecutor-0_13 - extract_frame_pair:317 - [P:13, R:2] s1=181.7925, s2=181.0772, ratio=1.0040 vs thr=1.0000 (alpha=1.0426) -> Bit=0
+[2025-04-15 13:49:18,382] D ThreadPoolExecutor-0_13 - get_fixed_pseudo_random_rings:191 - [P:39] Candidates: [7, 5, 4, 6]
+[2025-04-15 13:49:20,065] I ThreadPoolExecutor-0_3 - extract_frame_pair:317 - [P:20, R:3] s1=210.3267, s2=211.0987, ratio=0.9963 vs thr=1.0000 (alpha=1.0464) -> Bit=1
+[2025-04-15 13:49:20,307] I ThreadPoolExecutor-0_5 - extract_frame_pair:317 - [P:21, R:5] s1=192.6577, s2=192.1938, ratio=1.0024 vs thr=1.0000 (alpha=1.0480) -> Bit=0
+[2025-04-15 13:49:20,380] I ThreadPoolExecutor-0_8 - extract_frame_pair:317 - [P:22, R:3] s1=210.9760, s2=211.9185, ratio=0.9956 vs thr=1.0000 (alpha=1.0466) -> Bit=1
+[2025-04-15 13:49:20,614] I ThreadPoolExecutor-0_6 - extract_frame_pair:317 - [P:24, R:4] s1=201.7517, s2=200.6515, ratio=1.0055 vs thr=1.0000 (alpha=1.0460) -> Bit=0
+[2025-04-15 13:49:20,727] I ThreadPoolExecutor-0_18 - extract_frame_pair:317 - [P:25, R:4] s1=200.6144, s2=201.3351, ratio=0.9964 vs thr=1.0000 (alpha=1.0465) -> Bit=1
+[2025-04-15 13:49:20,877] I ThreadPoolExecutor-0_0 - extract_frame_pair:317 - [P:23, R:4] s1=200.2614, s2=201.0592, ratio=0.9960 vs thr=1.0000 (alpha=1.0472) -> Bit=1
+[2025-04-15 13:49:21,111] I ThreadPoolExecutor-0_2 - extract_frame_pair:317 - [P:26, R:5] s1=194.9991, s2=195.5485, ratio=0.9972 vs thr=1.0000 (alpha=1.0483) -> Bit=1
+[2025-04-15 13:49:21,141] I ThreadPoolExecutor-0_9 - extract_frame_pair:317 - [P:30, R:3] s1=212.5743, s2=211.3924, ratio=1.0056 vs thr=1.0000 (alpha=1.0468) -> Bit=0
+[2025-04-15 13:49:21,147] I ThreadPoolExecutor-0_17 - extract_frame_pair:317 - [P:28, R:5] s1=194.7948, s2=195.1485, ratio=0.9982 vs thr=1.0000 (alpha=1.0491) -> Bit=1
+[2025-04-15 13:49:21,170] I ThreadPoolExecutor-0_7 - extract_frame_pair:317 - [P:32, R:5] s1=193.5602, s2=192.6954, ratio=1.0045 vs thr=1.0000 (alpha=1.0461) -> Bit=0
+[2025-04-15 13:49:21,178] I ThreadPoolExecutor-0_15 - extract_frame_pair:317 - [P:29, R:5] s1=194.6871, s2=194.8488, ratio=0.9992 vs thr=1.0000 (alpha=1.0486) -> Bit=1
+[2025-04-15 13:49:21,474] I ThreadPoolExecutor-0_10 - extract_frame_pair:317 - [P:31, R:3] s1=211.3947, s2=212.0473, ratio=0.9969 vs thr=1.0000 (alpha=1.0471) -> Bit=1
+[2025-04-15 13:49:21,615] I ThreadPoolExecutor-0_19 - extract_frame_pair:317 - [P:34, R:5] s1=194.4146, s2=194.3613, ratio=1.0003 vs thr=1.0000 (alpha=1.0469) -> Bit=0
+[2025-04-15 13:49:22,075] I ThreadPoolExecutor-0_4 - extract_frame_pair:317 - [P:38, R:4] s1=201.4658, s2=200.5040, ratio=1.0048 vs thr=1.0000 (alpha=1.0478) -> Bit=0
+[2025-04-15 13:49:22,170] I ThreadPoolExecutor-0_1 - extract_frame_pair:317 - [P:27, R:5] s1=194.9601, s2=195.3013, ratio=0.9983 vs thr=1.0000 (alpha=1.0488) -> Bit=1
+[2025-04-15 13:49:22,271] I ThreadPoolExecutor-0_14 - extract_frame_pair:317 - [P:33, R:5] s1=193.4382, s2=193.4085, ratio=1.0002 vs thr=1.0000 (alpha=1.0467) -> Bit=0
+[2025-04-15 13:49:22,450] I ThreadPoolExecutor-0_12 - extract_frame_pair:317 - [P:37, R:5] s1=195.1576, s2=194.1332, ratio=1.0053 vs thr=1.0000 (alpha=1.0468) -> Bit=0
+[2025-04-15 13:49:22,463] I ThreadPoolExecutor-0_11 - extract_frame_pair:317 - [P:36, R:5] s1=195.9746, s2=194.9027, ratio=1.0055 vs thr=1.0000 (alpha=1.0455) -> Bit=0
+[2025-04-15 13:49:22,464] I ThreadPoolExecutor-0_13 - extract_frame_pair:317 - [P:39, R:5] s1=194.1795, s2=192.7498, ratio=1.0074 vs thr=1.0000 (alpha=1.0469) -> Bit=0
+[2025-04-15 13:49:22,490] I ThreadPoolExecutor-0_8 - extract_frame_pair:317 - [P:22, R:1] s1=142.2940, s2=142.6445, ratio=0.9975 vs thr=1.0000 (alpha=1.0409) -> Bit=1
+[2025-04-15 13:49:22,491] I ThreadPoolExecutor-0_16 - extract_frame_pair:317 - [P:35, R:3] s1=213.1342, s2=212.6561, ratio=1.0022 vs thr=1.0000 (alpha=1.0478) -> Bit=0
+[2025-04-15 13:49:22,497] D ThreadPoolExecutor-0_8 - get_fixed_pseudo_random_rings:191 - [P:40] Candidates: [4, 6, 3, 0]
+[2025-04-15 13:49:22,518] I ThreadPoolExecutor-0_3 - extract_frame_pair:317 - [P:20, R:1] s1=141.7872, s2=142.0819, ratio=0.9979 vs thr=1.0000 (alpha=1.0413) -> Bit=1
+[2025-04-15 13:49:22,523] D ThreadPoolExecutor-0_3 - get_fixed_pseudo_random_rings:191 - [P:41] Candidates: [6, 2, 7, 4]
+[2025-04-15 13:49:22,529] I ThreadPoolExecutor-0_5 - extract_frame_pair:317 - [P:21, R:1] s1=141.8639, s2=142.2989, ratio=0.9969 vs thr=1.0000 (alpha=1.0414) -> Bit=1
+[2025-04-15 13:49:22,534] D ThreadPoolExecutor-0_5 - get_fixed_pseudo_random_rings:191 - [P:42] Candidates: [2, 3, 7, 6]
+[2025-04-15 13:49:22,570] I ThreadPoolExecutor-0_6 - extract_frame_pair:317 - [P:24, R:3] s1=213.3549, s2=212.2977, ratio=1.0050 vs thr=1.0000 (alpha=1.0458) -> Bit=0
+[2025-04-15 13:49:22,574] D ThreadPoolExecutor-0_6 - get_fixed_pseudo_random_rings:191 - [P:43] Candidates: [2, 0, 5, 6]
+[2025-04-15 13:49:22,589] I ThreadPoolExecutor-0_18 - extract_frame_pair:317 - [P:25, R:2] s1=183.6178, s2=182.6877, ratio=1.0051 vs thr=1.0000 (alpha=1.0409) -> Bit=0
+[2025-04-15 13:49:22,601] D ThreadPoolExecutor-0_18 - get_fixed_pseudo_random_rings:191 - [P:44] Candidates: [4, 7, 6, 2]
+[2025-04-15 13:49:22,848] I ThreadPoolExecutor-0_0 - extract_frame_pair:317 - [P:23, R:3] s1=211.5001, s2=212.3935, ratio=0.9958 vs thr=1.0000 (alpha=1.0464) -> Bit=1
+[2025-04-15 13:49:22,853] D ThreadPoolExecutor-0_0 - get_fixed_pseudo_random_rings:191 - [P:45] Candidates: [0, 5, 6, 2]
+[2025-04-15 13:49:23,546] I ThreadPoolExecutor-0_9 - extract_frame_pair:317 - [P:30, R:4] s1=199.6676, s2=200.8400, ratio=0.9942 vs thr=1.0000 (alpha=1.0472) -> Bit=1
+[2025-04-15 13:49:23,550] D ThreadPoolExecutor-0_9 - get_fixed_pseudo_random_rings:191 - [P:46] Candidates: [0, 6, 5, 2]
+[2025-04-15 13:49:23,618] I ThreadPoolExecutor-0_17 - extract_frame_pair:317 - [P:28, R:1] s1=141.5612, s2=141.9359, ratio=0.9974 vs thr=1.0000 (alpha=1.0412) -> Bit=1
+[2025-04-15 13:49:23,634] D ThreadPoolExecutor-0_17 - get_fixed_pseudo_random_rings:191 - [P:47] Candidates: [4, 7, 6, 0]
+[2025-04-15 13:49:23,682] I ThreadPoolExecutor-0_7 - extract_frame_pair:317 - [P:32, R:4] s1=200.8441, s2=199.7758, ratio=1.0053 vs thr=1.0000 (alpha=1.0478) -> Bit=0
+[2025-04-15 13:49:23,688] D ThreadPoolExecutor-0_7 - get_fixed_pseudo_random_rings:191 - [P:48] Candidates: [5, 6, 3, 1]
+[2025-04-15 13:49:23,726] I ThreadPoolExecutor-0_2 - extract_frame_pair:317 - [P:26, R:4] s1=201.6618, s2=201.1133, ratio=1.0027 vs thr=1.0000 (alpha=1.0463) -> Bit=0
+[2025-04-15 13:49:23,730] D ThreadPoolExecutor-0_2 - get_fixed_pseudo_random_rings:191 - [P:49] Candidates: [3, 2, 4, 6]
+[2025-04-15 13:49:23,775] I ThreadPoolExecutor-0_15 - extract_frame_pair:317 - [P:29, R:3] s1=212.0435, s2=212.2090, ratio=0.9992 vs thr=1.0000 (alpha=1.0466) -> Bit=1
+[2025-04-15 13:49:23,780] D ThreadPoolExecutor-0_15 - get_fixed_pseudo_random_rings:191 - [P:50] Candidates: [7, 6, 3, 1]
+[2025-04-15 13:49:23,973] I ThreadPoolExecutor-0_10 - extract_frame_pair:317 - [P:31, R:2] s1=181.3885, s2=182.1839, ratio=0.9956 vs thr=1.0000 (alpha=1.0452) -> Bit=1
+[2025-04-15 13:49:23,978] D ThreadPoolExecutor-0_10 - get_fixed_pseudo_random_rings:191 - [P:51] Candidates: [7, 6, 4, 2]
+[2025-04-15 13:49:24,016] I ThreadPoolExecutor-0_19 - extract_frame_pair:317 - [P:34, R:3] s1=212.9992, s2=212.1642, ratio=1.0039 vs thr=1.0000 (alpha=1.0478) -> Bit=0
+[2025-04-15 13:49:24,020] D ThreadPoolExecutor-0_19 - get_fixed_pseudo_random_rings:191 - [P:52] Candidates: [1, 2, 4, 5]
+[2025-04-15 13:49:24,072] I ThreadPoolExecutor-0_1 - extract_frame_pair:317 - [P:27, R:4] s1=201.6822, s2=201.1825, ratio=1.0025 vs thr=1.0000 (alpha=1.0467) -> Bit=0
+[2025-04-15 13:49:24,073] I ThreadPoolExecutor-0_4 - extract_frame_pair:317 - [P:38, R:3] s1=213.2942, s2=211.7789, ratio=1.0072 vs thr=1.0000 (alpha=1.0460) -> Bit=0
+[2025-04-15 13:49:24,078] D ThreadPoolExecutor-0_1 - get_fixed_pseudo_random_rings:191 - [P:53] Candidates: [1, 3, 4, 2]
+[2025-04-15 13:49:24,087] D ThreadPoolExecutor-0_4 - get_fixed_pseudo_random_rings:191 - [P:54] Candidates: [5, 4, 2, 3]
+[2025-04-15 13:49:24,137] I ThreadPoolExecutor-0_14 - extract_frame_pair:317 - [P:33, R:4] s1=200.6337, s2=199.9702, ratio=1.0033 vs thr=1.0000 (alpha=1.0481) -> Bit=0
+[2025-04-15 13:49:24,142] D ThreadPoolExecutor-0_14 - get_fixed_pseudo_random_rings:191 - [P:55] Candidates: [4, 3, 2, 1]
+[2025-04-15 13:49:24,181] I ThreadPoolExecutor-0_12 - extract_frame_pair:317 - [P:37, R:4] s1=201.9045, s2=200.7919, ratio=1.0055 vs thr=1.0000 (alpha=1.0472) -> Bit=0
+[2025-04-15 13:49:24,191] D ThreadPoolExecutor-0_12 - get_fixed_pseudo_random_rings:191 - [P:56] Candidates: [3, 4, 1, 2]
+[2025-04-15 13:49:24,251] I ThreadPoolExecutor-0_13 - extract_frame_pair:317 - [P:39, R:4] s1=201.0680, s2=199.7882, ratio=1.0064 vs thr=1.0000 (alpha=1.0480) -> Bit=0
+[2025-04-15 13:49:24,258] D ThreadPoolExecutor-0_13 - get_fixed_pseudo_random_rings:191 - [P:57] Candidates: [1, 3, 5, 4]
+[2025-04-15 13:49:24,883] I ThreadPoolExecutor-0_11 - extract_frame_pair:317 - [P:36, R:6] s1=190.7271, s2=189.4617, ratio=1.0067 vs thr=1.0000 (alpha=1.0481) -> Bit=0
+[2025-04-15 13:49:24,887] D ThreadPoolExecutor-0_11 - get_fixed_pseudo_random_rings:191 - [P:58] Candidates: [7, 6, 0, 5]
+[2025-04-15 13:49:25,097] I ThreadPoolExecutor-0_16 - extract_frame_pair:317 - [P:35, R:4] s1=201.3709, s2=200.8368, ratio=1.0027 vs thr=1.0000 (alpha=1.0479) -> Bit=0
+[2025-04-15 13:49:25,108] D ThreadPoolExecutor-0_16 - get_fixed_pseudo_random_rings:191 - [P:59] Candidates: [7, 2, 0, 4]
+[2025-04-15 13:49:26,074] I ThreadPoolExecutor-0_5 - extract_frame_pair:317 - [P:42, R:3] s1=212.9429, s2=211.4052, ratio=1.0073 vs thr=1.0000 (alpha=1.0455) -> Bit=0
+[2025-04-15 13:49:26,435] I ThreadPoolExecutor-0_3 - extract_frame_pair:317 - [P:41, R:4] s1=200.3509, s2=199.3464, ratio=1.0050 vs thr=1.0000 (alpha=1.0473) -> Bit=0
+[2025-04-15 13:49:26,631] I ThreadPoolExecutor-0_18 - extract_frame_pair:317 - [P:44, R:4] s1=201.2766, s2=200.3193, ratio=1.0048 vs thr=1.0000 (alpha=1.0470) -> Bit=0
+[2025-04-15 13:49:26,654] I ThreadPoolExecutor-0_8 - extract_frame_pair:317 - [P:40, R:3] s1=212.8336, s2=211.4792, ratio=1.0064 vs thr=1.0000 (alpha=1.0459) -> Bit=0
+[2025-04-15 13:49:26,722] I ThreadPoolExecutor-0_6 - extract_frame_pair:317 - [P:43, R:5] s1=192.9842, s2=192.3804, ratio=1.0031 vs thr=1.0000 (alpha=1.0461) -> Bit=0
+[2025-04-15 13:49:26,781] I ThreadPoolExecutor-0_17 - extract_frame_pair:317 - [P:47, R:4] s1=202.1657, s2=201.3134, ratio=1.0042 vs thr=1.0000 (alpha=1.0482) -> Bit=0
+[2025-04-15 13:49:26,801] I ThreadPoolExecutor-0_0 - extract_frame_pair:317 - [P:45, R:5] s1=194.0126, s2=193.1183, ratio=1.0046 vs thr=1.0000 (alpha=1.0484) -> Bit=0
+[2025-04-15 13:49:26,823] I ThreadPoolExecutor-0_9 - extract_frame_pair:317 - [P:46, R:5] s1=193.6665, s2=192.9352, ratio=1.0038 vs thr=1.0000 (alpha=1.0484) -> Bit=0
+[2025-04-15 13:49:26,831] I ThreadPoolExecutor-0_7 - extract_frame_pair:317 - [P:48, R:3] s1=212.3070, s2=211.1147, ratio=1.0056 vs thr=1.0000 (alpha=1.0461) -> Bit=0
+[2025-04-15 13:49:26,882] I ThreadPoolExecutor-0_15 - extract_frame_pair:317 - [P:50, R:3] s1=211.6506, s2=211.2328, ratio=1.0020 vs thr=1.0000 (alpha=1.0475) -> Bit=0
+[2025-04-15 13:49:26,903] I ThreadPoolExecutor-0_2 - extract_frame_pair:317 - [P:49, R:4] s1=201.4765, s2=200.3760, ratio=1.0055 vs thr=1.0000 (alpha=1.0470) -> Bit=0
+[2025-04-15 13:49:27,217] I ThreadPoolExecutor-0_10 - extract_frame_pair:317 - [P:51, R:4] s1=200.6840, s2=200.1760, ratio=1.0025 vs thr=1.0000 (alpha=1.0475) -> Bit=0
+[2025-04-15 13:49:27,250] I ThreadPoolExecutor-0_19 - extract_frame_pair:317 - [P:52, R:4] s1=200.6952, s2=200.4634, ratio=1.0012 vs thr=1.0000 (alpha=1.0476) -> Bit=0
+[2025-04-15 13:49:27,287] I ThreadPoolExecutor-0_1 - extract_frame_pair:317 - [P:53, R:4] s1=201.4928, s2=201.3187, ratio=1.0009 vs thr=1.0000 (alpha=1.0483) -> Bit=0
+[2025-04-15 13:49:27,657] I ThreadPoolExecutor-0_12 - extract_frame_pair:317 - [P:56, R:4] s1=200.2015, s2=198.6032, ratio=1.0080 vs thr=1.0000 (alpha=1.0483) -> Bit=0
+[2025-04-15 13:49:27,892] I ThreadPoolExecutor-0_14 - extract_frame_pair:317 - [P:55, R:4] s1=201.7319, s2=200.3547, ratio=1.0069 vs thr=1.0000 (alpha=1.0486) -> Bit=0
+[2025-04-15 13:49:27,904] I ThreadPoolExecutor-0_13 - extract_frame_pair:317 - [P:57, R:4] s1=198.7335, s2=197.6183, ratio=1.0056 vs thr=1.0000 (alpha=1.0494) -> Bit=0
+[2025-04-15 13:49:28,015] I ThreadPoolExecutor-0_4 - extract_frame_pair:317 - [P:54, R:4] s1=202.4942, s2=201.6170, ratio=1.0044 vs thr=1.0000 (alpha=1.0479) -> Bit=0
+[2025-04-15 13:49:28,140] I ThreadPoolExecutor-0_16 - extract_frame_pair:317 - [P:59, R:4] s1=197.7864, s2=197.0465, ratio=1.0038 vs thr=1.0000 (alpha=1.0493) -> Bit=0
+[2025-04-15 13:49:28,259] I ThreadPoolExecutor-0_5 - extract_frame_pair:317 - [P:42, R:6] s1=188.1393, s2=187.1071, ratio=1.0055 vs thr=1.0000 (alpha=1.0473) -> Bit=0
+[2025-04-15 13:49:28,268] D ThreadPoolExecutor-0_5 - get_fixed_pseudo_random_rings:191 - [P:60] Candidates: [3, 0, 2, 6]
+[2025-04-15 13:49:28,363] I ThreadPoolExecutor-0_11 - extract_frame_pair:317 - [P:58, R:5] s1=193.8754, s2=192.9893, ratio=1.0046 vs thr=1.0000 (alpha=1.0482) -> Bit=0
+[2025-04-15 13:49:28,547] I ThreadPoolExecutor-0_3 - extract_frame_pair:317 - [P:41, R:6] s1=188.2792, s2=187.1898, ratio=1.0058 vs thr=1.0000 (alpha=1.0489) -> Bit=0
+[2025-04-15 13:49:28,551] D ThreadPoolExecutor-0_3 - get_fixed_pseudo_random_rings:191 - [P:61] Candidates: [7, 2, 4, 1]
+[2025-04-15 13:49:28,562] I ThreadPoolExecutor-0_8 - extract_frame_pair:317 - [P:40, R:4] s1=200.5175, s2=199.3147, ratio=1.0060 vs thr=1.0000 (alpha=1.0475) -> Bit=0
+[2025-04-15 13:49:28,568] D ThreadPoolExecutor-0_8 - get_fixed_pseudo_random_rings:191 - [P:62] Candidates: [0, 6, 2, 4]
+[2025-04-15 13:49:28,602] I ThreadPoolExecutor-0_18 - extract_frame_pair:317 - [P:44, R:2] s1=182.9226, s2=182.1111, ratio=1.0045 vs thr=1.0000 (alpha=1.0441) -> Bit=0
+[2025-04-15 13:49:28,607] D ThreadPoolExecutor-0_18 - get_fixed_pseudo_random_rings:191 - [P:63] Candidates: [7, 1, 2, 5]
+[2025-04-15 13:49:28,739] I ThreadPoolExecutor-0_6 - extract_frame_pair:317 - [P:43, R:2] s1=183.0982, s2=182.0434, ratio=1.0058 vs thr=1.0000 (alpha=1.0432) -> Bit=0
+[2025-04-15 13:49:28,744] D ThreadPoolExecutor-0_6 - get_fixed_pseudo_random_rings:191 - [P:64] Candidates: [1, 6, 0, 5]
+[2025-04-15 13:49:28,764] I ThreadPoolExecutor-0_7 - extract_frame_pair:317 - [P:48, R:5] s1=193.5439, s2=192.3726, ratio=1.0061 vs thr=1.0000 (alpha=1.0473) -> Bit=0
+[2025-04-15 13:49:28,769] D ThreadPoolExecutor-0_7 - get_fixed_pseudo_random_rings:191 - [P:65] Candidates: [6, 5, 7, 2]
+[2025-04-15 13:49:28,789] I ThreadPoolExecutor-0_0 - extract_frame_pair:317 - [P:45, R:2] s1=183.0179, s2=182.1267, ratio=1.0049 vs thr=1.0000 (alpha=1.0443) -> Bit=0
+[2025-04-15 13:49:28,795] D ThreadPoolExecutor-0_0 - get_fixed_pseudo_random_rings:191 - [P:66] Candidates: [2, 3, 7, 0]
+[2025-04-15 13:49:28,836] I ThreadPoolExecutor-0_9 - extract_frame_pair:317 - [P:46, R:2] s1=182.5453, s2=181.7810, ratio=1.0042 vs thr=1.0000 (alpha=1.0445) -> Bit=0
+[2025-04-15 13:49:28,841] D ThreadPoolExecutor-0_9 - get_fixed_pseudo_random_rings:191 - [P:67] Candidates: [1, 2, 3, 6]
+[2025-04-15 13:49:29,365] I ThreadPoolExecutor-0_17 - extract_frame_pair:317 - [P:47, R:0] s1=83.8930, s2=83.3381, ratio=1.0067 vs thr=1.0000 (alpha=1.0375) -> Bit=0
+[2025-04-15 13:49:29,373] D ThreadPoolExecutor-0_17 - get_fixed_pseudo_random_rings:191 - [P:68] Candidates: [3, 2, 6, 4]
+[2025-04-15 13:49:29,467] I ThreadPoolExecutor-0_15 - extract_frame_pair:317 - [P:50, R:1] s1=142.0276, s2=140.9878, ratio=1.0074 vs thr=1.0000 (alpha=1.0429) -> Bit=0
+[2025-04-15 13:49:29,476] D ThreadPoolExecutor-0_15 - get_fixed_pseudo_random_rings:191 - [P:69] Candidates: [2, 1, 5, 7]
+[2025-04-15 13:49:29,720] I ThreadPoolExecutor-0_2 - extract_frame_pair:317 - [P:49, R:3] s1=211.5515, s2=211.1169, ratio=1.0021 vs thr=1.0000 (alpha=1.0472) -> Bit=0
+[2025-04-15 13:49:29,728] D ThreadPoolExecutor-0_2 - get_fixed_pseudo_random_rings:191 - [P:70] Candidates: [1, 3, 4, 2]
+[2025-04-15 13:49:29,864] I ThreadPoolExecutor-0_1 - extract_frame_pair:317 - [P:53, R:2] s1=181.6947, s2=181.0575, ratio=1.0035 vs thr=1.0000 (alpha=1.0467) -> Bit=0
+[2025-04-15 13:49:29,870] D ThreadPoolExecutor-0_1 - get_fixed_pseudo_random_rings:191 - [P:71] Candidates: [3, 2, 5, 0]
+[2025-04-15 13:49:29,907] I ThreadPoolExecutor-0_19 - extract_frame_pair:317 - [P:52, R:2] s1=181.7497, s2=181.1280, ratio=1.0034 vs thr=1.0000 (alpha=1.0462) -> Bit=0
+[2025-04-15 13:49:29,912] D ThreadPoolExecutor-0_19 - get_fixed_pseudo_random_rings:191 - [P:72] Candidates: [5, 3, 4, 0]
+[2025-04-15 13:49:29,942] I ThreadPoolExecutor-0_10 - extract_frame_pair:317 - [P:51, R:2] s1=181.9909, s2=181.1902, ratio=1.0044 vs thr=1.0000 (alpha=1.0450) -> Bit=0
+[2025-04-15 13:49:29,948] D ThreadPoolExecutor-0_10 - get_fixed_pseudo_random_rings:191 - [P:73] Candidates: [6, 4, 0, 2]
+[2025-04-15 13:49:30,018] I ThreadPoolExecutor-0_12 - extract_frame_pair:317 - [P:56, R:3] s1=212.2617, s2=211.3780, ratio=1.0042 vs thr=1.0000 (alpha=1.0473) -> Bit=0
+[2025-04-15 13:49:30,027] D ThreadPoolExecutor-0_12 - get_fixed_pseudo_random_rings:191 - [P:74] Candidates: [1, 6, 5, 2]
+[2025-04-15 13:49:30,334] I ThreadPoolExecutor-0_4 - extract_frame_pair:317 - [P:54, R:2] s1=181.9219, s2=180.8814, ratio=1.0058 vs thr=1.0000 (alpha=1.0446) -> Bit=0
+[2025-04-15 13:49:30,343] D ThreadPoolExecutor-0_4 - get_fixed_pseudo_random_rings:191 - [P:75] Candidates: [7, 5, 6, 3]
+[2025-04-15 13:49:30,366] I ThreadPoolExecutor-0_14 - extract_frame_pair:317 - [P:55, R:3] s1=212.7052, s2=211.6135, ratio=1.0052 vs thr=1.0000 (alpha=1.0462) -> Bit=0
+[2025-04-15 13:49:30,370] D ThreadPoolExecutor-0_14 - get_fixed_pseudo_random_rings:191 - [P:76] Candidates: [0, 5, 6, 7]
+[2025-04-15 13:49:30,373] I ThreadPoolExecutor-0_13 - extract_frame_pair:317 - [P:57, R:3] s1=211.5291, s2=210.3781, ratio=1.0055 vs thr=1.0000 (alpha=1.0478) -> Bit=0
+[2025-04-15 13:49:30,378] D ThreadPoolExecutor-0_13 - get_fixed_pseudo_random_rings:191 - [P:77] Candidates: [5, 0, 4, 6]
+[2025-04-15 13:49:30,418] I ThreadPoolExecutor-0_16 - extract_frame_pair:317 - [P:59, R:2] s1=179.9429, s2=179.2465, ratio=1.0039 vs thr=1.0000 (alpha=1.0464) -> Bit=0
+[2025-04-15 13:49:30,425] D ThreadPoolExecutor-0_16 - get_fixed_pseudo_random_rings:191 - [P:78] Candidates: [5, 7, 6, 1]
+[2025-04-15 13:49:30,624] I ThreadPoolExecutor-0_11 - extract_frame_pair:317 - [P:58, R:6] s1=198.9915, s2=198.6802, ratio=1.0016 vs thr=1.0000 (alpha=1.0425) -> Bit=0
+[2025-04-15 13:49:30,634] D ThreadPoolExecutor-0_11 - get_fixed_pseudo_random_rings:191 - [P:79] Candidates: [5, 6, 1, 4]
+[2025-04-15 13:49:31,731] I ThreadPoolExecutor-0_5 - extract_frame_pair:317 - [P:60, R:6] s1=199.4496, s2=197.7330, ratio=1.0087 vs thr=1.0000 (alpha=1.0438) -> Bit=0
+[2025-04-15 13:49:32,121] I ThreadPoolExecutor-0_3 - extract_frame_pair:317 - [P:61, R:4] s1=198.1229, s2=197.2685, ratio=1.0043 vs thr=1.0000 (alpha=1.0476) -> Bit=0
+[2025-04-15 13:49:32,231] I ThreadPoolExecutor-0_8 - extract_frame_pair:317 - [P:62, R:6] s1=194.4334, s2=193.1543, ratio=1.0066 vs thr=1.0000 (alpha=1.0471) -> Bit=0
+[2025-04-15 13:49:32,586] I ThreadPoolExecutor-0_6 - extract_frame_pair:317 - [P:64, R:6] s1=194.2629, s2=193.6460, ratio=1.0032 vs thr=1.0000 (alpha=1.0473) -> Bit=0
+[2025-04-15 13:49:32,716] I ThreadPoolExecutor-0_7 - extract_frame_pair:317 - [P:65, R:6] s1=194.2468, s2=193.9119, ratio=1.0017 vs thr=1.0000 (alpha=1.0473) -> Bit=0
+[2025-04-15 13:49:32,754] I ThreadPoolExecutor-0_15 - extract_frame_pair:317 - [P:69, R:7] s1=117.3375, s2=116.6180, ratio=1.0062 vs thr=1.0000 (alpha=1.0436) -> Bit=0
+[2025-04-15 13:49:32,843] I ThreadPoolExecutor-0_18 - extract_frame_pair:317 - [P:63, R:2] s1=180.8197, s2=180.1323, ratio=1.0038 vs thr=1.0000 (alpha=1.0450) -> Bit=0
+[2025-04-15 13:49:32,901] I ThreadPoolExecutor-0_17 - extract_frame_pair:317 - [P:68, R:6] s1=195.5529, s2=194.4092, ratio=1.0059 vs thr=1.0000 (alpha=1.0473) -> Bit=0
+[2025-04-15 13:49:32,925] I ThreadPoolExecutor-0_9 - extract_frame_pair:317 - [P:67, R:6] s1=195.2177, s2=194.8023, ratio=1.0021 vs thr=1.0000 (alpha=1.0467) -> Bit=0
+[2025-04-15 13:49:32,955] I ThreadPoolExecutor-0_0 - extract_frame_pair:317 - [P:66, R:3] s1=211.9447, s2=210.4972, ratio=1.0069 vs thr=1.0000 (alpha=1.0455) -> Bit=0
+[2025-04-15 13:49:32,986] I ThreadPoolExecutor-0_2 - extract_frame_pair:317 - [P:70, R:3] s1=212.1441, s2=211.7318, ratio=1.0019 vs thr=1.0000 (alpha=1.0454) -> Bit=0
+[2025-04-15 13:49:33,076] I ThreadPoolExecutor-0_10 - extract_frame_pair:317 - [P:73, R:4] s1=199.2853, s2=198.8945, ratio=1.0020 vs thr=1.0000 (alpha=1.0469) -> Bit=0
+[2025-04-15 13:49:33,088] I ThreadPoolExecutor-0_1 - extract_frame_pair:317 - [P:71, R:5] s1=189.9348, s2=189.5634, ratio=1.0020 vs thr=1.0000 (alpha=1.0500) -> Bit=0
+[2025-04-15 13:49:33,240] I ThreadPoolExecutor-0_19 - extract_frame_pair:317 - [P:72, R:5] s1=190.9321, s2=190.3115, ratio=1.0033 vs thr=1.0000 (alpha=1.0498) -> Bit=0
+[2025-04-15 13:49:33,269] I ThreadPoolExecutor-0_12 - extract_frame_pair:317 - [P:74, R:5] s1=191.3512, s2=190.4542, ratio=1.0047 vs thr=1.0000 (alpha=1.0504) -> Bit=0
+[2025-04-15 13:49:33,530] I ThreadPoolExecutor-0_14 - extract_frame_pair:317 - [P:76, R:5] s1=189.9315, s2=188.9383, ratio=1.0053 vs thr=1.0000 (alpha=1.0508) -> Bit=0
+[2025-04-15 13:49:33,677] I ThreadPoolExecutor-0_4 - extract_frame_pair:317 - [P:75, R:5] s1=190.8312, s2=189.6287, ratio=1.0063 vs thr=1.0000 (alpha=1.0508) -> Bit=0
+[2025-04-15 13:49:33,678] I ThreadPoolExecutor-0_16 - extract_frame_pair:317 - [P:78, R:5] s1=188.8832, s2=187.6856, ratio=1.0064 vs thr=1.0000 (alpha=1.0492) -> Bit=0
+[2025-04-15 13:49:34,069] I ThreadPoolExecutor-0_5 - extract_frame_pair:317 - [P:60, R:3] s1=210.8927, s2=209.9882, ratio=1.0043 vs thr=1.0000 (alpha=1.0462) -> Bit=0
+[2025-04-15 13:49:34,076] D ThreadPoolExecutor-0_5 - get_fixed_pseudo_random_rings:191 - [P:80] Candidates: [4, 5, 2, 0]
+[2025-04-15 13:49:34,266] I ThreadPoolExecutor-0_11 - extract_frame_pair:317 - [P:79, R:4] s1=197.7370, s2=197.2070, ratio=1.0027 vs thr=1.0000 (alpha=1.0468) -> Bit=0
+[2025-04-15 13:49:34,345] I ThreadPoolExecutor-0_3 - extract_frame_pair:317 - [P:61, R:2] s1=180.5955, s2=179.7955, ratio=1.0044 vs thr=1.0000 (alpha=1.0454) -> Bit=0
+[2025-04-15 13:49:34,349] D ThreadPoolExecutor-0_3 - get_fixed_pseudo_random_rings:191 - [P:81] Candidates: [2, 4, 7, 0]
+[2025-04-15 13:49:34,357] I ThreadPoolExecutor-0_13 - extract_frame_pair:317 - [P:77, R:5] s1=189.0853, s2=188.1656, ratio=1.0049 vs thr=1.0000 (alpha=1.0499) -> Bit=0
+[2025-04-15 13:49:34,388] I ThreadPoolExecutor-0_8 - extract_frame_pair:317 - [P:62, R:4] s1=197.9165, s2=197.5427, ratio=1.0019 vs thr=1.0000 (alpha=1.0483) -> Bit=0
+[2025-04-15 13:49:34,392] D ThreadPoolExecutor-0_8 - get_fixed_pseudo_random_rings:191 - [P:82] Candidates: [6, 0, 1, 3]
+[2025-04-15 13:49:34,415] I ThreadPoolExecutor-0_6 - extract_frame_pair:317 - [P:64, R:5] s1=192.2753, s2=191.5799, ratio=1.0036 vs thr=1.0000 (alpha=1.0500) -> Bit=0
+[2025-04-15 13:49:34,419] D ThreadPoolExecutor-0_6 - get_fixed_pseudo_random_rings:191 - [P:83] Candidates: [3, 6, 4, 1]
+[2025-04-15 13:49:34,447] I ThreadPoolExecutor-0_7 - extract_frame_pair:317 - [P:65, R:5] s1=191.9555, s2=191.8151, ratio=1.0007 vs thr=1.0000 (alpha=1.0498) -> Bit=0
+[2025-04-15 13:49:34,450] D ThreadPoolExecutor-0_7 - get_fixed_pseudo_random_rings:191 - [P:84] Candidates: [5, 7, 4, 3]
+[2025-04-15 13:49:34,947] I ThreadPoolExecutor-0_15 - extract_frame_pair:317 - [P:69, R:5] s1=190.1629, s2=189.0074, ratio=1.0061 vs thr=1.0000 (alpha=1.0497) -> Bit=0
+[2025-04-15 13:49:34,952] D ThreadPoolExecutor-0_15 - get_fixed_pseudo_random_rings:191 - [P:85] Candidates: [1, 5, 3, 6]
+[2025-04-15 13:49:35,066] I ThreadPoolExecutor-0_18 - extract_frame_pair:317 - [P:63, R:5] s1=192.3194, s2=191.6934, ratio=1.0033 vs thr=1.0000 (alpha=1.0494) -> Bit=0
+[2025-04-15 13:49:35,074] D ThreadPoolExecutor-0_18 - get_fixed_pseudo_random_rings:191 - [P:86] Candidates: [6, 4, 7, 2]
+[2025-04-15 13:49:35,408] I ThreadPoolExecutor-0_9 - extract_frame_pair:317 - [P:67, R:3] s1=210.9791, s2=210.2459, ratio=1.0035 vs thr=1.0000 (alpha=1.0460) -> Bit=0
+[2025-04-15 13:49:35,414] D ThreadPoolExecutor-0_9 - get_fixed_pseudo_random_rings:191 - [P:87] Candidates: [6, 1, 0, 3]
+[2025-04-15 13:49:35,437] I ThreadPoolExecutor-0_17 - extract_frame_pair:317 - [P:68, R:4] s1=197.0200, s2=196.1300, ratio=1.0045 vs thr=1.0000 (alpha=1.0474) -> Bit=0
+[2025-04-15 13:49:35,449] D ThreadPoolExecutor-0_17 - get_fixed_pseudo_random_rings:191 - [P:88] Candidates: [1, 3, 7, 2]
+[2025-04-15 13:49:35,494] I ThreadPoolExecutor-0_2 - extract_frame_pair:317 - [P:70, R:4] s1=197.2072, s2=196.8392, ratio=1.0019 vs thr=1.0000 (alpha=1.0475) -> Bit=0
+[2025-04-15 13:49:35,501] D ThreadPoolExecutor-0_2 - get_fixed_pseudo_random_rings:191 - [P:89] Candidates: [5, 6, 7, 3]
+[2025-04-15 13:49:35,545] I ThreadPoolExecutor-0_0 - extract_frame_pair:317 - [P:66, R:2] s1=180.8064, s2=179.6960, ratio=1.0062 vs thr=1.0000 (alpha=1.0437) -> Bit=0
+[2025-04-15 13:49:35,550] D ThreadPoolExecutor-0_0 - get_fixed_pseudo_random_rings:191 - [P:90] Candidates: [3, 5, 6, 2]
+[2025-04-15 13:49:35,619] I ThreadPoolExecutor-0_1 - extract_frame_pair:317 - [P:71, R:3] s1=212.4859, s2=212.1527, ratio=1.0016 vs thr=1.0000 (alpha=1.0454) -> Bit=0
+[2025-04-15 13:49:35,624] D ThreadPoolExecutor-0_1 - get_fixed_pseudo_random_rings:191 - [P:91] Candidates: [3, 2, 5, 6]
+[2025-04-15 13:49:35,633] I ThreadPoolExecutor-0_10 - extract_frame_pair:317 - [P:73, R:6] s1=189.9957, s2=188.9408, ratio=1.0056 vs thr=1.0000 (alpha=1.0456) -> Bit=0
+[2025-04-15 13:49:35,636] D ThreadPoolExecutor-0_10 - get_fixed_pseudo_random_rings:191 - [P:92] Candidates: [7, 4, 6, 2]
+[2025-04-15 13:49:35,655] I ThreadPoolExecutor-0_14 - extract_frame_pair:317 - [P:76, R:7] s1=112.1090, s2=111.8075, ratio=1.0027 vs thr=1.0000 (alpha=1.0468) -> Bit=0
+[2025-04-15 13:49:35,659] D ThreadPoolExecutor-0_14 - get_fixed_pseudo_random_rings:191 - [P:93] Candidates: [1, 5, 6, 3]
+[2025-04-15 13:49:35,661] I ThreadPoolExecutor-0_12 - extract_frame_pair:317 - [P:74, R:6] s1=189.5374, s2=188.7726, ratio=1.0041 vs thr=1.0000 (alpha=1.0467) -> Bit=0
+[2025-04-15 13:49:35,670] D ThreadPoolExecutor-0_12 - get_fixed_pseudo_random_rings:191 - [P:94] Candidates: [5, 0, 1, 3]
+[2025-04-15 13:49:35,712] I ThreadPoolExecutor-0_19 - extract_frame_pair:317 - [P:72, R:3] s1=213.4191, s2=212.5136, ratio=1.0043 vs thr=1.0000 (alpha=1.0435) -> Bit=0
+[2025-04-15 13:49:35,725] D ThreadPoolExecutor-0_19 - get_fixed_pseudo_random_rings:191 - [P:95] Candidates: [4, 5, 1, 0]
+[2025-04-15 13:49:35,761] I ThreadPoolExecutor-0_16 - extract_frame_pair:317 - [P:78, R:6] s1=187.6026, s2=186.1596, ratio=1.0078 vs thr=1.0000 (alpha=1.0449) -> Bit=0
+[2025-04-15 13:49:35,772] D ThreadPoolExecutor-0_16 - get_fixed_pseudo_random_rings:191 - [P:96] Candidates: [4, 2, 0, 5]
+[2025-04-15 13:49:35,773] I ThreadPoolExecutor-0_4 - extract_frame_pair:317 - [P:75, R:3] s1=212.0130, s2=210.9490, ratio=1.0050 vs thr=1.0000 (alpha=1.0470) -> Bit=0
+[2025-04-15 13:49:35,785] D ThreadPoolExecutor-0_4 - get_fixed_pseudo_random_rings:191 - [P:97] Candidates: [4, 5, 7, 1]
+[2025-04-15 13:49:36,175] I ThreadPoolExecutor-0_11 - extract_frame_pair:317 - [P:79, R:6] s1=186.2310, s2=185.6620, ratio=1.0031 vs thr=1.0000 (alpha=1.0450) -> Bit=0
+[2025-04-15 13:49:36,180] D ThreadPoolExecutor-0_11 - get_fixed_pseudo_random_rings:191 - [P:98] Candidates: [5, 1, 2, 6]
+[2025-04-15 13:49:36,324] I ThreadPoolExecutor-0_13 - extract_frame_pair:317 - [P:77, R:4] s1=197.4447, s2=196.4867, ratio=1.0049 vs thr=1.0000 (alpha=1.0474) -> Bit=0
+[2025-04-15 13:49:36,328] D ThreadPoolExecutor-0_13 - get_fixed_pseudo_random_rings:191 - [P:99] Candidates: [4, 3, 2, 7]
+[2025-04-15 13:49:37,377] I ThreadPoolExecutor-0_5 - extract_frame_pair:317 - [P:80, R:4] s1=198.1651, s2=197.9514, ratio=1.0011 vs thr=1.0000 (alpha=1.0477) -> Bit=0
+[2025-04-15 13:49:37,525] I ThreadPoolExecutor-0_3 - extract_frame_pair:317 - [P:81, R:4] s1=199.1084, s2=198.3626, ratio=1.0038 vs thr=1.0000 (alpha=1.0467) -> Bit=0
+[2025-04-15 13:49:37,789] I ThreadPoolExecutor-0_18 - extract_frame_pair:317 - [P:86, R:2] s1=179.5848, s2=178.4210, ratio=1.0065 vs thr=1.0000 (alpha=1.0450) -> Bit=0
+[2025-04-15 13:49:38,204] I ThreadPoolExecutor-0_6 - extract_frame_pair:317 - [P:83, R:4] s1=199.6208, s2=198.7412, ratio=1.0044 vs thr=1.0000 (alpha=1.0465) -> Bit=0
+[2025-04-15 13:49:38,231] I ThreadPoolExecutor-0_8 - extract_frame_pair:317 - [P:82, R:3] s1=212.2661, s2=210.8322, ratio=1.0068 vs thr=1.0000 (alpha=1.0443) -> Bit=0
+[2025-04-15 13:49:38,397] I ThreadPoolExecutor-0_7 - extract_frame_pair:317 - [P:84, R:5] s1=189.8036, s2=188.8072, ratio=1.0053 vs thr=1.0000 (alpha=1.0484) -> Bit=0
+[2025-04-15 13:49:38,436] I ThreadPoolExecutor-0_15 - extract_frame_pair:317 - [P:85, R:5] s1=189.3525, s2=188.7905, ratio=1.0030 vs thr=1.0000 (alpha=1.0495) -> Bit=0
+[2025-04-15 13:49:38,583] I ThreadPoolExecutor-0_17 - extract_frame_pair:317 - [P:88, R:2] s1=178.7245, s2=178.0228, ratio=1.0039 vs thr=1.0000 (alpha=1.0464) -> Bit=0
+[2025-04-15 13:49:38,606] I ThreadPoolExecutor-0_9 - extract_frame_pair:317 - [P:87, R:1] s1=140.9572, s2=140.2766, ratio=1.0049 vs thr=1.0000 (alpha=1.0455) -> Bit=0
+[2025-04-15 13:49:38,617] I ThreadPoolExecutor-0_0 - extract_frame_pair:317 - [P:90, R:2] s1=179.6000, s2=178.8529, ratio=1.0042 vs thr=1.0000 (alpha=1.0466) -> Bit=0
+[2025-04-15 13:49:38,661] I ThreadPoolExecutor-0_2 - extract_frame_pair:317 - [P:89, R:5] s1=187.8494, s2=187.1689, ratio=1.0036 vs thr=1.0000 (alpha=1.0481) -> Bit=0
+[2025-04-15 13:49:38,698] I ThreadPoolExecutor-0_1 - extract_frame_pair:317 - [P:91, R:5] s1=188.7578, s2=188.6179, ratio=1.0007 vs thr=1.0000 (alpha=1.0488) -> Bit=0
+[2025-04-15 13:49:38,737] I ThreadPoolExecutor-0_4 - extract_frame_pair:317 - [P:97, R:4] s1=198.7298, s2=197.9082, ratio=1.0042 vs thr=1.0000 (alpha=1.0475) -> Bit=0
+[2025-04-15 13:49:38,737] I ThreadPoolExecutor-0_14 - extract_frame_pair:317 - [P:93, R:5] s1=190.2787, s2=189.4181, ratio=1.0045 vs thr=1.0000 (alpha=1.0481) -> Bit=0
+[2025-04-15 13:49:38,800] I ThreadPoolExecutor-0_10 - extract_frame_pair:317 - [P:92, R:4] s1=201.3614, s2=200.3934, ratio=1.0048 vs thr=1.0000 (alpha=1.0464) -> Bit=0
+[2025-04-15 13:49:38,831] I ThreadPoolExecutor-0_19 - extract_frame_pair:317 - [P:95, R:4] s1=200.4331, s2=198.9473, ratio=1.0075 vs thr=1.0000 (alpha=1.0477) -> Bit=0
+[2025-04-15 13:49:38,961] I ThreadPoolExecutor-0_16 - extract_frame_pair:317 - [P:96, R:4] s1=199.5260, s2=198.0022, ratio=1.0077 vs thr=1.0000 (alpha=1.0469) -> Bit=0
+[2025-04-15 13:49:39,043] I ThreadPoolExecutor-0_12 - extract_frame_pair:317 - [P:94, R:5] s1=189.7985, s2=188.7933, ratio=1.0053 vs thr=1.0000 (alpha=1.0491) -> Bit=0
+[2025-04-15 13:49:39,771] I ThreadPoolExecutor-0_5 - extract_frame_pair:317 - [P:80, R:2] s1=179.1042, s2=178.3824, ratio=1.0040 vs thr=1.0000 (alpha=1.0455) -> Bit=0
+[2025-04-15 13:49:39,777] D ThreadPoolExecutor-0_5 - get_fixed_pseudo_random_rings:191 - [P:100] Candidates: [4, 2, 0, 7]
+[2025-04-15 13:49:39,801] I ThreadPoolExecutor-0_11 - extract_frame_pair:317 - [P:98, R:5] s1=187.9736, s2=187.6820, ratio=1.0016 vs thr=1.0000 (alpha=1.0486) -> Bit=0
+[2025-04-15 13:49:39,892] I ThreadPoolExecutor-0_18 - extract_frame_pair:317 - [P:86, R:4] s1=198.1263, s2=196.9105, ratio=1.0062 vs thr=1.0000 (alpha=1.0461) -> Bit=0
+[2025-04-15 13:49:39,897] D ThreadPoolExecutor-0_18 - get_fixed_pseudo_random_rings:191 - [P:101] Candidates: [5, 3, 6, 7]
+[2025-04-15 13:49:39,899] I ThreadPoolExecutor-0_13 - extract_frame_pair:317 - [P:99, R:4] s1=200.1350, s2=199.7881, ratio=1.0017 vs thr=1.0000 (alpha=1.0474) -> Bit=0
+[2025-04-15 13:49:39,937] I ThreadPoolExecutor-0_3 - extract_frame_pair:317 - [P:81, R:2] s1=179.5332, s2=178.5413, ratio=1.0056 vs thr=1.0000 (alpha=1.0447) -> Bit=0
+[2025-04-15 13:49:39,941] D ThreadPoolExecutor-0_3 - get_fixed_pseudo_random_rings:191 - [P:102] Candidates: [7, 5, 3, 4]
+[2025-04-15 13:49:40,221] I ThreadPoolExecutor-0_8 - extract_frame_pair:317 - [P:82, R:6] s1=187.5404, s2=186.9214, ratio=1.0033 vs thr=1.0000 (alpha=1.0478) -> Bit=0
+[2025-04-15 13:49:40,225] D ThreadPoolExecutor-0_8 - get_fixed_pseudo_random_rings:191 - [P:103] Candidates: [2, 0, 5, 1]
+[2025-04-15 13:49:40,240] I ThreadPoolExecutor-0_7 - extract_frame_pair:317 - [P:84, R:4] s1=199.8413, s2=198.3957, ratio=1.0073 vs thr=1.0000 (alpha=1.0456) -> Bit=0
+[2025-04-15 13:49:40,243] D ThreadPoolExecutor-0_7 - get_fixed_pseudo_random_rings:191 - [P:104] Candidates: [5, 2, 0, 4]
+[2025-04-15 13:49:40,248] I ThreadPoolExecutor-0_15 - extract_frame_pair:317 - [P:85, R:1] s1=140.3173, s2=140.2286, ratio=1.0006 vs thr=1.0000 (alpha=1.0457) -> Bit=0
+[2025-04-15 13:49:40,252] D ThreadPoolExecutor-0_15 - get_fixed_pseudo_random_rings:191 - [P:105] Candidates: [1, 4, 6, 3]
+[2025-04-15 13:49:40,293] I ThreadPoolExecutor-0_6 - extract_frame_pair:317 - [P:83, R:3] s1=211.6762, s2=210.4855, ratio=1.0057 vs thr=1.0000 (alpha=1.0451) -> Bit=0
+[2025-04-15 13:49:40,297] D ThreadPoolExecutor-0_6 - get_fixed_pseudo_random_rings:191 - [P:106] Candidates: [6, 0, 5, 4]
+[2025-04-15 13:49:40,363] I ThreadPoolExecutor-0_17 - extract_frame_pair:317 - [P:88, R:1] s1=140.3292, s2=139.8132, ratio=1.0037 vs thr=1.0000 (alpha=1.0466) -> Bit=0
+[2025-04-15 13:49:40,367] D ThreadPoolExecutor-0_17 - get_fixed_pseudo_random_rings:191 - [P:107] Candidates: [7, 5, 3, 4]
+[2025-04-15 13:49:40,627] I ThreadPoolExecutor-0_0 - extract_frame_pair:317 - [P:90, R:3] s1=213.0061, s2=212.9167, ratio=1.0004 vs thr=1.0000 (alpha=1.0444) -> Bit=0
+[2025-04-15 13:49:40,636] D ThreadPoolExecutor-0_0 - get_fixed_pseudo_random_rings:191 - [P:108] Candidates: [6, 4, 7, 0]
+[2025-04-15 13:49:40,708] I ThreadPoolExecutor-0_9 - extract_frame_pair:317 - [P:87, R:3] s1=211.5659, s2=210.3254, ratio=1.0059 vs thr=1.0000 (alpha=1.0429) -> Bit=0
+[2025-04-15 13:49:40,714] D ThreadPoolExecutor-0_9 - get_fixed_pseudo_random_rings:191 - [P:109] Candidates: [3, 1, 2, 4]
+[2025-04-15 13:49:40,821] I ThreadPoolExecutor-0_1 - extract_frame_pair:317 - [P:91, R:3] s1=213.1313, s2=212.0662, ratio=1.0050 vs thr=1.0000 (alpha=1.0446) -> Bit=0
+[2025-04-15 13:49:40,828] D ThreadPoolExecutor-0_1 - get_fixed_pseudo_random_rings:191 - [P:110] Candidates: [0, 4, 1, 5]
+[2025-04-15 13:49:41,143] I ThreadPoolExecutor-0_2 - extract_frame_pair:317 - [P:89, R:6] s1=187.2772, s2=186.4944, ratio=1.0042 vs thr=1.0000 (alpha=1.0489) -> Bit=0
+[2025-04-15 13:49:41,154] D ThreadPoolExecutor-0_2 - get_fixed_pseudo_random_rings:191 - [P:111] Candidates: [5, 7, 0, 6]
+[2025-04-15 13:49:41,231] I ThreadPoolExecutor-0_4 - extract_frame_pair:317 - [P:97, R:5] s1=188.2843, s2=187.4707, ratio=1.0043 vs thr=1.0000 (alpha=1.0487) -> Bit=0
+[2025-04-15 13:49:41,244] D ThreadPoolExecutor-0_4 - get_fixed_pseudo_random_rings:191 - [P:112] Candidates: [5, 0, 6, 2]
+[2025-04-15 13:49:41,351] I ThreadPoolExecutor-0_19 - extract_frame_pair:317 - [P:95, R:5] s1=189.2475, s2=188.3670, ratio=1.0047 vs thr=1.0000 (alpha=1.0500) -> Bit=0
+[2025-04-15 13:49:41,356] D ThreadPoolExecutor-0_19 - get_fixed_pseudo_random_rings:191 - [P:113] Candidates: [3, 5, 6, 2]
+[2025-04-15 13:49:41,417] I ThreadPoolExecutor-0_10 - extract_frame_pair:317 - [P:92, R:6] s1=187.0344, s2=185.8931, ratio=1.0061 vs thr=1.0000 (alpha=1.0497) -> Bit=0
+[2025-04-15 13:49:41,422] D ThreadPoolExecutor-0_10 - get_fixed_pseudo_random_rings:191 - [P:114] Candidates: [2, 1, 0, 5]
+[2025-04-15 13:49:41,438] I ThreadPoolExecutor-0_14 - extract_frame_pair:317 - [P:93, R:6] s1=186.1439, s2=185.3743, ratio=1.0042 vs thr=1.0000 (alpha=1.0488) -> Bit=0
+[2025-04-15 13:49:41,446] D ThreadPoolExecutor-0_14 - get_fixed_pseudo_random_rings:191 - [P:115] Candidates: [7, 0, 6, 3]
+[2025-04-15 13:49:41,507] I ThreadPoolExecutor-0_12 - extract_frame_pair:317 - [P:94, R:3] s1=212.3554, s2=211.3486, ratio=1.0048 vs thr=1.0000 (alpha=1.0457) -> Bit=0
+[2025-04-15 13:49:41,512] D ThreadPoolExecutor-0_12 - get_fixed_pseudo_random_rings:191 - [P:116] Candidates: [0, 6, 1, 2]
+[2025-04-15 13:49:41,525] I ThreadPoolExecutor-0_16 - extract_frame_pair:317 - [P:96, R:5] s1=188.9423, s2=187.6523, ratio=1.0069 vs thr=1.0000 (alpha=1.0487) -> Bit=0
+[2025-04-15 13:49:41,529] D ThreadPoolExecutor-0_16 - get_fixed_pseudo_random_rings:191 - [P:117] Candidates: [5, 6, 7, 2]
+[2025-04-15 13:49:41,739] I ThreadPoolExecutor-0_11 - extract_frame_pair:317 - [P:98, R:6] s1=186.7353, s2=185.9555, ratio=1.0042 vs thr=1.0000 (alpha=1.0480) -> Bit=0
+[2025-04-15 13:49:41,743] D ThreadPoolExecutor-0_11 - get_fixed_pseudo_random_rings:191 - [P:118] Candidates: [4, 0, 3, 1]
+[2025-04-15 13:49:42,394] I ThreadPoolExecutor-0_13 - extract_frame_pair:317 - [P:99, R:2] s1=178.5009, s2=178.4534, ratio=1.0003 vs thr=1.0000 (alpha=1.0450) -> Bit=0
+[2025-04-15 13:49:42,408] D ThreadPoolExecutor-0_13 - get_fixed_pseudo_random_rings:191 - [P:119] Candidates: [2, 3, 6, 4]
+[2025-04-15 13:49:42,792] I ThreadPoolExecutor-0_5 - extract_frame_pair:317 - [P:100, R:2] s1=178.6751, s2=178.0110, ratio=1.0037 vs thr=1.0000 (alpha=1.0454) -> Bit=0
+[2025-04-15 13:49:43,369] I ThreadPoolExecutor-0_18 - extract_frame_pair:317 - [P:101, R:5] s1=189.5658, s2=189.3345, ratio=1.0012 vs thr=1.0000 (alpha=1.0483) -> Bit=0
+[2025-04-15 13:49:43,396] I ThreadPoolExecutor-0_3 - extract_frame_pair:317 - [P:102, R:5] s1=190.4971, s2=189.7339, ratio=1.0040 vs thr=1.0000 (alpha=1.0471) -> Bit=0
+[2025-04-15 13:49:43,506] I ThreadPoolExecutor-0_8 - extract_frame_pair:317 - [P:103, R:5] s1=190.0552, s2=189.3211, ratio=1.0039 vs thr=1.0000 (alpha=1.0478) -> Bit=0
+[2025-04-15 13:49:43,756] I ThreadPoolExecutor-0_7 - extract_frame_pair:317 - [P:104, R:5] s1=189.3041, s2=188.1204, ratio=1.0063 vs thr=1.0000 (alpha=1.0485) -> Bit=0
+[2025-04-15 13:49:43,822] I ThreadPoolExecutor-0_15 - extract_frame_pair:317 - [P:105, R:4] s1=199.7924, s2=198.2706, ratio=1.0077 vs thr=1.0000 (alpha=1.0493) -> Bit=0
+[2025-04-15 13:49:43,991] I ThreadPoolExecutor-0_6 - extract_frame_pair:317 - [P:106, R:4] s1=198.6347, s2=197.2364, ratio=1.0071 vs thr=1.0000 (alpha=1.0493) -> Bit=0
+[2025-04-15 13:49:44,069] I ThreadPoolExecutor-0_1 - extract_frame_pair:317 - [P:110, R:4] s1=198.7124, s2=198.2260, ratio=1.0025 vs thr=1.0000 (alpha=1.0472) -> Bit=0
+[2025-04-15 13:49:44,122] I ThreadPoolExecutor-0_9 - extract_frame_pair:317 - [P:109, R:4] s1=198.4493, s2=197.8283, ratio=1.0031 vs thr=1.0000 (alpha=1.0471) -> Bit=0
+[2025-04-15 13:49:44,153] I ThreadPoolExecutor-0_17 - extract_frame_pair:317 - [P:107, R:4] s1=197.8073, s2=196.9650, ratio=1.0043 vs thr=1.0000 (alpha=1.0488) -> Bit=0
+[2025-04-15 13:49:44,158] I ThreadPoolExecutor-0_0 - extract_frame_pair:317 - [P:108, R:4] s1=198.3529, s2=197.4485, ratio=1.0046 vs thr=1.0000 (alpha=1.0472) -> Bit=0
+[2025-04-15 13:49:44,174] I ThreadPoolExecutor-0_2 - extract_frame_pair:317 - [P:111, R:5] s1=189.5645, s2=189.0138, ratio=1.0029 vs thr=1.0000 (alpha=1.0479) -> Bit=0
+[2025-04-15 13:49:44,189] I ThreadPoolExecutor-0_4 - extract_frame_pair:317 - [P:112, R:5] s1=189.6907, s2=188.8469, ratio=1.0045 vs thr=1.0000 (alpha=1.0483) -> Bit=0
+[2025-04-15 13:49:44,712] I ThreadPoolExecutor-0_19 - extract_frame_pair:317 - [P:113, R:5] s1=189.3530, s2=188.5613, ratio=1.0042 vs thr=1.0000 (alpha=1.0490) -> Bit=0
+[2025-04-15 13:49:44,909] I ThreadPoolExecutor-0_16 - extract_frame_pair:317 - [P:117, R:5] s1=187.9291, s2=187.2861, ratio=1.0034 vs thr=1.0000 (alpha=1.0488) -> Bit=0
+[2025-04-15 13:49:44,926] I ThreadPoolExecutor-0_12 - extract_frame_pair:317 - [P:116, R:2] s1=177.4194, s2=178.0085, ratio=0.9967 vs thr=1.0000 (alpha=1.0474) -> Bit=1
+[2025-04-15 13:49:44,997] I ThreadPoolExecutor-0_10 - extract_frame_pair:317 - [P:114, R:5] s1=187.7140, s2=188.5100, ratio=0.9958 vs thr=1.0000 (alpha=1.0495) -> Bit=1
+[2025-04-15 13:49:45,047] I ThreadPoolExecutor-0_14 - extract_frame_pair:317 - [P:115, R:3] s1=209.6694, s2=210.8388, ratio=0.9945 vs thr=1.0000 (alpha=1.0474) -> Bit=1
+[2025-04-15 13:49:45,394] I ThreadPoolExecutor-0_5 - extract_frame_pair:317 - [P:100, R:4] s1=200.8001, s2=200.3715, ratio=1.0021 vs thr=1.0000 (alpha=1.0474) -> Bit=0
+[2025-04-15 13:49:45,403] D ThreadPoolExecutor-0_5 - get_fixed_pseudo_random_rings:191 - [P:120] Candidates: [6, 7, 2, 3]
+[2025-04-15 13:49:45,683] I ThreadPoolExecutor-0_13 - extract_frame_pair:317 - [P:119, R:3] s1=209.5933, s2=210.5731, ratio=0.9953 vs thr=1.0000 (alpha=1.0470) -> Bit=1
+[2025-04-15 13:49:45,729] I ThreadPoolExecutor-0_11 - extract_frame_pair:317 - [P:118, R:3] s1=209.4069, s2=210.6298, ratio=0.9942 vs thr=1.0000 (alpha=1.0470) -> Bit=1
+[2025-04-15 13:49:45,730] I ThreadPoolExecutor-0_7 - extract_frame_pair:317 - [P:104, R:4] s1=200.1203, s2=198.8631, ratio=1.0063 vs thr=1.0000 (alpha=1.0462) -> Bit=0
+[2025-04-15 13:49:45,738] D ThreadPoolExecutor-0_7 - get_fixed_pseudo_random_rings:191 - [P:121] Candidates: [3, 7, 5, 1]
+[2025-04-15 13:49:45,767] I ThreadPoolExecutor-0_18 - extract_frame_pair:317 - [P:101, R:6] s1=186.8373, s2=186.2707, ratio=1.0030 vs thr=1.0000 (alpha=1.0462) -> Bit=0
+[2025-04-15 13:49:45,768] I ThreadPoolExecutor-0_8 - extract_frame_pair:317 - [P:103, R:2] s1=177.8249, s2=176.8985, ratio=1.0052 vs thr=1.0000 (alpha=1.0460) -> Bit=0
+[2025-04-15 13:49:45,772] D ThreadPoolExecutor-0_18 - get_fixed_pseudo_random_rings:191 - [P:122] Candidates: [3, 2, 0, 5]
+[2025-04-15 13:49:45,777] D ThreadPoolExecutor-0_8 - get_fixed_pseudo_random_rings:191 - [P:123] Candidates: [6, 1, 3, 5]
+[2025-04-15 13:49:45,783] I ThreadPoolExecutor-0_15 - extract_frame_pair:317 - [P:105, R:3] s1=211.2357, s2=210.0980, ratio=1.0054 vs thr=1.0000 (alpha=1.0476) -> Bit=0
+[2025-04-15 13:49:45,788] D ThreadPoolExecutor-0_15 - get_fixed_pseudo_random_rings:191 - [P:124] Candidates: [7, 0, 1, 4]
+[2025-04-15 13:49:45,799] I ThreadPoolExecutor-0_3 - extract_frame_pair:317 - [P:102, R:3] s1=211.9680, s2=210.4036, ratio=1.0074 vs thr=1.0000 (alpha=1.0449) -> Bit=0
+[2025-04-15 13:49:45,803] D ThreadPoolExecutor-0_3 - get_fixed_pseudo_random_rings:191 - [P:125] Candidates: [6, 5, 0, 2]
+[2025-04-15 13:49:45,902] I ThreadPoolExecutor-0_6 - extract_frame_pair:317 - [P:106, R:5] s1=187.0448, s2=186.0519, ratio=1.0053 vs thr=1.0000 (alpha=1.0494) -> Bit=0
+[2025-04-15 13:49:45,906] D ThreadPoolExecutor-0_6 - get_fixed_pseudo_random_rings:191 - [P:126] Candidates: [1, 3, 7, 2]
+[2025-04-15 13:49:46,249] I ThreadPoolExecutor-0_9 - extract_frame_pair:317 - [P:109, R:3] s1=211.1849, s2=210.0122, ratio=1.0056 vs thr=1.0000 (alpha=1.0467) -> Bit=0
+[2025-04-15 13:49:46,254] D ThreadPoolExecutor-0_9 - get_fixed_pseudo_random_rings:191 - [P:127] Candidates: [1, 6, 5, 4]
+[2025-04-15 13:49:46,484] I ThreadPoolExecutor-0_1 - extract_frame_pair:317 - [P:110, R:5] s1=188.7362, s2=188.2520, ratio=1.0026 vs thr=1.0000 (alpha=1.0473) -> Bit=0
+[2025-04-15 13:49:46,497] D ThreadPoolExecutor-0_1 - get_fixed_pseudo_random_rings:191 - [P:128] Candidates: [3, 6, 7, 5]
+[2025-04-15 13:49:46,810] I ThreadPoolExecutor-0_0 - extract_frame_pair:317 - [P:108, R:6] s1=187.3170, s2=186.5374, ratio=1.0042 vs thr=1.0000 (alpha=1.0466) -> Bit=0
+[2025-04-15 13:49:46,816] D ThreadPoolExecutor-0_0 - get_fixed_pseudo_random_rings:191 - [P:129] Candidates: [0, 5, 6, 4]
+[2025-04-15 13:49:46,945] I ThreadPoolExecutor-0_4 - extract_frame_pair:317 - [P:112, R:6] s1=187.4197, s2=187.9375, ratio=0.9972 vs thr=1.0000 (alpha=1.0491) -> Bit=1
+[2025-04-15 13:49:46,951] D ThreadPoolExecutor-0_4 - get_fixed_pseudo_random_rings:191 - [P:130] Candidates: [4, 7, 6, 0]
+[2025-04-15 13:49:47,024] I ThreadPoolExecutor-0_19 - extract_frame_pair:317 - [P:113, R:2] s1=178.0226, s2=178.3303, ratio=0.9983 vs thr=1.0000 (alpha=1.0471) -> Bit=1
+[2025-04-15 13:49:47,029] D ThreadPoolExecutor-0_19 - get_fixed_pseudo_random_rings:191 - [P:131] Candidates: [1, 5, 4, 6]
+[2025-04-15 13:49:47,047] I ThreadPoolExecutor-0_2 - extract_frame_pair:317 - [P:111, R:6] s1=187.9911, s2=187.2830, ratio=1.0038 vs thr=1.0000 (alpha=1.0479) -> Bit=0
+[2025-04-15 13:49:47,052] D ThreadPoolExecutor-0_2 - get_fixed_pseudo_random_rings:191 - [P:132] Candidates: [6, 2, 3, 0]
+[2025-04-15 13:49:47,064] I ThreadPoolExecutor-0_17 - extract_frame_pair:317 - [P:107, R:5] s1=186.6692, s2=186.0152, ratio=1.0035 vs thr=1.0000 (alpha=1.0491) -> Bit=0
+[2025-04-15 13:49:47,069] D ThreadPoolExecutor-0_17 - get_fixed_pseudo_random_rings:191 - [P:133] Candidates: [2, 0, 7, 3]
+[2025-04-15 13:49:47,137] I ThreadPoolExecutor-0_12 - extract_frame_pair:317 - [P:116, R:1] s1=139.2204, s2=139.8440, ratio=0.9955 vs thr=1.0000 (alpha=1.0445) -> Bit=1
+[2025-04-15 13:49:47,143] D ThreadPoolExecutor-0_12 - get_fixed_pseudo_random_rings:191 - [P:134] Candidates: [6, 1, 3, 0]
+[2025-04-15 13:49:47,184] I ThreadPoolExecutor-0_10 - extract_frame_pair:317 - [P:114, R:2] s1=177.1008, s2=178.1762, ratio=0.9940 vs thr=1.0000 (alpha=1.0464) -> Bit=1
+[2025-04-15 13:49:47,187] D ThreadPoolExecutor-0_10 - get_fixed_pseudo_random_rings:191 - [P:135] Candidates: [0, 4, 6, 5]
+[2025-04-15 13:49:47,209] I ThreadPoolExecutor-0_16 - extract_frame_pair:317 - [P:117, R:2] s1=177.5921, s2=178.1346, ratio=0.9970 vs thr=1.0000 (alpha=1.0473) -> Bit=1
+[2025-04-15 13:49:47,215] D ThreadPoolExecutor-0_16 - get_fixed_pseudo_random_rings:191 - [P:136] Candidates: [1, 4, 6, 0]
+[2025-04-15 13:49:47,225] I ThreadPoolExecutor-0_14 - extract_frame_pair:317 - [P:115, R:6] s1=187.0139, s2=186.0104, ratio=1.0054 vs thr=1.0000 (alpha=1.0474) -> Bit=0
+[2025-04-15 13:49:47,236] D ThreadPoolExecutor-0_14 - get_fixed_pseudo_random_rings:191 - [P:137] Candidates: [6, 1, 4, 7]
+[2025-04-15 13:49:47,400] I ThreadPoolExecutor-0_13 - extract_frame_pair:317 - [P:119, R:4] s1=197.1498, s2=196.4248, ratio=1.0037 vs thr=1.0000 (alpha=1.0475) -> Bit=0
+[2025-04-15 13:49:47,403] D ThreadPoolExecutor-0_13 - get_fixed_pseudo_random_rings:191 - [P:138] Candidates: [0, 5, 3, 7]
+[2025-04-15 13:49:47,617] I ThreadPoolExecutor-0_11 - extract_frame_pair:317 - [P:118, R:4] s1=195.7755, s2=196.6775, ratio=0.9954 vs thr=1.0000 (alpha=1.0480) -> Bit=1
+[2025-04-15 13:49:47,622] D ThreadPoolExecutor-0_11 - get_fixed_pseudo_random_rings:191 - [P:139] Candidates: [6, 1, 5, 4]
+[2025-04-15 13:49:48,529] I ThreadPoolExecutor-0_5 - extract_frame_pair:317 - [P:120, R:3] s1=211.6699, s2=210.6072, ratio=1.0050 vs thr=1.0000 (alpha=1.0452) -> Bit=0
+[2025-04-15 13:49:48,730] I ThreadPoolExecutor-0_7 - extract_frame_pair:317 - [P:121, R:3] s1=211.0804, s2=210.6986, ratio=1.0018 vs thr=1.0000 (alpha=1.0461) -> Bit=0
+[2025-04-15 13:49:49,108] I ThreadPoolExecutor-0_15 - extract_frame_pair:317 - [P:124, R:4] s1=195.7988, s2=195.7164, ratio=1.0004 vs thr=1.0000 (alpha=1.0471) -> Bit=0
+[2025-04-15 13:49:49,607] I ThreadPoolExecutor-0_9 - extract_frame_pair:317 - [P:127, R:4] s1=195.6226, s2=194.9993, ratio=1.0032 vs thr=1.0000 (alpha=1.0455) -> Bit=0
+[2025-04-15 13:49:49,668] I ThreadPoolExecutor-0_6 - extract_frame_pair:317 - [P:126, R:2] s1=177.1035, s2=177.8979, ratio=0.9955 vs thr=1.0000 (alpha=1.0453) -> Bit=1
+[2025-04-15 13:49:49,715] I ThreadPoolExecutor-0_18 - extract_frame_pair:317 - [P:122, R:3] s1=210.6463, s2=210.8682, ratio=0.9989 vs thr=1.0000 (alpha=1.0458) -> Bit=1
+[2025-04-15 13:49:49,758] I ThreadPoolExecutor-0_8 - extract_frame_pair:317 - [P:123, R:3] s1=210.8540, s2=210.0578, ratio=1.0038 vs thr=1.0000 (alpha=1.0451) -> Bit=0
+[2025-04-15 13:49:49,775] I ThreadPoolExecutor-0_0 - extract_frame_pair:317 - [P:129, R:4] s1=196.6234, s2=196.6461, ratio=0.9999 vs thr=1.0000 (alpha=1.0471) -> Bit=1
+[2025-04-15 13:49:49,786] I ThreadPoolExecutor-0_4 - extract_frame_pair:317 - [P:130, R:4] s1=197.2161, s2=197.9210, ratio=0.9964 vs thr=1.0000 (alpha=1.0477) -> Bit=1
+[2025-04-15 13:49:49,805] I ThreadPoolExecutor-0_3 - extract_frame_pair:317 - [P:125, R:2] s1=178.0464, s2=177.5834, ratio=1.0026 vs thr=1.0000 (alpha=1.0451) -> Bit=0
+[2025-04-15 13:49:49,830] I ThreadPoolExecutor-0_1 - extract_frame_pair:317 - [P:128, R:3] s1=210.2807, s2=210.6163, ratio=0.9984 vs thr=1.0000 (alpha=1.0450) -> Bit=1
+[2025-04-15 13:49:49,923] I ThreadPoolExecutor-0_17 - extract_frame_pair:317 - [P:133, R:2] s1=178.9650, s2=177.4268, ratio=1.0087 vs thr=1.0000 (alpha=1.0462) -> Bit=0
+[2025-04-15 13:49:49,972] I ThreadPoolExecutor-0_16 - extract_frame_pair:317 - [P:136, R:4] s1=205.1143, s2=207.6036, ratio=0.9880 vs thr=1.0000 (alpha=1.0503) -> Bit=1
+[2025-04-15 13:49:50,030] I ThreadPoolExecutor-0_19 - extract_frame_pair:317 - [P:131, R:4] s1=197.6953, s2=197.6906, ratio=1.0000 vs thr=1.0000 (alpha=1.0478) -> Bit=0
+[2025-04-15 13:49:50,395] I ThreadPoolExecutor-0_12 - extract_frame_pair:317 - [P:134, R:6] s1=201.2193, s2=200.4654, ratio=1.0038 vs thr=1.0000 (alpha=1.0422) -> Bit=0
+[2025-04-15 13:49:50,475] I ThreadPoolExecutor-0_5 - extract_frame_pair:317 - [P:120, R:2] s1=179.2794, s2=178.4606, ratio=1.0046 vs thr=1.0000 (alpha=1.0448) -> Bit=0
+[2025-04-15 13:49:50,483] D ThreadPoolExecutor-0_5 - get_fixed_pseudo_random_rings:191 - [P:140] Candidates: [3, 4, 2, 5]
+[2025-04-15 13:49:50,529] I ThreadPoolExecutor-0_2 - extract_frame_pair:317 - [P:132, R:6] s1=194.9759, s2=196.3498, ratio=0.9930 vs thr=1.0000 (alpha=1.0465) -> Bit=1
+[2025-04-15 13:49:50,589] I ThreadPoolExecutor-0_10 - extract_frame_pair:317 - [P:135, R:5] s1=199.8709, s2=202.8284, ratio=0.9854 vs thr=1.0000 (alpha=1.0489) -> Bit=1
+[2025-04-15 13:49:50,738] I ThreadPoolExecutor-0_13 - extract_frame_pair:317 - [P:138, R:3] s1=216.5057, s2=216.8175, ratio=0.9986 vs thr=1.0000 (alpha=1.0484) -> Bit=1
+[2025-04-15 13:49:51,047] I ThreadPoolExecutor-0_11 - extract_frame_pair:317 - [P:139, R:1] s1=137.1566, s2=138.3614, ratio=0.9913 vs thr=1.0000 (alpha=1.0465) -> Bit=1
+[2025-04-15 13:49:51,114] I ThreadPoolExecutor-0_15 - extract_frame_pair:317 - [P:124, R:1] s1=138.9886, s2=138.6167, ratio=1.0027 vs thr=1.0000 (alpha=1.0437) -> Bit=0
+[2025-04-15 13:49:51,119] D ThreadPoolExecutor-0_15 - get_fixed_pseudo_random_rings:191 - [P:141] Candidates: [1, 3, 5, 2]
+[2025-04-15 13:49:51,129] I ThreadPoolExecutor-0_14 - extract_frame_pair:317 - [P:137, R:4] s1=209.2564, s2=209.4469, ratio=0.9991 vs thr=1.0000 (alpha=1.0487) -> Bit=1
+[2025-04-15 13:49:51,139] I ThreadPoolExecutor-0_7 - extract_frame_pair:317 - [P:121, R:5] s1=190.5041, s2=191.2536, ratio=0.9961 vs thr=1.0000 (alpha=1.0497) -> Bit=1
+[2025-04-15 13:49:51,145] D ThreadPoolExecutor-0_7 - get_fixed_pseudo_random_rings:191 - [P:142] Candidates: [3, 0, 7, 2]
+[2025-04-15 13:49:51,697] I ThreadPoolExecutor-0_9 - extract_frame_pair:317 - [P:127, R:6] s1=190.2258, s2=190.4817, ratio=0.9987 vs thr=1.0000 (alpha=1.0483) -> Bit=1
+[2025-04-15 13:49:51,704] D ThreadPoolExecutor-0_9 - get_fixed_pseudo_random_rings:191 - [P:143] Candidates: [0, 2, 1, 4]
+[2025-04-15 13:49:51,965] I ThreadPoolExecutor-0_18 - extract_frame_pair:317 - [P:122, R:2] s1=178.3078, s2=178.3635, ratio=0.9997 vs thr=1.0000 (alpha=1.0456) -> Bit=1
+[2025-04-15 13:49:51,975] D ThreadPoolExecutor-0_18 - get_fixed_pseudo_random_rings:191 - [P:144] Candidates: [4, 7, 5, 1]
+[2025-04-15 13:49:52,114] I ThreadPoolExecutor-0_4 - extract_frame_pair:317 - [P:130, R:6] s1=189.6042, s2=189.1248, ratio=1.0025 vs thr=1.0000 (alpha=1.0483) -> Bit=0
+[2025-04-15 13:49:52,120] D ThreadPoolExecutor-0_4 - get_fixed_pseudo_random_rings:191 - [P:145] Candidates: [3, 6, 7, 5]
+[2025-04-15 13:49:52,316] I ThreadPoolExecutor-0_0 - extract_frame_pair:317 - [P:129, R:6] s1=189.1988, s2=189.5580, ratio=0.9981 vs thr=1.0000 (alpha=1.0482) -> Bit=1
+[2025-04-15 13:49:52,321] D ThreadPoolExecutor-0_0 - get_fixed_pseudo_random_rings:191 - [P:146] Candidates: [6, 1, 4, 5]
+[2025-04-15 13:49:52,333] I ThreadPoolExecutor-0_6 - extract_frame_pair:317 - [P:126, R:3] s1=210.7844, s2=209.8336, ratio=1.0045 vs thr=1.0000 (alpha=1.0435) -> Bit=0
+[2025-04-15 13:49:52,345] D ThreadPoolExecutor-0_6 - get_fixed_pseudo_random_rings:191 - [P:147] Candidates: [3, 6, 0, 1]
+[2025-04-15 13:49:52,396] I ThreadPoolExecutor-0_8 - extract_frame_pair:317 - [P:123, R:1] s1=138.8121, s2=138.8238, ratio=0.9999 vs thr=1.0000 (alpha=1.0440) -> Bit=1
+[2025-04-15 13:49:52,405] D ThreadPoolExecutor-0_8 - get_fixed_pseudo_random_rings:191 - [P:148] Candidates: [4, 0, 7, 3]
+[2025-04-15 13:49:52,409] I ThreadPoolExecutor-0_16 - extract_frame_pair:317 - [P:136, R:0] s1=80.3221, s2=79.1164, ratio=1.0152 vs thr=1.0000 (alpha=1.0436) -> Bit=0
+[2025-04-15 13:49:52,419] D ThreadPoolExecutor-0_16 - get_fixed_pseudo_random_rings:191 - [P:149] Candidates: [2, 6, 3, 4]
+[2025-04-15 13:49:52,537] I ThreadPoolExecutor-0_1 - extract_frame_pair:317 - [P:128, R:6] s1=189.8437, s2=189.7953, ratio=1.0003 vs thr=1.0000 (alpha=1.0482) -> Bit=0
+[2025-04-15 13:49:52,542] D ThreadPoolExecutor-0_1 - get_fixed_pseudo_random_rings:191 - [P:150] Candidates: [6, 2, 0, 1]
+[2025-04-15 13:49:52,578] I ThreadPoolExecutor-0_3 - extract_frame_pair:317 - [P:125, R:6] s1=190.2488, s2=190.9403, ratio=0.9964 vs thr=1.0000 (alpha=1.0490) -> Bit=1
+[2025-04-15 13:49:52,584] D ThreadPoolExecutor-0_3 - get_fixed_pseudo_random_rings:191 - [P:151] Candidates: [3, 2, 0, 1]
+[2025-04-15 13:49:52,611] I ThreadPoolExecutor-0_12 - extract_frame_pair:317 - [P:134, R:1] s1=138.3820, s2=137.8070, ratio=1.0042 vs thr=1.0000 (alpha=1.0447) -> Bit=0
+[2025-04-15 13:49:52,615] D ThreadPoolExecutor-0_12 - get_fixed_pseudo_random_rings:191 - [P:152] Candidates: [1, 5, 7, 2]
+[2025-04-15 13:49:52,626] I ThreadPoolExecutor-0_17 - extract_frame_pair:317 - [P:133, R:3] s1=207.4295, s2=206.3648, ratio=1.0052 vs thr=1.0000 (alpha=1.0459) -> Bit=0
+[2025-04-15 13:49:52,630] D ThreadPoolExecutor-0_17 - get_fixed_pseudo_random_rings:191 - [P:153] Candidates: [6, 1, 5, 7]
+[2025-04-15 13:49:52,642] I ThreadPoolExecutor-0_19 - extract_frame_pair:317 - [P:131, R:6] s1=189.5992, s2=191.4702, ratio=0.9902 vs thr=1.0000 (alpha=1.0491) -> Bit=1
+[2025-04-15 13:49:52,661] D ThreadPoolExecutor-0_19 - get_fixed_pseudo_random_rings:191 - [P:154] Candidates: [2, 6, 1, 4]
+[2025-04-15 13:49:52,698] I ThreadPoolExecutor-0_13 - extract_frame_pair:317 - [P:138, R:0] s1=78.3847, s2=78.0085, ratio=1.0048 vs thr=1.0000 (alpha=1.0390) -> Bit=0
+[2025-04-15 13:49:52,712] D ThreadPoolExecutor-0_13 - get_fixed_pseudo_random_rings:191 - [P:155] Candidates: [7, 0, 5, 2]
+[2025-04-15 13:49:52,775] I ThreadPoolExecutor-0_2 - extract_frame_pair:317 - [P:132, R:3] s1=210.3846, s2=208.1384, ratio=1.0108 vs thr=1.0000 (alpha=1.0450) -> Bit=0
+[2025-04-15 13:49:52,784] D ThreadPoolExecutor-0_2 - get_fixed_pseudo_random_rings:191 - [P:156] Candidates: [2, 4, 7, 1]
+[2025-04-15 13:49:52,791] I ThreadPoolExecutor-0_10 - extract_frame_pair:317 - [P:135, R:4] s1=203.0985, s2=203.1271, ratio=0.9999 vs thr=1.0000 (alpha=1.0491) -> Bit=1
+[2025-04-15 13:49:52,803] D ThreadPoolExecutor-0_10 - get_fixed_pseudo_random_rings:191 - [P:157] Candidates: [4, 5, 1, 2]
+[2025-04-15 13:49:53,203] I ThreadPoolExecutor-0_11 - extract_frame_pair:317 - [P:139, R:4] s1=211.5102, s2=213.0359, ratio=0.9928 vs thr=1.0000 (alpha=1.0490) -> Bit=1
+[2025-04-15 13:49:53,209] D ThreadPoolExecutor-0_11 - get_fixed_pseudo_random_rings:191 - [P:158] Candidates: [0, 7, 5, 3]
+[2025-04-15 13:49:53,454] I ThreadPoolExecutor-0_14 - extract_frame_pair:317 - [P:137, R:1] s1=136.6538, s2=135.2328, ratio=1.0105 vs thr=1.0000 (alpha=1.0417) -> Bit=0
+[2025-04-15 13:49:53,460] D ThreadPoolExecutor-0_14 - get_fixed_pseudo_random_rings:191 - [P:159] Candidates: [3, 2, 5, 6]
+[2025-04-15 13:49:54,017] I ThreadPoolExecutor-0_5 - extract_frame_pair:317 - [P:140, R:2] s1=183.4711, s2=184.4152, ratio=0.9949 vs thr=1.0000 (alpha=1.0510) -> Bit=1
+[2025-04-15 13:49:54,446] I ThreadPoolExecutor-0_18 - extract_frame_pair:317 - [P:144, R:1] s1=141.9810, s2=141.3210, ratio=1.0047 vs thr=1.0000 (alpha=1.0471) -> Bit=0
+[2025-04-15 13:49:55,267] I ThreadPoolExecutor-0_4 - extract_frame_pair:317 - [P:145, R:3] s1=220.2029, s2=220.5893, ratio=0.9982 vs thr=1.0000 (alpha=1.0506) -> Bit=1
+[2025-04-15 13:49:55,315] I ThreadPoolExecutor-0_15 - extract_frame_pair:317 - [P:141, R:2] s1=185.0619, s2=184.8911, ratio=1.0009 vs thr=1.0000 (alpha=1.0507) -> Bit=0
+[2025-04-15 13:49:55,443] I ThreadPoolExecutor-0_9 - extract_frame_pair:317 - [P:143, R:2] s1=185.7724, s2=185.9500, ratio=0.9990 vs thr=1.0000 (alpha=1.0504) -> Bit=1
+[2025-04-15 13:49:55,464] I ThreadPoolExecutor-0_7 - extract_frame_pair:317 - [P:142, R:2] s1=185.8616, s2=185.6054, ratio=1.0014 vs thr=1.0000 (alpha=1.0515) -> Bit=0
+[2025-04-15 13:49:55,599] I ThreadPoolExecutor-0_0 - extract_frame_pair:317 - [P:146, R:1] s1=140.8442, s2=140.7325, ratio=1.0008 vs thr=1.0000 (alpha=1.0476) -> Bit=0
+[2025-04-15 13:49:55,611] I ThreadPoolExecutor-0_6 - extract_frame_pair:317 - [P:147, R:1] s1=140.7542, s2=139.8826, ratio=1.0062 vs thr=1.0000 (alpha=1.0485) -> Bit=0
+[2025-04-15 13:49:55,647] I ThreadPoolExecutor-0_16 - extract_frame_pair:317 - [P:149, R:2] s1=184.6191, s2=184.9966, ratio=0.9980 vs thr=1.0000 (alpha=1.0510) -> Bit=1
+[2025-04-15 13:49:55,673] I ThreadPoolExecutor-0_8 - extract_frame_pair:317 - [P:148, R:3] s1=219.0867, s2=219.4224, ratio=0.9985 vs thr=1.0000 (alpha=1.0511) -> Bit=1
+[2025-04-15 13:49:55,706] I ThreadPoolExecutor-0_3 - extract_frame_pair:317 - [P:151, R:2] s1=183.7758, s2=184.1501, ratio=0.9980 vs thr=1.0000 (alpha=1.0501) -> Bit=1
+[2025-04-15 13:49:55,732] I ThreadPoolExecutor-0_1 - extract_frame_pair:317 - [P:150, R:2] s1=183.3834, s2=184.2368, ratio=0.9954 vs thr=1.0000 (alpha=1.0499) -> Bit=1
+[2025-04-15 13:49:55,763] I ThreadPoolExecutor-0_5 - extract_frame_pair:317 - [P:140, R:3] s1=220.2280, s2=219.3192, ratio=1.0041 vs thr=1.0000 (alpha=1.0500) -> Bit=0
+[2025-04-15 13:49:55,766] D ThreadPoolExecutor-0_5 - get_fixed_pseudo_random_rings:191 - [P:160] Candidates: [2, 7, 1, 6]
+[2025-04-15 13:49:56,024] I ThreadPoolExecutor-0_2 - extract_frame_pair:317 - [P:156, R:2] s1=176.4823, s2=176.7723, ratio=0.9984 vs thr=1.0000 (alpha=1.0448) -> Bit=1
+[2025-04-15 13:49:56,671] I ThreadPoolExecutor-0_13 - extract_frame_pair:317 - [P:155, R:2] s1=179.0848, s2=177.3798, ratio=1.0096 vs thr=1.0000 (alpha=1.0471) -> Bit=0
+[2025-04-15 13:49:56,747] I ThreadPoolExecutor-0_17 - extract_frame_pair:317 - [P:153, R:1] s1=139.3182, s2=138.6107, ratio=1.0051 vs thr=1.0000 (alpha=1.0490) -> Bit=0
+[2025-04-15 13:49:56,890] I ThreadPoolExecutor-0_19 - extract_frame_pair:317 - [P:154, R:2] s1=181.8963, s2=180.1292, ratio=1.0098 vs thr=1.0000 (alpha=1.0491) -> Bit=0
+[2025-04-15 13:49:56,928] I ThreadPoolExecutor-0_12 - extract_frame_pair:317 - [P:152, R:2] s1=184.1278, s2=183.3546, ratio=1.0042 vs thr=1.0000 (alpha=1.0508) -> Bit=0
+[2025-04-15 13:49:56,976] I ThreadPoolExecutor-0_14 - extract_frame_pair:317 - [P:159, R:3] s1=212.5893, s2=213.6051, ratio=0.9952 vs thr=1.0000 (alpha=1.0487) -> Bit=1
+[2025-04-15 13:49:56,999] I ThreadPoolExecutor-0_10 - extract_frame_pair:317 - [P:157, R:2] s1=176.1071, s2=176.2852, ratio=0.9990 vs thr=1.0000 (alpha=1.0447) -> Bit=1
+[2025-04-15 13:49:57,008] I ThreadPoolExecutor-0_18 - extract_frame_pair:317 - [P:144, R:4] s1=211.9604, s2=211.2881, ratio=1.0032 vs thr=1.0000 (alpha=1.0470) -> Bit=0
+[2025-04-15 13:49:57,015] D ThreadPoolExecutor-0_18 - get_fixed_pseudo_random_rings:191 - [P:161] Candidates: [4, 2, 1, 7]
+[2025-04-15 13:49:57,093] I ThreadPoolExecutor-0_4 - extract_frame_pair:317 - [P:145, R:5] s1=204.1147, s2=202.2013, ratio=1.0095 vs thr=1.0000 (alpha=1.0457) -> Bit=0
+[2025-04-15 13:49:57,097] D ThreadPoolExecutor-0_4 - get_fixed_pseudo_random_rings:191 - [P:162] Candidates: [1, 7, 0, 4]
+[2025-04-15 13:49:57,117] I ThreadPoolExecutor-0_11 - extract_frame_pair:317 - [P:158, R:3] s1=212.0959, s2=213.1970, ratio=0.9948 vs thr=1.0000 (alpha=1.0489) -> Bit=1
+[2025-04-15 13:49:57,126] I ThreadPoolExecutor-0_15 - extract_frame_pair:317 - [P:141, R:1] s1=139.4502, s2=140.2340, ratio=0.9944 vs thr=1.0000 (alpha=1.0490) -> Bit=1
+[2025-04-15 13:49:57,131] D ThreadPoolExecutor-0_15 - get_fixed_pseudo_random_rings:191 - [P:163] Candidates: [1, 7, 0, 5]
+[2025-04-15 13:49:57,522] I ThreadPoolExecutor-0_7 - extract_frame_pair:317 - [P:142, R:3] s1=221.8677, s2=220.4769, ratio=1.0063 vs thr=1.0000 (alpha=1.0507) -> Bit=0
+[2025-04-15 13:49:57,527] D ThreadPoolExecutor-0_7 - get_fixed_pseudo_random_rings:191 - [P:164] Candidates: [1, 0, 5, 7]
+[2025-04-15 13:49:57,723] I ThreadPoolExecutor-0_9 - extract_frame_pair:317 - [P:143, R:1] s1=141.9758, s2=141.0387, ratio=1.0066 vs thr=1.0000 (alpha=1.0492) -> Bit=0
+[2025-04-15 13:49:57,727] D ThreadPoolExecutor-0_9 - get_fixed_pseudo_random_rings:191 - [P:165] Candidates: [0, 5, 1, 6]
+[2025-04-15 13:49:57,870] I ThreadPoolExecutor-0_1 - extract_frame_pair:317 - [P:150, R:1] s1=138.8117, s2=139.5575, ratio=0.9947 vs thr=1.0000 (alpha=1.0472) -> Bit=1
+[2025-04-15 13:49:57,876] D ThreadPoolExecutor-0_1 - get_fixed_pseudo_random_rings:191 - [P:166] Candidates: [5, 3, 4, 6]
+[2025-04-15 13:49:58,020] I ThreadPoolExecutor-0_6 - extract_frame_pair:317 - [P:147, R:3] s1=219.4226, s2=219.7771, ratio=0.9984 vs thr=1.0000 (alpha=1.0513) -> Bit=1
+[2025-04-15 13:49:58,028] D ThreadPoolExecutor-0_6 - get_fixed_pseudo_random_rings:191 - [P:167] Candidates: [5, 7, 0, 2]
+[2025-04-15 13:49:58,239] I ThreadPoolExecutor-0_0 - extract_frame_pair:317 - [P:146, R:4] s1=211.7207, s2=210.3107, ratio=1.0067 vs thr=1.0000 (alpha=1.0480) -> Bit=0
+[2025-04-15 13:49:58,248] D ThreadPoolExecutor-0_0 - get_fixed_pseudo_random_rings:191 - [P:168] Candidates: [6, 1, 4, 2]
+[2025-04-15 13:49:58,352] I ThreadPoolExecutor-0_3 - extract_frame_pair:317 - [P:151, R:1] s1=139.5985, s2=138.9899, ratio=1.0044 vs thr=1.0000 (alpha=1.0477) -> Bit=0
+[2025-04-15 13:49:58,357] D ThreadPoolExecutor-0_3 - get_fixed_pseudo_random_rings:191 - [P:169] Candidates: [6, 1, 3, 4]
+[2025-04-15 13:49:58,496] I ThreadPoolExecutor-0_16 - extract_frame_pair:317 - [P:149, R:3] s1=218.7754, s2=219.2079, ratio=0.9980 vs thr=1.0000 (alpha=1.0516) -> Bit=1
+[2025-04-15 13:49:58,501] D ThreadPoolExecutor-0_16 - get_fixed_pseudo_random_rings:191 - [P:170] Candidates: [6, 0, 5, 7]
+[2025-04-15 13:49:58,502] I ThreadPoolExecutor-0_8 - extract_frame_pair:317 - [P:148, R:4] s1=210.8665, s2=209.7967, ratio=1.0051 vs thr=1.0000 (alpha=1.0475) -> Bit=0
+[2025-04-15 13:49:58,515] D ThreadPoolExecutor-0_8 - get_fixed_pseudo_random_rings:191 - [P:171] Candidates: [2, 5, 3, 4]
+[2025-04-15 13:49:58,523] I ThreadPoolExecutor-0_2 - extract_frame_pair:317 - [P:156, R:1] s1=134.7341, s2=135.1924, ratio=0.9966 vs thr=1.0000 (alpha=1.0462) -> Bit=1
+[2025-04-15 13:49:58,532] D ThreadPoolExecutor-0_2 - get_fixed_pseudo_random_rings:191 - [P:172] Candidates: [2, 5, 7, 6]
+[2025-04-15 13:49:58,650] I ThreadPoolExecutor-0_13 - extract_frame_pair:317 - [P:155, R:5] s1=199.3053, s2=199.9484, ratio=0.9968 vs thr=1.0000 (alpha=1.0476) -> Bit=1
+[2025-04-15 13:49:58,654] D ThreadPoolExecutor-0_13 - get_fixed_pseudo_random_rings:191 - [P:173] Candidates: [4, 7, 1, 6]
+[2025-04-15 13:49:58,758] I ThreadPoolExecutor-0_17 - extract_frame_pair:317 - [P:153, R:5] s1=200.1898, s2=201.2799, ratio=0.9946 vs thr=1.0000 (alpha=1.0462) -> Bit=1
+[2025-04-15 13:49:58,762] D ThreadPoolExecutor-0_17 - get_fixed_pseudo_random_rings:191 - [P:174] Candidates: [0, 7, 5, 3]
+[2025-04-15 13:49:58,875] I ThreadPoolExecutor-0_12 - extract_frame_pair:317 - [P:152, R:1] s1=138.9086, s2=139.0526, ratio=0.9990 vs thr=1.0000 (alpha=1.0478) -> Bit=1
+[2025-04-15 13:49:58,878] D ThreadPoolExecutor-0_12 - get_fixed_pseudo_random_rings:191 - [P:175] Candidates: [1, 3, 0, 6]
+[2025-04-15 13:49:58,982] I ThreadPoolExecutor-0_19 - extract_frame_pair:317 - [P:154, R:1] s1=137.9928, s2=137.5945, ratio=1.0029 vs thr=1.0000 (alpha=1.0483) -> Bit=0
+[2025-04-15 13:49:58,984] D ThreadPoolExecutor-0_19 - get_fixed_pseudo_random_rings:191 - [P:176] Candidates: [5, 2, 4, 7]
+[2025-04-15 13:49:59,078] I ThreadPoolExecutor-0_10 - extract_frame_pair:317 - [P:157, R:4] s1=207.7542, s2=206.6219, ratio=1.0055 vs thr=1.0000 (alpha=1.0491) -> Bit=0
+[2025-04-15 13:49:59,084] D ThreadPoolExecutor-0_10 - get_fixed_pseudo_random_rings:191 - [P:177] Candidates: [6, 3, 0, 7]
+[2025-04-15 13:49:59,114] I ThreadPoolExecutor-0_5 - extract_frame_pair:317 - [P:160, R:2] s1=177.1660, s2=176.7885, ratio=1.0021 vs thr=1.0000 (alpha=1.0472) -> Bit=0
+[2025-04-15 13:49:59,192] I ThreadPoolExecutor-0_11 - extract_frame_pair:317 - [P:158, R:5] s1=198.6265, s2=201.1277, ratio=0.9876 vs thr=1.0000 (alpha=1.0433) -> Bit=1
+[2025-04-15 13:49:59,197] D ThreadPoolExecutor-0_11 - get_fixed_pseudo_random_rings:191 - [P:178] Candidates: [3, 5, 1, 6]
+[2025-04-15 13:49:59,257] I ThreadPoolExecutor-0_14 - extract_frame_pair:317 - [P:159, R:2] s1=176.8848, s2=176.3835, ratio=1.0028 vs thr=1.0000 (alpha=1.0467) -> Bit=0
+[2025-04-15 13:49:59,261] D ThreadPoolExecutor-0_14 - get_fixed_pseudo_random_rings:191 - [P:179] Candidates: [4, 6, 2, 7]
+[2025-04-15 13:50:00,425] I ThreadPoolExecutor-0_18 - extract_frame_pair:317 - [P:161, R:2] s1=176.9505, s2=176.4062, ratio=1.0031 vs thr=1.0000 (alpha=1.0473) -> Bit=0
+[2025-04-15 13:50:00,486] I ThreadPoolExecutor-0_15 - extract_frame_pair:317 - [P:163, R:1] s1=133.5788, s2=133.2430, ratio=1.0025 vs thr=1.0000 (alpha=1.0421) -> Bit=0
+[2025-04-15 13:50:00,921] I ThreadPoolExecutor-0_4 - extract_frame_pair:317 - [P:162, R:4] s1=211.8254, s2=210.6533, ratio=1.0056 vs thr=1.0000 (alpha=1.0491) -> Bit=0
+[2025-04-15 13:50:01,195] I ThreadPoolExecutor-0_7 - extract_frame_pair:317 - [P:164, R:1] s1=133.7598, s2=133.4072, ratio=1.0026 vs thr=1.0000 (alpha=1.0414) -> Bit=0
+[2025-04-15 13:50:01,447] I ThreadPoolExecutor-0_9 - extract_frame_pair:317 - [P:165, R:5] s1=206.8450, s2=205.9487, ratio=1.0044 vs thr=1.0000 (alpha=1.0468) -> Bit=0
+[2025-04-15 13:50:01,449] I ThreadPoolExecutor-0_6 - extract_frame_pair:317 - [P:167, R:2] s1=181.2534, s2=181.1141, ratio=1.0008 vs thr=1.0000 (alpha=1.0464) -> Bit=0
+[2025-04-15 13:50:01,538] I ThreadPoolExecutor-0_5 - extract_frame_pair:317 - [P:160, R:1] s1=133.3917, s2=132.9383, ratio=1.0034 vs thr=1.0000 (alpha=1.0445) -> Bit=0
+[2025-04-15 13:50:01,542] D ThreadPoolExecutor-0_5 - get_fixed_pseudo_random_rings:191 - [P:180] Candidates: [2, 5, 3, 7]
+[2025-04-15 13:50:01,635] I ThreadPoolExecutor-0_1 - extract_frame_pair:317 - [P:166, R:3] s1=216.8411, s2=215.8782, ratio=1.0045 vs thr=1.0000 (alpha=1.0473) -> Bit=0
+[2025-04-15 13:50:01,664] I ThreadPoolExecutor-0_0 - extract_frame_pair:317 - [P:168, R:2] s1=183.3143, s2=182.6754, ratio=1.0035 vs thr=1.0000 (alpha=1.0500) -> Bit=0
+[2025-04-15 13:50:01,712] I ThreadPoolExecutor-0_3 - extract_frame_pair:317 - [P:169, R:3] s1=219.5187, s2=218.3909, ratio=1.0052 vs thr=1.0000 (alpha=1.0527) -> Bit=0
+[2025-04-15 13:50:01,745] I ThreadPoolExecutor-0_8 - extract_frame_pair:317 - [P:171, R:2] s1=184.9803, s2=183.7881, ratio=1.0065 vs thr=1.0000 (alpha=1.0504) -> Bit=0
+[2025-04-15 13:50:01,771] I ThreadPoolExecutor-0_16 - extract_frame_pair:317 - [P:170, R:5] s1=205.0219, s2=203.4248, ratio=1.0079 vs thr=1.0000 (alpha=1.0473) -> Bit=0
+[2025-04-15 13:50:01,804] I ThreadPoolExecutor-0_2 - extract_frame_pair:317 - [P:172, R:2] s1=184.1639, s2=183.3305, ratio=1.0045 vs thr=1.0000 (alpha=1.0499) -> Bit=0
+[2025-04-15 13:50:02,038] I ThreadPoolExecutor-0_13 - extract_frame_pair:317 - [P:173, R:1] s1=139.5257, s2=138.6055, ratio=1.0066 vs thr=1.0000 (alpha=1.0480) -> Bit=0
+[2025-04-15 13:50:02,058] I ThreadPoolExecutor-0_12 - extract_frame_pair:317 - [P:175, R:1] s1=138.4177, s2=137.2005, ratio=1.0089 vs thr=1.0000 (alpha=1.0456) -> Bit=0
+[2025-04-15 13:50:02,343] I ThreadPoolExecutor-0_19 - extract_frame_pair:317 - [P:176, R:2] s1=181.1209, s2=180.1028, ratio=1.0057 vs thr=1.0000 (alpha=1.0493) -> Bit=0
+[2025-04-15 13:50:02,376] I ThreadPoolExecutor-0_17 - extract_frame_pair:317 - [P:174, R:3] s1=217.4363, s2=215.8928, ratio=1.0071 vs thr=1.0000 (alpha=1.0497) -> Bit=0
+[2025-04-15 13:50:02,448] I ThreadPoolExecutor-0_18 - extract_frame_pair:317 - [P:161, R:4] s1=211.0585, s2=209.8629, ratio=1.0057 vs thr=1.0000 (alpha=1.0506) -> Bit=0
+[2025-04-15 13:50:02,453] D ThreadPoolExecutor-0_18 - get_fixed_pseudo_random_rings:191 - [P:181] Candidates: [5, 2, 7, 0]
+[2025-04-15 13:50:03,106] I ThreadPoolExecutor-0_4 - extract_frame_pair:317 - [P:162, R:1] s1=133.7679, s2=133.2370, ratio=1.0040 vs thr=1.0000 (alpha=1.0423) -> Bit=0
+[2025-04-15 13:50:03,110] D ThreadPoolExecutor-0_4 - get_fixed_pseudo_random_rings:191 - [P:182] Candidates: [0, 1, 5, 7]
+[2025-04-15 13:50:03,111] I ThreadPoolExecutor-0_15 - extract_frame_pair:317 - [P:163, R:5] s1=205.0281, s2=204.6306, ratio=1.0019 vs thr=1.0000 (alpha=1.0431) -> Bit=0
+[2025-04-15 13:50:03,117] D ThreadPoolExecutor-0_15 - get_fixed_pseudo_random_rings:191 - [P:183] Candidates: [1, 6, 5, 3]
+[2025-04-15 13:50:03,132] I ThreadPoolExecutor-0_11 - extract_frame_pair:317 - [P:178, R:1] s1=136.8987, s2=136.2016, ratio=1.0051 vs thr=1.0000 (alpha=1.0458) -> Bit=0
+[2025-04-15 13:50:03,145] I ThreadPoolExecutor-0_14 - extract_frame_pair:317 - [P:179, R:2] s1=181.5400, s2=180.7619, ratio=1.0043 vs thr=1.0000 (alpha=1.0494) -> Bit=0
+[2025-04-15 13:50:03,167] I ThreadPoolExecutor-0_10 - extract_frame_pair:317 - [P:177, R:3] s1=215.0066, s2=214.0713, ratio=1.0044 vs thr=1.0000 (alpha=1.0497) -> Bit=0
+[2025-04-15 13:50:03,221] I ThreadPoolExecutor-0_7 - extract_frame_pair:317 - [P:164, R:5] s1=206.3113, s2=205.3472, ratio=1.0047 vs thr=1.0000 (alpha=1.0471) -> Bit=0
+[2025-04-15 13:50:03,225] D ThreadPoolExecutor-0_7 - get_fixed_pseudo_random_rings:191 - [P:184] Candidates: [0, 2, 1, 4]
+[2025-04-15 13:50:03,423] I ThreadPoolExecutor-0_9 - extract_frame_pair:317 - [P:165, R:1] s1=134.8943, s2=134.7907, ratio=1.0008 vs thr=1.0000 (alpha=1.0407) -> Bit=0
+[2025-04-15 13:50:03,428] D ThreadPoolExecutor-0_9 - get_fixed_pseudo_random_rings:191 - [P:185] Candidates: [3, 0, 2, 6]
+[2025-04-15 13:50:03,482] I ThreadPoolExecutor-0_6 - extract_frame_pair:317 - [P:167, R:5] s1=208.2189, s2=206.8921, ratio=1.0064 vs thr=1.0000 (alpha=1.0470) -> Bit=0
+[2025-04-15 13:50:03,486] D ThreadPoolExecutor-0_6 - get_fixed_pseudo_random_rings:191 - [P:186] Candidates: [4, 7, 3, 1]
+[2025-04-15 13:50:03,496] I ThreadPoolExecutor-0_0 - extract_frame_pair:317 - [P:168, R:4] s1=212.4758, s2=209.9529, ratio=1.0120 vs thr=1.0000 (alpha=1.0504) -> Bit=0
+[2025-04-15 13:50:03,499] D ThreadPoolExecutor-0_0 - get_fixed_pseudo_random_rings:191 - [P:187] Candidates: [1, 5, 4, 0]
+[2025-04-15 13:50:03,850] I ThreadPoolExecutor-0_8 - extract_frame_pair:317 - [P:171, R:3] s1=219.8973, s2=218.1588, ratio=1.0080 vs thr=1.0000 (alpha=1.0515) -> Bit=0
+[2025-04-15 13:50:03,855] D ThreadPoolExecutor-0_8 - get_fixed_pseudo_random_rings:191 - [P:188] Candidates: [5, 6, 4, 1]
+[2025-04-15 13:50:03,993] I ThreadPoolExecutor-0_2 - extract_frame_pair:317 - [P:172, R:5] s1=203.9931, s2=202.3772, ratio=1.0080 vs thr=1.0000 (alpha=1.0489) -> Bit=0
+[2025-04-15 13:50:04,000] D ThreadPoolExecutor-0_2 - get_fixed_pseudo_random_rings:191 - [P:189] Candidates: [5, 2, 7, 1]
+[2025-04-15 13:50:04,030] I ThreadPoolExecutor-0_3 - extract_frame_pair:317 - [P:169, R:1] s1=138.1189, s2=137.7797, ratio=1.0025 vs thr=1.0000 (alpha=1.0476) -> Bit=0
+[2025-04-15 13:50:04,038] D ThreadPoolExecutor-0_3 - get_fixed_pseudo_random_rings:191 - [P:190] Candidates: [0, 7, 2, 4]
+[2025-04-15 13:50:04,127] I ThreadPoolExecutor-0_1 - extract_frame_pair:317 - [P:166, R:4] s1=213.2754, s2=211.5253, ratio=1.0083 vs thr=1.0000 (alpha=1.0495) -> Bit=0
+[2025-04-15 13:50:04,134] D ThreadPoolExecutor-0_1 - get_fixed_pseudo_random_rings:191 - [P:191] Candidates: [4, 7, 5, 2]
+[2025-04-15 13:50:04,249] I ThreadPoolExecutor-0_16 - extract_frame_pair:317 - [P:170, R:6] s1=203.4078, s2=201.2416, ratio=1.0108 vs thr=1.0000 (alpha=1.0466) -> Bit=0
+[2025-04-15 13:50:04,256] D ThreadPoolExecutor-0_16 - get_fixed_pseudo_random_rings:191 - [P:192] Candidates: [4, 2, 6, 5]
+[2025-04-15 13:50:04,492] I ThreadPoolExecutor-0_13 - extract_frame_pair:317 - [P:173, R:4] s1=211.9565, s2=210.2079, ratio=1.0083 vs thr=1.0000 (alpha=1.0488) -> Bit=0
+[2025-04-15 13:50:04,496] D ThreadPoolExecutor-0_13 - get_fixed_pseudo_random_rings:191 - [P:193] Candidates: [2, 0, 6, 4]
+[2025-04-15 13:50:04,627] I ThreadPoolExecutor-0_12 - extract_frame_pair:317 - [P:175, R:3] s1=216.3231, s2=214.3208, ratio=1.0093 vs thr=1.0000 (alpha=1.0501) -> Bit=0
+[2025-04-15 13:50:04,632] D ThreadPoolExecutor-0_12 - get_fixed_pseudo_random_rings:191 - [P:194] Candidates: [1, 6, 2, 3]
+[2025-04-15 13:50:04,696] I ThreadPoolExecutor-0_19 - extract_frame_pair:317 - [P:176, R:4] s1=209.3139, s2=207.6310, ratio=1.0081 vs thr=1.0000 (alpha=1.0470) -> Bit=0
+[2025-04-15 13:50:04,700] D ThreadPoolExecutor-0_19 - get_fixed_pseudo_random_rings:191 - [P:195] Candidates: [5, 6, 3, 4]
+[2025-04-15 13:50:04,721] I ThreadPoolExecutor-0_17 - extract_frame_pair:317 - [P:174, R:5] s1=201.5040, s2=200.3171, ratio=1.0059 vs thr=1.0000 (alpha=1.0401) -> Bit=0
+[2025-04-15 13:50:04,726] D ThreadPoolExecutor-0_17 - get_fixed_pseudo_random_rings:191 - [P:196] Candidates: [2, 0, 1, 6]
+[2025-04-15 13:50:04,987] I ThreadPoolExecutor-0_14 - extract_frame_pair:317 - [P:179, R:4] s1=208.1386, s2=207.0273, ratio=1.0054 vs thr=1.0000 (alpha=1.0464) -> Bit=0
+[2025-04-15 13:50:04,991] D ThreadPoolExecutor-0_14 - get_fixed_pseudo_random_rings:191 - [P:197] Candidates: [5, 1, 7, 6]
+[2025-04-15 13:50:05,030] I ThreadPoolExecutor-0_10 - extract_frame_pair:317 - [P:177, R:0] s1=76.0782, s2=75.7407, ratio=1.0045 vs thr=1.0000 (alpha=1.0344) -> Bit=0
+[2025-04-15 13:50:05,034] D ThreadPoolExecutor-0_10 - get_fixed_pseudo_random_rings:191 - [P:198] Candidates: [1, 4, 6, 5]
+[2025-04-15 13:50:05,063] I ThreadPoolExecutor-0_5 - extract_frame_pair:317 - [P:180, R:2] s1=181.2048, s2=180.0384, ratio=1.0065 vs thr=1.0000 (alpha=1.0488) -> Bit=0
+[2025-04-15 13:50:05,229] I ThreadPoolExecutor-0_11 - extract_frame_pair:317 - [P:178, R:3] s1=214.9028, s2=214.0064, ratio=1.0042 vs thr=1.0000 (alpha=1.0498) -> Bit=0
+[2025-04-15 13:50:05,234] D ThreadPoolExecutor-0_11 - get_fixed_pseudo_random_rings:191 - [P:199] Candidates: [6, 3, 5, 2]
+[2025-04-15 13:50:06,007] I ThreadPoolExecutor-0_18 - extract_frame_pair:317 - [P:181, R:2] s1=180.6250, s2=179.9164, ratio=1.0039 vs thr=1.0000 (alpha=1.0492) -> Bit=0
+[2025-04-15 13:50:06,296] I ThreadPoolExecutor-0_4 - extract_frame_pair:317 - [P:182, R:1] s1=135.6163, s2=134.7706, ratio=1.0063 vs thr=1.0000 (alpha=1.0452) -> Bit=0
+[2025-04-15 13:50:06,507] I ThreadPoolExecutor-0_6 - extract_frame_pair:317 - [P:186, R:1] s1=135.4852, s2=134.1618, ratio=1.0099 vs thr=1.0000 (alpha=1.0454) -> Bit=0
+[2025-04-15 13:50:06,631] I ThreadPoolExecutor-0_8 - extract_frame_pair:317 - [P:188, R:1] s1=134.2573, s2=133.4187, ratio=1.0063 vs thr=1.0000 (alpha=1.0454) -> Bit=0
+[2025-04-15 13:50:06,663] I ThreadPoolExecutor-0_15 - extract_frame_pair:317 - [P:183, R:1] s1=135.0305, s2=134.7022, ratio=1.0024 vs thr=1.0000 (alpha=1.0458) -> Bit=0
+[2025-04-15 13:50:06,691] I ThreadPoolExecutor-0_0 - extract_frame_pair:317 - [P:187, R:1] s1=134.6257, s2=134.1334, ratio=1.0037 vs thr=1.0000 (alpha=1.0452) -> Bit=0
+[2025-04-15 13:50:06,735] I ThreadPoolExecutor-0_7 - extract_frame_pair:317 - [P:184, R:2] s1=179.9388, s2=179.1555, ratio=1.0044 vs thr=1.0000 (alpha=1.0494) -> Bit=0
+[2025-04-15 13:50:07,202] I ThreadPoolExecutor-0_9 - extract_frame_pair:317 - [P:185, R:2] s1=179.4016, s2=178.7809, ratio=1.0035 vs thr=1.0000 (alpha=1.0495) -> Bit=0
+[2025-04-15 13:50:07,286] I ThreadPoolExecutor-0_3 - extract_frame_pair:317 - [P:190, R:2] s1=174.4308, s2=172.4154, ratio=1.0117 vs thr=1.0000 (alpha=1.0472) -> Bit=0
+[2025-04-15 13:50:07,401] I ThreadPoolExecutor-0_16 - extract_frame_pair:317 - [P:192, R:4] s1=201.6308, s2=200.0201, ratio=1.0081 vs thr=1.0000 (alpha=1.0469) -> Bit=0
+[2025-04-15 13:50:07,677] I ThreadPoolExecutor-0_1 - extract_frame_pair:317 - [P:191, R:2] s1=172.2962, s2=170.6532, ratio=1.0096 vs thr=1.0000 (alpha=1.0452) -> Bit=0
+[2025-04-15 13:50:07,690] I ThreadPoolExecutor-0_2 - extract_frame_pair:317 - [P:189, R:2] s1=176.4112, s2=174.5513, ratio=1.0107 vs thr=1.0000 (alpha=1.0492) -> Bit=0
+[2025-04-15 13:50:07,725] I ThreadPoolExecutor-0_5 - extract_frame_pair:317 - [P:180, R:3] s1=214.8820, s2=213.1973, ratio=1.0079 vs thr=1.0000 (alpha=1.0485) -> Bit=0
+[2025-04-15 13:50:07,730] D ThreadPoolExecutor-0_5 - get_fixed_pseudo_random_rings:191 - [P:200] Candidates: [7, 6, 1, 3]
+[2025-04-15 13:50:07,758] I ThreadPoolExecutor-0_13 - extract_frame_pair:317 - [P:193, R:4] s1=200.3652, s2=199.7314, ratio=1.0032 vs thr=1.0000 (alpha=1.0476) -> Bit=0
+[2025-04-15 13:50:08,018] I ThreadPoolExecutor-0_18 - extract_frame_pair:317 - [P:181, R:5] s1=199.6335, s2=198.0060, ratio=1.0082 vs thr=1.0000 (alpha=1.0412) -> Bit=0
+[2025-04-15 13:50:08,022] D ThreadPoolExecutor-0_18 - get_fixed_pseudo_random_rings:191 - [P:201] Candidates: [5, 3, 7, 1]
+[2025-04-15 13:50:08,357] I ThreadPoolExecutor-0_17 - extract_frame_pair:317 - [P:196, R:2] s1=171.0486, s2=170.4149, ratio=1.0037 vs thr=1.0000 (alpha=1.0435) -> Bit=0
+[2025-04-15 13:50:08,362] I ThreadPoolExecutor-0_4 - extract_frame_pair:317 - [P:182, R:5] s1=199.3838, s2=198.4019, ratio=1.0049 vs thr=1.0000 (alpha=1.0420) -> Bit=0
+[2025-04-15 13:50:08,367] D ThreadPoolExecutor-0_4 - get_fixed_pseudo_random_rings:191 - [P:202] Candidates: [0, 1, 3, 4]
+[2025-04-15 13:50:08,402] I ThreadPoolExecutor-0_19 - extract_frame_pair:317 - [P:195, R:4] s1=200.9230, s2=200.2568, ratio=1.0033 vs thr=1.0000 (alpha=1.0475) -> Bit=0
+[2025-04-15 13:50:08,415] I ThreadPoolExecutor-0_12 - extract_frame_pair:317 - [P:194, R:3] s1=204.6447, s2=203.7223, ratio=1.0045 vs thr=1.0000 (alpha=1.0445) -> Bit=0
+[2025-04-15 13:50:08,443] I ThreadPoolExecutor-0_10 - extract_frame_pair:317 - [P:198, R:4] s1=201.6906, s2=200.7816, ratio=1.0045 vs thr=1.0000 (alpha=1.0464) -> Bit=0
+[2025-04-15 13:50:08,610] I ThreadPoolExecutor-0_14 - extract_frame_pair:317 - [P:197, R:5] s1=197.0056, s2=196.2823, ratio=1.0037 vs thr=1.0000 (alpha=1.0434) -> Bit=0
+[2025-04-15 13:50:08,927] I ThreadPoolExecutor-0_11 - extract_frame_pair:317 - [P:199, R:3] s1=206.1856, s2=205.0055, ratio=1.0058 vs thr=1.0000 (alpha=1.0447) -> Bit=0
+[2025-04-15 13:50:09,240] I ThreadPoolExecutor-0_8 - extract_frame_pair:317 - [P:188, R:4] s1=206.0391, s2=204.0100, ratio=1.0099 vs thr=1.0000 (alpha=1.0457) -> Bit=0
+[2025-04-15 13:50:09,245] D ThreadPoolExecutor-0_8 - get_fixed_pseudo_random_rings:191 - [P:203] Candidates: [3, 1, 7, 4]
+[2025-04-15 13:50:09,266] I ThreadPoolExecutor-0_7 - extract_frame_pair:317 - [P:184, R:1] s1=134.9774, s2=134.6384, ratio=1.0025 vs thr=1.0000 (alpha=1.0457) -> Bit=0
+[2025-04-15 13:50:09,270] D ThreadPoolExecutor-0_7 - get_fixed_pseudo_random_rings:191 - [P:204] Candidates: [2, 0, 7, 3]
+[2025-04-15 13:50:09,294] I ThreadPoolExecutor-0_3 - extract_frame_pair:317 - [P:190, R:4] s1=203.8854, s2=202.4714, ratio=1.0070 vs thr=1.0000 (alpha=1.0464) -> Bit=0
+[2025-04-15 13:50:09,323] I ThreadPoolExecutor-0_6 - extract_frame_pair:317 - [P:186, R:3] s1=214.6962, s2=212.7780, ratio=1.0090 vs thr=1.0000 (alpha=1.0487) -> Bit=0
+[2025-04-15 13:50:09,326] I ThreadPoolExecutor-0_0 - extract_frame_pair:317 - [P:187, R:4] s1=207.0414, s2=205.3602, ratio=1.0082 vs thr=1.0000 (alpha=1.0443) -> Bit=0
+[2025-04-15 13:50:09,343] I ThreadPoolExecutor-0_15 - extract_frame_pair:317 - [P:183, R:3] s1=214.4540, s2=213.4558, ratio=1.0047 vs thr=1.0000 (alpha=1.0498) -> Bit=0
+[2025-04-15 13:50:09,353] I ThreadPoolExecutor-0_16 - extract_frame_pair:317 - [P:192, R:2] s1=171.0538, s2=169.5706, ratio=1.0087 vs thr=1.0000 (alpha=1.0438) -> Bit=0
+[2025-04-15 13:50:09,385] I ThreadPoolExecutor-0_9 - extract_frame_pair:317 - [P:185, R:3] s1=214.2213, s2=213.5525, ratio=1.0031 vs thr=1.0000 (alpha=1.0500) -> Bit=0
+[2025-04-15 13:50:09,751] I ThreadPoolExecutor-0_1 - extract_frame_pair:317 - [P:191, R:4] s1=202.6823, s2=201.1464, ratio=1.0076 vs thr=1.0000 (alpha=1.0477) -> Bit=0
+[2025-04-15 13:50:09,930] I ThreadPoolExecutor-0_2 - extract_frame_pair:317 - [P:189, R:1] s1=133.4573, s2=132.5632, ratio=1.0067 vs thr=1.0000 (alpha=1.0461) -> Bit=0
+[2025-04-15 13:50:09,967] I ThreadPoolExecutor-0_13 - extract_frame_pair:317 - [P:193, R:2] s1=169.7814, s2=169.3217, ratio=1.0027 vs thr=1.0000 (alpha=1.0436) -> Bit=0
+[2025-04-15 13:50:10,147] I ThreadPoolExecutor-0_17 - extract_frame_pair:317 - [P:196, R:6] s1=196.0876, s2=194.8660, ratio=1.0063 vs thr=1.0000 (alpha=1.0410) -> Bit=0
+[2025-04-15 13:50:10,344] I ThreadPoolExecutor-0_19 - extract_frame_pair:317 - [P:195, R:3] s1=205.3295, s2=204.5832, ratio=1.0036 vs thr=1.0000 (alpha=1.0455) -> Bit=0
+[2025-04-15 13:50:10,355] I ThreadPoolExecutor-0_14 - extract_frame_pair:317 - [P:197, R:6] s1=196.0024, s2=195.1141, ratio=1.0046 vs thr=1.0000 (alpha=1.0419) -> Bit=0
+[2025-04-15 13:50:10,379] I ThreadPoolExecutor-0_12 - extract_frame_pair:317 - [P:194, R:2] s1=169.9030, s2=169.5181, ratio=1.0023 vs thr=1.0000 (alpha=1.0436) -> Bit=0
+[2025-04-15 13:50:10,387] I ThreadPoolExecutor-0_10 - extract_frame_pair:317 - [P:198, R:5] s1=197.6167, s2=196.5483, ratio=1.0054 vs thr=1.0000 (alpha=1.0430) -> Bit=0
+[2025-04-15 13:50:10,431] I ThreadPoolExecutor-0_11 - extract_frame_pair:317 - [P:199, R:5] s1=197.5553, s2=196.7334, ratio=1.0042 vs thr=1.0000 (alpha=1.0449) -> Bit=0
+[2025-04-15 13:50:10,583] I ThreadPoolExecutor-0_5 - extract_frame_pair:317 - [P:200, R:3] s1=205.6284, s2=205.1085, ratio=1.0025 vs thr=1.0000 (alpha=1.0447) -> Bit=0
+[2025-04-15 13:50:10,641] I ThreadPoolExecutor-0_18 - extract_frame_pair:317 - [P:201, R:3] s1=205.4630, s2=204.8584, ratio=1.0030 vs thr=1.0000 (alpha=1.0445) -> Bit=0
+[2025-04-15 13:50:10,645] I ThreadPoolExecutor-0_4 - extract_frame_pair:317 - [P:202, R:4] s1=201.3500, s2=200.6120, ratio=1.0037 vs thr=1.0000 (alpha=1.0471) -> Bit=0
+[2025-04-15 13:50:10,809] I ThreadPoolExecutor-0_8 - extract_frame_pair:317 - [P:203, R:4] s1=200.9000, s2=200.3940, ratio=1.0025 vs thr=1.0000 (alpha=1.0478) -> Bit=0
+[2025-04-15 13:50:10,906] I ThreadPoolExecutor-0_7 - extract_frame_pair:317 - [P:204, R:3] s1=205.3889, s2=204.0643, ratio=1.0065 vs thr=1.0000 (alpha=1.0437) -> Bit=0
+[2025-04-15 13:50:11,210] I ThreadPoolExecutor-0_5 - extract_frame_pair:317 - [P:200, R:6] s1=196.6600, s2=194.8751, ratio=1.0092 vs thr=1.0000 (alpha=1.0384) -> Bit=0
+[2025-04-15 13:50:11,276] I ThreadPoolExecutor-0_4 - extract_frame_pair:317 - [P:202, R:3] s1=205.2352, s2=204.6357, ratio=1.0029 vs thr=1.0000 (alpha=1.0446) -> Bit=0
+[2025-04-15 13:50:11,293] I ThreadPoolExecutor-0_18 - extract_frame_pair:317 - [P:201, R:5] s1=197.0457, s2=196.3270, ratio=1.0037 vs thr=1.0000 (alpha=1.0448) -> Bit=0
+[2025-04-15 13:50:11,320] I ThreadPoolExecutor-0_8 - extract_frame_pair:317 - [P:203, R:3] s1=204.9845, s2=204.3900, ratio=1.0029 vs thr=1.0000 (alpha=1.0443) -> Bit=0
+[2025-04-15 13:50:11,342] I ThreadPoolExecutor-0_7 - extract_frame_pair:317 - [P:204, R:2] s1=171.6989, s2=170.8260, ratio=1.0051 vs thr=1.0000 (alpha=1.0437) -> Bit=0
+[2025-04-15 13:50:11,348] I MainThread - extract_watermark_from_video:416 - Extraction finished. Processed:205. Pairs w/ errors:0.
+[2025-04-15 13:50:11,349] I MainThread - extract_watermark_from_video:418 - Total bits collected: 410
+[2025-04-15 13:50:11,349] I MainThread - extract_watermark_from_video:422 - Decoding 1 potential packets (255 bits)...
+[2025-04-15 13:50:11,361] I MainThread - decode_ecc:235 - Galois ECC: Corrected 1 symbol errors.
+[2025-04-15 13:50:11,361] D MainThread - decode_ecc:241 - Decode ECC: Extracted 64 payload bits: 1110110110000001010000011100100100010100110111110010101011110111
+[2025-04-15 13:50:11,362] D MainThread - decode_ecc:254 - Decode ECC: bits_to_bytes returned 8 bytes: ed8141c914df2af7
+[2025-04-15 13:50:11,362] I MainThread - extract_watermark_from_video:442 - Decode summary: Success=1, Failed=0. ECC fixes(symbols):1.
+[2025-04-15 13:50:11,362] I MainThread - extract_watermark_from_video:444 - Voting results:
+[2025-04-15 13:50:11,362] I MainThread - extract_watermark_from_video:445 -   ID ed8141c914df2af7: 1 votes
+[2025-04-15 13:50:11,362] I MainThread - extract_watermark_from_video:447 - Winner selected with 1/1 votes (100.0%).
+[2025-04-15 13:50:11,362] I MainThread - extract_watermark_from_video:448 - Extraction done. Time: 59.07 sec.
+[2025-04-15 13:50:11,363] I MainThread - main:474 - Decoded ID: ed8141c914df2af7
+[2025-04-15 13:50:11,363] I MainThread - main:480 - ID MATCH.
+[2025-04-15 13:50:11,363] I MainThread - main:483 - --- Extraction Main Process Finished ---
+[2025-04-15 13:50:11,363] I MainThread - main:484 - --- Total Extractor Time: 59.80 sec ---
+[2025-04-15 13:50:11,499] I MainThread - <module>:501 - Profiling saved: profile_extract_galois_t4.txt

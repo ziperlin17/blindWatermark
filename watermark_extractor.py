@@ -72,8 +72,8 @@ import pstats
 from collections import Counter
 
 # --- Основные Параметры ---
-LAMBDA_PARAM: float = 0.04; ALPHA_MIN: float = 1.005; ALPHA_MAX: float = 1.1; N_RINGS: int = 8
-MAX_THEORETICAL_ENTROPY = 8.0; EMBED_COMPONENT: int = 1; CANDIDATE_POOL_SIZE: int = 4
+LAMBDA_PARAM: float = 0.1; ALPHA_MIN: float = 1.005; ALPHA_MAX: float = 1.12; N_RINGS: int = 8
+MAX_THEORETICAL_ENTROPY = 8.0; EMBED_COMPONENT: int = 2; CANDIDATE_POOL_SIZE: int = 4
 BITS_PER_PAIR: int = 2; NUM_RINGS_TO_USE: int = BITS_PER_PAIR; RING_SELECTION_METHOD: str = 'pool_entropy_selection'
 PAYLOAD_LEN_BYTES: int = 8; USE_ECC: bool = True; BCH_M: int = 8; BCH_T: int = 4; MAX_PACKET_REPEATS: int = 5
 FPS: int = 30; LOG_FILENAME: str = 'watermarking_extract.log'; INPUT_EXTENSION: str = '.avi'
@@ -82,7 +82,7 @@ ORIGINAL_WATERMARK_FILE: str = 'original_watermark_id.txt'; MAX_WORKERS_EXTRACT:
 # --- Настройка Логирования ---
 for handler in logging.root.handlers[:]: logging.root.removeHandler(handler)
 logging.basicConfig(filename=LOG_FILENAME, filemode='w', level=logging.INFO, format='[%(asctime)s] %(levelname).1s %(threadName)s - %(funcName)s:%(lineno)d - %(message)s')
-# logging.getLogger().setLevel(logging.DEBUG)
+logging.getLogger().setLevel(logging.DEBUG)
 
 # --- Логирование Конфигурации ---
 effective_use_ecc = USE_ECC and GALOIS_AVAILABLE
@@ -190,86 +190,79 @@ def get_fixed_pseudo_random_rings(pi:int, nr:int, ps:int)->List[int]:
     except ValueError: ci=list(range(nr))
     logging.debug(f"[P:{pi}] Candidates: {ci}"); return ci
 def bits_to_bytes(b:List[Optional[int]])->Optional[bytearray]:
-    vb=[x for x in b if x is not None];
-    if not vb: return bytearray()
-    nb=len(vb); nB=ceil(nb/8.); pl=nB*8-nb;
-    if pl>0: vb.extend([0]*int(pl))
+    vb=[x for x in b if x is not None]; # Отфильтровали None (здесь их быть не должно)
+    if not vb: return bytearray()       # Если список пуст
+    nb=len(vb);                         # nb = 64
+    nB=ceil(nb/8.);                     # nB = ceil(64/8) = 8
+    pl=nB*8-nb;                         # pl = 8*8 - 64 = 0
+    if pl>0: vb.extend([0]*int(pl))     # Паддинг не добавляется
     ba=bytearray();
-    for i in range(0,len(vb),8): bc=vb[i:i+8];
-    try: bv=int("".join(map(str,bc)),2); ba.append(bv)
-    except Exception: return None
-    return ba
+    for i in range(0,len(vb),8):        # Цикл от 0 до 64 с шагом 8 (0, 8, 16, ... 56) - правильно
+        bc=vb[i:i+8];                   # Берем 8 бит
+        try:
+             bv=int("".join(map(str,bc)),2); # Конвертируем '1010...' в число
+             ba.append(bv)                  # Добавляем байт
+        except Exception: return None       # Ошибка конвертации?
+    return ba                           # Должен вернуть 8 байт
 def decode_ecc(packet_bytes_in: bytearray, bch_code: galois.BCH, expected_data_len_bytes: int) -> Tuple[Optional[bytes], int]:
     """
-    Декодирует пакет с использованием Galois. Возвращает (данные, кол-во_симв_ошибок).
-    Исправлено создание FieldArray и обработка UncorrectableError.
+    Декодирует пакет с использованием Galois. Добавлено логирование для bits_to_bytes.
     """
+    # ... (начало функции без изменений) ...
     if not GALOIS_AVAILABLE or bch_code is None:
-        logging.debug("ECC decode skipped: Galois unavailable/disabled.")
+        # ... (обработка как раньше) ...
         if len(packet_bytes_in) >= expected_data_len_bytes: return bytes(packet_bytes_in[:expected_data_len_bytes]), 0
         else: return None, -1
-
-    n = bch_code.n # Длина кодового слова в битах/символах
-    k = bch_code.k # Длина сообщения в битах/символах
-    expected_packet_len_bytes = ceil(n / 8.0)
-    current_packet_len_bytes = len(packet_bytes_in)
-    logging.debug(f"Galois decode_ecc: Input {current_packet_len_bytes}B. Expect n={n} ({expected_packet_len_bytes}B), k={k}.")
-
-    packet_bytes = bytearray(packet_bytes_in) # Копия
-    # Дополняем/обрезаем до n байт
+    n = bch_code.n; k = bch_code.k
+    expected_payload_len_bits = expected_data_len_bytes * 8
+    if expected_payload_len_bits > k: return None, -1
+    expected_packet_len_bytes = ceil(n / 8.0); current_packet_len_bytes = len(packet_bytes_in)
+    packet_bytes = bytearray(packet_bytes_in)
     if current_packet_len_bytes < expected_packet_len_bytes:
         padding = expected_packet_len_bytes - current_packet_len_bytes; packet_bytes.extend([0] * padding)
-        logging.warning(f"  Padded input packet with {padding} zeros.");
     elif current_packet_len_bytes > expected_packet_len_bytes:
-         logging.warning(f"  Input > expected. Truncating."); packet_bytes = packet_bytes[:expected_packet_len_bytes]
-
+         packet_bytes = packet_bytes[:expected_packet_len_bytes]
     try:
-        # Преобразуем байты в биты
-        packet_bits = np.unpackbits(np.frombuffer(packet_bytes, dtype=np.uint8))
-        packet_bits = packet_bits[:n] # Убедимся, что ровно n бит
-        if packet_bits.size != n: raise ValueError(f"Bit conversion error: got {packet_bits.size} bits, expected {n}")
-
-        # --- ИСПРАВЛЕНО: Создаем FieldArray через класс поля ---
-        GF = bch_code.field # Получаем класс поля
-        received_vector = GF(packet_bits) # Создаем FieldArray
-        # --- КОНЕЦ ИСПРАВЛЕНИЯ ---
-
-        # Декодируем, запрашивая количество ошибок
-        # --- ИСПРАВЛЕНО: Обработка UncorrectableError ---
+        packet_bits = np.unpackbits(np.frombuffer(packet_bytes, dtype=np.uint8)); packet_bits = packet_bits[:n];
+        if packet_bits.size != n: raise ValueError(f"Bit conv error: {packet_bits.size}!=n {n}")
+        GF = bch_code.field; received_vector = GF(packet_bits);
         try:
             corrected_message_vector, N_corrected_symbols = bch_code.decode(received_vector, errors=True)
-        except galois.UncorrectableError: # Импортируем и ловим исключение напрямую
-             logging.error("Galois ECC: UncorrectableError exception caught.")
-             return None, -1
-        # --- КОНЕЦ ИСПРАВЛЕНИЯ ---
+        except galois.errors.UncorrectableError: return None, -1
 
-        # N_corrected_symbols содержит кол-во исправленных ошибок или -1
-        if N_corrected_symbols == -1: # Это условие теперь дублируется блоком except, но оставим для ясности
-             logging.error("Galois ECC: Uncorrectable errors reported by decode().")
-             return None, -1
+        if N_corrected_symbols == -1: return None, -1
         else:
              logging.info(f"Galois ECC: Corrected {N_corrected_symbols} symbol errors.")
-             # Преобразуем исправленное сообщение (k бит) обратно в байты
-             corrected_data_bits = corrected_message_vector.view(np.ndarray).astype(np.uint8) # Исправлено .numpy() на .view()
+             corrected_k_bits = corrected_message_vector.view(np.ndarray).astype(np.uint8)
 
-             # Используем bits_to_bytes для корректной упаковки k бит
-             corrected_data_bytes = bits_to_bytes(corrected_data_bits.tolist())
-
-             if corrected_data_bytes is None:
-                 logging.error("Failed to convert corrected bits back to bytes.")
+             if corrected_k_bits.size >= expected_payload_len_bits:
+                 corrected_payload_bits = corrected_k_bits[:expected_payload_len_bits]
+                 # --- ДОБАВЛЕНО ЛОГИРОВАНИЕ ---
+                 logging.debug(f"Decode ECC: Extracted {len(corrected_payload_bits)} payload bits: {''.join(map(str, corrected_payload_bits.tolist()))}")
+                 # --- КОНЕЦ ЛОГИРОВАНИЯ ---
+             else:
+                 logging.error(f"Corrected k bits len {corrected_k_bits.size} < payload bits {expected_payload_len_bits}")
                  return None, -1
 
-             # Возвращаем нужное количество байт полезной нагрузки
-             if len(corrected_data_bytes) >= expected_data_len_bytes:
-                 return bytes(corrected_data_bytes[:expected_data_len_bytes]), N_corrected_symbols
+             corrected_payload_bytes = bits_to_bytes(corrected_payload_bits.tolist())
+
+             # --- ДОБАВЛЕНО ЛОГИРОВАНИЕ ---
+             if corrected_payload_bytes is None:
+                 logging.error("bits_to_bytes returned None!")
+                 return None, -1
              else:
-                 logging.warning(f"Corrected bytes length {len(corrected_data_bytes)} < expected {expected_data_len_bytes}. Padding.")
-                 padding_needed = expected_data_len_bytes - len(corrected_data_bytes)
-                 corrected_data_bytes.extend([0] * padding_needed)
-                 return bytes(corrected_data_bytes), N_corrected_symbols
+                 logging.debug(f"Decode ECC: bits_to_bytes returned {len(corrected_payload_bytes)} bytes: {corrected_payload_bytes.hex()}")
+             # --- КОНЕЦ ЛОГИРОВАНИЯ ---
+
+
+             if len(corrected_payload_bytes) == expected_data_len_bytes:
+                 return bytes(corrected_payload_bytes), N_corrected_symbols
+             else:
+                 # --- УБРАН ПАДДИНГ ЗДЕСЬ, ОШИБКА УЖЕ ПРОИЗОШЛА ---
+                 logging.error(f"Final payload byte length {len(corrected_payload_bytes)} != expected {expected_data_len_bytes}")
+                 return None, -1 # Возвращаем ошибку
 
     except Exception as e:
-        # Ловим другие ошибки (например, ValueError из unpackbits/FieldArray)
         logging.error(f"Exception during Galois ECC decoding: {e}", exc_info=True)
         return None, -1
 # --- КОНЕЦ ИСПРАВЛЕННОЙ ФУНКЦИИ ---
@@ -293,6 +286,7 @@ def read_video(vp:str)->Tuple[List[np.ndarray],float]:
     if not fr: logging.error(f"No valid frames read.")
     return fr,fps
 def extract_frame_pair(f1:np.ndarray, f2:np.ndarray, ri:int, nr:int=N_RINGS, fn:int=0, ec:int=EMBED_COMPONENT) -> Optional[int]:
+    pn = fn // 2 # Индекс пары для логов
     try:
         if f1 is None or f2 is None or f1.shape!=f2.shape: return None
         if f1.dtype!=np.uint8: f1=np.clip(f1,0,255).astype(np.uint8)
@@ -316,10 +310,18 @@ def extract_frame_pair(f1:np.ndarray, f2:np.ndarray, ri:int, nr:int=N_RINGS, fn:
         try: S1=svd(d1.reshape(-1,1),compute_uv=False); S2=svd(d2.reshape(-1,1),compute_uv=False)
         except np.linalg.LinAlgError: return None
         s1=S1[0] if S1.size>0 else 0.; s2=S2[0] if S2.size>0 else 0.;
-        a=compute_adaptive_alpha_entropy(rv1,ri,fn); eps=1e-12; thr=1.0;
+        a=compute_adaptive_alpha_entropy(rv1,ri,fn); eps=1e-12; thr=1.0; # Порог 1.0
         r=s1/(s2+eps); bit=0 if r>=thr else 1;
+
+        # --- ВОЗВРАЩАЕМ ЛОГИРОВАНИЕ ---
+        logging.info(f"[P:{pn}, R:{ri}] s1={s1:.4f}, s2={s2:.4f}, ratio={r:.4f} vs thr={thr:.4f} (alpha={a:.4f}) -> Bit={bit}")
+        # --- КОНЕЦ ВОЗВРАЩЕНИЯ ---
+
         return bit
-    except Exception: return None
+    except Exception as e:
+        pn_err = fn // 2 if fn >=0 else -1
+        logging.error(f"extract_frame_pair failed (P:{pn_err}, R:{ri}): {e}", exc_info=False) # Убрал exc_info чтобы не засорять лог
+        return None
 def extract_frame_pair_multi_ring(f1:np.ndarray, f2:np.ndarray, ris:List[int], nr:int=N_RINGS, fn:int=0, ec:int=EMBED_COMPONENT)->List[Optional[int]]:
     if not ris: return []
     return [extract_frame_pair(f1,f2,ri,nr,fn,ec) for ri in ris]

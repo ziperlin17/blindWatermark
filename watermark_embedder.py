@@ -60,11 +60,11 @@ import cProfile
 import pstats
 
 # --- Основные Параметры ---
-LAMBDA_PARAM: float = 0.04; ALPHA_MIN: float = 1.005; ALPHA_MAX: float = 1.1; N_RINGS: int = 8
-MAX_THEORETICAL_ENTROPY = 8.0; EMBED_COMPONENT: int = 1; USE_PERCEPTUAL_MASKING: bool = True
+LAMBDA_PARAM: float = 0.1; ALPHA_MIN: float = 1.005; ALPHA_MAX: float = 1.12; N_RINGS: int = 8
+MAX_THEORETICAL_ENTROPY = 8.0; EMBED_COMPONENT: int = 2; USE_PERCEPTUAL_MASKING: bool = True
 CANDIDATE_POOL_SIZE: int = 4; BITS_PER_PAIR: int = 2; NUM_RINGS_TO_USE: int = BITS_PER_PAIR
 RING_SELECTION_METHOD: str = 'pool_entropy_selection'; PAYLOAD_LEN_BYTES: int = 8; USE_ECC: bool = True
-BCH_M: int = 8; BCH_T: int = 4; MAX_PACKET_REPEATS: int = 5; FPS: int = 30
+BCH_M: int = 8; BCH_T: int = 5; MAX_PACKET_REPEATS: int = 5; FPS: int = 30
 LOG_FILENAME: str = 'watermarking_embed.log'; OUTPUT_CODEC: str = 'XVID'; OUTPUT_EXTENSION: str = '.avi'
 SELECTED_RINGS_FILE: str = 'selected_rings_embed.json'; ORIGINAL_WATERMARK_FILE: str = 'original_watermark_id.txt'
 MAX_WORKERS: Optional[int] = None
@@ -204,7 +204,7 @@ def add_ecc(data_bits: np.ndarray, bch_code: galois.BCH) -> Optional[np.ndarray]
         # Дополняем нулями СПРАВА до длины k
         padding_len = k - data_bits.size
         message_bits = np.pad(data_bits, (0, padding_len), 'constant').astype(np.uint8)
-        # logging.debug(f"Данные ({data_bits.size}b) дополнены {padding_len} нулями до {k}b.")
+        logging.debug(f"Данные ({data_bits.size}b) дополнены {padding_len} нулями до {k}b.")
     else:
         message_bits = data_bits.astype(np.uint8)
 
