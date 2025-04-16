@@ -302,68 +302,50 @@ def read_video(video_path: str) -> Tuple[List[np.ndarray], float]:
         if cap and cap.isOpened(): logging.debug("Releasing capture"); cap.release()
     return frames, fps
 
-# --- Функция извлечения ОДНОГО бита из ОДНОГО кольца ---
-def extract_single_bit(L1: np.ndarray, L2: np.ndarray, ring_idx:int, n_rings:int, fn:int=0) -> Optional[int]:
-    """
-    Извлекает один бит из заданного кольца, используя ПРЕДВАРИТЕЛЬНО ВЫЧИСЛЕННЫЕ
-    lowpass компоненты L1 и L2.
-    """
+def extract_single_bit(f1:np.ndarray, f2:np.ndarray, ring_idx:int, n_rings:int=N_RINGS, fn:int=0, embed_comp:int=EMBED_COMPONENT) -> Optional[int]:
+    """Извлекает один бит из заданного кольца пары кадров. (ВЕРСИЯ С ВНУТРЕННИМ DTCWT)"""
     pair_index = fn // 2
     try:
-        # --- УБРАНЫ cvtColor и dtcwt_transform ---
+        if f1 is None or f2 is None or f1.shape != f2.shape: return None
+        # Конвертация в YCrCb и извлечение компонента ВНУТРИ
+        try:
+             y1=cv2.cvtColor(f1,cv2.COLOR_BGR2YCrCb); y2=cv2.cvtColor(f2,cv2.COLOR_BGR2YCrCb)
+             c1=y1[:,:,embed_comp].astype(np.float32)/255.; c2=y2[:,:,embed_comp].astype(np.float32)/255.
+        except Exception as e_conv: logging.warning(f"[P:{pair_index},R:{ring_idx}] YCrCb/Comp extract error: {e_conv}"); return None
 
-        # Проверка типов L1, L2 (на всякий случай)
-        if not isinstance(L1, np.ndarray) or not isinstance(L2, np.ndarray) or L1.shape != L2.shape:
-            logging.warning(f"[P:{pair_index},R:{ring_idx}] Invalid L1/L2 provided.")
-            return None
+        # DTCWT ВНУТРИ
+        p1=dtcwt_transform(c1,fn); p2=dtcwt_transform(c2,fn+1);
+        if p1 is None or p2 is None or p1.lowpass is None or p2.lowpass is None: return None
+        L1=np.array(p1.lowpass); L2=np.array(p2.lowpass)
 
-        # Кольца (вызывается на L1, L2)
-        # Важно: ring_division должна быть эффективной (с кэшем)
-        r1c = ring_division(L1, n_rings, fn)
-        r2c = ring_division(L2, n_rings, fn+1) # Для второго кадра тоже
-
-        if not(0 <= ring_idx < n_rings and ring_idx < len(r1c) and ring_idx < len(r2c)):
-             logging.warning(f"[P:{pair_index},R:{ring_idx}] Invalid ring index.")
-             return None
-        cd1 = r1c[ring_idx]; cd2 = r2c[ring_idx]
-        if cd1 is None or cd2 is None:
-             logging.debug(f"[P:{pair_index},R:{ring_idx}] Ring coords are None.")
-             return None # Кольцо пустое или ошибка
+        # Кольца
+        r1c=ring_division(L1,n_rings,fn); r2c=ring_division(L2,n_rings,fn+1);
+        if not(0<=ring_idx<n_rings and ring_idx<len(r1c) and ring_idx<len(r2c)): return None
+        cd1=r1c[ring_idx]; cd2=r2c[ring_idx];
+        if cd1 is None or cd2 is None: return None
 
         # Значения, DCT, SVD
         try:
-             rs1,cs1=cd1[:,0],cd1[:,1]; rv1=L1[rs1,cs1].astype(np.float32)
+             rs1,cs1=cd1[:,0],cd1[:,1]; rv1=L1[rs1,cs1].astype(np.float32);
              rs2,cs2=cd2[:,0],cd2[:,1]; rv2=L2[rs2,cs2].astype(np.float32)
-        except IndexError:
-             logging.warning(f"[P:{pair_index},R:{ring_idx}] Index error getting ring values.")
-             return None
+        except IndexError: return None
+        if rv1.size==0 or rv2.size==0: return None
+        min_s = min(rv1.size, rv2.size);
+        if rv1.size!=rv2.size: rv1=rv1[:min_s]; rv2=rv2[:min_s]
+        if min_s == 0: return None
 
-        if rv1.size == 0 or rv2.size == 0:
-             logging.debug(f"[P:{pair_index},R:{ring_idx}] Ring values empty.")
-             return None
+        d1=dct_1d(rv1); d2=dct_1d(rv2);
+        try: S1=svd(d1.reshape(-1,1),compute_uv=False); S2=svd(d2.reshape(-1,1),compute_uv=False)
+        except np.linalg.LinAlgError: return None
+        s1=S1[0] if S1.size>0 else 0.; s2=S2[0] if S2.size>0 else 0.;
 
-        # Синхронизация размера (если вдруг отличаются)
-        min_s = min(rv1.size, rv2.size)
-        if rv1.size != rv2.size:
-            logging.warning(f"[P:{pair_index}, R:{ring_idx}] Ring value size mismatch ({rv1.size} vs {rv2.size}), using min {min_s}.")
-            rv1=rv1[:min_s]; rv2=rv2[:min_s]
-            if min_s == 0: return None
+        # Принятие решения
+        eps=1e-12; threshold=1.0;
+        ratio=s1/(s2+eps);
+        extracted_bit = 0 if ratio >= threshold else 1;
 
-        d1=dct_1d(rv1); d2=dct_1d(rv2)
-        try:
-             S1=svd(d1.reshape(-1,1), compute_uv=False); S2=svd(d2.reshape(-1,1), compute_uv=False)
-        except np.linalg.LinAlgError:
-             logging.warning(f"[P:{pair_index},R:{ring_idx}] SVD failed.")
-             return None
-
-        s1=S1[0] if S1.size>0 else 0.; s2=S2[0] if S2.size>0 else 0.
-
-        # Принятие решения (ПОРОГ = 1.0)
-        eps=1e-12; threshold=1.0
-        ratio=s1/(s2+eps)
-        extracted_bit = 0 if ratio >= threshold else 1
-
-        # Логирование (убрали вычисление alpha_for_log для скорости)
+        # Логирование (можно вернуть alpha_for_log, если нужно)
+        # alpha_for_log = compute_adaptive_alpha_entropy(rv1, ring_idx, fn)
         logging.debug(f"[P:{pair_index}, R:{ring_idx}] s1={s1:.4f}, s2={s2:.4f}, ratio={ratio:.4f} vs thr={threshold:.1f} -> Bit={extracted_bit}")
 
         return extracted_bit
@@ -372,77 +354,212 @@ def extract_single_bit(L1: np.ndarray, L2: np.ndarray, ring_idx:int, n_rings:int
         return None
 
 
+# --- Функция извлечения ОДНОГО бита из ОДНОГО кольца ---
+# def extract_single_bit(L1: np.ndarray, L2: np.ndarray, ring_idx:int, n_rings:int, fn:int=0) -> Optional[int]:
+#     """
+#     Извлекает один бит из заданного кольца, используя ПРЕДВАРИТЕЛЬНО ВЫЧИСЛЕННЫЕ
+#     lowpass компоненты L1 и L2.
+#     """
+#     pair_index = fn // 2
+#     try:
+#         # --- УБРАНЫ cvtColor и dtcwt_transform ---
+#
+#         # Проверка типов L1, L2 (на всякий случай)
+#         if not isinstance(L1, np.ndarray) or not isinstance(L2, np.ndarray) or L1.shape != L2.shape:
+#             logging.warning(f"[P:{pair_index},R:{ring_idx}] Invalid L1/L2 provided.")
+#             return None
+#
+#         # Кольца (вызывается на L1, L2)
+#         # Важно: ring_division должна быть эффективной (с кэшем)
+#         r1c = ring_division(L1, n_rings, fn)
+#         r2c = ring_division(L2, n_rings, fn+1) # Для второго кадра тоже
+#
+#         if not(0 <= ring_idx < n_rings and ring_idx < len(r1c) and ring_idx < len(r2c)):
+#              logging.warning(f"[P:{pair_index},R:{ring_idx}] Invalid ring index.")
+#              return None
+#         cd1 = r1c[ring_idx]; cd2 = r2c[ring_idx]
+#         if cd1 is None or cd2 is None:
+#              logging.debug(f"[P:{pair_index},R:{ring_idx}] Ring coords are None.")
+#              return None # Кольцо пустое или ошибка
+#
+#         # Значения, DCT, SVD
+#         try:
+#              rs1,cs1=cd1[:,0],cd1[:,1]; rv1=L1[rs1,cs1].astype(np.float32)
+#              rs2,cs2=cd2[:,0],cd2[:,1]; rv2=L2[rs2,cs2].astype(np.float32)
+#         except IndexError:
+#              logging.warning(f"[P:{pair_index},R:{ring_idx}] Index error getting ring values.")
+#              return None
+#
+#         if rv1.size == 0 or rv2.size == 0:
+#              logging.debug(f"[P:{pair_index},R:{ring_idx}] Ring values empty.")
+#              return None
+#
+#         # Синхронизация размера (если вдруг отличаются)
+#         min_s = min(rv1.size, rv2.size)
+#         if rv1.size != rv2.size:
+#             logging.warning(f"[P:{pair_index}, R:{ring_idx}] Ring value size mismatch ({rv1.size} vs {rv2.size}), using min {min_s}.")
+#             rv1=rv1[:min_s]; rv2=rv2[:min_s]
+#             if min_s == 0: return None
+#
+#         d1=dct_1d(rv1); d2=dct_1d(rv2)
+#         try:
+#              S1=svd(d1.reshape(-1,1), compute_uv=False); S2=svd(d2.reshape(-1,1), compute_uv=False)
+#         except np.linalg.LinAlgError:
+#              logging.warning(f"[P:{pair_index},R:{ring_idx}] SVD failed.")
+#              return None
+#
+#         s1=S1[0] if S1.size>0 else 0.; s2=S2[0] if S2.size>0 else 0.
+#
+#         # Принятие решения (ПОРОГ = 1.0)
+#         eps=1e-12; threshold=1.0
+#         ratio=s1/(s2+eps)
+#         extracted_bit = 0 if ratio >= threshold else 1
+#
+#         # Логирование (убрали вычисление alpha_for_log для скорости)
+#         logging.debug(f"[P:{pair_index}, R:{ring_idx}] s1={s1:.4f}, s2={s2:.4f}, ratio={ratio:.4f} vs thr={threshold:.1f} -> Bit={extracted_bit}")
+#
+#         return extracted_bit
+#     except Exception as e:
+#         logging.error(f"Extract single bit failed (P:{pair_index}, R:{ring_idx}): {e}", exc_info=False)
+#         return None
+
+
 # --- Воркер для ОДНОЙ ПАРЫ (выбор колец + извлечение) ---
 
-@profile # Добавляем профилировщик сюда
 def _extract_single_pair_task(args: Dict[str, Any]) -> Tuple[int, List[Optional[int]]]:
     """
-    Обрабатывает одну пару: вычисляет DTCWT ОДИН РАЗ, выбирает кольца
-    и вызывает ИЗМЕНЕННУЮ extract_single_bit для извлечения бит.
+    Обрабатывает одну пару: выбирает кольца и вызывает ОРИГИНАЛЬНЫЙ extract_single_bit.
     (Версия с исправленным try-except в цикле энтропии)
     """
     pair_idx=args['pair_idx']; f1=args['frame1']; f2=args['frame2']; nr=args['n_rings']; nrtu=args['num_rings_to_use']; cps=args['candidate_pool_size']; ec=args['embed_component']; fn=2*pair_idx; final_rings=[]
     extracted_bits: List[Optional[int]] = [None] * nrtu
     try:
-        # --- Шаг 0: Преобразование цвета и DTCWT (делаем один раз) ---
-        try:
-            y1=cv2.cvtColor(f1,cv2.COLOR_BGR2YCrCb); y2=cv2.cvtColor(f2,cv2.COLOR_BGR2YCrCb)
-            comp1=y1[:,:,ec].astype(np.float32)/255.; comp2=y2[:,:,ec].astype(np.float32)/255.
-            p1 = dtcwt_transform(comp1, fn)
-            p2 = dtcwt_transform(comp2, fn+1)
-            if p1 is None or p2 is None or p1.lowpass is None or p2.lowpass is None:
-                 raise RuntimeError("DTCWT failed for one or both frames")
-            L1 = np.array(p1.lowpass); L2 = np.array(p2.lowpass)
-        except Exception as dt_err:
-             logging.error(f"[P:{pair_idx}] Initial Color/DTCWT error: {dt_err}")
-             return pair_idx, extracted_bits # Возвращаем None биты
-
-        # --- Шаг 1: Выбор колец (используя L1) ---
+        # 1. Выбор колец (использует DTCWT ВНУТРИ себя для L1)
         cands = get_fixed_pseudo_random_rings(pair_idx, nr, cps);
-        if len(cands) < nrtu: raise ValueError(f"Not enough candidates {len(cands)}<{nrtu}")
-        try: # Блок try для общего процесса выбора колец
-             coords = ring_division(L1, nr, fn);
-             if coords is None: raise RuntimeError("Ring division failed") # Проверка результата ring_division
+        if len(cands) < nrtu: raise ValueError("Not enough candidates")
+
+        # Блок try-except для всего процесса выбора колец
+        try:
+             # Вычисляем L1 ТОЛЬКО для выбора колец
+             comp1_sel = f1[:,:,ec].astype(np.float32)/255.;
+             p1_sel = dtcwt_transform(comp1_sel, fn);
+             if p1_sel is None or p1_sel.lowpass is None: # Проверка результата DTCWT
+                 raise RuntimeError("DTCWT L1 failed for selection")
+
+             L1s = np.array(p1_sel.lowpass);
+             coords = ring_division(L1s, nr, fn); # Разбиваем L1 на кольца
              entropies=[]
              min_pixels_for_entropy = 10
 
              for r_idx in cands:
-                  e = -float('inf')
-                  # Проверяем индекс и наличие координат
-                  if 0 <= r_idx < len(coords) and coords[r_idx] is not None:
-                      c = coords[r_idx]
-                      if c.shape[0] >= min_pixels_for_entropy:
-                           # --- Исправленный блок try-except ---
-                           try:
-                                rs,cs=c[:,0],c[:,1]; rv=L1[rs,cs]
-                                se,_=calculate_entropies(rv,fn,r_idx);
-                                if np.isfinite(se):
-                                    e=se
-                           except Exception as entropy_e:
-                                # logging.warning(f"[P:{pair_idx}, R:{r_idx}] Entropy calc failed: {entropy_e}")
-                                pass # Игнорируем ошибку, e остается -inf
-                  # Добавляем результат (возможно, -inf) в список
-                  entropies.append((e,r_idx))
-             # --- Конец исправленного блока ---
+                  e=-float('inf');
+                  # Проверка индекса перед доступом к coords
+                  if 0 <= r_idx < len(coords):
+                       c=coords[r_idx];
+                       if c is not None and c.shape[0]>=min_pixels_for_entropy:
+                            # --- ИСПРАВЛЕННЫЙ блок try-except ---
+                            try:
+                                 rs,cs=c[:,0],c[:,1]; rv=L1s[rs,cs];
+                                 se,_=calculate_entropies(rv,fn,r_idx);
+                                 if np.isfinite(se):
+                                      e=se
+                            except Exception as entropy_e:
+                                 # logging.warning(f"Entropy calc error P:{pair_idx} R:{r_idx}: {entropy_e}") # Опционально
+                                 pass # Игнорируем ошибку, оставляем e = -inf
+                            # --- Конец ИСПРАВЛЕННОГО блока ---
+                  # Если индекс невалиден, e останется -inf
+                  entropies.append((e,r_idx)) # Добавляем результат в любом случае
 
              entropies.sort(key=lambda x:x[0], reverse=True);
              final_rings=[idx for e,idx in entropies if e>-float('inf')][:nrtu]
              if len(final_rings) < nrtu: raise RuntimeError(f"Not enough valid rings selected {len(final_rings)}<{nrtu}")
              logging.info(f"[P:{pair_idx}] Selected rings for extraction: {final_rings}")
-        except Exception as sel_err:
-             logging.error(f"[P:{pair_idx}] Ring selection error: {sel_err}", exc_info=True); # Добавил exc_info
+
+        except Exception as sel_err: # Ловим ошибки выбора колец
+             logging.error(f"[P:{pair_idx}] Ring selection error: {sel_err}", exc_info=True)
              return pair_idx, extracted_bits # Возвращаем None биты
 
-        # --- Шаг 2: Извлечение бит из выбранных колец, ПЕРЕДАВАЯ L1 и L2 ---
+        # 2. Извлечение бит: вызываем ОРИГИНАЛЬНУЮ extract_single_bit, передавая f1, f2
         for i, ring_idx_to_extract in enumerate(final_rings):
-            # Вызываем ИЗМЕНЕННУЮ extract_single_bit
-            extracted_bits[i] = extract_single_bit(L1, L2, ring_idx_to_extract, nr, fn)
+            # Убедимся, что передаем корректные аргументы
+            extracted_bits[i] = extract_single_bit(f1, f2, ring_idx_to_extract, nr, fn, ec)
 
         return pair_idx, extracted_bits
 
-    except Exception as e:
-        logging.error(f"Error in single pair task P:{pair_idx}: {e}", exc_info=True);
-        return pair_idx, extracted_bits # Возвращаем None биты в случае любой другой ошибки
+    except Exception as e: # Ловим ошибки на уровне всей задачи
+        logging.error(f"Error in single pair task P:{pair_idx}: {e}", exc_info=True)
+        return pair_idx, extracted_bits # Возвращаем None биты (или то, что успели извлечь)
+
+
+# @profile # Добавляем профилировщик сюда
+# def _extract_single_pair_task(args: Dict[str, Any]) -> Tuple[int, List[Optional[int]]]:
+#     """
+#     Обрабатывает одну пару: вычисляет DTCWT ОДИН РАЗ, выбирает кольца
+#     и вызывает ИЗМЕНЕННУЮ extract_single_bit для извлечения бит.
+#     (Версия с исправленным try-except в цикле энтропии)
+#     """
+#     pair_idx=args['pair_idx']; f1=args['frame1']; f2=args['frame2']; nr=args['n_rings']; nrtu=args['num_rings_to_use']; cps=args['candidate_pool_size']; ec=args['embed_component']; fn=2*pair_idx; final_rings=[]
+#     extracted_bits: List[Optional[int]] = [None] * nrtu
+#     try:
+#         # --- Шаг 0: Преобразование цвета и DTCWT (делаем один раз) ---
+#         try:
+#             y1=cv2.cvtColor(f1,cv2.COLOR_BGR2YCrCb); y2=cv2.cvtColor(f2,cv2.COLOR_BGR2YCrCb)
+#             comp1=y1[:,:,ec].astype(np.float32)/255.; comp2=y2[:,:,ec].astype(np.float32)/255.
+#             p1 = dtcwt_transform(comp1, fn)
+#             p2 = dtcwt_transform(comp2, fn+1)
+#             if p1 is None or p2 is None or p1.lowpass is None or p2.lowpass is None:
+#                  raise RuntimeError("DTCWT failed for one or both frames")
+#             L1 = np.array(p1.lowpass); L2 = np.array(p2.lowpass)
+#         except Exception as dt_err:
+#              logging.error(f"[P:{pair_idx}] Initial Color/DTCWT error: {dt_err}")
+#              return pair_idx, extracted_bits # Возвращаем None биты
+#
+#         # --- Шаг 1: Выбор колец (используя L1) ---
+#         cands = get_fixed_pseudo_random_rings(pair_idx, nr, cps);
+#         if len(cands) < nrtu: raise ValueError(f"Not enough candidates {len(cands)}<{nrtu}")
+#         try: # Блок try для общего процесса выбора колец
+#              coords = ring_division(L1, nr, fn);
+#              if coords is None: raise RuntimeError("Ring division failed") # Проверка результата ring_division
+#              entropies=[]
+#              min_pixels_for_entropy = 10
+#
+#              for r_idx in cands:
+#                   e = -float('inf')
+#                   # Проверяем индекс и наличие координат
+#                   if 0 <= r_idx < len(coords) and coords[r_idx] is not None:
+#                       c = coords[r_idx]
+#                       if c.shape[0] >= min_pixels_for_entropy:
+#                            # --- Исправленный блок try-except ---
+#                            try:
+#                                 rs,cs=c[:,0],c[:,1]; rv=L1[rs,cs]
+#                                 se,_=calculate_entropies(rv,fn,r_idx);
+#                                 if np.isfinite(se):
+#                                     e=se
+#                            except Exception as entropy_e:
+#                                 # logging.warning(f"[P:{pair_idx}, R:{r_idx}] Entropy calc failed: {entropy_e}")
+#                                 pass # Игнорируем ошибку, e остается -inf
+#                   # Добавляем результат (возможно, -inf) в список
+#                   entropies.append((e,r_idx))
+#              # --- Конец исправленного блока ---
+#
+#              entropies.sort(key=lambda x:x[0], reverse=True);
+#              final_rings=[idx for e,idx in entropies if e>-float('inf')][:nrtu]
+#              if len(final_rings) < nrtu: raise RuntimeError(f"Not enough valid rings selected {len(final_rings)}<{nrtu}")
+#              logging.info(f"[P:{pair_idx}] Selected rings for extraction: {final_rings}")
+#         except Exception as sel_err:
+#              logging.error(f"[P:{pair_idx}] Ring selection error: {sel_err}", exc_info=True); # Добавил exc_info
+#              return pair_idx, extracted_bits # Возвращаем None биты
+#
+#         # --- Шаг 2: Извлечение бит из выбранных колец, ПЕРЕДАВАЯ L1 и L2 ---
+#         for i, ring_idx_to_extract in enumerate(final_rings):
+#             # Вызываем ИЗМЕНЕННУЮ extract_single_bit
+#             extracted_bits[i] = extract_single_bit(L1, L2, ring_idx_to_extract, nr, fn)
+#
+#         return pair_idx, extracted_bits
+#
+#     except Exception as e:
+#         logging.error(f"Error in single pair task P:{pair_idx}: {e}", exc_info=True);
+#         return pair_idx, extracted_bits # Возвращаем None биты в случае любой другой ошибки
 
 # --- Воркер для обработки БАТЧА задач (ThreadPoolExecutor) ---
 def _extract_batch_worker(batch_args_list: List[Dict]) -> Dict[int, List[Optional[int]]]:
