@@ -49,7 +49,7 @@ try:
     if GALOIS_AVAILABLE: logging.info("galois: Тесты пройдены.")
     else: logging.info("galois: Тесты не пройдены. ECC будет отключен.")
 except ImportError: GALOIS_AVAILABLE = False; BCH_CODE_OBJECT = None; logging.info("galois library not found.")
-except Exception as import_err: GALOIS_AVAILABLE = False; BCH_CODE_OBJECT = None; logging.info(f"galois: Ошибка импорта: {import_err}")
+except Exception as import_err: GALOIS_AVAILABLE = False; BCH_CODE_OBJECT = None; print(f"galois: Ошибка импорта: {import_err}")
 
 # --- Основные Параметры ---
 LAMBDA_PARAM: float = 0.1
