@@ -77,13 +77,13 @@ except Exception as import_err: GALOIS_AVAILABLE = False; BCH_CODE_OBJECT = None
 # --- Основные Параметры ---
 LAMBDA_PARAM: float = 0.07
 ALPHA_MIN: float = 1.01
-ALPHA_MAX: float = 1.15
+ALPHA_MAX: float = 1.2
 N_RINGS: int = 8
 MAX_THEORETICAL_ENTROPY = 8.0
-EMBED_COMPONENT: int = 2 # Cb
+EMBED_COMPONENT: int = 1 # Cb
 USE_PERCEPTUAL_MASKING: bool = True
 CANDIDATE_POOL_SIZE: int = 4
-BITS_PER_PAIR: int = 2
+BITS_PER_PAIR: int = 1
 NUM_RINGS_TO_USE: int = BITS_PER_PAIR
 RING_SELECTION_METHOD: str = 'pool_entropy_selection'
 PAYLOAD_LEN_BYTES: int = 8
@@ -162,14 +162,14 @@ def dtcwt_inverse(py: Pyramid, fn: int = -1) -> Optional[np.ndarray]:
     lp_shape = getattr(py.lowpass, 'shape', 'N/A')
     lp_dtype = getattr(py.lowpass, 'dtype', 'N/A')
     lp_is_np = isinstance(py.lowpass, np.ndarray)
-    logging.debug(f"[F:{fn}] Input Lowpass shape: {lp_shape}, dtype: {lp_dtype}, Is NumPy: {lp_is_np}")
+    logging.info(f"[F:{fn}] Input Lowpass shape: {lp_shape}, dtype: {lp_dtype}, Is NumPy: {lp_is_np}")
 
     hp_info = "None or Empty"
     hp_level_count = 0
     if hasattr(py, 'highpasses') and py.highpasses is not None:
          try: hp_level_count = len(py.highpasses); hp_info = f"Tuple len={hp_level_count}"
          except TypeError: hp_info = f"Not iterable (type={type(py.highpasses)})"
-    logging.debug(f"[F:{fn}] Input Highpasses info: {hp_info}")
+    logging.info(f"[F:{fn}] Input Highpasses info: {hp_info}")
 
     try:
         t = dtcwt.Transform2d()
@@ -177,7 +177,7 @@ def dtcwt_inverse(py: Pyramid, fn: int = -1) -> Optional[np.ndarray]:
 
         # Попытка конвертации в NumPy Pyramid, если нужно
         if not isinstance(py_processed, dtcwt.numpy.Pyramid):
-            logging.debug(f"[F:{fn}] Input not numpy.Pyramid. Attempting conversion...")
+            logging.info(f"[F:{fn}] Input not numpy.Pyramid. Attempting conversion...")
             try:
                 lp_np = np.array(py_processed.lowpass).copy()
                 # Создаем ПУСТОЙ кортеж для highpasses, так как мы передаем highpasses=()
@@ -185,7 +185,7 @@ def dtcwt_inverse(py: Pyramid, fn: int = -1) -> Optional[np.ndarray]:
                 sc_np = tuple(np.array(s).copy() for s in py_processed.scales) if hasattr(py_processed, 'scales') and py_processed.scales is not None else None
                 py_processed = dtcwt.numpy.Pyramid(lp_np, hp_np, scales=sc_np)
                 if hasattr(py, 'padding_info'): setattr(py_processed, 'padding_info', getattr(py, 'padding_info'))
-                logging.info(f"[F:{fn}] Converted to numpy.Pyramid (empty highpasses).")
+                logging.info(f"[F:{fn}] Converted to numpy.Pyramid (empty highpasses {py_processed}).")
             except Exception as e_conv:
                  logging.warning(f"[F:{fn}] Failed to convert: {e_conv}. Using original type {type(py)}.", exc_info=True)
 
@@ -205,7 +205,7 @@ def dtcwt_inverse(py: Pyramid, fn: int = -1) -> Optional[np.ndarray]:
         pr, pc = getattr(py_processed, 'padding_info', (False, False)); logging.debug(f"[F:{fn}] Padding: pr={pr}, pc={pc}")
         rows_rp, cols_rp = rp.shape; end_row = rows_rp - pr if pr else rows_rp; end_col = cols_rp - pc if pc else cols_rp; logging.debug(f"[F:{fn}] Target shape: ({end_row}, {end_col})")
         if end_row < 0 or end_col < 0 or end_row > rows_rp or end_col > cols_rp: logging.error(f"[F:{fn}] Invalid target shape"); return None
-        ry = rp[:end_row, :end_col].copy(); logging.debug(f"[F:{fn}] Result after unpadding shape: {ry.shape}")
+        ry = rp[:end_row, :end_col].copy(); logging.info(f"[F:{fn}] Result after unpadding shape: {ry.shape}")
         if np.any(np.isnan(ry)): logging.warning(f"[F:{fn}] NaN after inverse!")
         return ry
 
@@ -273,7 +273,7 @@ def compute_adaptive_alpha_entropy(rv: np.ndarray, ri: int, fn: int) -> float:
     if rv.size<10: return ALPHA_MIN
     ve,_=calculate_entropies(rv,fn,ri); lv=np.var(rv); en=np.clip(ve/MAX_THEORETICAL_ENTROPY,0.,1.); vmp=0.005; vsc=500
     tn=1./(1.+np.exp(-vsc*(lv-vmp))); we=.6; wt=.4; mf=np.clip((we*en+wt*tn),0.,1.)
-    fa=ALPHA_MIN+(ALPHA_MAX-ALPHA_MIN)*mf; logging.debug(f"[F:{fn}, R:{ri}] Alpha={fa:.4f} (E={ve:.3f},V={lv:.6f})")
+    fa=ALPHA_MIN+(ALPHA_MAX-ALPHA_MIN)*mf; logging.info(f"[F:{fn}, R:{ri}] Alpha={fa:.4f} (E={ve:.3f},V={lv:.6f})")
     return np.clip(fa,ALPHA_MIN,ALPHA_MAX)
 
 def get_fixed_pseudo_random_rings(pi:int, nr:int, ps:int)->List[int]:
@@ -288,7 +288,7 @@ def get_fixed_pseudo_random_rings(pi:int, nr:int, ps:int)->List[int]:
         ci=prng.sample(range(nr),ps)
     except ValueError: # Если nr < ps (не должно случаться из-за проверки выше)
         ci=list(range(nr))
-    logging.debug(f"[P:{pi}] Candidates: {ci}");
+    logging.info(f"[P:{pi}] Candidates: {ci}");
     return ci
 
 def calculate_perceptual_mask(ip: np.ndarray, fn: int = -1) -> Optional[np.ndarray]:
@@ -405,6 +405,8 @@ def embed_frame_pair(
     Встраивает биты в выбранные кольца пары кадров.
     (Версия с ручным upsampling lowpass перед вызовом inverse для обхода бага dtcwt)
     """
+
+    ratio_l = []
     pair_index = frame_number // 2
     if len(bits) != len(selected_ring_indices):
         logging.error(f"[P:{pair_index}] Mismatch bits/rings.")
@@ -450,6 +452,13 @@ def embed_frame_pair(
             except np.linalg.LinAlgError: continue
             s1 = S1v[0] if S1v.size>0 else 0.; s2 = S2v[0] if S2v.size>0 else 0.;
             eps=1e-12; ratio = s1/(s2+eps); ns1,ns2=s1,s2; modified=False; a2=alpha*alpha; inv_a=1/(alpha+eps)
+            # ratio_str = f'{ratio:.8e}'
+            # ratio_l.append(ratio_str)
+            #
+            # if len(ratio_l) // 100 == 0:
+            #     print(ratio_l)
+            # if len(ratio_l) > 702:
+            #     print(ratio_l)
             if bit==0:
                 if ratio<alpha: ns1=(s1*a2+alpha*s2)/(a2+1); ns2=(alpha*s1+s2)/(a2+1); modified=True
             else:
@@ -469,6 +478,9 @@ def embed_frame_pair(
                 try: L1[rows1,cols1] += delta1*mf1; L2[rows2,cols2] += delta2*mf2
                 except IndexError: logging.warning(f"Delta apply index error P:{pair_index} R:{ring_idx}"); continue
         # --- Конец цикла модификации ---
+            logging.info(f"[P:{pair_index}] S1,S2:  {s1, s2}")
+            logging.info(f"[P:{pair_index}] ratio:  {ratio}")
+
 
         # --- Обход бага dtcwt.inverse для nlevels=1 ---
         # 4. Ручной Upsampling L1 и L2
@@ -477,7 +489,7 @@ def embed_frame_pair(
         try:
              L1_up = cv2.resize(L1, (target_shape_up[1], target_shape_up[0]), interpolation=cv2.INTER_LINEAR)
              L2_up = cv2.resize(L2, (target_shape_up[1], target_shape_up[0]), interpolation=cv2.INTER_LINEAR)
-             logging.debug(f"[P:{pair_index}] Manually upsampled L1/L2 to {L1_up.shape}")
+             logging.info(f"[P:{pair_index}] Manually upsampled L1/L2 to {L1_up.shape}")
         except Exception as e_resize:
              logging.error(f"[P:{pair_index}] Failed to upsample L1/L2: {e_resize}")
              return None, None
@@ -508,7 +520,7 @@ def embed_frame_pair(
             if end_row2 < 0 or end_col2 < 0 or end_row2 > rows_c2m or end_col2 > cols_c2m: raise ValueError("Invalid unpadding size c2m")
             c1m_unpadded = c1m[:end_row1, :end_col1]
             c2m_unpadded = c2m[:end_row2, :end_col2]
-            logging.debug(f"[P:{pair_index}] Unpadded inverse results to {c1m_unpadded.shape}, {c2m_unpadded.shape}")
+            logging.info(f"[P:{pair_index}] Unpadded inverse results to {c1m_unpadded.shape}, {c2m_unpadded.shape}")
         except Exception as e_unpad:
              logging.error(f"[P:{pair_index}] Error during unpadding: {e_unpad}")
              return None, None
@@ -523,7 +535,7 @@ def embed_frame_pair(
         ny1 = np.stack((Y1,Cr1,Cb1), axis=-1); ny2 = np.stack((Y2,Cr2,Cb2), axis=-1)
         ny1[:,:,embed_component] = c1s; ny2[:,:,embed_component] = c2s
         f1m = cv2.cvtColor(ny1, cv2.COLOR_YCrCb2BGR); f2m = cv2.cvtColor(ny2, cv2.COLOR_YCrCb2BGR)
-        logging.debug(f"--- Embed Finish P:{pair_index}, Mods:{modifications_count} ---")
+        logging.info(f"--- Embed Finish P:{pair_index}, Mods:{modifications_count} ---")
         return f1m, f2m
 
     except cv2.error as cv_err:
@@ -648,7 +660,7 @@ def embed_watermark_in_video(
 def main():
     global BCH_CODE_OBJECT, DTCWT_OPENCL_ENABLED
     start_time_main = time.time()
-    input_video = "input4.mp4"
+    input_video = "input6.mp4"
     backend_name_str = 'opencl' if DTCWT_OPENCL_ENABLED else 'numpy'
     base_output_filename = f"watermarked_galois_t4_{backend_name_str}_thr_batched"
     output_video = base_output_filename + OUTPUT_EXTENSION
