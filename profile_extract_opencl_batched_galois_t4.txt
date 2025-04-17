@@ -1,274 +1,192 @@
-         8962 function calls (8920 primitive calls) in 72.260 seconds
+         6934 function calls (6892 primitive calls) in 24.918 seconds
 
    Ordered by: cumulative time
 
    ncalls  tottime  percall  cumtime  percall filename:lineno(function)
-        1    0.000    0.000   72.260   72.260 watermark_extractor.py:711(main)
-        1    0.001    0.001   70.710   70.710 watermark_extractor.py:575(extract_watermark_from_video)
-       32    0.000    0.000   70.698    2.209 threading.py:563(wait)
-       48    0.000    0.000   70.697    1.473 threading.py:280(wait)
-      208   70.697    0.340   70.697    0.340 {method 'acquire' of '_thread.lock' objects}
-       17    0.000    0.000   70.672    4.157 _base.py:201(as_completed)
-        1    0.025    0.025    1.547    1.547 watermark_extractor.py:286(read_video)
-      908    1.513    0.002    1.513    0.002 {method 'read' of 'cv2.VideoCapture' objects}
-        1    0.000    0.000    0.030    0.030 watermark_extractor.py:634(<dictcomp>)
-       16    0.000    0.000    0.030    0.002 thread.py:161(submit)
-       16    0.000    0.000    0.029    0.002 thread.py:180(_adjust_thread_count)
-       16    0.000    0.000    0.028    0.002 threading.py:880(start)
-        1    0.007    0.007    0.007    0.007 {method 'release' of 'cv2.VideoCapture' objects}
-       30    0.000    0.000    0.004    0.000 __init__.py:1565(_log)
-       26    0.000    0.000    0.004    0.000 __init__.py:2089(info)
-       26    0.000    0.000    0.004    0.000 __init__.py:1436(info)
-        3    0.000    0.000    0.003    0.001 watermark_extractor.py:226(decode_ecc)
-       30    0.000    0.000    0.002    0.000 __init__.py:1591(handle)
-       30    0.000    0.000    0.002    0.000 __init__.py:1645(callHandlers)
-       30    0.000    0.000    0.002    0.000 __init__.py:939(handle)
-       30    0.000    0.000    0.002    0.000 __init__.py:1178(emit)
-       30    0.000    0.000    0.002    0.000 __init__.py:1071(emit)
+        1    0.000    0.000   24.918   24.918 extractor_mt.py:726(main)
+        1    0.001    0.001   23.846   23.846 extractor_mt.py:590(extract_watermark_from_video)
+       32    0.000    0.000   23.838    0.745 threading.py:563(wait)
+      208   23.838    0.115   23.838    0.115 {method 'acquire' of '_thread.lock' objects}
+       48    0.000    0.000   23.838    0.497 threading.py:280(wait)
+       17    0.000    0.000   23.814    1.401 _base.py:201(as_completed)
+        1    0.017    0.017    1.071    1.071 extractor_mt.py:286(read_video)
+      908    1.044    0.001    1.044    0.001 {method 'read' of 'cv2.VideoCapture' objects}
+        1    0.000    0.000    0.028    0.028 extractor_mt.py:649(<dictcomp>)
+       16    0.000    0.000    0.028    0.002 thread.py:161(submit)
+       16    0.000    0.000    0.028    0.002 thread.py:180(_adjust_thread_count)
+       16    0.000    0.000    0.027    0.002 threading.py:880(start)
+        1    0.008    0.008    0.008    0.008 {method 'release' of 'cv2.VideoCapture' objects}
+       24    0.000    0.000    0.003    0.000 __init__.py:2089(info)
+       26    0.000    0.000    0.003    0.000 __init__.py:1565(_log)
+       24    0.000    0.000    0.003    0.000 __init__.py:1436(info)
+       26    0.000    0.000    0.002    0.000 __init__.py:1591(handle)
        16    0.002    0.000    0.002    0.000 {built-in method _thread.start_new_thread}
-        3    0.000    0.000    0.002    0.001 _bch.py:495(decode)
-        3    0.000    0.000    0.002    0.001 _cyclic.py:102(decode)
-        3    0.000    0.000    0.002    0.001 _linear.py:135(decode)
-        3    0.000    0.000    0.001    0.000 _bch.py:656(_decode_codeword)
-     1382    0.001    0.000    0.001    0.000 {method 'append' of 'list' objects}
-       30    0.000    0.000    0.001    0.000 __init__.py:1550(makeRecord)
-       30    0.000    0.000    0.001    0.000 __init__.py:282(__init__)
-        3    0.000    0.000    0.001    0.000 _bch.py:1212(__call__)
-       30    0.000    0.000    0.001    0.000 __init__.py:916(format)
-       30    0.000    0.000    0.001    0.000 __init__.py:650(format)
+       26    0.000    0.000    0.002    0.000 __init__.py:1645(callHandlers)
+       26    0.000    0.000    0.002    0.000 __init__.py:939(handle)
+       26    0.000    0.000    0.001    0.000 __init__.py:1178(emit)
+       26    0.000    0.000    0.001    0.000 __init__.py:1071(emit)
         1    0.000    0.000    0.001    0.001 _base.py:636(__exit__)
         1    0.000    0.000    0.001    0.001 thread.py:216(shutdown)
-       30    0.000    0.000    0.001    0.000 __init__.py:1060(flush)
        16    0.000    0.000    0.001    0.000 threading.py:1028(join)
+       26    0.000    0.000    0.001    0.000 __init__.py:1550(makeRecord)
+     1088    0.001    0.000    0.001    0.000 {method 'append' of 'list' objects}
+       26    0.000    0.000    0.001    0.000 __init__.py:282(__init__)
        16    0.000    0.000    0.001    0.000 threading.py:1066(_wait_for_tstate_lock)
-       16    0.000    0.000    0.001    0.000 threading.py:802(__init__)
-       30    0.001    0.000    0.001    0.000 {method 'flush' of '_io.TextIOWrapper' objects}
-       30    0.000    0.000    0.001    0.000 __init__.py:582(formatTime)
-        6    0.000    0.000    0.001    0.000 _array.py:56(__new__)
-        6    0.000    0.000    0.001    0.000 _array.py:38(__new__)
-        3    0.001    0.000    0.001    0.000 _bch.py:1241(implementation)
-        6    0.000    0.000    0.001    0.000 _array.py:170(_verify_array_values)
-        3    0.000    0.000    0.000    0.000 genericpath.py:16(exists)
-       30    0.000    0.000    0.000    0.000 __init__.py:1514(findCaller)
-        3    0.000    0.000    0.000    0.000 {built-in method nt.stat}
-       34    0.000    0.000    0.000    0.000 threading.py:228(__init__)
-        6    0.000    0.000    0.000    0.000 _array.py:126(_verify_array_like_types_and_values)
+       26    0.000    0.000    0.001    0.000 __init__.py:916(format)
+       26    0.000    0.000    0.001    0.000 __init__.py:650(format)
+       26    0.000    0.000    0.001    0.000 __init__.py:1060(flush)
+       26    0.000    0.000    0.000    0.000 {method 'flush' of '_io.TextIOWrapper' objects}
+       26    0.000    0.000    0.000    0.000 __init__.py:582(formatTime)
+       16    0.000    0.000    0.000    0.000 threading.py:802(__init__)
+       26    0.000    0.000    0.000    0.000 __init__.py:1514(findCaller)
        16    0.000    0.000    0.000    0.000 threading.py:411(acquire)
-       30    0.000    0.000    0.000    0.000 ntpath.py:214(basename)
+       34    0.000    0.000    0.000    0.000 threading.py:228(__init__)
+        5    0.000    0.000    0.000    0.000 extractor_mt.py:205(bits_to_bytes)
+       26    0.000    0.000    0.000    0.000 ntpath.py:214(basename)
+        3    0.000    0.000    0.000    0.000 genericpath.py:16(exists)
+        3    0.000    0.000    0.000    0.000 {built-in method nt.stat}
        16    0.000    0.000    0.000    0.000 _base.py:318(__init__)
-       15    0.000    0.000    0.000    0.000 {built-in method numpy.core._multiarray_umath.implement_array_function}
-        4    0.000    0.000    0.000    0.000 __init__.py:2099(debug)
-        4    0.000    0.000    0.000    0.000 __init__.py:1424(debug)
-       30    0.000    0.000    0.000    0.000 ntpath.py:180(split)
-       27    0.000    0.000    0.000    0.000 _array.py:431(__array_finalize__)
-       15    0.000    0.000    0.000    0.000 {method 'view' of 'numpy.ndarray' objects}
-       12    0.000    0.000    0.000    0.000 <__array_function__ internals>:177(any)
-       17    0.000    0.000    0.000    0.000 threading.py:528(__init__)
-       30    0.000    0.000    0.000    0.000 {built-in method time.localtime}
-       30    0.000    0.000    0.000    0.000 {method 'write' of '_io.TextIOWrapper' objects}
-       30    0.000    0.000    0.000    0.000 {built-in method time.strftime}
-        3    0.000    0.000    0.000    0.000 _linear.py:221(_check_and_convert_codeword)
-      217    0.000    0.000    0.000    0.000 {built-in method builtins.isinstance}
+       26    0.000    0.000    0.000    0.000 ntpath.py:180(split)
        33    0.000    0.000    0.000    0.000 _base.py:179(_yield_finished_futures)
-       12    0.000    0.000    0.000    0.000 fromnumeric.py:2333(any)
-       30    0.000    0.000    0.000    0.000 ntpath.py:203(splitext)
-       60    0.000    0.000    0.000    0.000 ntpath.py:44(normcase)
+       26    0.000    0.000    0.000    0.000 {built-in method time.strftime}
        68    0.000    0.000    0.000    0.000 {built-in method _thread.allocate_lock}
-       12    0.000    0.000    0.000    0.000 fromnumeric.py:69(_wrapreduction)
-        3    0.000    0.000    0.000    0.000 _function.py:79(jit)
-       40    0.000    0.000    0.000    0.000 abc.py:117(__instancecheck__)
-       30    0.000    0.000    0.000    0.000 cp1251.py:18(encode)
-      513    0.000    0.000    0.000    0.000 {method 'get' of 'dict' objects}
-       30    0.000    0.000    0.000    0.000 __init__.py:634(formatMessage)
-        1    0.000    0.000    0.000    0.000 {built-in method io.open}
-       16    0.000    0.000    0.000    0.000 {built-in method builtins.sum}
-       40    0.000    0.000    0.000    0.000 {built-in method _abc._abc_instancecheck}
-        6    0.000    0.000    0.000    0.000 _array.py:130(_view)
-        9    0.000    0.000    0.000    0.000 {built-in method builtins.print}
-       16    0.000    0.000    0.000    0.000 {method 'update' of 'dict' objects}
-        1    0.000    0.000    0.000    0.000 thread.py:123(__init__)
-       30    0.000    0.000    0.000    0.000 genericpath.py:121(_splitext)
+       26    0.000    0.000    0.000    0.000 {built-in method time.localtime}
+       26    0.000    0.000    0.000    0.000 ntpath.py:203(splitext)
+       26    0.000    0.000    0.000    0.000 {method 'write' of '_io.TextIOWrapper' objects}
+       17    0.000    0.000    0.000    0.000 threading.py:528(__init__)
+       52    0.000    0.000    0.000    0.000 ntpath.py:44(normcase)
+       16    0.000    0.000    0.000    0.000 threading.py:992(_stop)
+       40    0.000    0.000    0.000    0.000 {method 'join' of 'str' objects}
+      131    0.000    0.000    0.000    0.000 {built-in method builtins.isinstance}
+       16    0.000    0.000    0.000    0.000 _base.py:418(result)
+       26    0.000    0.000    0.000    0.000 genericpath.py:121(_splitext)
+        1    0.000    0.000    0.000    0.000 __init__.py:581(__init__)
+       96    0.000    0.000    0.000    0.000 threading.py:259(__exit__)
+        1    0.000    0.000    0.000    0.000 __init__.py:649(update)
+       96    0.000    0.000    0.000    0.000 threading.py:256(__enter__)
        16    0.000    0.000    0.000    0.000 threading.py:82(RLock)
        48    0.000    0.000    0.000    0.000 threading.py:268(_acquire_restore)
-        1    0.000    0.000    0.000    0.000 {method 'read' of '_io.TextIOWrapper' objects}
-        3    0.000    0.000    0.000    0.000 <__array_function__ internals>:177(atleast_2d)
-        3    0.000    0.000    0.000    0.000 watermark_extractor.py:205(bits_to_bytes)
-       16    0.000    0.000    0.000    0.000 weakref.py:428(__setitem__)
-        1    0.000    0.000    0.000    0.000 __init__.py:581(__init__)
-       30    0.000    0.000    0.000    0.000 __init__.py:432(format)
-       12    0.000    0.000    0.000    0.000 {method 'reduce' of 'numpy.ufunc' objects}
-        1    0.000    0.000    0.000    0.000 __init__.py:649(update)
-        9    0.000    0.000    0.000    0.000 _bch.py:1200(key_1)
-       96    0.000    0.000    0.000    0.000 threading.py:256(__enter__)
-       30    0.000    0.000    0.000    0.000 ntpath.py:124(splitdrive)
-       16    0.000    0.000    0.000    0.000 threading.py:992(_stop)
-        3    0.000    0.000    0.000    0.000 _function.py:349(__array_function__)
-       30    0.000    0.000    0.000    0.000 {built-in method _codecs.charmap_encode}
-       96    0.000    0.000    0.000    0.000 threading.py:259(__exit__)
-        9    0.000    0.000    0.000    0.000 _array.py:413(__getitem__)
-      453    0.000    0.000    0.000    0.000 {method 'extend' of 'list' objects}
+       26    0.000    0.000    0.000    0.000 __init__.py:634(formatMessage)
+       26    0.000    0.000    0.000    0.000 __init__.py:160(<lambda>)
+        1    0.000    0.000    0.000    0.000 abc.py:117(__instancecheck__)
+       26    0.000    0.000    0.000    0.000 ntpath.py:124(splitdrive)
+        1    0.000    0.000    0.000    0.000 {built-in method _abc._abc_instancecheck}
+        9    0.000    0.000    0.000    0.000 {built-in method builtins.print}
      22/1    0.000    0.000    0.000    0.000 abc.py:121(__subclasscheck__)
-       16    0.000    0.000    0.000    0.000 _base.py:418(result)
+       16    0.000    0.000    0.000    0.000 {built-in method builtins.sum}
+       26    0.000    0.000    0.000    0.000 __init__.py:432(format)
      22/1    0.000    0.000    0.000    0.000 {built-in method _abc._abc_subclasscheck}
-       30    0.000    0.000    0.000    0.000 __init__.py:429(_format)
-       16    0.000    0.000    0.000    0.000 watermark_extractor.py:642(<genexpr>)
-       62    0.000    0.000    0.000    0.000 threading.py:1358(current_thread)
-        9    0.000    0.000    0.000    0.000 {built-in method numpy.array}
-       12    0.000    0.000    0.000    0.000 {function Array.astype at 0x00000266FF559A60}
-       30    0.000    0.000    0.000    0.000 __init__.py:628(usesTime)
-        3    0.000    0.000    0.000    0.000 {function FunctionMixin.__array_function__ at 0x00000266FF538A60}
-        3    0.000    0.000    0.000    0.000 shape_base.py:81(atleast_2d)
-        1    0.000    0.000    0.000    0.000 watermark_extractor.py:663(<listcomp>)
-        6    0.000    0.000    0.000    0.000 _array.py:445(astype)
-        3    0.000    0.000    0.000    0.000 _cyclic.py:126(_convert_codeword_to_message)
-       60    0.000    0.000    0.000    0.000 __init__.py:896(acquire)
+       26    0.000    0.000    0.000    0.000 cp1251.py:18(encode)
+        1    0.000    0.000    0.000    0.000 {built-in method io.open}
+      160    0.000    0.000    0.000    0.000 {method 'extend' of 'list' objects}
+        1    0.000    0.000    0.000    0.000 __init__.py:2099(debug)
+        1    0.000    0.000    0.000    0.000 __init__.py:2074(warning)
        16    0.000    0.000    0.000    0.000 threading.py:553(clear)
-       30    0.000    0.000    0.000    0.000 __init__.py:119(getLevelName)
-       48    0.000    0.000    0.000    0.000 threading.py:271(_is_owned)
+        1    0.000    0.000    0.000    0.000 __init__.py:1424(debug)
+        1    0.000    0.000    0.000    0.000 __init__.py:1448(warning)
+       26    0.000    0.000    0.000    0.000 __init__.py:429(_format)
        16    0.000    0.000    0.000    0.000 threading.py:775(_maintain_shutdown_locks)
-       30    0.000    0.000    0.000    0.000 __init__.py:160(<lambda>)
+      212    0.000    0.000    0.000    0.000 {method 'get' of 'dict' objects}
+        1    0.000    0.000    0.000    0.000 {method 'read' of '_io.TextIOWrapper' objects}
+       58    0.000    0.000    0.000    0.000 threading.py:1358(current_thread)
+        1    0.000    0.000    0.000    0.000 extractor_mt.py:678(<listcomp>)
+       16    0.000    0.000    0.000    0.000 {method 'update' of 'dict' objects}
+       48    0.000    0.000    0.000    0.000 threading.py:271(_is_owned)
+       26    0.000    0.000    0.000    0.000 {built-in method _codecs.charmap_encode}
+       52    0.000    0.000    0.000    0.000 __init__.py:896(acquire)
+       16    0.000    0.000    0.000    0.000 weakref.py:428(__setitem__)
+       26    0.000    0.000    0.000    0.000 __init__.py:628(usesTime)
+       16    0.000    0.000    0.000    0.000 extractor_mt.py:657(<genexpr>)
        16    0.000    0.000    0.000    0.000 _weakrefset.py:86(add)
-       24    0.000    0.000    0.000    0.000 {method 'join' of 'str' objects}
-       16    0.000    0.000    0.000    0.000 threading.py:1229(_make_invoke_excepthook)
-        1    0.000    0.000    0.000    0.000 {method '__exit__' of '_io._IOBase' objects}
-      138    0.000    0.000    0.000    0.000 {built-in method builtins.hasattr}
-       30    0.000    0.000    0.000    0.000 __init__.py:421(usesTime)
-      154    0.000    0.000    0.000    0.000 {built-in method builtins.len}
-        9    0.000    0.000    0.000    0.000 numeric.py:1878(isscalar)
-       60    0.000    0.000    0.000    0.000 {method 'lower' of 'str' objects}
-        1    0.000    0.000    0.000    0.000 _base.py:157(_create_and_install_waiters)
-        1    0.000    0.000    0.000    0.000 threading.py:405(__init__)
-       90    0.000    0.000    0.000    0.000 {method 'rfind' of 'str' objects}
-       60    0.000    0.000    0.000    0.000 __init__.py:903(release)
-        6    0.000    0.000    0.000    0.000 contextlib.py:261(helper)
       129    0.000    0.000    0.000    0.000 {method '__exit__' of '_thread.lock' objects}
-       30    0.000    0.000    0.000    0.000 __init__.py:1689(isEnabledFor)
-       48    0.000    0.000    0.000    0.000 threading.py:265(_release_save)
-       16    0.000    0.000    0.000    0.000 thread.py:47(__init__)
-       77    0.000    0.000    0.000    0.000 {method 'acquire' of '_thread.RLock' objects}
-        3    0.000    0.000    0.000    0.000 numerictypes.py:356(issubdtype)
-       32    0.000    0.000    0.000    0.000 {method 'remove' of 'set' objects}
-        1    0.000    0.000    0.000    0.000 _base.py:79(__init__)
-       32    0.000    0.000    0.000    0.000 {method 'add' of 'set' objects}
-       13    0.000    0.000    0.000    0.000 _bch.py:712(n)
-       30    0.000    0.000    0.000    0.000 process.py:189(name)
-       32    0.000    0.000    0.000    0.000 {built-in method builtins.max}
-        6    0.000    0.000    0.000    0.000 contextlib.py:86(__init__)
-       60    0.000    0.000    0.000    0.000 __init__.py:791(filter)
-       16    0.000    0.000    0.000    0.000 {method 'pop' of 'list' objects}
+       26    0.000    0.000    0.000    0.000 __init__.py:1689(isEnabledFor)
+      141    0.000    0.000    0.000    0.000 {built-in method builtins.len}
        16    0.000    0.000    0.000    0.000 threading.py:785(<listcomp>)
+       48    0.000    0.000    0.000    0.000 threading.py:265(_release_save)
+      104    0.000    0.000    0.000    0.000 {built-in method builtins.hasattr}
+       52    0.000    0.000    0.000    0.000 __init__.py:903(release)
+       26    0.000    0.000    0.000    0.000 __init__.py:421(usesTime)
+       78    0.000    0.000    0.000    0.000 {method 'rfind' of 'str' objects}
+       16    0.000    0.000    0.000    0.000 {method 'pop' of 'list' objects}
+       16    0.000    0.000    0.000    0.000 threading.py:1229(_make_invoke_excepthook)
+        1    0.000    0.000    0.000    0.000 _base.py:157(_create_and_install_waiters)
+       32    0.000    0.000    0.000    0.000 {method 'remove' of 'set' objects}
+       26    0.000    0.000    0.000    0.000 __init__.py:119(getLevelName)
+        1    0.000    0.000    0.000    0.000 thread.py:123(__init__)
        17    0.000    0.000    0.000    0.000 {method 'put' of '_queue.SimpleQueue' objects}
-        6    0.000    0.000    0.000    0.000 _function.py:62(key_2)
-       90    0.000    0.000    0.000    0.000 {method 'replace' of 'str' objects}
-        2    0.000    0.000    0.000    0.000 __init__.py:600(most_common)
-       30    0.000    0.000    0.000    0.000 ntpath.py:34(_get_bothseps)
-       30    0.000    0.000    0.000    0.000 __init__.py:358(getMessage)
-      150    0.000    0.000    0.000    0.000 {built-in method nt.fspath}
+       26    0.000    0.000    0.000    0.000 threading.py:1093(name)
+       69    0.000    0.000    0.000    0.000 {method 'acquire' of '_thread.RLock' objects}
        64    0.000    0.000    0.000    0.000 {method '__enter__' of '_thread.lock' objects}
-        1    0.000    0.000    0.000    0.000 _base.py:149(__enter__)
-       18    0.000    0.000    0.000    0.000 _poly.py:972(__int__)
-        1    0.000    0.000    0.000    0.000 _base.py:63(__init__)
-        6    0.000    0.000    0.000    0.000 _meta.py:135(order)
-       18    0.000    0.000    0.000    0.000 _meta.py:537(ufunc_mode)
-       12    0.000    0.000    0.000    0.000 _bch.py:662(field)
-       92    0.000    0.000    0.000    0.000 {built-in method _thread.get_ident}
-       30    0.000    0.000    0.000    0.000 threading.py:1093(name)
-       34    0.000    0.000    0.000    0.000 {built-in method time.time}
+       16    0.000    0.000    0.000    0.000 thread.py:47(__init__)
+      130    0.000    0.000    0.000    0.000 {built-in method nt.fspath}
+       78    0.000    0.000    0.000    0.000 {method 'replace' of 'str' objects}
+        1    0.000    0.000    0.000    0.000 _base.py:79(__init__)
+       28    0.000    0.000    0.000    0.000 {built-in method builtins.max}
+        2    0.000    0.000    0.000    0.000 __init__.py:600(most_common)
+       52    0.000    0.000    0.000    0.000 __init__.py:791(filter)
        48    0.000    0.000    0.000    0.000 {method 'append' of 'collections.deque' objects}
-       32    0.000    0.000    0.000    0.000 threading.py:1147(daemon)
-       30    0.000    0.000    0.000    0.000 {built-in method sys._getframe}
-        1    0.000    0.000    0.000    0.000 _bootlocale.py:11(getpreferredencoding)
-        6    0.000    0.000    0.000    0.000 numerictypes.py:282(issubclass_)
-       16    0.000    0.000    0.000    0.000 weakref.py:370(remove)
-        1    0.000    0.000    0.000    0.000 watermark_extractor.py:627(<listcomp>)
        16    0.000    0.000    0.000    0.000 {method 'remove' of 'list' objects}
-       16    0.000    0.000    0.000    0.000 _weakrefset.py:39(_remove)
-       32    0.000    0.000    0.000    0.000 {built-in method time.monotonic}
-        6    0.000    0.000    0.000    0.000 contextlib.py:114(__enter__)
-       18    0.000    0.000    0.000    0.000 _meta.py:99(characteristic)
+       32    0.000    0.000    0.000    0.000 {method 'add' of 'set' objects}
         4    0.000    0.000    0.000    0.000 {method 'get' of 'cv2.VideoCapture' objects}
-       18    0.000    0.000    0.000    0.000 _meta.py:153(irreducible_poly)
-       30    0.000    0.000    0.000    0.000 {method 'rstrip' of 'str' objects}
-        6    0.000    0.000    0.000    0.000 contextlib.py:123(__exit__)
-       18    0.000    0.000    0.000    0.000 _poly.py:960(__index__)
-       30    0.000    0.000    0.000    0.000 {method 'find' of 'str' objects}
-       30    0.000    0.000    0.000    0.000 process.py:37(current_process)
-       18    0.000    0.000    0.000    0.000 _meta.py:117(degree)
-        1    0.000    0.000    0.000    0.000 {built-in method _locale._getdefaultlocale}
-       12    0.000    0.000    0.000    0.000 {built-in method builtins.next}
-        6    0.000    0.000    0.000    0.000 _bch.py:1083(is_systematic)
-       12    0.000    0.000    0.000    0.000 fromnumeric.py:70(<dictcomp>)
-        2    0.000    0.000    0.000    0.000 heapq.py:521(nlargest)
-       30    0.000    0.000    0.000    0.000 {built-in method nt.getpid}
-        7    0.000    0.000    0.000    0.000 _bch.py:736(k)
-       77    0.000    0.000    0.000    0.000 {method 'release' of '_thread.RLock' objects}
-        1    0.000    0.000    0.000    0.000 _base.py:146(__init__)
-        3    0.000    0.000    0.000    0.000 _bch.py:1196(__init__)
+       32    0.000    0.000    0.000    0.000 threading.py:1147(daemon)
+       26    0.000    0.000    0.000    0.000 __init__.py:358(getMessage)
+       52    0.000    0.000    0.000    0.000 {method 'lower' of 'str' objects}
+        1    0.000    0.000    0.000    0.000 _base.py:149(__enter__)
+       84    0.000    0.000    0.000    0.000 {built-in method _thread.get_ident}
+        1    0.000    0.000    0.000    0.000 _base.py:63(__init__)
+       26    0.000    0.000    0.000    0.000 ntpath.py:34(_get_bothseps)
+       16    0.000    0.000    0.000    0.000 _weakrefset.py:39(_remove)
+       40    0.000    0.000    0.000    0.000 {method 'append' of 'bytearray' objects}
+       26    0.000    0.000    0.000    0.000 {built-in method sys._getframe}
+       30    0.000    0.000    0.000    0.000 {built-in method time.time}
        32    0.000    0.000    0.000    0.000 {method '__enter__' of '_thread.RLock' objects}
+        1    0.000    0.000    0.000    0.000 {method '__exit__' of '_io._IOBase' objects}
+       32    0.000    0.000    0.000    0.000 {built-in method time.monotonic}
+       16    0.000    0.000    0.000    0.000 weakref.py:370(remove)
+       26    0.000    0.000    0.000    0.000 {method 'find' of 'str' objects}
        16    0.000    0.000    0.000    0.000 _base.py:388(__get_result)
-        1    0.000    0.000    0.000    0.000 {built-in method nt.cpu_count}
-       64    0.000    0.000    0.000    0.000 {method 'release' of '_thread.lock' objects}
-        1    0.000    0.000    0.000    0.000 cp1251.py:22(decode)
-        3    0.000    0.000    0.000    0.000 serialize.py:30(_numba_unpickle)
-        2    0.000    0.000    0.000    0.000 {built-in method builtins.sorted}
-       32    0.000    0.000    0.000    0.000 threading.py:536(is_set)
+        1    0.000    0.000    0.000    0.000 threading.py:405(__init__)
+        2    0.000    0.000    0.000    0.000 heapq.py:521(nlargest)
        48    0.000    0.000    0.000    0.000 {method '__exit__' of '_thread.RLock' objects}
-       16    0.000    0.000    0.000    0.000 {method 'reverse' of 'list' objects}
+       26    0.000    0.000    0.000    0.000 {method 'rstrip' of 'str' objects}
+       64    0.000    0.000    0.000    0.000 {method 'release' of '_thread.lock' objects}
+        2    0.000    0.000    0.000    0.000 {built-in method builtins.sorted}
+       90    0.000    0.000    0.000    0.000 {method 'locked' of '_thread.lock' objects}
+        1    0.000    0.000    0.000    0.000 _bootlocale.py:11(getpreferredencoding)
+        1    0.000    0.000    0.000    0.000 _base.py:146(__init__)
        16    0.000    0.000    0.000    0.000 {method 'difference_update' of 'set' objects}
-        3    0.000    0.000    0.000    0.000 _bch.py:870(roots)
-        1    0.000    0.000    0.000    0.000 _base.py:153(__exit__)
-       95    0.000    0.000    0.000    0.000 {method 'locked' of '_thread.lock' objects}
-        2    0.000    0.000    0.000    0.000 {method 'isOpened' of 'cv2.VideoCapture' objects}
+       26    0.000    0.000    0.000    0.000 {built-in method nt.getpid}
+       26    0.000    0.000    0.000    0.000 process.py:37(current_process)
+       69    0.000    0.000    0.000    0.000 {method 'release' of '_thread.RLock' objects}
+       26    0.000    0.000    0.000    0.000 process.py:189(name)
+       32    0.000    0.000    0.000    0.000 threading.py:536(is_set)
        16    0.000    0.000    0.000    0.000 {method 'values' of 'dict' objects}
-        9    0.000    0.000    0.000    0.000 {built-in method builtins.issubclass}
-       12    0.000    0.000    0.000    0.000 _array.py:142(_view_without_verification)
-       18    0.000    0.000    0.000    0.000 _meta.py:184(ufunc_mode)
-       13    0.000    0.000    0.000    0.000 _linear.py:310(n)
-       24    0.000    0.000    0.000    0.000 {method 'append' of 'bytearray' objects}
-        3    0.000    0.000    0.000    0.000 {built-in method math.ceil}
-        6    0.000    0.000    0.000    0.000 _array.py:61(_get_dtype)
-        3    0.000    0.000    0.000    0.000 {method 'tolist' of 'numpy.ndarray' objects}
-        3    0.000    0.000    0.000    0.000 {method 'setdefault' of 'dict' objects}
-       14    0.000    0.000    0.000    0.000 {method 'items' of 'dict' objects}
-       12    0.000    0.000    0.000    0.000 _linear.py:303(field)
-        1    0.000    0.000    0.000    0.000 _bch.py:787(t)
-       22    0.000    0.000    0.000    0.000 _collections_abc.py:409(__subclasshook__)
-       18    0.000    0.000    0.000    0.000 _meta.py:142(irreducible_poly)
+       16    0.000    0.000    0.000    0.000 {method 'reverse' of 'list' objects}
+        1    0.000    0.000    0.000    0.000 {built-in method _locale._getdefaultlocale}
+        2    0.000    0.000    0.000    0.000 {method 'isOpened' of 'cv2.VideoCapture' objects}
+        1    0.000    0.000    0.000    0.000 extractor_mt.py:642(<listcomp>)
+        1    0.000    0.000    0.000    0.000 _base.py:153(__exit__)
+        1    0.000    0.000    0.000    0.000 {built-in method nt.cpu_count}
         1    0.000    0.000    0.000    0.000 {built-in method _collections._count_elements}
-       18    0.000    0.000    0.000    0.000 _meta.py:119(characteristic)
-       18    0.000    0.000    0.000    0.000 _meta.py:127(degree)
+       22    0.000    0.000    0.000    0.000 _collections_abc.py:409(__subclasshook__)
        16    0.000    0.000    0.000    0.000 {method 'remove' of 'collections.deque' objects}
-        6    0.000    0.000    0.000    0.000 _linear.py:369(is_systematic)
-        7    0.000    0.000    0.000    0.000 _linear.py:317(k)
-        6    0.000    0.000    0.000    0.000 {built-in method builtins.getattr}
-        6    0.000    0.000    0.000    0.000 _meta.py:134(order)
+        1    0.000    0.000    0.000    0.000 cp1251.py:22(decode)
        16    0.000    0.000    0.000    0.000 {method 'discard' of 'set' objects}
-        1    0.000    0.000    0.000    0.000 codecs.py:260(__init__)
-       12    0.000    0.000    0.000    0.000 fromnumeric.py:2328(_any_dispatcher)
-        1    0.000    0.000    0.000    0.000 {built-in method _codecs.charmap_decode}
-        3    0.000    0.000    0.000    0.000 _function.py:29(__init__)
-        1    0.000    0.000    0.000    0.000 _linear.py:331(t)
         1    0.000    0.000    0.000    0.000 _base.py:225(<genexpr>)
-        3    0.000    0.000    0.000    0.000 _bch.py:905(alpha)
-        3    0.000    0.000    0.000    0.000 _cyclic.py:178(roots)
-        3    0.000    0.000    0.000    0.000 _bch.py:688(extension_field)
-        6    0.000    0.000    0.000    0.000 _array.py:72(__init__)
-        3    0.000    0.000    0.000    0.000 _helper.py:51(verify_literal)
-        1    0.000    0.000    0.000    0.000 _bch.py:760(d)
-        3    0.000    0.000    0.000    0.000 _bch.py:939(c)
-        4    0.000    0.000    0.000    0.000 {method 'hex' of 'bytes' objects}
-        3    0.000    0.000    0.000    0.000 {built-in method numpy.asanyarray}
+        6    0.000    0.000    0.000    0.000 {method 'hex' of 'bytes' objects}
         1    0.000    0.000    0.000    0.000 __init__.py:218(_acquireLock)
         1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
-        1    0.000    0.000    0.000    0.000 {method 'strip' of 'str' objects}
-        3    0.000    0.000    0.000    0.000 shape_base.py:77(_atleast_2d_dispatcher)
-        1    0.000    0.000    0.000    0.000 __init__.py:1276(disable)
-        1    0.000    0.000    0.000    0.000 _linear.py:324(d)
-        1    0.000    0.000    0.000    0.000 {method 'upper' of 'str' objects}
-        1    0.000    0.000    0.000    0.000 _base.py:633(__enter__)
+        3    0.000    0.000    0.000    0.000 {built-in method math.ceil}
+        1    0.000    0.000    0.000    0.000 {built-in method _codecs.charmap_decode}
         1    0.000    0.000    0.000    0.000 __init__.py:227(_releaseLock)
-        1    0.000    0.000    0.000    0.000 __init__.py:1675(getEffectiveLevel)
+        1    0.000    0.000    0.000    0.000 codecs.py:260(__init__)
+        2    0.000    0.000    0.000    0.000 {method 'items' of 'dict' objects}
+        1    0.000    0.000    0.000    0.000 __init__.py:1276(disable)
+        1    0.000    0.000    0.000    0.000 {method 'strip' of 'str' objects}
         1    0.000    0.000    0.000    0.000 {built-in method builtins.iter}
         1    0.000    0.000    0.000    0.000 {built-in method builtins.min}
+        1    0.000    0.000    0.000    0.000 __init__.py:1675(getEffectiveLevel)
+        1    0.000    0.000    0.000    0.000 {method 'upper' of 'str' objects}
+        1    0.000    0.000    0.000    0.000 _base.py:633(__enter__)
 
 

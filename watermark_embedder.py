@@ -12,6 +12,7 @@ import sys
 # import imagehash
 import hashlib
 from PIL import Image
+from line_profiler.explicit_profiler import profile
 from scipy.fftpack import dct, idct
 from scipy.linalg import svd
 import dtcwt
@@ -30,31 +31,53 @@ DTCWT_OPENCL_ENABLED = False # Глобальный флаг
 try:
     import galois
     logging.info("galois: импортирован.")
-    _test_bch_ok = False; _test_encode_ok = False; BCH_CODE_OBJECT = None
+    _test_bch_ok = False; _test_decode_ok = False; BCH_CODE_OBJECT = None
     try:
-        _test_m = 8; _test_t = 4; _test_n = (1 << _test_m) - 1; _test_d = 2 * _test_t + 1
-        _test_bch_galois = galois.BCH(_test_n, d=_test_d)
-        if _test_bch_galois.t == _test_t and _test_bch_galois.k == 223:
+        _test_m = 8
+        _test_t = 5 # <--- Желаемое t
+        _test_n = (1 << _test_m) - 1 # n = 255
+        _test_d = 2 * _test_t + 1 # d = 11 (Вычисляем d из t)
+
+        logging.info(f"Попытка инициализации Galois BCH с n={_test_n}, d={_test_d} (ожидаемое t={_test_t})")
+        # --- Инициализируем через d ---
+        _test_bch_galois = galois.BCH(_test_n, d=_test_d) # <--- ИСПОЛЬЗУЕМ d
+
+        # --- ПРОВЕРКА ПАРАМЕТРОВ ПОЛУЧЕННОГО КОДА ---
+        expected_k = 215 # Ожидаемое k для t=5
+        # Проверяем, что ПОЛУЧЕННОЕ t совпадает с желаемым
+        if _test_bch_galois.t == _test_t and _test_bch_galois.k == expected_k:
              logging.info(f"galois BCH(n={_test_bch_galois.n}, k={_test_bch_galois.k}, t={_test_bch_galois.t}) OK.")
              _test_bch_ok = True; BCH_CODE_OBJECT = _test_bch_galois
-        else: logging.info(f"galois BCH init mismatch/unexpected params."); _test_bch_ok = False; BCH_CODE_OBJECT = None
+        else:
+             logging.error(f"galois BCH init mismatch! Ожидалось: t={_test_t}, k={expected_k}. Получено: t={_test_bch_galois.t}, k={_test_bch_galois.k}.")
+             _test_bch_ok = False; BCH_CODE_OBJECT = None
+
+        # --- Тест decode (остается таким же) ---
         if _test_bch_ok:
-            _k_bits = _test_bch_galois.k; _dummy_msg_bits = np.zeros(_k_bits, dtype=np.uint8)
-            GF2 = galois.GF(2); _dummy_msg_vec = GF2(_dummy_msg_bits)
-            _codeword = _test_bch_galois.encode(_dummy_msg_vec)
-            logging.info("galois: encode() test OK."); _test_encode_ok = True
-    except Exception as test_err: logging.info(f"galois: ОШИБКА теста: {test_err}"); BCH_CODE_OBJECT = None
-    GALOIS_AVAILABLE = _test_bch_ok and _test_encode_ok
+            _n_bits = _test_bch_galois.n; _dummy_cw_bits = np.zeros(_n_bits, dtype=np.uint8)
+            GF2 = galois.GF(2); _dummy_cw_vec = GF2(_dummy_cw_bits)
+            _msg, _flips = _test_bch_galois.decode(_dummy_cw_vec, errors=True)
+            if _flips is not None: logging.info(f"galois: decode() test OK (flips={_flips})."); _test_decode_ok = True
+            else: logging.warning("galois: decode() test failed?"); _test_decode_ok = False # Изменено на warning
+    except ValueError as ve: # Ловим ошибки инициализации BCH
+         logging.error(f"galois: ОШИБКА ValueError при инициализации BCH(d={_test_d}): {ve}")
+         BCH_CODE_OBJECT = None; _test_bch_ok = False
+    except Exception as test_err: # Ловим другие ошибки тестов
+         logging.error(f"galois: ОШИБКА теста инициализации/декодирования: {test_err}", exc_info=True) # Добавлен exc_info
+         BCH_CODE_OBJECT = None; _test_bch_ok = False
+
+    GALOIS_AVAILABLE = _test_bch_ok and _test_decode_ok
     if not GALOIS_AVAILABLE: BCH_CODE_OBJECT = None
     if GALOIS_AVAILABLE: logging.info("galois: Тесты пройдены.")
-    else: logging.info("galois: Тесты не пройдены. ECC будет отключен.")
+    else: logging.warning("galois: Тесты НЕ ПРОЙДЕНЫ. ECC будет отключен или работать некорректно.")
+
 except ImportError: GALOIS_AVAILABLE = False; BCH_CODE_OBJECT = None; logging.info("galois library not found.")
-except Exception as import_err: GALOIS_AVAILABLE = False; BCH_CODE_OBJECT = None; print(f"galois: Ошибка импорта: {import_err}")
+except Exception as import_err: GALOIS_AVAILABLE = False; BCH_CODE_OBJECT = None; logging.info(f"galois: Ошибка импорта: {import_err}")
 
 # --- Основные Параметры ---
-LAMBDA_PARAM: float = 0.1
-ALPHA_MIN: float = 1.005
-ALPHA_MAX: float = 1.12
+LAMBDA_PARAM: float = 0.07
+ALPHA_MIN: float = 1.01
+ALPHA_MAX: float = 1.15
 N_RINGS: int = 8
 MAX_THEORETICAL_ENTROPY = 8.0
 EMBED_COMPONENT: int = 2 # Cb
@@ -66,7 +89,7 @@ RING_SELECTION_METHOD: str = 'pool_entropy_selection'
 PAYLOAD_LEN_BYTES: int = 8
 USE_ECC: bool = True
 BCH_M: int = 8
-BCH_T: int = 4
+BCH_T: int = 5
 MAX_PACKET_REPEATS: int = 5
 FPS: int = 30
 LOG_FILENAME: str = 'watermarking_embed_opencl_batched.log'
@@ -554,6 +577,7 @@ def _embed_batch_worker(batch_args_list: List[Dict]) -> List[Tuple[int, Optional
     return batch_results
 
 # --- Основная функция встраивания (ThreadPool + Batches) ---
+@profile
 def embed_watermark_in_video(
         frames: List[np.ndarray], packet_bits: np.ndarray, n_rings: int = N_RINGS, num_rings_to_use: int = NUM_RINGS_TO_USE,
         bits_per_pair: int = BITS_PER_PAIR, candidate_pool_size: int = CANDIDATE_POOL_SIZE, max_packet_repeats: int = MAX_PACKET_REPEATS,
@@ -624,7 +648,7 @@ def embed_watermark_in_video(
 def main():
     global BCH_CODE_OBJECT, DTCWT_OPENCL_ENABLED
     start_time_main = time.time()
-    input_video = "input.mp4"
+    input_video = "input4.mp4"
     backend_name_str = 'opencl' if DTCWT_OPENCL_ENABLED else 'numpy'
     base_output_filename = f"watermarked_galois_t4_{backend_name_str}_thr_batched"
     output_video = base_output_filename + OUTPUT_EXTENSION
