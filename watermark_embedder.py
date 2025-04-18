@@ -75,9 +75,9 @@ except ImportError: GALOIS_AVAILABLE = False; BCH_CODE_OBJECT = None; logging.in
 except Exception as import_err: GALOIS_AVAILABLE = False; BCH_CODE_OBJECT = None; logging.info(f"galois: Ошибка импорта: {import_err}")
 
 # --- Основные Параметры ---
-LAMBDA_PARAM: float = 0.07
-ALPHA_MIN: float = 1.01
-ALPHA_MAX: float = 1.15
+LAMBDA_PARAM: float = 0.05
+ALPHA_MIN: float = 1.02
+ALPHA_MAX: float = 1.21
 N_RINGS: int = 8
 MAX_THEORETICAL_ENTROPY = 8.0
 EMBED_COMPONENT: int = 2 # Cb
@@ -93,7 +93,7 @@ BCH_T: int = 5
 MAX_PACKET_REPEATS: int = 5
 FPS: int = 30
 LOG_FILENAME: str = 'watermarking_embed_opencl_batched.log'
-OUTPUT_CODEC: str = 'XVID'
+OUTPUT_CODEC: str = 'MJPG'
 OUTPUT_EXTENSION: str = '.avi'
 SELECTED_RINGS_FILE: str = 'selected_rings_embed_opencl_batched.json'
 ORIGINAL_WATERMARK_FILE: str = 'original_watermark_id.txt'
@@ -535,37 +535,103 @@ def embed_frame_pair(
 
 # --- Воркер для одной пары кадров ---
 def _embed_single_pair_task(args: Dict[str, Any]) -> Tuple[int, Optional[np.ndarray], Optional[np.ndarray], List[int]]:
-    """Обрабатывает одну пару кадров: выбирает кольца и вызывает embed_frame_pair."""
-    pair_idx=args['pair_idx']; fn=2*pair_idx; bits=args['bits']; f1=args['frame1']; f2=args['frame2']; nr=args['n_rings']; nrtu=args['num_rings_to_use']; cps=args['candidate_pool_size']; ec=args['embed_component']; upm=args['use_perceptual_masking']; rings=[]
-    try:
-        # --- Выбор колец ---
-        cands = get_fixed_pseudo_random_rings(pair_idx, nr, cps);
-        if len(cands) < nrtu: raise ValueError(f"Not enough candidates {len(cands)}<{nrtu}")
-        comp1_sel = f1[:,:,ec].astype(np.float32)/255.;
-        pyr1 = dtcwt_transform(comp1_sel, fn);
-        if pyr1 is None or pyr1.lowpass is None: raise RuntimeError("DTCWT L1 failed for selection")
-        L1s = pyr1.lowpass
-        if not isinstance(L1s, np.ndarray): L1s = np.array(L1s)
-        coords = ring_division(L1s, nr, fn); entropies=[]
-        for r_idx in cands:
-            e=-float('inf'); c=coords[r_idx];
-            if c is not None and c.shape[0]>=10:
-                 # Исправленный try-except для энтропии
-                 try:
-                      rs,cs=c[:,0],c[:,1]; rv=L1s[rs,cs]; se,_=calculate_entropies(rv,fn,r_idx);
-                      if np.isfinite(se): e=se
-                 except Exception as entropy_e: # Ловим конкретное исключение
-                     # logging.warning(f"Entropy calc error P:{pair_idx} R:{r_idx}: {entropy_e}") # Опционально
-                     pass # Просто пропускаем это кольцо, если энтропия не считается
-            entropies.append((e,r_idx))
-        entropies.sort(key=lambda x:x[0], reverse=True); rings=[idx for e,idx in entropies if e>-float('inf')][:nrtu]
-        if len(rings) < nrtu: raise RuntimeError(f"Not enough valid rings selected {len(rings)}<{nrtu}")
-        logging.info(f"[P:{pair_idx}] Selected rings: {rings}")
+    """
+    Обрабатывает одну пару кадров: выбирает кольца на основе энтропии из пула кандидатов
+    и вызывает embed_frame_pair.
+    """
+    pair_idx = args['pair_idx']
+    fn = 2 * pair_idx
+    bits = args['bits']
+    f1 = args['frame1'] # Используем только первый кадр для выбора колец
+    f2 = args['frame2']
+    nr = args['n_rings']
+    nrtu = args['num_rings_to_use']
+    cps = args['candidate_pool_size']
+    ec = args['embed_component']
+    upm = args['use_perceptual_masking']
+    selected_rings = [] # Инициализируем на случай ошибки
 
-        # --- Вызов встраивания ---
-        mod_f1, mod_f2 = embed_frame_pair(f1, f2, bits, rings, nr, fn, upm, ec)
-        return fn, mod_f1, mod_f2, rings
-    except Exception as e: logging.error(f"Error in single pair task P:{pair_idx}: {e}", exc_info=True); return fn, None, None, rings
+    try:
+        # --- ШАГ 1: Получение детерминированного пула кандидатов ---
+        candidate_rings = get_fixed_pseudo_random_rings(pair_idx, nr, cps)
+        if len(candidate_rings) < nrtu:
+            raise ValueError(f"Not enough candidates {len(candidate_rings)}<{nrtu} for pair {pair_idx}")
+
+        # --- ШАГ 2: Адаптивный выбор из пула по энтропии ---
+        # Используем *первый* кадр пары для расчета энтропии
+        comp1_sel = f1[:, :, ec].astype(np.float32) / 255.0
+        pyr1 = dtcwt_transform(comp1_sel, fn)
+        if pyr1 is None or pyr1.lowpass is None:
+            raise RuntimeError(f"DTCWT L1 failed for selection in pair {pair_idx}")
+
+        L1s = pyr1.lowpass
+        # Убедимся, что L1s это NumPy массив для корректной индексации
+        if not isinstance(L1s, np.ndarray):
+            L1s = np.array(L1s)
+
+        # Получаем координаты колец для L1s
+        coords = ring_division(L1s, nr, fn)
+        if coords is None or len(coords) != nr:
+             raise RuntimeError(f"Ring division failed for L1s in pair {pair_idx}")
+
+        # Вычисляем энтропию для колец-кандидатов
+        entropies = []
+        min_pixels_for_entropy = 10 # Минимальное кол-во пикселей для расчета
+        for r_idx in candidate_rings:
+            entropy_val = -float('inf') # Значение по умолчанию, если расчет не удался
+            # Проверяем валидность индекса и наличие координат
+            if 0 <= r_idx < len(coords) and coords[r_idx] is not None:
+                 c = coords[r_idx]
+                 if c.shape[0] >= min_pixels_for_entropy:
+                      try:
+                           rs, cs = c[:, 0], c[:, 1]
+                           rv = L1s[rs, cs] # Получаем значения пикселей кольца
+                           # Вычисляем энтропию (только Шеннона, вторая не нужна для сортировки)
+                           shannon_entropy, _ = calculate_entropies(rv, fn, r_idx)
+                           if np.isfinite(shannon_entropy):
+                                entropy_val = shannon_entropy
+                      except IndexError:
+                           logging.warning(f"IndexError during entropy calculation P:{pair_idx} R:{r_idx}")
+                      except Exception as entropy_e:
+                           logging.warning(f"Entropy calc error P:{pair_idx} R:{r_idx}: {entropy_e}")
+                           # Оставляем entropy_val = -inf
+            entropies.append((entropy_val, r_idx)) # Сохраняем (энтропия, индекс_кольца)
+
+        # Сортируем по УБЫВАНИЮ энтропии
+        entropies.sort(key=lambda x: x[0], reverse=True)
+
+        # Выбираем 'nrtu' колец с наивысшей валидной энтропией
+        selected_rings = [idx for e, idx in entropies if e > -float('inf')][:nrtu]
+
+        # Проверяем, достаточно ли колец выбрано
+        if len(selected_rings) < nrtu:
+            # Если не хватило колец с валидной энтропией, можно дополнить детерминированно
+            # или вызвать ошибку. Выберем дополнение как запасной вариант.
+            logging.warning(f"[P:{pair_idx}] Not enough rings with valid entropy ({len(selected_rings)}<{nrtu}). Falling back.")
+            deterministic_fallback = candidate_rings[:nrtu]
+            # Добавляем недостающие кольца, избегая дубликатов
+            for ring in deterministic_fallback:
+                if ring not in selected_rings:
+                    selected_rings.append(ring)
+                if len(selected_rings) == nrtu:
+                    break
+            # Если и так не хватило (не должно случиться при cps>=nrtu), то ошибка
+            if len(selected_rings) < nrtu:
+                 raise RuntimeError(f"Fallback failed, still not enough rings for pair {pair_idx}")
+            logging.warning(f"[P:{pair_idx}] Selected rings after fallback: {selected_rings}")
+        else:
+             logging.info(f"[P:{pair_idx}] Selected rings (Entropy based): {selected_rings}")
+
+
+        # --- ШАГ 3: Вызов встраивания с выбранными кольцами ---
+        mod_f1, mod_f2 = embed_frame_pair(f1, f2, bits, selected_rings, nr, fn, upm, ec)
+
+        # Возвращаем результат
+        return fn, mod_f1, mod_f2, selected_rings
+
+    except Exception as e:
+        logging.error(f"Error in single pair task (Embed - Entropy Sel.) P:{pair_idx}: {e}", exc_info=True)
+        return fn, None, None, [] # Возвращаем пустой список колец при ошибке
 
 
 # --- Воркер для обработки БАТЧА задач ---
@@ -648,7 +714,7 @@ def embed_watermark_in_video(
 def main():
     global BCH_CODE_OBJECT, DTCWT_OPENCL_ENABLED
     start_time_main = time.time()
-    input_video = "input4.mp4"
+    input_video = "input.mp4"
     backend_name_str = 'opencl' if DTCWT_OPENCL_ENABLED else 'numpy'
     base_output_filename = f"watermarked_galois_t4_{backend_name_str}_thr_batched"
     output_video = base_output_filename + OUTPUT_EXTENSION
