@@ -24,27 +24,22 @@ from math import ceil
 import cProfile
 import pstats
 
-# --- Переменная для хранения информации об успехе переключения бэкенда ---
 DTCWT_OPENCL_ENABLED = False # Глобальный флаг
 
-# --- Попытка импорта и инициализации Galois ---
 try:
     import galois
     logging.info("galois: импортирован.")
     _test_bch_ok = False; _test_decode_ok = False; BCH_CODE_OBJECT = None
     try:
         _test_m = 8
-        _test_t = 5 # <--- Желаемое t
-        _test_n = (1 << _test_m) - 1 # n = 255
-        _test_d = 2 * _test_t + 1 # d = 11 (Вычисляем d из t)
+        _test_t = 5
+        _test_n = (1 << _test_m) - 1
+        _test_d = 2 * _test_t + 1
 
         logging.info(f"Попытка инициализации Galois BCH с n={_test_n}, d={_test_d} (ожидаемое t={_test_t})")
-        # --- Инициализируем через d ---
         _test_bch_galois = galois.BCH(_test_n, d=_test_d) # <--- ИСПОЛЬЗУЕМ d
 
-        # --- ПРОВЕРКА ПАРАМЕТРОВ ПОЛУЧЕННОГО КОДА ---
-        expected_k = 215 # Ожидаемое k для t=5
-        # Проверяем, что ПОЛУЧЕННОЕ t совпадает с желаемым
+        expected_k = 215
         if _test_bch_galois.t == _test_t and _test_bch_galois.k == expected_k:
              logging.info(f"galois BCH(n={_test_bch_galois.n}, k={_test_bch_galois.k}, t={_test_bch_galois.t}) OK.")
              _test_bch_ok = True; BCH_CODE_OBJECT = _test_bch_galois
@@ -52,7 +47,6 @@ try:
              logging.error(f"galois BCH init mismatch! Ожидалось: t={_test_t}, k={expected_k}. Получено: t={_test_bch_galois.t}, k={_test_bch_galois.k}.")
              _test_bch_ok = False; BCH_CODE_OBJECT = None
 
-        # --- Тест decode (остается таким же) ---
         if _test_bch_ok:
             _n_bits = _test_bch_galois.n; _dummy_cw_bits = np.zeros(_n_bits, dtype=np.uint8)
             GF2 = galois.GF(2); _dummy_cw_vec = GF2(_dummy_cw_bits)
@@ -71,13 +65,14 @@ try:
     if GALOIS_AVAILABLE: logging.info("galois: Тесты пройдены.")
     else: logging.warning("galois: Тесты НЕ ПРОЙДЕНЫ. ECC будет отключен или работать некорректно.")
 
+
+
 except ImportError: GALOIS_AVAILABLE = False; BCH_CODE_OBJECT = None; logging.info("galois library not found.")
 except Exception as import_err: GALOIS_AVAILABLE = False; BCH_CODE_OBJECT = None; logging.info(f"galois: Ошибка импорта: {import_err}")
 
-# --- Основные Параметры ---
 LAMBDA_PARAM: float = 0.05
-ALPHA_MIN: float = 1.02
-ALPHA_MAX: float = 1.21
+ALPHA_MIN: float = 1.13
+ALPHA_MAX: float = 1.27
 N_RINGS: int = 8
 MAX_THEORETICAL_ENTROPY = 8.0
 EMBED_COMPONENT: int = 2 # Cb
@@ -93,19 +88,22 @@ BCH_T: int = 5
 MAX_PACKET_REPEATS: int = 5
 FPS: int = 30
 LOG_FILENAME: str = 'watermarking_embed_opencl_batched.log'
+
+
+
+
+
 OUTPUT_CODEC: str = 'MJPG'
 OUTPUT_EXTENSION: str = '.avi'
 SELECTED_RINGS_FILE: str = 'selected_rings_embed_opencl_batched.json'
 ORIGINAL_WATERMARK_FILE: str = 'original_watermark_id.txt'
 MAX_WORKERS: Optional[int] = None
 
-# --- Настройка Логирования ---
 for handler in logging.root.handlers[:]: logging.root.removeHandler(handler)
 logging.basicConfig(filename=LOG_FILENAME, filemode='w', level=logging.INFO,
                     format='[%(asctime)s] %(levelname).1s %(threadName)s - %(funcName)s:%(lineno)d - %(message)s')
 # logging.getLogger().setLevel(logging.DEBUG)
 
-# --- Логирование Конфигурации ---
 effective_use_ecc = USE_ECC and GALOIS_AVAILABLE
 logging.info(f"--- Запуск Скрипта Встраивания (ThreadPool + Batches + OpenCL Attempt) ---")
 logging.info(f"Метод выбора колец: {RING_SELECTION_METHOD}, Pool: {CANDIDATE_POOL_SIZE}, Select: {NUM_RINGS_TO_USE}")
@@ -696,9 +694,8 @@ def embed_watermark_in_video(
     except Exception as e: logging.critical(f"ThreadPoolExecutor error: {e}", exc_info=True); return frames[:]
 
     logging.info(f"Batch processing done. OK pairs:{pc}, Err/Skip pairs:{ec+skipped_pairs}. Updated frames:{uc}.")
-    # Исправленный блок сохранения лога колец
     if rings_log:
-        try: # Добавляем try
+        try:
             ser_log={str(k):v for k,v in rings_log.items()};
             with open(SELECTED_RINGS_FILE,'w') as f:
                  json.dump(ser_log, f, indent=4);
@@ -710,11 +707,10 @@ def embed_watermark_in_video(
     return watermarked_frames
 
 
-# --- Основная Функция (main) ---
 def main():
     global BCH_CODE_OBJECT, DTCWT_OPENCL_ENABLED
     start_time_main = time.time()
-    input_video = "input.mp4"
+    input_video = "input1080.mp4"
     backend_name_str = 'opencl' if DTCWT_OPENCL_ENABLED else 'numpy'
     base_output_filename = f"watermarked_galois_t4_{backend_name_str}_thr_batched"
     output_video = base_output_filename + OUTPUT_EXTENSION
@@ -753,10 +749,10 @@ def main():
     if watermarked_frames and len(watermarked_frames) == len(frames):
         write_video(frames=watermarked_frames, out_path=output_video, fps=fps_to_use, codec=OUTPUT_CODEC)
         logging.info(f"Watermarked video saved: {output_video}")
-        try:
-            if os.path.exists(output_video): logging.info(f"Output size: {os.path.getsize(output_video)/(1024*1024):.2f} MB")
-            else: logging.error(f"Output file missing!")
-        except OSError as e: logging.error(f"Get size failed: {e}")
+        # try:
+        #     if os.path.exists(output_video): logging.info(f"Output size: {os.path.getsize(output_video)/(1024*1024):.2f} MB")
+        #     else: logging.error(f"Output file missing!")
+        # except OSError as e: logging.error(f"Get size failed: {e}")
     else: logging.error("Embedding failed. No output.")
 
     logging.info(f"--- Embedding Main Process Finished ({'OpenCL Fwd' if DTCWT_OPENCL_ENABLED else 'NumPy'} DTCWT) ---")
