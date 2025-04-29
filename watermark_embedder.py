@@ -12,6 +12,7 @@ import sys
 # import imagehash
 import hashlib
 from PIL import Image
+from line_profiler import line_profiler
 from line_profiler.explicit_profiler import profile
 from scipy.fftpack import dct, idct
 from scipy.linalg import svd
@@ -23,6 +24,8 @@ import uuid
 from math import ceil
 import cProfile
 import pstats
+from line_profiler import profile
+
 
 DTCWT_OPENCL_ENABLED = False # Глобальный флаг
 
@@ -70,7 +73,7 @@ try:
 except ImportError: GALOIS_AVAILABLE = False; BCH_CODE_OBJECT = None; logging.info("galois library not found.")
 except Exception as import_err: GALOIS_AVAILABLE = False; BCH_CODE_OBJECT = None; logging.info(f"galois: Ошибка импорта: {import_err}")
 
-LAMBDA_PARAM: float = 0.05
+LAMBDA_PARAM: float = 0.01
 ALPHA_MIN: float = 1.13
 ALPHA_MAX: float = 1.27
 N_RINGS: int = 8
@@ -93,8 +96,8 @@ LOG_FILENAME: str = 'watermarking_embed_opencl_batched.log'
 
 
 
-OUTPUT_CODEC: str = 'MJPG'
-OUTPUT_EXTENSION: str = '.avi'
+OUTPUT_CODEC: str = 'mp4v'
+OUTPUT_EXTENSION: str = '.mp4'
 SELECTED_RINGS_FILE: str = 'selected_rings_embed_opencl_batched.json'
 ORIGINAL_WATERMARK_FILE: str = 'original_watermark_id.txt'
 MAX_WORKERS: Optional[int] = None
@@ -641,6 +644,7 @@ def _embed_batch_worker(batch_args_list: List[Dict]) -> List[Tuple[int, Optional
     return batch_results
 
 # --- Основная функция встраивания (ThreadPool + Batches) ---
+
 @profile
 def embed_watermark_in_video(
         frames: List[np.ndarray], packet_bits: np.ndarray, n_rings: int = N_RINGS, num_rings_to_use: int = NUM_RINGS_TO_USE,
@@ -710,7 +714,7 @@ def embed_watermark_in_video(
 def main():
     global BCH_CODE_OBJECT, DTCWT_OPENCL_ENABLED
     start_time_main = time.time()
-    input_video = "input1080.mp4"
+    input_video = "input5.mp4"
     backend_name_str = 'opencl' if DTCWT_OPENCL_ENABLED else 'numpy'
     base_output_filename = f"watermarked_galois_t4_{backend_name_str}_thr_batched"
     output_video = base_output_filename + OUTPUT_EXTENSION
