@@ -35,14 +35,25 @@ try:
     _test_bch_ok = False; _test_decode_ok = False; BCH_CODE_OBJECT = None
     try:
         _test_m = 8
-        _test_t = 5
+        _test_t = 9 # Используем глобальную переменную
         _test_n = (1 << _test_m) - 1
         _test_d = 2 * _test_t + 1
 
         logging.info(f"Попытка инициализации Galois BCH с n={_test_n}, d={_test_d} (ожидаемое t={_test_t})")
-        _test_bch_galois = galois.BCH(_test_n, d=_test_d) # <--- ИСПОЛЬЗУЕМ d
+        _test_bch_galois = galois.BCH(_test_n, d=_test_d)
 
-        expected_k = 215
+        # --- ИЗМЕНИТЬ ОЖИДАЕМОЕ K в соответствии с выбранным T ---
+        # Примеры:
+        if _test_t == 5: expected_k = 215
+        elif _test_t == 7: expected_k = 201
+        elif _test_t == 9: expected_k = 187 # <--- Пример для t=9
+        elif _test_t == 11: expected_k = 173
+        elif _test_t == 15: expected_k = 131
+        else:
+             # Если t другое, нужно найти k или обработать ошибку
+             logging.error(f"Неизвестное ожидаемое k для t={_test_t}")
+             expected_k = -1 # Вызовет ошибку ниже
+
         if _test_bch_galois.t == _test_t and _test_bch_galois.k == expected_k:
              logging.info(f"galois BCH(n={_test_bch_galois.n}, k={_test_bch_galois.k}, t={_test_bch_galois.t}) OK.")
              _test_bch_ok = True; BCH_CODE_OBJECT = _test_bch_galois
@@ -87,7 +98,7 @@ RING_SELECTION_METHOD: str = 'pool_entropy_selection'
 PAYLOAD_LEN_BYTES: int = 8
 USE_ECC: bool = True
 BCH_M: int = 8
-BCH_T: int = 5
+BCH_T: int = 9
 MAX_PACKET_REPEATS: int = 5
 FPS: int = 30
 LOG_FILENAME: str = 'watermarking_embed_opencl_batched.log'
@@ -110,7 +121,7 @@ logging.basicConfig(filename=LOG_FILENAME, filemode='w', level=logging.INFO,
 effective_use_ecc = USE_ECC and GALOIS_AVAILABLE
 logging.info(f"--- Запуск Скрипта Встраивания (ThreadPool + Batches + OpenCL Attempt) ---")
 logging.info(f"Метод выбора колец: {RING_SELECTION_METHOD}, Pool: {CANDIDATE_POOL_SIZE}, Select: {NUM_RINGS_TO_USE}")
-logging.info(f"Payload: {PAYLOAD_LEN_BYTES * 8}bit, ECC: {effective_use_ecc} (Galois BCH m={BCH_M}, t={BCH_T}), Max Repeats: {MAX_PACKET_REPEATS}")
+logging.info(f"Payload: {PAYLOAD_LEN_BYTES * 8}bit, ECC: {effective_use_ecc} (Galois BCH m={BCH_M}, t={BCH_T})")
 logging.info(f"Альфа: MIN={ALPHA_MIN}, MAX={ALPHA_MAX}, N_RINGS_Total={N_RINGS}")
 logging.info(f"Маскировка: {USE_PERCEPTUAL_MASKING} (Lambda={LAMBDA_PARAM}), Компонент: {['Y', 'Cr', 'Cb'][EMBED_COMPONENT]}")
 logging.info(f"Выход: Кодек={OUTPUT_CODEC}, Расширение={OUTPUT_EXTENSION}")
@@ -647,34 +658,161 @@ def _embed_batch_worker(batch_args_list: List[Dict]) -> List[Tuple[int, Optional
 
 @profile
 def embed_watermark_in_video(
-        frames: List[np.ndarray], packet_bits: np.ndarray, n_rings: int = N_RINGS, num_rings_to_use: int = NUM_RINGS_TO_USE,
-        bits_per_pair: int = BITS_PER_PAIR, candidate_pool_size: int = CANDIDATE_POOL_SIZE, max_packet_repeats: int = MAX_PACKET_REPEATS,
+        frames: List[np.ndarray],
+        payload_id_bytes: bytes, # Принимаем байты ID
+        n_rings: int = N_RINGS, num_rings_to_use: int = NUM_RINGS_TO_USE,
+        bits_per_pair: int = BITS_PER_PAIR, candidate_pool_size: int = CANDIDATE_POOL_SIZE,
+        # --- Новые параметры для гибридного режима ---
+        use_hybrid_ecc: bool = True,       # Включить гибридный режим?
+        max_total_packets: int = 15,       # Макс. общее число пакетов (1 ECC + N Raw)
+        use_ecc_for_first: bool = USE_ECC, # Использовать ECC для первого пакета? (берем из глоб. USE_ECC)
+        bch_code: Optional[galois.BCH] = BCH_CODE_OBJECT, # Глобальный объект BCH
+        # ----------------------------------------------
         fps: float = FPS, max_workers: Optional[int] = MAX_WORKERS,
-        use_perceptual_masking: bool = USE_PERCEPTUAL_MASKING, embed_component: int = EMBED_COMPONENT):
-    num_frames=len(frames); total_pairs=num_frames//2; packet_len_bits=packet_bits.size
-    if total_pairs==0 or packet_len_bits==0: logging.warning("Skip embed: no pairs or no data"); return frames[:]
-    pairs_needed=ceil(max_packet_repeats*packet_len_bits/bits_per_pair); pairs_to_process=min(total_pairs, pairs_needed); total_bits=pairs_to_process*bits_per_pair
-    num_reps = ceil(total_bits/packet_len_bits) if packet_len_bits>0 else 1; bits_flat=np.tile(packet_bits,num_reps)[:total_bits]
-    logging.info(f"Embed Start (ThreadPool+Batches): {total_bits}b({bits_per_pair}/p) in {pairs_to_process} pairs. Pkt:{packet_len_bits}b. Reps:{max_packet_repeats}t,{num_reps:.1f}a.")
+        use_perceptual_masking: bool = USE_PERCEPTUAL_MASKING,
+        embed_component: int = EMBED_COMPONENT):
+    """
+    Встраивает водяной знак (ID) в видео, используя гибридный ECC/Raw режим.
+    """
+    num_frames = len(frames)
+    total_pairs = num_frames // 2
+    payload_len_bytes = len(payload_id_bytes)
+    payload_len_bits = payload_len_bytes * 8
+
+    # Проверки входных данных
+    if payload_len_bits == 0:
+        logging.error("Payload ID пустой! Встраивание отменено.")
+        return frames[:]
+    if total_pairs == 0:
+        logging.warning("Нет пар кадров для встраивания")
+        return frames[:]
+    if max_total_packets <= 0:
+         logging.warning(f"max_total_packets ({max_total_packets}) должен быть > 0. Установлено в 1.")
+         max_total_packets = 1
+
+    logging.info(f"--- Embed Start (Hybrid Mode: {use_hybrid_ecc}, Max Packets: {max_total_packets}) ---")
+
+    # --- Формирование последовательности бит для встраивания ---
+    bits_to_embed_list = []
+    try:
+        raw_payload_bits: np.ndarray = np.unpackbits(np.frombuffer(payload_id_bytes, dtype=np.uint8))
+        if raw_payload_bits.size != payload_len_bits: # Доп. проверка
+             raise ValueError(f"Ошибка unpackbits: ожидалось {payload_len_bits} бит, получено {raw_payload_bits.size}")
+    except Exception as e:
+        logging.error(f"Ошибка подготовки raw_payload_bits: {e}", exc_info=True)
+        return frames[:]
+
+    first_packet_bits: Optional[np.ndarray] = None
+    packet1_type_str = "N/A"
+    packet1_len = 0
+    can_use_ecc = use_ecc_for_first and GALOIS_AVAILABLE and bch_code is not None and payload_len_bits <= bch_code.k
+
+    # 1. Формируем ПЕРВЫЙ пакет
+    if use_hybrid_ecc and can_use_ecc:
+        # Пытаемся создать ECC пакет
+        first_packet_bits = add_ecc(raw_payload_bits, bch_code)
+        if first_packet_bits is not None:
+            bits_to_embed_list.extend(first_packet_bits.tolist())
+            packet1_len = len(first_packet_bits)
+            packet1_type_str = f"ECC(n={packet1_len}, t={bch_code.t})"
+            logging.info(f"Гибридный режим: Первый пакет создан как {packet1_type_str}.")
+        else:
+            logging.error("Не удалось создать первый пакет с ECC (ошибка add_ecc)! Встраивание отменено.")
+            return frames[:]
+    else:
+        # Используем Raw payload для первого пакета
+        first_packet_bits = raw_payload_bits # Он уже создан
+        bits_to_embed_list.extend(first_packet_bits.tolist())
+        packet1_len = len(first_packet_bits)
+        packet1_type_str = f"Raw({packet1_len})"
+        if not use_hybrid_ecc:
+             logging.info(f"Режим НЕ гибридный: Первый (и единственный) пакет - {packet1_type_str}.")
+        elif not can_use_ecc:
+             logging.info(f"Гибридный режим: ECC для первого пакета невозможен/выключен. Первый пакет - {packet1_type_str}.")
+        use_hybrid_ecc = False # Отключаем гибрид, если первый пакет Raw
+
+    # 2. Формируем ОСТАЛЬНЫЕ пакеты (только если гибридный режим активен)
+    num_raw_packets_added = 0
+    if use_hybrid_ecc:
+        # Добавляем до max_total_packets-1 сырых пакетов
+        num_raw_repeats_to_add = max(0, max_total_packets - 1)
+        for _ in range(num_raw_repeats_to_add):
+            bits_to_embed_list.extend(raw_payload_bits.tolist())
+            num_raw_packets_added += 1
+        if num_raw_packets_added > 0:
+             logging.info(f"Гибридный режим: Добавлено {num_raw_packets_added} Raw payload пакетов ({payload_len_bits} бит каждый).")
+    # else: # Если режим не гибридный, больше ничего не добавляем (только 1 пакет)
+    #      pass
+
+    total_packets_actual = 1 + num_raw_packets_added
+    total_bits_to_embed = len(bits_to_embed_list)
+
+    if total_bits_to_embed == 0:
+        logging.error("Нет бит для встраивания после формирования пакетов.")
+        return frames[:]
+
+    # 3. Определяем, сколько пар кадров нужно и обрезаем биты
+    pairs_needed = ceil(total_bits_to_embed / bits_per_pair)
+    pairs_to_process = min(total_pairs, pairs_needed)
+    bits_flat_final = np.array(bits_to_embed_list[:pairs_to_process * bits_per_pair], dtype=np.uint8)
+    actual_bits_embedded = len(bits_flat_final)
+
+    logging.info(f"Подготовка к встраиванию:")
+    logging.info(f"  Режим: {'Гибридный' if use_hybrid_ecc else ('Только ECC' if can_use_ecc else 'Только Raw')}")
+    logging.info(f"  Целевое число пакетов: {total_packets_actual} ({packet1_type_str} + {num_raw_packets_added} Raw)")
+    logging.info(f"  Всего бит подготовлено: {total_bits_to_embed}")
+    logging.info(f"  Доступно пар кадров: {total_pairs}, Требуется пар: {pairs_needed}, Будет обработано пар: {pairs_to_process}")
+    logging.info(f"  Фактически будет встроено бит: {actual_bits_embedded}")
+    if actual_bits_embedded < total_bits_to_embed:
+         logging.warning(f"Не хватает пар кадров для встраивания всех подготовленных бит! Встроено только {actual_bits_embedded}.")
+
+
+    # --- Подготовка аргументов для батчей ---
     start_time=time.time(); watermarked_frames=frames[:]; rings_log: Dict[int,List[int]]={}; pc,ec,uc=0,0,0; skipped_pairs=0; all_pairs_args=[]
 
     for pair_idx in range(pairs_to_process):
         i1=2*pair_idx; i2=i1+1
-        if i2>=num_frames or frames[i1] is None or frames[i2] is None: skipped_pairs+=1; continue
-        sbi=pair_idx*bits_per_pair; ebi=sbi+bits_per_pair; cb=bits_flat[sbi:ebi].tolist()
-        if len(cb)!=bits_per_pair: skipped_pairs+=1; continue
-        args={'pair_idx':pair_idx, 'frame1':frames[i1], 'frame2':frames[i2], 'bits':cb, 'n_rings':n_rings, 'num_rings_to_use':num_rings_to_use, 'candidate_pool_size':candidate_pool_size, 'frame_number':i1, 'use_perceptual_masking':use_perceptual_masking, 'embed_component':embed_component}
+        # Проверка кадров
+        if i2>=num_frames or frames[i1] is None or frames[i2] is None:
+            skipped_pairs+=1
+            logging.debug(f"Skipping pair {pair_idx}: invalid frames {i1} or {i2}")
+            continue
+
+        # Извлечение бит для этой пары
+        sbi=pair_idx*bits_per_pair
+        ebi=sbi+bits_per_pair
+        # Убедимся, что не выходим за границы массива бит
+        if sbi >= len(bits_flat_final):
+             logging.warning(f"Skipping pair {pair_idx}: no more bits left to embed.")
+             break # Если биты кончились, выходим из цикла
+        if ebi > len(bits_flat_final):
+            ebi = len(bits_flat_final) # Берем остаток
+
+        cb=bits_flat_final[sbi:ebi].tolist()
+
+        # Важно: Если последний пакет неполный, он может дать меньше бит, чем bits_per_pair.
+        # Функция embed_frame_pair должна корректно это обработать (цикл zip остановится раньше).
+        if len(cb) == 0:
+             logging.warning(f"Skipping pair {pair_idx}: calculated bit slice is empty (sbi={sbi}, ebi={ebi}).")
+             continue
+
+        # Формируем аргументы
+        args={'pair_idx':pair_idx, 'frame1':frames[i1], 'frame2':frames[i2], 'bits':cb,
+              'n_rings':n_rings, 'num_rings_to_use':num_rings_to_use, 'candidate_pool_size':candidate_pool_size,
+              'frame_number':i1, 'use_perceptual_masking':use_perceptual_masking, 'embed_component':embed_component}
         all_pairs_args.append(args)
 
-    num_valid_tasks = len(all_pairs_args);
-    if skipped_pairs>0: logging.warning(f"Skipped {skipped_pairs} pairs.");
-    if num_valid_tasks==0: logging.error("No valid tasks."); return watermarked_frames
+    num_valid_tasks = len(all_pairs_args)
+    if skipped_pairs > 0: logging.warning(f"Skipped {skipped_pairs} pairs due to invalid frame indices or None frames.")
+    if num_valid_tasks == 0: logging.error("No valid tasks generated for embedding."); return watermarked_frames
 
+    # --- Запуск ThreadPoolExecutor (код остается без изменений) ---
     num_workers = max_workers if max_workers is not None and max_workers>0 else (os.cpu_count() or 1)
-    batch_size = max(1, ceil(num_valid_tasks / (num_workers * 2))) # Делим на удвоенное число воркеров
+    # Убрал /2 в расчете batch_size, чтобы батчи были побольше
+    batch_size = max(1, ceil(num_valid_tasks / num_workers))
     num_batches = ceil(num_valid_tasks / batch_size)
     batched_args_list = [all_pairs_args[i:i+batch_size] for i in range(0, num_valid_tasks, batch_size) if all_pairs_args[i:i+batch_size]]
-    logging.info(f"Launching {num_batches} batches ({num_valid_tasks} pairs) using ThreadPool (mw={num_workers}, batch_size≈{batch_size})...")
+    logging.info(f"Launching {len(batched_args_list)} batches ({num_valid_tasks} pairs) using ThreadPool (mw={num_workers}, batch_size≈{batch_size})...")
 
     try:
         with ThreadPoolExecutor(max_workers=num_workers) as executor:
@@ -683,81 +821,101 @@ def embed_watermark_in_video(
                 batch_idx = future_to_batch_idx[future]; original_batch = batched_args_list[batch_idx]
                 try:
                     batch_results = future.result()
-                    if len(batch_results) != len(original_batch): ec += len(original_batch); logging.error(f"Batch {batch_idx} size mismatch!"); continue;
+                    if len(batch_results) != len(original_batch): ec += len(original_batch); logging.error(f"Batch {batch_idx} size mismatch!"); continue
                     for i, single_res in enumerate(batch_results):
                         if single_res and len(single_res)==4:
-                            fn_res, mod_f1, mod_f2, sel_rings = single_res; pair_idx = original_batch[i]['pair_idx']; i1=2*pair_idx; i2=i1+1
-                            if sel_rings: rings_log[pair_idx] = sel_rings
+                            fn_res, mod_f1, mod_f2, sel_rings = single_res
+                            # Ищем оригинальный pair_idx (важно, если батчи обрабатывались не по порядку)
+                            original_args = original_batch[i]
+                            pair_idx = original_args['pair_idx']
+                            i1=2*pair_idx; i2=i1+1
+
+                            if sel_rings: rings_log[pair_idx] = sel_rings # Логируем выбранные кольца
                             if mod_f1 is not None and mod_f2 is not None:
                                 if i1<len(watermarked_frames): watermarked_frames[i1]=mod_f1; uc+=1
                                 if i2<len(watermarked_frames): watermarked_frames[i2]=mod_f2; uc+=1
                                 pc+=1
-                            else: ec+=1
-                        else: ec+=1
-                except Exception as e: ec+=len(original_batch); logging.error(f"Batch {batch_idx} failed: {e}", exc_info=True)
-    except Exception as e: logging.critical(f"ThreadPoolExecutor error: {e}", exc_info=True); return frames[:]
+                            else:
+                                logging.warning(f"Embedding failed for pair {pair_idx} (returned None frames).")
+                                ec+=1
+                        else:
+                             # Ищем оригинальный pair_idx для логирования ошибки
+                             original_args = original_batch[i]
+                             pair_idx = original_args.get('pair_idx', 'unknown')
+                             logging.warning(f"Invalid result structure for pair {pair_idx} in batch {batch_idx}.")
+                             ec+=1
+                except Exception as e:
+                    failed_pairs_count = len(original_batch)
+                    logging.error(f"Batch {batch_idx} processing failed entirely: {e}", exc_info=True)
+                    ec += failed_pairs_count # Считаем все пары из упавшего батча как ошибки
+    except Exception as e:
+        logging.critical(f"ThreadPoolExecutor critical error: {e}", exc_info=True)
+        return frames[:] # Возвращаем исходные кадры при критической ошибке
 
-    logging.info(f"Batch processing done. OK pairs:{pc}, Err/Skip pairs:{ec+skipped_pairs}. Updated frames:{uc}.")
+    # --- Завершение и запись логов (код остается без изменений) ---
+    logging.info(f"Batch processing done. OK pairs processed: {pc}, Error/Skipped pairs: {ec+skipped_pairs}. Frames updated: {uc}.")
     if rings_log:
         try:
-            ser_log={str(k):v for k,v in rings_log.items()};
+            ser_log={str(k):v for k,v in rings_log.items()}
             with open(SELECTED_RINGS_FILE,'w') as f:
-                 json.dump(ser_log, f, indent=4);
+                 json.dump(ser_log, f, indent=4)
             logging.info(f"Rings log saved: {SELECTED_RINGS_FILE}")
-        except Exception as e: # Добавляем except
-             logging.error(f"Save rings log failed: {e}", exc_info=True) # Логируем ошибку
-    else: logging.warning("Rings log empty.")
-    end_time=time.time(); logging.info(f"Embed done. Time: {end_time-start_time:.2f}s.")
+        except Exception as e:
+             logging.error(f"Save rings log failed: {e}", exc_info=True)
+    else: logging.warning("Rings log empty or not generated.")
+    end_time=time.time(); logging.info(f"Embed function done. Time: {end_time-start_time:.2f}s.")
     return watermarked_frames
 
 
 def main():
     global BCH_CODE_OBJECT, DTCWT_OPENCL_ENABLED
     start_time_main = time.time()
-    input_video = "input5.mp4"
+    input_video = "input.mp4" # Или ваш входной файл
     backend_name_str = 'opencl' if DTCWT_OPENCL_ENABLED else 'numpy'
-    base_output_filename = f"watermarked_galois_t4_{backend_name_str}_thr_batched"
+    # Имя выходного файла теперь не зависит от t (оно задается внутри)
+    base_output_filename = f"watermarked_{backend_name_str}_hybrid" # Пример имени
     output_video = base_output_filename + OUTPUT_EXTENSION
-    logging.info(f"--- Starting Embedding Main Process (ThreadPool + Batches + {backend_name_str.upper()} DTCWT) ---")
+    logging.info(f"--- Starting Embedding Main Process ---")
+    logging.info(f"Target Output: {output_video}")
 
     frames, fps_read = read_video(input_video)
     if not frames: logging.critical("Video read failed."); return
     fps_to_use = float(FPS) if fps_read <= 0 else fps_read
     if len(frames) < 2: logging.critical("Not enough frames."); return
 
-    original_id_bytes = os.urandom(PAYLOAD_LEN_BYTES); original_id_hex = original_id_bytes.hex()
+    # Генерируем ID как и раньше
+    original_id_bytes = os.urandom(PAYLOAD_LEN_BYTES);
+    original_id_hex = original_id_bytes.hex()
     logging.info(f"Generated Payload ID ({PAYLOAD_LEN_BYTES * 8} bit, Hex): {original_id_hex}")
-
-    packet_bits_to_embed: Optional[np.ndarray] = None
-    effective_ecc_enabled = USE_ECC and GALOIS_AVAILABLE and BCH_CODE_OBJECT is not None
-    if effective_ecc_enabled:
-        try:
-            bch_k = BCH_CODE_OBJECT.k; payload_len_bits = PAYLOAD_LEN_BYTES*8; assert payload_len_bits <= bch_k, f"Payload {payload_len_bits} > k {bch_k}";
-            payload_bits = np.unpackbits(np.frombuffer(original_id_bytes,dtype=np.uint8)); packet_bits_to_embed = add_ecc(payload_bits, BCH_CODE_OBJECT); assert packet_bits_to_embed is not None, "add_ecc failed"
-            logging.info(f"Using ECC packet ({packet_bits_to_embed.size} bits).")
-        except Exception as e: logging.error(f"ECC prep failed: {e}. Using raw."); effective_ecc_enabled = False; packet_bits_to_embed = None
-    if packet_bits_to_embed is None:
-        packet_bits_to_embed = np.unpackbits(np.frombuffer(original_id_bytes,dtype=np.uint8)); logging.info(f"Using raw payload ({packet_bits_to_embed.size} bits).")
-
+    # Сохраняем ID как и раньше
     try:
         with open(ORIGINAL_WATERMARK_FILE, "w") as f: f.write(original_id_hex)
         logging.info(f"Original ID saved: {ORIGINAL_WATERMARK_FILE}")
     except IOError as e: logging.error(f"Save ID failed: {e}")
 
     watermarked_frames = embed_watermark_in_video(
-        frames=frames, packet_bits=packet_bits_to_embed, n_rings=N_RINGS, num_rings_to_use=NUM_RINGS_TO_USE,
-        bits_per_pair=BITS_PER_PAIR, candidate_pool_size=CANDIDATE_POOL_SIZE, max_packet_repeats=MAX_PACKET_REPEATS,
+        frames=frames,
+        payload_id_bytes=original_id_bytes, # <--- Передаем байты ID
+        # --- Параметры гибридного режима ---
+        use_hybrid_ecc=True,           # <--- Включаем гибридный режим
+        max_total_packets=15,          # <--- Макс. пакетов (1 ECC + 14 Raw)
+        use_ecc_for_first=USE_ECC,     # <--- Использовать ECC для первого (из глоб.)
+        bch_code=BCH_CODE_OBJECT,      # <--- Передаем объект BCH
+        # --- Остальные параметры ---
+        n_rings=N_RINGS, num_rings_to_use=NUM_RINGS_TO_USE,
+        bits_per_pair=BITS_PER_PAIR, candidate_pool_size=CANDIDATE_POOL_SIZE,
+        # max_packet_repeats больше не нужен здесь напрямую, логика внутри функции
         fps=fps_to_use, max_workers=MAX_WORKERS,
-        use_perceptual_masking=USE_PERCEPTUAL_MASKING, embed_component=EMBED_COMPONENT)
+        use_perceptual_masking=USE_PERCEPTUAL_MASKING,
+        embed_component=EMBED_COMPONENT
+    )
 
+    # --- Запись видео (без изменений) ---
     if watermarked_frames and len(watermarked_frames) == len(frames):
         write_video(frames=watermarked_frames, out_path=output_video, fps=fps_to_use, codec=OUTPUT_CODEC)
         logging.info(f"Watermarked video saved: {output_video}")
-        # try:
-        #     if os.path.exists(output_video): logging.info(f"Output size: {os.path.getsize(output_video)/(1024*1024):.2f} MB")
-        #     else: logging.error(f"Output file missing!")
-        # except OSError as e: logging.error(f"Get size failed: {e}")
-    else: logging.error("Embedding failed. No output.")
+    else:
+        logging.error("Embedding failed or returned no frames. No output.")
 
     logging.info(f"--- Embedding Main Process Finished ({'OpenCL Fwd' if DTCWT_OPENCL_ENABLED else 'NumPy'} DTCWT) ---")
     total_time_main = time.time() - start_time_main

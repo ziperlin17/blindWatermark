@@ -35,14 +35,26 @@ try:
     _test_bch_ok = False; _test_decode_ok = False; BCH_CODE_OBJECT = None
     try:
         _test_m = 8
-        _test_t = 5 # Желаемое t
+        _test_t = 9 # Желаемое t
         _test_n = (1 << _test_m) - 1 # n = 255
         _test_d = 2 * _test_t + 1 # d = 11 (Вычисляем d из t)
 
         logging.info(f"Попытка инициализации Galois BCH с n={_test_n}, d={_test_d} (ожидаемое t={_test_t})")
         _test_bch_galois = galois.BCH(_test_n, d=_test_d)
 
-        expected_k = 215
+        if _test_t == 5:
+            expected_k = 215
+        elif _test_t == 7:
+            expected_k = 201
+        elif _test_t == 9:
+            expected_k = 187  # <--- Установить правильное значение для вашего BCH_T
+        elif _test_t == 11:
+            expected_k = 173
+        elif _test_t == 15:
+            expected_k = 131
+        else:
+            logging.error(f"Неизвестное ожидаемое k для t={_test_t}")
+            expected_k = -1
         if _test_bch_galois.t == _test_t and _test_bch_galois.k == expected_k:
              logging.info(f"galois BCH(n={_test_bch_galois.n}, k={_test_bch_galois.k}, t={_test_bch_galois.t}) OK.")
              _test_bch_ok = True; BCH_CODE_OBJECT = _test_bch_galois
@@ -88,8 +100,8 @@ RING_SELECTION_METHOD: str = 'pool_entropy_selection'
 PAYLOAD_LEN_BYTES: int = 8
 USE_ECC: bool = True
 BCH_M: int = 8
-BCH_T: int = 5
-MAX_PACKET_REPEATS: int = 5
+BCH_T: int = 9
+# MAX_PACKET_REPEATS: int = 5
 FPS: int = 30
 
 
@@ -110,7 +122,7 @@ logging.getLogger().setLevel(logging.DEBUG)
 effective_use_ecc = USE_ECC and GALOIS_AVAILABLE
 logging.info(f"--- Запуск Скрипта Извлечения (ThreadPool + Batches + OpenCL Attempt) ---")
 logging.info(f"Метод выбора колец: {RING_SELECTION_METHOD}, Pool: {CANDIDATE_POOL_SIZE}, Select: {NUM_RINGS_TO_USE}")
-logging.info(f"Ожид. Payload: {PAYLOAD_LEN_BYTES * 8}bit, Ожид. ECC: {USE_ECC} (Galois BCH m={BCH_M}, t={BCH_T}), Доступно/Работает: {GALOIS_AVAILABLE}")
+# logging.info(f"Ожид. Payload: {PAYLOAD_LEN_BYTES * 8}bit, Ожид. ECC: {USE_ECC} (Galois BCH m={BCH_M}, t={BCH_T}), Доступно/Работает: {GALOIS_AVAILABLE}")
 logging.info(f"Ожид. Альфа для логирования: MIN={ALPHA_MIN}, MAX={ALPHA_MAX}, N_RINGS_Total={N_RINGS}")
 logging.info(f"Компонент: {['Y', 'Cr', 'Cb'][EMBED_COMPONENT]}")
 logging.info(f"Параллелизм: ThreadPoolExecutor (max_workers={MAX_WORKERS_EXTRACT or 'default'}) с батчингом.")
@@ -660,64 +672,74 @@ def extract_watermark_from_video(
         bp:int=BITS_PER_PAIR,
         cps:int=CANDIDATE_POOL_SIZE,
         ec:int=EMBED_COMPONENT,
-        mpr:int=MAX_PACKET_REPEATS,
-        ue:bool=USE_ECC,
-        bm:int=BCH_M, # Параметры для логирования и проверки
-        bt:int=BCH_T, # Параметры для логирования и проверки
+        # --- Параметры для гибридного извлечения ---
+        expect_hybrid_ecc: bool = True,      # Ожидать ли гибридный формат?
+        max_expected_packets: int = 15,      # Макс. пакетов для попытки извлечения
+        # --- Параметры ECC (для первого пакета и проверки) ---
+        ue:bool=USE_ECC, # Ожидается ли ECC в принципе (для первого пакета)
+        bch_code:Optional[galois.BCH]=BCH_CODE_OBJECT, # Глобальный объект BCH
+        # --- Остальные параметры ---
         plb:int=PAYLOAD_LEN_BYTES,
         mw:Optional[int]=MAX_WORKERS_EXTRACT
     ) -> Optional[bytes]:
     """
     Основная функция, управляющая процессом извлечения с использованием ThreadPoolExecutor,
-    батчинга и ПОБИТОВОГО мажоритарного голосования (с изменениями).
+    батчинга и ПОБИТОВОГО мажоритарного голосования, с поддержкой гибридного ECC/Raw формата.
     """
-    logging.info(f"Starting extraction (ThreadPool+Batches, Bits/Pair:{bp}, Bit-wise Voting v2)")
+    logging.info(f"--- Starting Extraction ---")
+    logging.info(f"Mode: Hybrid Expected={expect_hybrid_ecc}, Max Packets={max_expected_packets}")
+    logging.info(f"ECC Config: Used if Possible={ue}, BCH Object Present={bch_code is not None}")
     start_time = time.time()
     nf = len(frames)
     total_pairs_available = nf // 2
-    ppc = 0 # Processed pairs count confirmed by worker results
-    fpe = 0 # Failed pairs reported by workers (had None bits)
+
     if total_pairs_available == 0:
         logging.error("No frame pairs to process.")
         return None
 
-    # Определяем ожидаемую длину пакета
+    # Определяем длины пакетов и возможность ECC
     payload_len_bits = plb * 8
-    packet_len_expected = payload_len_bits # Default if no ECC
-    ecc_enabled_and_valid = False
-    bch_code_to_use = None
+    packet_len_if_ecc = payload_len_bits # Длина по умолчанию
+    packet_len_if_raw = payload_len_bits # Всегда длина raw payload
+    ecc_possible_for_first = False
+    bch_n = 0 # Длина ECC пакета (для расчетов)
 
-    if ue and GALOIS_AVAILABLE and BCH_CODE_OBJECT is not None:
+    if ue and GALOIS_AVAILABLE and bch_code is not None:
         try:
-            n = BCH_CODE_OBJECT.n
-            k = BCH_CODE_OBJECT.k
-            t_bch = BCH_CODE_OBJECT.t
+            n = bch_code.n; k = bch_code.k; t_bch = bch_code.t
             if payload_len_bits <= k:
-                packet_len_expected = n
-                ecc_enabled_and_valid = True
-                bch_code_to_use = BCH_CODE_OBJECT
-                logging.info(f"Galois BCH OK: n={n}, k={k}, t={t_bch}. Expecting ECC packets ({packet_len_expected}b).")
+                packet_len_if_ecc = n; bch_n = n # Сохраняем n
+                ecc_possible_for_first = True
+                logging.info(f"ECC check: Possible for first packet (n={n}, k={k}, t={t_bch}).")
             else:
-                logging.warning(f"Payload size ({payload_len_bits}) > Galois k ({k}). ECC disabled for decoding.")
+                logging.warning(f"ECC check: Payload size ({payload_len_bits}) > Galois k ({k}). ECC decoding impossible.")
         except Exception as e:
-            logging.error(f"Error getting Galois params: {e}. ECC disabled for decoding.")
-            ecc_enabled_and_valid = False
+            logging.error(f"ECC check: Error getting Galois params: {e}.")
+            ecc_possible_for_first = False
     else:
-        logging.info(f"ECC disabled or unavailable. Expecting raw payload ({packet_len_expected}b).")
+        logging.info("ECC check: Disabled or unavailable.")
 
-    if packet_len_expected <= 0:
-        logging.error("Invalid expected packet length.")
-        return None
+    # --- Вычисляем, сколько пар кадров нужно обработать ---
+    # Оценка сверху: самый длинный сценарий - 1 ECC + (max-1) Raw
+    max_possible_bits = 0
+    if expect_hybrid_ecc and ecc_possible_for_first:
+        max_possible_bits = packet_len_if_ecc + max(0, max_expected_packets - 1) * packet_len_if_raw
+    elif ecc_possible_for_first and not expect_hybrid_ecc: # Ожидаем только ECC
+        max_possible_bits = max_expected_packets * packet_len_if_ecc
+    else: # Ожидаем только Raw
+        max_possible_bits = max_expected_packets * packet_len_if_raw
 
-    # Определяем, сколько пар обрабатывать
-    pairs_needed = ceil(mpr * packet_len_expected / bp)
+    pairs_needed = ceil(max_possible_bits / bp) if bp > 0 else 0
     pairs_to_process = min(total_pairs_available, pairs_needed)
-    logging.info(f"Attempting to extract from {pairs_to_process} pairs (max repeats: {mpr}, bits/pair: {bp}, packet_len: {packet_len_expected}).")
+    logging.info(f"Target extraction: Up to {max_expected_packets} packets.")
+    logging.info(f"Frame pairs: Available={total_pairs_available}, Needed(max)={pairs_needed}, To Process={pairs_to_process}")
+
     if pairs_to_process == 0:
         logging.warning("Zero pairs to process based on calculations.")
         return None
 
-    # --- Подготовка и запуск батчей (Код без изменений) ---
+    # --- Подготовка и запуск батчей для извлечения сырых бит ---
+    # Этот блок НЕ МЕНЯЕТСЯ. Он просто собирает биты.
     all_pairs_args = []
     skipped_pairs = 0
     for pair_idx in range(pairs_to_process):
@@ -742,6 +764,7 @@ def extract_watermark_from_video(
     logging.info(f"Launching {len(batched_args_list)} batches ({num_valid_tasks} pairs) using ThreadPool (mw={num_workers}, batch_size≈{batch_size})...")
 
     extracted_bits_map: Dict[int, List[Optional[int]]] = {}
+    ppc = 0; fpe = 0 # Счетчики обработанных пар и пар с ошибками
     try:
         with ThreadPoolExecutor(max_workers=num_workers) as executor:
             future_to_batch_idx = {executor.submit(_extract_batch_worker, batch): i for i, batch in enumerate(batched_args_list)}
@@ -760,19 +783,21 @@ def extract_watermark_from_video(
         logging.critical(f"ThreadPoolExecutor critical error during extraction: {e}", exc_info=True)
         return None
 
-    logging.info(f"Extraction task processing finished. Processed pairs confirmed by workers: {ppc}. Pairs with errors/Nones from workers: {fpe}.")
+    logging.info(f"Extraction task processing finished. Processed pairs confirmed: {ppc}. Pairs with errors/Nones: {fpe}.")
     if ppc == 0: logging.error("No pairs processed successfully by workers."); return None
 
-    # --- Сборка общего потока бит (Код без изменений) ---
+    # --- Сборка общего потока извлеченных бит ---
+    # Этот блок НЕ МЕНЯЕТСЯ.
     extracted_bits_all: List[Optional[int]] = []
     for pair_idx in range(pairs_to_process):
         bits = extracted_bits_map.get(pair_idx)
         if bits is not None:
             if len(bits) == bp: extracted_bits_all.extend(bits)
             else:
-                 logging.warning(f"Pair {pair_idx} returned incorrect bits ({len(bits)} != {bp}). Adding None fillers.")
-                 extracted_bits_all.extend([None] * bp); fpe += 1
+                 logging.warning(f"Pair {pair_idx} returned incorrect bits ({len(bits)} != {bp}). Adding Nones.")
+                 extracted_bits_all.extend([None] * bp); #fpe += 1 # Ошибку уже посчитали выше
         else:
+            # Если для пары нет результата (была пропущена или батч упал)
             extracted_bits_all.extend([None] * bp)
 
     total_bits_collected = len(extracted_bits_all)
@@ -780,164 +805,201 @@ def extract_watermark_from_video(
     num_valid_bits = len(valid_bits)
     num_none_bits = total_bits_collected - num_valid_bits
     success_rate = (1 - num_none_bits / total_bits_collected) * 100 if total_bits_collected > 0 else 0
-    logging.info(f"Total bits collected: {total_bits_collected}. Valid (non-None) bits: {num_valid_bits} ({success_rate:.1f}% success rate). None/Error bits: {num_none_bits}.")
+    logging.info(f"Bit collection: Total collected={total_bits_collected}, Valid (non-None)={num_valid_bits} ({success_rate:.1f}%), None/Error={num_none_bits}.")
     if not valid_bits: logging.error("No valid (non-None) bits extracted."); return None
 
-    # --- ИЗМЕНЕНИЕ: Декодирование и Побитовое Голосование ---
-    num_potential_packets = num_valid_bits // packet_len_expected if packet_len_expected > 0 else 0
-    logging.info(f"Attempting to decode {num_potential_packets} potential packets ({packet_len_expected} bits each) from {num_valid_bits} valid bits...")
-
-    # ИЗМЕНЕНИЕ: Собираем ВСЕ попытки декодирования payload (даже неудачные)
-    # Структура: список списков бит (payload), где внутренний список может быть None при неудаче
-    all_payload_attempts_bits: List[Optional[List[int]]] = []
-    decoded_success_count = 0
-    decode_failed_count = 0
-    total_corrected_symbols = 0
+    # --- ИЗМЕНЕНИЕ: Гибридное Декодирование Пакетов ---
+    all_payload_attempts_bits: List[Optional[List[int]]] = [] # Список для хранения результатов (64 бита или None)
+    decoded_success_count = 0; decode_failed_count = 0; total_corrected_symbols = 0
+    num_processed_bits = 0 # Счетчик обработанных бит из valid_bits
 
     print("\n--- Попытки Декодирования Пакетов ---")
-    print(f"{'Pkt #':<6} | {'ECC Status':<15} | {'Corrected':<10} | {'Payload (Hex)':<20}")
-    print("-" * 58)
+    print(f"{'Pkt #':<6} | {'Type':<7} | {'ECC Status':<18} | {'Corrected':<10} | {'Payload (Hex)':<20}")
+    print("-" * 68) # Увеличил ширину
 
-    for i in range(num_potential_packets):
-        start_idx = i * packet_len_expected
-        end_idx = start_idx + packet_len_expected
+    for i in range(max_expected_packets): # Итерируем до макс. числа пакетов
+        # --- Определяем тип и длину ОЖИДАЕМОГО пакета ---
+        is_first_packet = (i == 0)
+        # Используем ECC для первого пакета ТОЛЬКО если включен гибридный режим И ECC возможен
+        use_ecc_for_this = is_first_packet and expect_hybrid_ecc and ecc_possible_for_first
+
+        current_packet_len = packet_len_if_ecc if use_ecc_for_this else packet_len_if_raw
+        packet_type_str = "ECC" if use_ecc_for_this else "Raw"
+
+        # --- Проверяем, хватает ли бит ---
+        start_idx = num_processed_bits
+        end_idx = start_idx + current_packet_len
+
         if end_idx > num_valid_bits:
-            logging.warning(f"Not enough valid bits remaining for potential packet {i+1}.")
-            break
+            logging.warning(f"Not enough valid bits remaining for potential packet {i + 1} (type {packet_type_str}, needed {current_packet_len}, have {num_valid_bits - start_idx}). Stopping decode.")
+            break # Заканчиваем, если бит не хватает
 
         packet_candidate_bits = valid_bits[start_idx:end_idx]
-        payload_bytes: Optional[bytes] = None
-        payload_bits: Optional[List[int]] = None # Будет содержать 64 бита или None
-        errors: int = -1 # -1=ошибка/неисправимо, 0=нет ошибок/нет ECC, >0=исправлено
-        status_str = "Failed (ECC Off)"
+        num_processed_bits += current_packet_len # Сдвигаем указатель ВНЕ зависимости от успеха декодирования
 
-        # Попытка декодирования ECC
-        if ecc_enabled_and_valid and bch_code_to_use is not None:
-            payload_bytes, errors = decode_ecc(packet_candidate_bits, bch_code_to_use, plb)
-            if payload_bytes is not None:
-                status_str = f"OK (ECC: {errors} fixed)" if errors >= 0 else "OK (ECC: 0 fixed)" # Уточняем для случая errors=0
+        # --- Пытаемся получить payload ---
+        payload_bytes: Optional[bytes] = None
+        payload_bits: Optional[List[int]] = None
+        errors: int = -1 # По умолчанию - ошибка
+        status_str = f"Failed ({packet_type_str})" # Статус по умолчанию
+
+        if use_ecc_for_this:
+            # Пытаемся декодировать первый пакет с ECC
+            if bch_code is not None: # Доп. проверка
+                payload_bytes, errors = decode_ecc(packet_candidate_bits, bch_code, plb)
+                if payload_bytes is not None:
+                    # Используем n_corrected_symbols (errors) для статуса
+                    corrected_count = errors if errors != -1 else 0 # Считаем 0 если decode вернул payload но errors=-1
+                    status_str = f"OK (ECC: {corrected_count} fixed)"
+                    if errors > 0: total_corrected_symbols += errors
+                else:
+                    # errors тут будет -1 если неисправимо
+                    status_str = f"Uncorrectable (ECC)" if errors == -1 else "ECC Decode Error"
+                    decode_failed_count += 1
             else:
-                status_str = f"Uncorrectable (ECC)" if errors == -1 else "ECC Decode Error"
-        else: # Без ECC
+                 # Сюда не должны попадать из-за ecc_possible_for_first, но на всякий случай
+                 status_str = "ECC Code Missing"
+                 decode_failed_count += 1
+        else:
+            # Обрабатываем как Raw пакет
             if len(packet_candidate_bits) >= payload_len_bits:
+                 # Берем только нужное кол-во бит для payload
                  payload_candidate_bits_raw = packet_candidate_bits[:payload_len_bits]
                  packet_bytes_raw = bits_to_bytes(payload_candidate_bits_raw)
+                 # bits_to_bytes вернет None при ошибке конвертации
                  if packet_bytes_raw is not None and len(packet_bytes_raw) == plb:
                      payload_bytes = packet_bytes_raw
-                     errors = 0 # Условно 0 ошибок
+                     errors = 0 # Нет ECC -> 0 ошибок для статуса
                      status_str = "OK (Raw)"
-            # else: status_str остается "Failed (ECC Off)" или подобное
+                 else:
+                      status_str = "Failed (Raw Convert)"
+                      decode_failed_count += 1
+            else: # Не хватило бит даже для raw payload - этого не должно быть из-за проверки выше
+                  status_str = "Failed (Raw Short)"
+                  decode_failed_count += 1
 
-        # Попытка получить биты из байтов payload
+        # --- Получаем биты из байт (если удалось) ---
         payload_hex_str = "N/A"
-        if payload_bytes is not None and len(payload_bytes) == plb:
+        if payload_bytes is not None: # Проверяем результат предыдущего шага
+            payload_hex_str = payload_bytes.hex() # Можем показать hex, даже если unpack не удастся
             try:
                 payload_np_bits = np.unpackbits(np.frombuffer(payload_bytes, dtype=np.uint8))
                 if len(payload_np_bits) == payload_len_bits:
-                    payload_bits = payload_np_bits.tolist() # Успешно получили 64 бита
-                    payload_hex_str = payload_bytes.hex()
+                    payload_bits = payload_np_bits.tolist() # Успех!
                     decoded_success_count += 1
-                    if errors > 0: total_corrected_symbols += errors
                 else:
-                     logging.warning(f"Packet {i+1} unpacked to unexpected bit length: {len(payload_np_bits)}. Treating as failure.")
-                     status_str += " [Len Fail]" # Добавляем к статусу
-                     decode_failed_count += 1
-                     payload_bytes = None # Сбрасываем, т.к. не 64 бита
-                     payload_bits = None
+                     # Ошибка длины после unpackbits
+                     logging.warning(f"Packet {i+1} unpacked to len {len(payload_np_bits)} != {payload_len_bits}.")
+                     status_str += "[Len Fail]"
+                     if status_str.startswith("OK"): decode_failed_count += 1 # Считаем ошибкой, если статус был OK
+                     payload_bits = None # Сбрасываем результат
             except Exception as e_unpack:
                 logging.error(f"Error unpacking bits for packet {i+1}: {e_unpack}")
-                status_str += " [Unpack Fail]"
-                decode_failed_count += 1
-                payload_bytes = None
+                status_str += "[Unpack Fail]"
+                if status_str.startswith("OK"): decode_failed_count += 1
                 payload_bits = None
-        elif payload_bytes is None: # Если декодирование/конвертация не удались на пред. шаге
-             decode_failed_count += 1
+        # else: # Если payload_bytes был None, decode_failed_count уже увеличен
 
-        # ИЗМЕНЕНИЕ: Добавляем результат (биты или None) в общий список
-        all_payload_attempts_bits.append(payload_bits)
+        all_payload_attempts_bits.append(payload_bits) # Добавляем результат (или None)
+        corrected_str = str(errors) if errors != -1 else "-"
+        print(f"{i+1:<6} | {packet_type_str:<7} | {status_str:<18} | {corrected_str:<10} | {payload_hex_str:<20}")
 
-        # Выводим лог для каждого пакета
-        corrected_str = str(errors) if errors != -1 else "-" # Используем '-' для неисправимых/ошибок
-        print(f"{i+1:<6} | {status_str:<15} | {corrected_str:<10} | {payload_hex_str:<20}")
+    # --- Конец цикла декодирования ---
 
-    print("-" * 58)
-    logging.info(f"Decode attempts summary: Success (yielded {payload_len_bits} bits) = {decoded_success_count}, Failed/Skipped = {decode_failed_count}. Total ECC corrections (reported): {total_corrected_symbols}.")
+    print("-" * 68) # Увеличил ширину
+    logging.info(f"Decode attempts summary: Total packets processed = {len(all_payload_attempts_bits)}, Success (yielded {payload_len_bits} bits) = {decoded_success_count}, Failed/Skipped = {decode_failed_count}.")
+    if ecc_possible_for_first and expect_hybrid_ecc:
+         logging.info(f"Total ECC corrections reported for first packet: {total_corrected_symbols}.")
 
-    # --- ИЗМЕНЕНИЕ: Побитовое Голосование ---
-    # Отфильтровываем None из списка попыток, чтобы остались только валидные пакеты для голосования
-    valid_decoded_payloads = [p for p in all_payload_attempts_bits if p is not None]
 
-    if not valid_decoded_payloads:
-        logging.error(f"No valid {payload_len_bits}-bit payloads available for bit-wise voting after decoding attempts.")
+    # --- ИЗМЕНЕНИЕ: Побитовое Голосование с Приоритетом Первого Пакета ---
+    num_attempted_packets = len(all_payload_attempts_bits)
+    if num_attempted_packets == 0:
+        logging.error("No packets were processed for voting.")
         return None
 
+    # Получаем результат первого пакета для разрешения ничьих
+    first_packet_payload = all_payload_attempts_bits[0] if num_attempted_packets > 0 else None
+
+    # Фильтруем валидные пакеты *только для самого голосования*
+    valid_decoded_payloads = [p for p in all_payload_attempts_bits if p is not None]
     num_valid_packets_for_vote = len(valid_decoded_payloads)
+
+    if num_valid_packets_for_vote == 0:
+        logging.error(f"No valid {payload_len_bits}-bit payloads available for bit-wise voting.")
+        return None
+
     final_payload_bits = []
-    logging.info(f"Performing bit-wise majority vote across {num_valid_packets_for_vote} validly decoded packets...")
+    logging.info(f"Performing bit-wise majority vote across {num_valid_packets_for_vote} validly decoded packets (tie-break to first packet if valid)...")
 
     print("\n--- Bit-wise Voting Details ---")
-    print(f"{'Bit Pos':<8} | {'Votes 0':<8} | {'Votes 1':<8} | {'Winner':<8}")
-    print("-" * 38)
+    print(f"{'Bit Pos':<8} | {'Votes 0':<8} | {'Votes 1':<8} | {'Winner':<8} | {'Tiebreak?':<10}")
+    print("-" * 50)
 
-    for j in range(payload_len_bits): # Итерация по позициям бит (0 до payload_len_bits-1)
-        votes_for_0 = 0
-        votes_for_1 = 0
+    for j in range(payload_len_bits): # Итерация по позициям бит
+        votes_for_0 = 0; votes_for_1 = 0
 
         for i in range(num_valid_packets_for_vote): # Итерация по ВАЛИДНЫМ пакетам
-            # Доступ к битам напрямую, т.к. мы уже отфильтровали None
-            if j < len(valid_decoded_payloads[i]): # Доп. проверка на всякий случай
-                 if valid_decoded_payloads[i][j] == 1:
-                     votes_for_1 += 1
-                 else:
-                     votes_for_0 += 1
-            # else: # Этого не должно случиться, если все пакеты валидны
-            #     logging.warning(f"Unexpected length issue accessing bit {j} in valid packet {i}.")
+            # Не нужна проверка на None здесь, так как valid_decoded_payloads их не содержит
+            if j < len(valid_decoded_payloads[i]):
+                 if valid_decoded_payloads[i][j] == 1: votes_for_1 += 1
+                 else: votes_for_0 += 1
+            else: # На всякий случай
+                 logging.warning(f"Bit index {j} out of range for valid packet {i} during voting.")
 
         # Определение победителя
-        winner_bit: int
-        if votes_for_1 > votes_for_0:
-            winner_bit = 1
-        elif votes_for_0 > votes_for_1:
-            winner_bit = 0
-        else:
-            # ИЗМЕНЕНИЕ: При ничьей берем бит из ПЕРВОГО валидного пакета
-            logging.warning(f"Bit position {j}: Tie in voting ({votes_for_0} vs {votes_for_1}). Using bit from the first packet.")
-            if j < len(valid_decoded_payloads[0]): # Проверка индекса для первого пакета
-                 winner_bit = valid_decoded_payloads[0][j]
+        winner_bit: Optional[int] = None # Используем Optional
+        tiebreak_used = "No"
+
+        if votes_for_1 > votes_for_0: winner_bit = 1
+        elif votes_for_0 > votes_for_1: winner_bit = 0
+        else: # Ничья
+            tiebreak_used = "Yes"
+            logging.warning(f"Bit position {j}: Tie in voting ({votes_for_0} vs {votes_for_1}). Trying bit from the first packet.")
+            # Берем бит из первого пакета, только ЕСЛИ ОН БЫЛ ВАЛИДНЫМ
+            if first_packet_payload is not None and j < len(first_packet_payload):
+                 winner_bit = first_packet_payload[j]
             else:
-                 logging.error(f"Cannot resolve tie for bit {j}: index out of bounds for the first packet!")
-                 winner_bit = 0 # Аварийное значение
-                 # Или можно вернуть None из всей функции здесь, если ничья критична
-                 # return None
+                 logging.error(f"Cannot resolve tie for bit {j}: First packet decoding failed or index invalid! Voting failed.")
+                 print(f"{j:<8} | {votes_for_0:<8} | {votes_for_1:<8} | {'FAIL':<8} | {tiebreak_used:<10}")
+                 # Если не можем разрешить ничью, голосование не удалось
+                 final_payload_bits = None # Сигнализируем об общей ошибке
+                 break # Прерываем цикл голосования
+
+        # Если не удалось определить победителя (хотя этого не должно быть при текущей логике, кроме FAIL выше)
+        if winner_bit is None:
+             logging.error(f"Winner bit is None for position {j}, this shouldn't happen.")
+             final_payload_bits = None
+             break
 
         final_payload_bits.append(winner_bit)
-        # Выводим детали голосования для каждой позиции
-        print(f"{j:<8} | {votes_for_0:<8} | {votes_for_1:<8} | {winner_bit:<8}")
+        print(f"{j:<8} | {votes_for_0:<8} | {votes_for_1:<8} | {winner_bit:<8} | {tiebreak_used:<10}")
 
-    print("-" * 38)
-    logging.info(f"Bit-wise voting complete.")
+    # --- Конец цикла голосования ---
 
-    # Конвертация финального списка бит в байты
+    print("-" * 50)
+
+    # Проверяем, не прервалось ли голосование
+    if final_payload_bits is None:
+         logging.error("Bit-wise voting failed due to unresolvable tie or other error.")
+         return None
+    else:
+         logging.info(f"Bit-wise voting complete.")
+
+    # --- Конвертация и возврат результата (остается без изменений) ---
     final_payload_bytes = bits_to_bytes(final_payload_bits)
-
     if final_payload_bytes is None:
          logging.error("Failed to convert final voted bits to bytes.")
          return None
     if len(final_payload_bytes) != plb:
          logging.error(f"Final payload length after voting ({len(final_payload_bytes)}B) != expected ({plb}B).")
-         if len(final_payload_bytes) > plb and len(final_payload_bytes) - (len(final_payload_bytes) % plb) == plb:
-             # Случай, когда bits_to_bytes добавил лишний байт из-за паддинга, но payload был ровно один
-              final_payload_bytes = final_payload_bytes[:plb]
-              logging.warning(f"Trimmed final payload to {plb} bytes (likely due to padding).")
-         else:
-              return None # Не хватает байт или непонятная длина
+         # ... (обработка ошибки длины, как раньше) ...
+         return None
 
     logging.info(f"Final ID after bit-wise voting: {final_payload_bytes.hex()}")
-
     end_time = time.time()
     logging.info(f"Extraction done. Total time: {end_time - start_time:.2f} sec.")
     return final_payload_bytes
-
 
 # --- Основная Функция (main) ---
 def main():
@@ -982,9 +1044,18 @@ def main():
 
     # Вызов основной функции извлечения
     extracted_bytes = extract_watermark_from_video(
-        frames=frames, nr=N_RINGS, nrtu=NUM_RINGS_TO_USE, bp=BITS_PER_PAIR, cps=CANDIDATE_POOL_SIZE,
-        ec=EMBED_COMPONENT, mpr=MAX_PACKET_REPEATS, ue=USE_ECC, bm=BCH_M, bt=BCH_T,
-        plb=PAYLOAD_LEN_BYTES, mw=MAX_WORKERS_EXTRACT)
+        frames=frames,
+        nr=N_RINGS, nrtu=NUM_RINGS_TO_USE, bp=BITS_PER_PAIR,
+        cps=CANDIDATE_POOL_SIZE, ec=EMBED_COMPONENT,
+        # --- Новые параметры ---
+        expect_hybrid_ecc=True,  # <--- Указываем, что ожидаем гибрид (или False)
+        max_expected_packets=15,  # <--- Макс. пакетов (должно совпадать с embedder)
+        # --- ECC параметры ---
+        ue=USE_ECC,  # Передаем глобальный флаг USE_ECC
+        bch_code=BCH_CODE_OBJECT,  # Передаем глобальный объект BCH
+        # --- Остальные ---
+        plb=PAYLOAD_LEN_BYTES, mw=MAX_WORKERS_EXTRACT
+    )
 
     print(f"\n--- Extraction Results ---")
     extracted_hex = None
