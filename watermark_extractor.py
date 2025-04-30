@@ -416,7 +416,7 @@ def extract_single_bit(f1:np.ndarray, f2:np.ndarray, ring_idx:int, n_rings:int, 
         # Конвертируем в numpy массив, если это результат OpenCL
         L1 = np.array(p1.lowpass)
         L2 = np.array(p2.lowpass)
-        logging.debug(f"{prefix} DTCWT L1/L2 Calculated.")
+        # logging.debug(f"{prefix} DTCWT L1/L2 Calculated.")
         # ИСПРАВЛЕНО: Форматирование для комплексных чисел (показываем магнитуду)
         logging.debug(f"{prefix} L1(in) s={L1.shape} m={np.mean(np.abs(L1)):.8e} v={np.var(np.abs(L1)):.8e} L1[0,0]={np.abs(L1[0,0]):.8e}")
         logging.debug(f"{prefix} L2(in) s={L2.shape} m={np.mean(np.abs(L2)):.8e} v={np.var(np.abs(L2)):.8e} L2[0,0]={np.abs(L2[0,0]):.8e}")
@@ -463,12 +463,12 @@ def extract_single_bit(f1:np.ndarray, f2:np.ndarray, ring_idx:int, n_rings:int, 
         rv1 = np.abs(rv1_complex).astype(np.float32)
         rv2 = np.abs(rv2_complex).astype(np.float32)
 
-        logging.debug(f"{prefix} rv1 s={rv1.shape} m={np.mean(rv1):.8f} data[:3]={np.array2string(rv1[:3], precision=8)}")
-        logging.debug(f"{prefix} rv2 s={rv2.shape} m={np.mean(rv2):.8f} data[:3]={np.array2string(rv2[:3], precision=8)}")
+        # logging.debug(f"{prefix} rv1 s={rv1.shape} m={np.mean(rv1):.8f} data[:3]={np.array2string(rv1[:3], precision=8)}")
+        # logging.debug(f"{prefix} rv2 s={rv2.shape} m={np.mean(rv2):.8f} data[:3]={np.array2string(rv2[:3], precision=8)}")
 
         d1 = dct_1d(rv1); d2 = dct_1d(rv2)
-        logging.debug(f"{prefix} d1[:3]={np.array2string(d1[:3], precision=8)}")
-        logging.debug(f"{prefix} d2[:3]={np.array2string(d2[:3], precision=8)}")
+        # logging.debug(f"{prefix} d1[:3]={np.array2string(d1[:3], precision=8)}")
+        # logging.debug(f"{prefix} d2[:3]={np.array2string(d2[:3], precision=8)}")
 
         try:
             # SVD ожидает действительные числа
@@ -1011,7 +1011,7 @@ def main():
 
     # Имя входного файла должно соответствовать выходному имени эмбеддера
     # Ensure consistency or make it an argument
-    input_base = f"watermarked_galois_t4_{backend_name_str}_thr_batched"
+    input_base = f"compressed_h264_crf28"
     input_video = input_base + INPUT_EXTENSION
     original_id = None
 

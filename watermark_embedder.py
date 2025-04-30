@@ -197,7 +197,7 @@ def dtcwt_inverse(py: Pyramid, fn: int = -1) -> Optional[np.ndarray]:
                 sc_np = tuple(np.array(s).copy() for s in py_processed.scales) if hasattr(py_processed, 'scales') and py_processed.scales is not None else None
                 py_processed = dtcwt.numpy.Pyramid(lp_np, hp_np, scales=sc_np)
                 if hasattr(py, 'padding_info'): setattr(py_processed, 'padding_info', getattr(py, 'padding_info'))
-                logging.info(f"[F:{fn}] Converted to numpy.Pyramid (empty highpasses).")
+                # logging.info(f"[F:{fn}] Converted to numpy.Pyramid (empty highpasses).")
             except Exception as e_conv:
                  logging.warning(f"[F:{fn}] Failed to convert: {e_conv}. Using original type {type(py)}.", exc_info=True)
 
@@ -310,7 +310,7 @@ def calculate_perceptual_mask(ip: np.ndarray, fn: int = -1) -> Optional[np.ndarr
         gm=np.sqrt(gx**2+gy**2); ks=(11,11); s=5; lm=cv2.GaussianBlur(pf,ks,s); lms=cv2.GaussianBlur(pf**2,ks,s)
         lv=np.sqrt(np.maximum(lms-lm**2,0)); cm=np.maximum(gm,lv); eps=1e-9; mc=np.max(cm)
         mn=cm/(mc+eps) if mc>eps else np.zeros_like(cm);
-        # logging.debug(f"Mask F{fn}: range {np.min(mn):.2f}-{np.max(mn):.2f}") # Можно раскомментировать
+        logging.debug(f"Mask F{fn}: range {np.min(mn):.2f}-{np.max(mn):.2f}") # Можно раскомментировать
         return np.clip(mn,0.,1.).astype(np.float32)
     except Exception as e: logging.error(f"Mask error F{fn}: {e}"); return np.ones_like(ip, dtype=np.float32)
 
@@ -546,6 +546,7 @@ def embed_frame_pair(
         logging.error(f"Critical error P:{pair_index}: {e}", exc_info=True); return None, None
 
 # --- Воркер для одной пары кадров ---
+@profile
 def _embed_single_pair_task(args: Dict[str, Any]) -> Tuple[int, Optional[np.ndarray], Optional[np.ndarray], List[int]]:
     """
     Обрабатывает одну пару кадров: выбирает кольца на основе энтропии из пула кандидатов
@@ -562,6 +563,10 @@ def _embed_single_pair_task(args: Dict[str, Any]) -> Tuple[int, Optional[np.ndar
     ec = args['embed_component']
     upm = args['use_perceptual_masking']
     selected_rings = [] # Инициализируем на случай ошибки
+    bits_for_this_pair = args.get('bits', [])
+    if pair_idx == -1 or f1 is None or f2 is None or not bits_for_this_pair:
+        logging.error(f"Недостаточно аргументов или бит для _embed_single_pair_task (pair_idx={pair_idx})")
+        return fn, None, None, []
 
     try:
         # --- ШАГ 1: Получение детерминированного пула кандидатов ---
@@ -634,6 +639,18 @@ def _embed_single_pair_task(args: Dict[str, Any]) -> Tuple[int, Optional[np.ndar
         else:
              logging.info(f"[P:{pair_idx}] Selected rings (Entropy based): {selected_rings}")
 
+        if len(bits_for_this_pair) != len(selected_rings):
+            logging.info(
+                f"[P:{pair_idx}] Число бит ({len(bits_for_this_pair)}) не совпадает с числом колец ({len(selected_rings)})! Используем минимум.")
+            min_len = min(len(bits_for_this_pair), len(selected_rings))
+            bits_to_embed_now = bits_for_this_pair[:min_len]
+            rings_to_use_now = selected_rings[:min_len]
+        else:
+            bits_to_embed_now = bits_for_this_pair
+            rings_to_use_now = selected_rings
+
+        for bit_val, ring_i in zip(bits_to_embed_now, rings_to_use_now):
+            logging.info(f"[P:{pair_idx} EMBED] Bit={bit_val} -> Ring={ring_i}")
 
         # --- ШАГ 3: Вызов встраивания с выбранными кольцами ---
         mod_f1, mod_f2 = embed_frame_pair(f1, f2, bits, selected_rings, nr, fn, upm, ec)
