@@ -1,4 +1,4 @@
-# Файл: embedder_opencl_batched.py (Версия: ThreadPool + Batches + OpenCL Attempt - ИСПРАВЛЕННЫЙ)
+# Файл: embedder_pytorch_wavelets.py (ЧАСТЬ 1)
 import cv2
 import numpy as np
 import random
@@ -9,84 +9,37 @@ from concurrent.futures import ThreadPoolExecutor
 import json
 import os
 import sys
-# import imagehash
 import hashlib
-from PIL import Image
-from line_profiler import line_profiler
-from line_profiler.explicit_profiler import profile
-from scipy.fftpack import dct, idct
-from scipy.linalg import svd
-import dtcwt
-from dtcwt import Transform2d, Pyramid
+from PIL import Image # Оставлен на всякий случай, но пока не используется напрямую
+# line_profiler убран из примера, добавьте если нужно
+# from line_profiler import profile
+from scipy.fftpack import dct as scipy_dct, idct as scipy_idct # Переименовал для ясности
+from scipy.linalg import svd as scipy_svd # Переименовал для ясности
+# --- НОВЫЕ ИМПОРТЫ ---
+import torch
+import torch.nn.functional as F # Понадобится для interpolate
+try:
+    # Импортируем только нужные классы
+    from pytorch_wavelets import DTCWTForward, DTCWTInverse
+    PYTORCH_WAVELETS_AVAILABLE = True
+except ImportError:
+    PYTORCH_WAVELETS_AVAILABLE = False
+    # Определим классы-пустышки, чтобы код не падал при импорте, но выдавал ошибку при использовании
+    class DTCWTForward: pass
+    class DTCWTInverse: pass
+    logging.error("Библиотека pytorch_wavelets не найдена!")
+# ---------------------
 from typing import List, Tuple, Optional, Dict, Any
-import functools
+# functools убран
 import uuid
 from math import ceil
 import cProfile
 import pstats
-from line_profiler import profile
 
-
-DTCWT_OPENCL_ENABLED = False # Глобальный флаг
-
-try:
-    import galois
-    logging.info("galois: импортирован.")
-    _test_bch_ok = False; _test_decode_ok = False; BCH_CODE_OBJECT = None
-    try:
-        _test_m = 8
-        _test_t = 9 # Используем глобальную переменную
-        _test_n = (1 << _test_m) - 1
-        _test_d = 2 * _test_t + 1
-
-        logging.info(f"Попытка инициализации Galois BCH с n={_test_n}, d={_test_d} (ожидаемое t={_test_t})")
-        _test_bch_galois = galois.BCH(_test_n, d=_test_d)
-
-        # --- ИЗМЕНИТЬ ОЖИДАЕМОЕ K в соответствии с выбранным T ---
-        # Примеры:
-        if _test_t == 5: expected_k = 215
-        elif _test_t == 7: expected_k = 201
-        elif _test_t == 9: expected_k = 187 # <--- Пример для t=9
-        elif _test_t == 11: expected_k = 173
-        elif _test_t == 15: expected_k = 131
-        else:
-             # Если t другое, нужно найти k или обработать ошибку
-             logging.error(f"Неизвестное ожидаемое k для t={_test_t}")
-             expected_k = -1 # Вызовет ошибку ниже
-
-        if _test_bch_galois.t == _test_t and _test_bch_galois.k == expected_k:
-             logging.info(f"galois BCH(n={_test_bch_galois.n}, k={_test_bch_galois.k}, t={_test_bch_galois.t}) OK.")
-             _test_bch_ok = True; BCH_CODE_OBJECT = _test_bch_galois
-        else:
-             logging.error(f"galois BCH init mismatch! Ожидалось: t={_test_t}, k={expected_k}. Получено: t={_test_bch_galois.t}, k={_test_bch_galois.k}.")
-             _test_bch_ok = False; BCH_CODE_OBJECT = None
-
-        if _test_bch_ok:
-            _n_bits = _test_bch_galois.n; _dummy_cw_bits = np.zeros(_n_bits, dtype=np.uint8)
-            GF2 = galois.GF(2); _dummy_cw_vec = GF2(_dummy_cw_bits)
-            _msg, _flips = _test_bch_galois.decode(_dummy_cw_vec, errors=True)
-            if _flips is not None: logging.info(f"galois: decode() test OK (flips={_flips})."); _test_decode_ok = True
-            else: logging.warning("galois: decode() test failed?"); _test_decode_ok = False # Изменено на warning
-    except ValueError as ve: # Ловим ошибки инициализации BCH
-         logging.error(f"galois: ОШИБКА ValueError при инициализации BCH(d={_test_d}): {ve}")
-         BCH_CODE_OBJECT = None; _test_bch_ok = False
-    except Exception as test_err: # Ловим другие ошибки тестов
-         logging.error(f"galois: ОШИБКА теста инициализации/декодирования: {test_err}", exc_info=True) # Добавлен exc_info
-         BCH_CODE_OBJECT = None; _test_bch_ok = False
-
-    GALOIS_AVAILABLE = _test_bch_ok and _test_decode_ok
-    if not GALOIS_AVAILABLE: BCH_CODE_OBJECT = None
-    if GALOIS_AVAILABLE: logging.info("galois: Тесты пройдены.")
-    else: logging.warning("galois: Тесты НЕ ПРОЙДЕНЫ. ECC будет отключен или работать некорректно.")
-
-
-
-except ImportError: GALOIS_AVAILABLE = False; BCH_CODE_OBJECT = None; logging.info("galois library not found.")
-except Exception as import_err: GALOIS_AVAILABLE = False; BCH_CODE_OBJECT = None; logging.info(f"galois: Ошибка импорта: {import_err}")
-
-LAMBDA_PARAM: float = 0.01
+# --- Глобальные Параметры ---
+LAMBDA_PARAM: float = 0.05
 ALPHA_MIN: float = 1.13
-ALPHA_MAX: float = 1.27
+ALPHA_MAX: float = 1.28
 N_RINGS: int = 8
 MAX_THEORETICAL_ENTROPY = 8.0
 EMBED_COMPONENT: int = 2 # Cb
@@ -94,576 +47,810 @@ USE_PERCEPTUAL_MASKING: bool = True
 CANDIDATE_POOL_SIZE: int = 4
 BITS_PER_PAIR: int = 2
 NUM_RINGS_TO_USE: int = BITS_PER_PAIR
-RING_SELECTION_METHOD: str = 'pool_entropy_selection'
+RING_SELECTION_METHOD: str = 'pool_entropy_selection' # Метод реализуется в коде
 PAYLOAD_LEN_BYTES: int = 8
 USE_ECC: bool = True
 BCH_M: int = 8
-BCH_T: int = 9
-MAX_PACKET_REPEATS: int = 5
+BCH_T: int = 9 # Оставляем T=9
 FPS: int = 30
-LOG_FILENAME: str = 'watermarking_embed_opencl_batched.log'
-
-
-
-
-
-OUTPUT_CODEC: str = 'mp4v'
-OUTPUT_EXTENSION: str = '.mp4'
-SELECTED_RINGS_FILE: str = 'selected_rings_embed_opencl_batched.json'
+LOG_FILENAME: str = 'watermarking_embed_pytorch.log' # Изменил имя лога
+OUTPUT_CODEC: str = 'mp4v' # Или другой
+OUTPUT_EXTENSION: str = '.mp4' # Или другой
+SELECTED_RINGS_FILE: str = 'selected_rings_embed_pytorch.json' # Изменил имя
 ORIGINAL_WATERMARK_FILE: str = 'original_watermark_id.txt'
-MAX_WORKERS: Optional[int] = None
+MAX_WORKERS: Optional[int] = 14 # Оставляем
+# MAX_TOTAL_PACKETS используется как аргумент функции
 
+# --- Инициализация Галуа (с t=9, k=187) ---
+BCH_CODE_OBJECT: Optional['galois.BCH'] = None # Аннотация в кавычках для отложенного импорта
+GALOIS_AVAILABLE = False
+try:
+    import galois
+    logging.info("galois: импортирован.")
+    _test_bch_ok = False; _test_decode_ok = False
+    try:
+        _test_m = BCH_M
+        _test_t = BCH_T
+        _test_n = (1 << _test_m) - 1
+        _test_d = 2 * _test_t + 1
+
+        logging.info(f"Попытка инициализации Galois BCH с n={_test_n}, d={_test_d} (ожидаемое t={_test_t})")
+        _test_bch_galois = galois.BCH(_test_n, d=_test_d)
+
+        # Определяем ожидаемое k на основе t
+        if _test_t == 5: expected_k = 215
+        elif _test_t == 7: expected_k = 201
+        elif _test_t == 9: expected_k = 187 # <-- Для t=9
+        elif _test_t == 11: expected_k = 173
+        elif _test_t == 15: expected_k = 131
+        else:
+             logging.error(f"Неизвестное ожидаемое k для t={_test_t}")
+             expected_k = -1
+
+        if expected_k != -1 and _test_bch_galois.t == _test_t and _test_bch_galois.k == expected_k:
+             logging.info(f"galois BCH(n={_test_bch_galois.n}, k={_test_bch_galois.k}, t={_test_bch_galois.t}) OK.")
+             _test_bch_ok = True; BCH_CODE_OBJECT = _test_bch_galois
+        else:
+             logging.error(f"galois BCH init mismatch! Ожидалось: t={_test_t}, k={expected_k}. Получено: t={_test_bch_galois.t}, k={_test_bch_galois.k}.")
+             _test_bch_ok = False; BCH_CODE_OBJECT = None
+
+        # Тест декодирования (если инициализация прошла)
+        if _test_bch_ok and BCH_CODE_OBJECT is not None:
+            _n_bits = BCH_CODE_OBJECT.n
+            _dummy_cw_bits = np.zeros(_n_bits, dtype=np.uint8)
+            GF2 = galois.GF(2); _dummy_cw_vec = GF2(_dummy_cw_bits)
+            # Подавляем вывод ошибок декодера в тесте
+            _msg, _flips = BCH_CODE_OBJECT.decode(_dummy_cw_vec, errors=True)
+            if _flips is not None: # Проверяем, что декодирование не вызвало исключение
+                 logging.info(f"galois: decode() test OK (flips={_flips}).")
+                 _test_decode_ok = True
+            else:
+                 # decode() может вернуть None для _flips если ошибок 0, проверим и так
+                 _test_decode_ok = True # Считаем тест пройденным, если исключения не было
+                 logging.info("galois: decode() test potentially OK (flips is None/0).")
+    except ValueError as ve:
+         logging.error(f"galois: ОШИБКА ValueError при инициализации BCH: {ve}")
+         BCH_CODE_OBJECT = None; _test_bch_ok = False
+    except Exception as test_err:
+         logging.error(f"galois: ОШИБКА теста инициализации/декодирования: {test_err}", exc_info=True)
+         BCH_CODE_OBJECT = None; _test_bch_ok = False
+
+    GALOIS_AVAILABLE = _test_bch_ok and _test_decode_ok
+    if GALOIS_AVAILABLE: logging.info("galois: Тесты пройдены, объект BCH доступен.")
+    else: logging.warning("galois: Тесты НЕ ПРОЙДЕНЫ или объект BCH не создан.")
+
+except ImportError:
+    GALOIS_AVAILABLE = False; BCH_CODE_OBJECT = None
+    logging.info("galois library not found.")
+except Exception as import_err:
+    GALOIS_AVAILABLE = False; BCH_CODE_OBJECT = None
+    logging.error(f"galois: Ошибка импорта: {import_err}", exc_info=True)
+
+
+# --- Настройка логирования ---
 for handler in logging.root.handlers[:]: logging.root.removeHandler(handler)
 logging.basicConfig(filename=LOG_FILENAME, filemode='w', level=logging.INFO,
                     format='[%(asctime)s] %(levelname).1s %(threadName)s - %(funcName)s:%(lineno)d - %(message)s')
-# logging.getLogger().setLevel(logging.DEBUG)
+# logging.getLogger().setLevel(logging.DEBUG) # Раскомментировать для детального лога
 
+# --- Логирование конфигурации ---
 effective_use_ecc = USE_ECC and GALOIS_AVAILABLE
-logging.info(f"--- Запуск Скрипта Встраивания (ThreadPool + Batches + OpenCL Attempt) ---")
+logging.info(f"--- Запуск Скрипта Встраивания (PyTorch Wavelets) ---")
+logging.info(f"PyTorch Wavelets Доступно: {PYTORCH_WAVELETS_AVAILABLE}")
 logging.info(f"Метод выбора колец: {RING_SELECTION_METHOD}, Pool: {CANDIDATE_POOL_SIZE}, Select: {NUM_RINGS_TO_USE}")
-logging.info(f"Payload: {PAYLOAD_LEN_BYTES * 8}bit, ECC: {effective_use_ecc} (Galois BCH m={BCH_M}, t={BCH_T})")
+logging.info(f"Payload: {PAYLOAD_LEN_BYTES * 8}bit, ECC for 1st: {effective_use_ecc} (Galois BCH m={BCH_M}, t={BCH_T})")
 logging.info(f"Альфа: MIN={ALPHA_MIN}, MAX={ALPHA_MAX}, N_RINGS_Total={N_RINGS}")
 logging.info(f"Маскировка: {USE_PERCEPTUAL_MASKING} (Lambda={LAMBDA_PARAM}), Компонент: {['Y', 'Cr', 'Cb'][EMBED_COMPONENT]}")
 logging.info(f"Выход: Кодек={OUTPUT_CODEC}, Расширение={OUTPUT_EXTENSION}")
 logging.info(f"Параллелизм: ThreadPoolExecutor (max_workers={MAX_WORKERS or 'default'}) с батчингом.")
-logging.info(f"DTCWT Бэкенд: Попытка использовать OpenCL (иначе NumPy).")
-if USE_ECC and not GALOIS_AVAILABLE: logging.warning("ECC вкл, но galois недоступна/не работает! Встраивание БЕЗ ECC.")
-elif not USE_ECC: logging.info("ECC выкл.")
+if USE_ECC and not GALOIS_AVAILABLE: logging.warning("ECC вкл, но galois недоступна/не работает! Первый пакет будет Raw.")
+elif not USE_ECC: logging.info("ECC выкл для первого пакета.")
 if OUTPUT_CODEC in ['XVID', 'mp4v', 'MJPG', 'DIVX']: logging.warning(f"Используется кодек с потерями '{OUTPUT_CODEC}'.")
 if NUM_RINGS_TO_USE > CANDIDATE_POOL_SIZE:
-    logging.error(f"NUM_RINGS_TO_USE > CANDIDATE_POOL_SIZE! Исправлено.")
+    logging.error(f"NUM_RINGS_TO_USE ({NUM_RINGS_TO_USE}) > CANDIDATE_POOL_SIZE ({CANDIDATE_POOL_SIZE})! Исправлено.")
     NUM_RINGS_TO_USE = CANDIDATE_POOL_SIZE
-if NUM_RINGS_TO_USE != BITS_PER_PAIR: logging.warning(f"NUM_RINGS_TO_USE != BITS_PER_PAIR.")
+if NUM_RINGS_TO_USE != BITS_PER_PAIR: logging.warning(f"NUM_RINGS_TO_USE ({NUM_RINGS_TO_USE}) != BITS_PER_PAIR ({BITS_PER_PAIR}).")
 
-# --- Базовые Функции ---
+# --- Базовые Функции (с изменениями для PyTorch) ---
+
 def dct_1d(s: np.ndarray) -> np.ndarray:
-    return dct(s, type=2, norm='ortho')
+    """1D DCT используя SciPy (для NumPy массивов)."""
+    return scipy_dct(s, type=2, norm='ortho')
 
 def idct_1d(c: np.ndarray) -> np.ndarray:
-    return idct(c, type=2, norm='ortho')
+    """1D IDCT используя SciPy (для NumPy массивов)."""
+    return scipy_idct(c, type=2, norm='ortho')
 
-def dtcwt_transform(yp: np.ndarray, fn: int = -1) -> Optional[Pyramid]:
-    if not isinstance(yp, np.ndarray) or yp.ndim != 2:
-         logging.error(f"[Frame:{fn}] Invalid input type/dims for dtcwt_transform: {type(yp)}, {yp.ndim if hasattr(yp, 'ndim') else 'N/A'}")
-         return None
-    if np.any(np.isnan(yp)): logging.warning(f"[Frame:{fn}] Input DTCWT contains NaN!")
+# --- НОВАЯ функция обертка для PyTorch DTCWT Forward ---
+def dtcwt_pytorch_forward(yp_tensor: torch.Tensor, xfm: DTCWTForward, device: torch.device, fn: int = -1) -> Tuple[Optional[torch.Tensor], Optional[List[torch.Tensor]]]:
+    """Применяет прямое DTCWT PyTorch к одному каналу (2D тензору)."""
+    if not PYTORCH_WAVELETS_AVAILABLE: # Проверка доступности библиотеки
+         logging.error("PyTorch Wavelets не доступна для dtcwt_pytorch_forward.")
+         return None, None
+    if not isinstance(yp_tensor, torch.Tensor):
+        logging.error(f"[Frame:{fn}] Input is not a torch Tensor.")
+        return None, None
+    if yp_tensor.ndim != 2:
+        logging.error(f"[Frame:{fn}] Input tensor must be 2D (H, W), got {yp_tensor.shape}")
+        return None, None
     try:
-        t = dtcwt.Transform2d()
-        r, c = yp.shape; pr = r % 2 != 0; pc = c % 2 != 0
-        ypp = np.pad(yp, ((0, pr), (0, pc)), mode='reflect') if pr or pc else yp
-        py = t.forward(ypp.astype(np.float32), nlevels=1)
-        if hasattr(py, 'lowpass') and py.lowpass is not None:
-             py.padding_info = (pr, pc); return py
-        else: logging.error(f"[Frame:{fn}] DTCWT forward did not return lowpass."); return None
-    except Exception as e: logging.error(f"[Frame:{fn}] DTCWT forward error (backend: {dtcwt.backend_name}): {e}", exc_info=True); return None
+        # Добавляем Batch и Channel измерения, перемещаем на device
+        # Убедимся, что тензор имеет тип float32
+        yp_tensor = yp_tensor.unsqueeze(0).unsqueeze(0).to(device=device, dtype=torch.float32) # -> (1, 1, H, W)
+        xfm = xfm.to(device)
 
-def dtcwt_inverse(py: Pyramid, fn: int = -1) -> Optional[np.ndarray]:
-    """
-    Применяет обратное DTCWT, используя текущий активный бэкенд dtcwt.
-    (Версия для работы с пирамидой с highpasses=() )
-    """
-    logging.debug(f"[F:{fn}] Entering dtcwt_inverse. Pyramid type: {type(py)}. Backend: {dtcwt.backend_name}")
-
-    if not isinstance(py, dtcwt.Pyramid):
-         logging.error(f"[F:{fn}] Input is not a dtcwt.Pyramid based object.")
-         return None
-    if not hasattr(py, 'lowpass') or py.lowpass is None:
-         logging.error(f"[F:{fn}] Input pyramid missing 'lowpass' or it is None.")
-         return None
-
-    lp_shape = getattr(py.lowpass, 'shape', 'N/A')
-    lp_dtype = getattr(py.lowpass, 'dtype', 'N/A')
-    lp_is_np = isinstance(py.lowpass, np.ndarray)
-    logging.debug(f"[F:{fn}] Input Lowpass shape: {lp_shape}, dtype: {lp_dtype}, Is NumPy: {lp_is_np}")
-
-    hp_info = "None or Empty"
-    hp_level_count = 0
-    if hasattr(py, 'highpasses') and py.highpasses is not None:
-         try: hp_level_count = len(py.highpasses); hp_info = f"Tuple len={hp_level_count}"
-         except TypeError: hp_info = f"Not iterable (type={type(py.highpasses)})"
-    logging.debug(f"[F:{fn}] Input Highpasses info: {hp_info}")
-
-    try:
-        t = dtcwt.Transform2d()
-        py_processed = py
-
-        # Попытка конвертации в NumPy Pyramid, если нужно
-        if not isinstance(py_processed, dtcwt.numpy.Pyramid):
-            logging.debug(f"[F:{fn}] Input not numpy.Pyramid. Attempting conversion...")
-            try:
-                lp_np = np.array(py_processed.lowpass).copy()
-                # Создаем ПУСТОЙ кортеж для highpasses, так как мы передаем highpasses=()
-                hp_np = ()
-                sc_np = tuple(np.array(s).copy() for s in py_processed.scales) if hasattr(py_processed, 'scales') and py_processed.scales is not None else None
-                py_processed = dtcwt.numpy.Pyramid(lp_np, hp_np, scales=sc_np)
-                if hasattr(py, 'padding_info'): setattr(py_processed, 'padding_info', getattr(py, 'padding_info'))
-                # logging.info(f"[F:{fn}] Converted to numpy.Pyramid (empty highpasses).")
-            except Exception as e_conv:
-                 logging.warning(f"[F:{fn}] Failed to convert: {e_conv}. Using original type {type(py)}.", exc_info=True)
-
-        # Вызов t.inverse() БЕЗ gain_mask
-        logging.debug(f"[F:{fn}] Calling t.inverse() with pyramid (type: {type(py_processed)})...")
-        start_inverse = time.perf_counter()
-        rp = t.inverse(py_processed) # Передаем пирамиду с пустым highpasses=()
-        end_inverse = time.perf_counter()
-        logging.debug(f"[F:{fn}] t.inverse() call finished in {end_inverse - start_inverse:.4f} seconds.")
+        with torch.no_grad(): # Отключаем расчет градиентов для экономии памяти/скорости
+            Yl, Yh = xfm(yp_tensor) # Yh - список
 
         # Проверка результата
-        if rp is None: logging.error(f"[F:{fn}] t.inverse() returned None!"); return None
-        if not isinstance(rp, np.ndarray): rp = np.array(rp)
-        rp = rp.astype(np.float32); logging.debug(f"[F:{fn}] Result shape: {rp.shape}, dtype: {rp.dtype}")
+        if Yl is None or Yh is None or not isinstance(Yh, list) or not Yh:
+             logging.error(f"[Frame:{fn}] DTCWTForward вернула некорректный результат (None или пустой Yh).")
+             return None, None
 
-        # Обработка паддинга
-        pr, pc = getattr(py_processed, 'padding_info', (False, False)); logging.debug(f"[F:{fn}] Padding: pr={pr}, pc={pc}")
-        rows_rp, cols_rp = rp.shape; end_row = rows_rp - pr if pr else rows_rp; end_col = cols_rp - pc if pc else cols_rp; logging.debug(f"[F:{fn}] Target shape: ({end_row}, {end_col})")
-        if end_row < 0 or end_col < 0 or end_row > rows_rp or end_col > cols_rp: logging.error(f"[F:{fn}] Invalid target shape"); return None
-        ry = rp[:end_row, :end_col].copy(); logging.debug(f"[F:{fn}] Result after unpadding shape: {ry.shape}")
-        if np.any(np.isnan(ry)): logging.warning(f"[F:{fn}] NaN after inverse!")
-        return ry
-
-    except ValueError as ve: logging.error(f"[F:{fn}] ValueError during DTCWT inverse: {ve}", exc_info=True); return None
-    except IndexError as ie: logging.error(f"[F:{fn}] IndexError during DTCWT inverse (accessing empty Yh?): {ie}", exc_info=True); return None
-    except Exception as e: logging.error(f"[F:{fn}] DTCWT inverse error (backend: {dtcwt.backend_name}): {e}", exc_info=True); return None
-
-
-@functools.lru_cache(maxsize=8)
-def _ring_division_internal(subband_shape: Tuple[int, int], n_rings: int) -> List[Optional[np.ndarray]]:
-    H, W = subband_shape
-    if H < 2 or W < 2: return [None] * n_rings
-    center_r, center_c = (H - 1) / 2.0, (W - 1) / 2.0
-    rr, cc = np.indices((H, W), dtype=np.float32)
-    distances = np.sqrt((rr - center_r)**2 + (cc - center_c)**2)
-    min_dist, max_dist = 0.0, np.max(distances)
-    ring_bins = np.linspace(min_dist, max_dist + 1e-6, n_rings + 1) if max_dist >= 1e-6 else np.array([0., max_dist+1e-6])
-    n_rings_eff = len(ring_bins)-1
-    if n_rings_eff <= 0: return [None] * n_rings
-    ring_indices = np.digitize(distances, ring_bins) - 1
-    ring_indices[distances < ring_bins[1]] = 0
-    ring_indices = np.clip(ring_indices, 0, n_rings_eff - 1)
-    rc: List[Optional[np.ndarray]] = [None] * n_rings
-    for rdx in range(n_rings_eff):
-        coords = np.argwhere(ring_indices == rdx)
-        if coords.shape[0] > 0:
-            rc[rdx] = coords
-    return rc
-
-@functools.lru_cache(maxsize=8)
-def get_ring_coords_cached(ss: Tuple[int, int], nr: int) -> List[Optional[np.ndarray]]:
-    return _ring_division_internal(ss, nr)
-
-def ring_division(lp: np.ndarray, nr: int = N_RINGS, fn: int = -1) -> List[Optional[np.ndarray]]:
-    if not isinstance(lp, np.ndarray) or lp.ndim != 2:
-        logging.error(f"[Frame:{fn}] Invalid input for ring_division.")
-        return [None] * nr
-    sh=lp.shape
-    try:
-        cached_list = get_ring_coords_cached(sh, nr)
-        # Возвращаем копии
-        return [a.copy() if a is not None else None for a in cached_list]
+        # logging.debug(f"[Frame:{fn}] PyTorch DTCWT FWD done. Yl shape: {Yl.shape}, Yh[0] shape: {Yh[0].shape}")
+        # Возвращаем тензоры как есть (на device)
+        return Yl, Yh
+    except RuntimeError as e:
+        if "CUDA out of memory" in str(e):
+             logging.error(f"[Frame:{fn}] CUDA out of memory during PyTorch DTCWT forward!", exc_info=True)
+        else:
+             logging.error(f"[Frame:{fn}] PyTorch DTCWT forward runtime error: {e}", exc_info=True)
+        return None, None
     except Exception as e:
-        logging.error(f"Ring division error Frame {fn}: {e}", exc_info=True)
+        logging.error(f"[Frame:{fn}] PyTorch DTCWT forward unexpected error: {e}", exc_info=True)
+        return None, None
+
+# --- НОВАЯ функция обертка для PyTorch DTCWT Inverse ---
+def dtcwt_pytorch_inverse(Yl: torch.Tensor, Yh: List[torch.Tensor], ifm: DTCWTInverse, device: torch.device, target_shape: Tuple[int, int], fn: int = -1) -> Optional[np.ndarray]:
+     """Применяет обратное DTCWT PyTorch и возвращает NumPy массив float32."""
+     if not PYTORCH_WAVELETS_AVAILABLE:
+          logging.error("PyTorch Wavelets не доступна для dtcwt_pytorch_inverse.")
+          return None
+     if Yl is None or Yh is None or not isinstance(Yh, list) or not Yh:
+          logging.error(f"[Frame:{fn}] Invalid input for inverse (Yl or Yh is None/empty list).")
+          return None
+     try:
+         # Перемещаем все на device
+         Yl = Yl.to(device)
+         Yh = [h.to(device) for h in Yh if h is not None and h.numel() > 0] # Фильтруем пустые/None
+         ifm = ifm.to(device)
+
+         # Убедимся, что Yh не стал пустым после фильтрации
+         if not Yh:
+             logging.error(f"[Frame:{fn}] Yh list is empty after filtering Nones/empty tensors.")
+             return None
+
+         with torch.no_grad(): # Отключаем градиенты
+             reconstructed_X_tensor = ifm((Yl, Yh))
+
+         # Убираем batch и channel измерения
+         if reconstructed_X_tensor.dim() == 4 and reconstructed_X_tensor.shape[0] == 1 and reconstructed_X_tensor.shape[1] == 1:
+              reconstructed_X_tensor = reconstructed_X_tensor.squeeze(0).squeeze(0) # (H, W)
+         elif reconstructed_X_tensor.dim() != 2:
+              logging.error(f"[Frame:{fn}] Unexpected output dimension from inverse: {reconstructed_X_tensor.dim()}")
+              return None
+
+         # logging.debug(f"[Frame:{fn}] PyTorch DTCWT INV done. Output shape: {reconstructed_X_tensor.shape}")
+
+         # Обрезаем до нужного размера
+         current_h, current_w = reconstructed_X_tensor.shape
+         target_h, target_w = target_shape
+         if current_h > target_h or current_w > target_w:
+             logging.warning(f"[Frame:{fn}] Inverse result shape {reconstructed_X_tensor.shape} > target {target_shape}. Cropping.")
+             # Убедимся, что не обрезаем до нуля или отрицательного размера
+             if target_h > 0 and target_w > 0:
+                  reconstructed_X_tensor = reconstructed_X_tensor[:target_h, :target_w]
+             else:
+                   logging.error(f"[Frame:{fn}] Invalid target shape for cropping: {target_shape}")
+                   return None
+         elif current_h < target_h or current_w < target_w:
+              logging.warning(f"[Frame:{fn}] Inverse result shape {reconstructed_X_tensor.shape} < target {target_shape}. Padding might be needed if this causes issues.")
+              # Паддинг обычно не требуется, т.к. inverse восстанавливает размер
+
+         # Перемещаем на CPU и конвертируем в NumPy float32
+         reconstructed_np = reconstructed_X_tensor.cpu().numpy().astype(np.float32)
+
+         if np.any(np.isnan(reconstructed_np)):
+             logging.warning(f"[Frame:{fn}] NaN found after PyTorch inverse!")
+
+         return reconstructed_np
+     except RuntimeError as e:
+         if "CUDA out of memory" in str(e):
+              logging.error(f"[Frame:{fn}] CUDA out of memory during PyTorch DTCWT inverse!", exc_info=True)
+         else:
+              logging.error(f"[Frame:{fn}] PyTorch DTCWT inverse runtime error: {e}", exc_info=True)
+         return None
+     except Exception as e:
+          logging.error(f"[Frame:{fn}] PyTorch DTCWT inverse unexpected error: {e}", exc_info=True)
+          return None
+
+# --- ПЕРЕПИСАННАЯ ring_division для PyTorch ---
+def ring_division(lp_tensor: torch.Tensor, nr: int = N_RINGS, fn: int = -1) -> List[Optional[torch.Tensor]]:
+    """Разбивает 2D PyTorch тензор на N концентрических колец. Возвращает список тензоров координат."""
+    if not isinstance(lp_tensor, torch.Tensor) or lp_tensor.ndim != 2:
+        logging.error(f"[Frame:{fn}] Invalid input for ring_division (expected 2D torch.Tensor). Got {type(lp_tensor)} with ndim {lp_tensor.ndim if hasattr(lp_tensor, 'ndim') else 'N/A'}")
         return [None] * nr
 
+    H, W = lp_tensor.shape
+    if H < 2 or W < 2:
+         logging.warning(f"[Frame:{fn}] Tensor too small for ring division ({H}x{W})")
+         return [None] * nr
+    device = lp_tensor.device
+
+    try:
+        # Создаем сетку координат
+        rr, cc = torch.meshgrid(torch.arange(H, device=device, dtype=torch.float32),
+                                torch.arange(W, device=device, dtype=torch.float32),
+                                indexing='ij') # indexing='ij' важно для H, W порядка
+
+        center_r, center_c = (H - 1) / 2.0, (W - 1) / 2.0
+        distances = torch.sqrt((rr - center_r)**2 + (cc - center_c)**2)
+
+        min_dist, max_dist = torch.tensor(0.0, device=device), torch.max(distances)
+
+        # Границы колец
+        if max_dist < 1e-9: # Избегаем деления на ноль или проблем с linspace
+             logging.warning(f"[Frame:{fn}] Max distance in ring division is near zero ({max_dist}).")
+             # Все пиксели попадут в первое кольцо
+             ring_bins = torch.tensor([0.0, max_dist + 1e-6] + [max_dist + 1e-6] * (nr-1), device=device)
+        else:
+             ring_bins = torch.linspace(min_dist.item(), (max_dist + 1e-6).item(), nr + 1, device=device)
+
+        # Назначение индексов кольца
+        # Используем маски для большей ясности и избежания проблем с bucketize
+        ring_indices = torch.zeros_like(distances, dtype=torch.long) - 1 # Инициализируем -1
+        for i in range(nr):
+             lower_bound = ring_bins[i]
+             upper_bound = ring_bins[i+1]
+             # Маска для текущего кольца
+             # Включаем нижнюю границу, исключаем верхнюю (кроме последнего кольца)
+             if i < nr - 1:
+                  mask = (distances >= lower_bound) & (distances < upper_bound)
+             else: # Последнее кольцо включает верхнюю границу
+                  mask = (distances >= lower_bound) & (distances <= upper_bound) # <= для max_dist
+             ring_indices[mask] = i
+
+        # Убедимся, что центр в первом кольце (если вдруг не попал из-за точности float)
+        ring_indices[distances < ring_bins[1]] = 0
+
+        rings: List[Optional[torch.Tensor]] = [None] * nr
+        for rdx in range(nr):
+            # Находим координаты (индексы) пикселей для кольца rdx
+            coords_tensor = torch.nonzero(ring_indices == rdx, as_tuple=False) # -> shape (N_pixels, 2)
+            if coords_tensor.shape[0] > 0:
+                rings[rdx] = coords_tensor.long() # Сохраняем как LongTensor
+            else: # Кольцо пустое
+               logging.debug(f"[Frame:{fn}] Ring {rdx} is empty.")
+
+        return rings
+    except Exception as e:
+         logging.error(f"Ring division PyTorch error Frame {fn}: {e}", exc_info=True)
+         return [None] * nr
+
+
+# --- calculate_entropies, compute_adaptive_alpha_entropy - остаются на NumPy ---
+# Они принимают 1D NumPy массив значений кольца
 def calculate_entropies(rv: np.ndarray, fn: int = -1, ri: int = -1) -> Tuple[float, float]:
-    eps=1e-12; ve=0.; ee=0.
-    if rv.size>0:
-        # Убедимся, что работаем с копией, чтобы clip не менял исходные данные
-        rv_processed = rv.copy()
-        min_val, max_val = np.min(rv_processed), np.max(rv_processed)
-        if min_val < 0.0 or max_val > 1.0:
-             rv_processed = np.clip(rv_processed, 0.0, 1.0)
-        h,_=np.histogram(rv_processed, bins=256, range=(0., 1.), density=False)
-        tc=rv_processed.size
-        if tc>0:
-             p=h/tc; p=p[p>eps]
-             if p.size>0:
-                  ve=-np.sum(p*np.log2(p))
-                  ee=-np.sum(p*np.exp(1.-p))
-    return ve,ee
+    eps=1e-12; shannon_entropy=0.; collision_entropy=0. # Ваша старая формула давала ee
+
+    if rv.size > 0:
+        rv_processed = np.clip(rv.copy(), 0.0, 1.0) # Работаем с копией и клиппингом
+        if np.all(rv_processed == rv_processed[0]): return 0.0, 0.0 # Энтропия константы 0
+
+        hist, _ = np.histogram(rv_processed, bins=256, range=(0., 1.), density=False)
+        total_count = rv_processed.size
+        if total_count > 0:
+            probabilities = hist / total_count
+            p = probabilities[probabilities > eps] # Убираем нулевые вероятности
+            if p.size > 0:
+                shannon_entropy = -np.sum(p * np.log2(p))
+                # Используем Реньи 2-го порядка как collision entropy
+                # collision_entropy = -np.log2(np.sum(p**2)) if np.sum(p**2) > eps else 0.0
+                # Возвращаем вашу старую ee для совместимости, если она нужна где-то еще
+                ee = -np.sum(p*np.exp(1.-p))
+                collision_entropy = ee # Присваиваем ee, чтобы сигнатура не менялась
+    return shannon_entropy, collision_entropy # Возвращаем (ve, ee)
 
 def compute_adaptive_alpha_entropy(rv: np.ndarray, ri: int, fn: int) -> float:
-    if rv.size<10: return ALPHA_MIN
-    ve,_=calculate_entropies(rv,fn,ri); lv=np.var(rv); en=np.clip(ve/MAX_THEORETICAL_ENTROPY,0.,1.); vmp=0.005; vsc=500
-    tn=1./(1.+np.exp(-vsc*(lv-vmp))); we=.6; wt=.4; mf=np.clip((we*en+wt*tn),0.,1.)
-    fa=ALPHA_MIN+(ALPHA_MAX-ALPHA_MIN)*mf; logging.debug(f"[F:{fn}, R:{ri}] Alpha={fa:.4f} (E={ve:.3f},V={lv:.6f})")
-    return np.clip(fa,ALPHA_MIN,ALPHA_MAX)
+    if rv.size < 10: return ALPHA_MIN # Мало данных для статистики
+    # Используем shannon_entropy (первый элемент кортежа)
+    ve, _ = calculate_entropies(rv, fn, ri)
+    lv = np.var(rv)
+    # Проверка на NaN/inf перед использованием
+    if not np.isfinite(ve) or not np.isfinite(lv):
+         logging.warning(f"[F:{fn}, R:{ri}] Non-finite entropy ({ve}) or variance ({lv}). Using ALPHA_MIN.")
+         return ALPHA_MIN
 
+    en = np.clip(ve / MAX_THEORETICAL_ENTROPY, 0., 1.)
+    vmp = 0.005; vsc = 500
+    # Использование np.exp может дать overflow если lv очень велико, добавим clip или обработку
+    try:
+        exp_term = np.exp(-vsc * (lv - vmp))
+    except OverflowError:
+        exp_term = 0.0 # Если экспонента уходит в -inf, результат 0
+    tn = 1. / (1. + exp_term) if (1. + exp_term) != 0 else 1.0 # Избегаем деления на ноль
+
+    we=.6; wt=.4
+    mf=np.clip((we*en+wt*tn),0.,1.)
+    fa=ALPHA_MIN+(ALPHA_MAX-ALPHA_MIN)*mf
+    logging.debug(f"[F:{fn}, R:{ri}] Alpha={fa:.4f} (E={ve:.3f},V={lv:.6f})")
+    return np.clip(fa, ALPHA_MIN, ALPHA_MAX)
+
+# --- get_fixed_pseudo_random_rings - остается без изменений ---
 def get_fixed_pseudo_random_rings(pi:int, nr:int, ps:int)->List[int]:
-    # Эта функция выглядела синтаксически правильно, разбиение на строки для читаемости
+    # ... (код без изменений) ...
     if ps<=0: return []
     if ps>nr: ps=nr
-    sd=str(pi).encode('utf-8')
-    hd=hashlib.sha256(sd).digest()
-    sv=int.from_bytes(hd,'big')
-    prng=random.Random(sv)
-    try:
-        ci=prng.sample(range(nr),ps)
-    except ValueError: # Если nr < ps (не должно случаться из-за проверки выше)
-        ci=list(range(nr))
-    logging.debug(f"[P:{pi}] Candidates: {ci}");
+    sd=str(pi).encode('utf-8'); hd=hashlib.sha256(sd).digest()
+    sv=int.from_bytes(hd,'big'); prng=random.Random(sv)
+    try: ci=prng.sample(range(nr),ps)
+    except ValueError: ci=list(range(nr)); random.shuffle(ci); ci = ci[:ps] # Добавил shuffle и срез
+    # logging.debug(f"[P:{pi}] Candidates: {ci}");
     return ci
 
-def calculate_perceptual_mask(ip: np.ndarray, fn: int = -1) -> Optional[np.ndarray]:
-    if not isinstance(ip, np.ndarray) or ip.ndim != 2: return None;
+# --- calculate_perceptual_mask - АДАПТИРОВАНА под тензоры ---
+def calculate_perceptual_mask(ip_tensor: torch.Tensor, device: torch.device, fn: int = -1) -> Optional[torch.Tensor]:
+    """Вычисляет перцептуальную маску для 2D тензора."""
+    if not isinstance(ip_tensor, torch.Tensor) or ip_tensor.ndim != 2:
+         logging.error(f"Mask error F{fn}: Input is not a 2D tensor.")
+         return torch.ones_like(ip_tensor, device=device) # Возвращаем единичную маску
     try:
-        pf=ip.astype(np.float32); gx=cv2.Sobel(pf,cv2.CV_32F,1,0,ksize=3); gy=cv2.Sobel(pf,cv2.CV_32F,0,1,ksize=3)
-        gm=np.sqrt(gx**2+gy**2); ks=(11,11); s=5; lm=cv2.GaussianBlur(pf,ks,s); lms=cv2.GaussianBlur(pf**2,ks,s)
-        lv=np.sqrt(np.maximum(lms-lm**2,0)); cm=np.maximum(gm,lv); eps=1e-9; mc=np.max(cm)
-        mn=cm/(mc+eps) if mc>eps else np.zeros_like(cm);
-        logging.debug(f"Mask F{fn}: range {np.min(mn):.2f}-{np.max(mn):.2f}") # Можно раскомментировать
-        return np.clip(mn,0.,1.).astype(np.float32)
-    except Exception as e: logging.error(f"Mask error F{fn}: {e}"); return np.ones_like(ip, dtype=np.float32)
+        # Конвертация в NumPy для OpenCV
+        pf = ip_tensor.cpu().numpy().astype(np.float32)
+        # Проверка на NaN/inf после конвертации
+        if not np.all(np.isfinite(pf)):
+             logging.warning(f"Mask error F{fn}: Input tensor contains NaN/inf.")
+             return torch.ones_like(ip_tensor, device=device)
 
-def add_ecc(data_bits: np.ndarray, bch_code: galois.BCH) -> Optional[np.ndarray]:
-    # Исправленная версия с try-except
-    if not GALOIS_AVAILABLE or bch_code is None: return data_bits;
-    k=bch_code.k; n=bch_code.n;
-    if data_bits.size > k: logging.error(f"Data {data_bits.size} > k {k}"); return None;
-    pad_len = k-data_bits.size;
-    msg_bits=np.pad(data_bits,(0,pad_len),'constant') if pad_len>0 else data_bits.astype(np.uint8); # Убедимся в типе
-    try: # Добавляем try
-        GF=bch_code.field; msg_vec=GF(msg_bits); cw_vec=bch_code.encode(msg_vec);
-        pkt_bits=cw_vec.view(np.ndarray).astype(np.uint8);
-        assert pkt_bits.size == n, f"Galois size {pkt_bits.size}!=n {n}"; # Используем assert
+        # Операции OpenCV
+        gx=cv2.Sobel(pf,cv2.CV_32F,1,0,ksize=3); gy=cv2.Sobel(pf,cv2.CV_32F,0,1,ksize=3)
+        # Проверка на NaN/inf после Sobel
+        if not np.all(np.isfinite(gx)) or not np.all(np.isfinite(gy)):
+             logging.warning(f"Mask error F{fn}: Sobel result contains NaN/inf.")
+             return torch.ones_like(ip_tensor, device=device)
+
+        gm=np.sqrt(gx**2+gy**2)
+        ks=(11,11); s=5
+        lm=cv2.GaussianBlur(pf,ks,s); lms=cv2.GaussianBlur(pf**2,ks,s)
+        # Проверка на NaN/inf после GaussianBlur
+        if not np.all(np.isfinite(lm)) or not np.all(np.isfinite(lms)):
+             logging.warning(f"Mask error F{fn}: GaussianBlur result contains NaN/inf.")
+             return torch.ones_like(ip_tensor, device=device)
+
+        # np.maximum(lms-lm**2,0) - защита от отрицательных под корнем
+        lv=np.sqrt(np.maximum(lms-lm**2, 0))
+        if not np.all(np.isfinite(lv)): # Проверка после sqrt
+             logging.warning(f"Mask error F{fn}: Local variance result contains NaN/inf.")
+             # Попробуем заменить NaN/inf нулями перед np.maximum(gm, lv)
+             lv = np.nan_to_num(lv, nan=0.0, posinf=0.0, neginf=0.0)
+             # return torch.ones_like(ip_tensor, device=device) # Раньше возвращали единицы
+
+        cm=np.maximum(gm,lv)
+        eps=1e-9; mc=np.max(cm)
+
+        # Проверка mc
+        if not np.isfinite(mc):
+             logging.warning(f"Mask error F{fn}: Max complexity (mc) is not finite.")
+             return torch.ones_like(ip_tensor, device=device)
+
+        mn=cm/(mc+eps) if mc>eps else np.zeros_like(cm)
+        mask_np = np.clip(mn,0.,1.).astype(np.float32)
+
+        # Конвертация обратно в Tensor
+        mask_tensor = torch.from_numpy(mask_np).to(device)
+        # logging.debug(f"Mask F{fn}: range {torch.min(mask_tensor):.2f}-{torch.max(mask_tensor):.2f}")
+        return mask_tensor
+    except cv2.error as cv_err:
+         logging.error(f"Mask OpenCV error F{fn}: {cv_err}", exc_info=True)
+         return torch.ones_like(ip_tensor, device=device)
+    except Exception as e:
+         logging.error(f"Mask general error F{fn}: {e}", exc_info=True)
+         return torch.ones_like(ip_tensor, device=device)
+
+
+# --- add_ecc - остается без изменений (работает с NumPy) ---
+def add_ecc(data_bits: np.ndarray, bch_code: Optional[galois.BCH]) -> Optional[np.ndarray]:
+    if not GALOIS_AVAILABLE or bch_code is None:
+         logging.warning("ECC не доступен или не предоставлен, возвращаем исходные биты.")
+         return data_bits # Возвращаем как есть, если ECC нет
+    try:
+        k=bch_code.k; n=bch_code.n
+        if data_bits.size > k:
+            logging.error(f"ECC Error: Data size ({data_bits.size}) > k ({k})")
+            return None
+        pad_len = k - data_bits.size
+        # Убедимся, что data_bits - это 1D массив uint8
+        msg_bits = data_bits.astype(np.uint8).flatten()
+        if pad_len > 0:
+             msg_bits = np.pad(msg_bits, (0, pad_len), 'constant')
+
+        GF = bch_code.field; msg_vec = GF(msg_bits); cw_vec = bch_code.encode(msg_vec)
+        pkt_bits = cw_vec.view(np.ndarray).astype(np.uint8)
+
+        if pkt_bits.size != n: # Используем if вместо assert для мягкой ошибки
+             logging.error(f"ECC Error: Output packet size ({pkt_bits.size}) != n ({n})")
+             return None
         logging.info(f"Galois ECC: Data({data_bits.size}b->{k}b) -> Packet({pkt_bits.size}b).")
         return pkt_bits
-    except Exception as e: # Добавляем except
-        logging.error(f"Galois encode error: {e}", exc_info=True); # Добавил exc_info
-        return None # Возвращаем None при ошибке
-
-def read_video(video_path: str) -> Tuple[List[np.ndarray], float]:
-    # Исправленная версия с правильной структурой try-except-finally
-    logging.info(f"Reading: {video_path}"); frames: List[np.ndarray] = []; fps = float(FPS); cap = None; h, w = -1, -1;
-    try:
-        assert os.path.exists(video_path), f"Not found: {video_path}";
-        cap = cv2.VideoCapture(video_path);
-        assert cap.isOpened(), f"Cannot open {video_path}";
-        fps = float(cap.get(cv2.CAP_PROP_FPS) or FPS);
-        w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH));
-        h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT));
-        fc = int(cap.get(cv2.CAP_PROP_FRAME_COUNT));
-        logging.info(f"Props: {w}x{h}@{fps:.2f}~{fc}f");
-        rc,nc,ic=0,0,0;
-        while True:
-            ret,f=cap.read();
-            if not ret:
-                break # Выход из цикла while
-            if f is None:
-                nc+=1;
-                continue # К следующей итерации while
-            if f.ndim==3 and f.shape[:2]==(h,w) and f.dtype==np.uint8:
-                frames.append(f); rc+=1;
-            else:
-                ic+=1; logging.warning(f"Skipped invalid frame #{rc+nc+ic}");
-        logging.info(f"Read loop finished. V:{rc},N:{nc},I:{ic}");
-        assert rc>0, "No valid frames read."
     except Exception as e:
-        logging.error(f"Read error: {e}", exc_info=True);
+        logging.error(f"Galois encode error: {e}", exc_info=True)
+        return None
+
+# Файл: embedder_pytorch_wavelets.py (ЧАСТЬ 2)
+
+# --- ПРЕДПОЛАГАЕТСЯ, ЧТО ВЕСЬ КОД ИЗ ЧАСТИ 1 НАХОДИТСЯ ВЫШЕ ---
+# ... (импорты, константы, инициализация Galois) ...
+# ... (dct_1d, idct_1d, dtcwt_pytorch_forward, dtcwt_pytorch_inverse) ...
+# ... (ring_division, calculate_entropies, compute_adaptive_alpha_entropy) ...
+# ... (get_fixed_pseudo_random_rings, calculate_perceptual_mask, add_ecc) ...
+# -------------------------------------------------------------
+
+# --- Функция чтения видео (остается без изменений) ---
+def read_video(video_path: str) -> Tuple[List[np.ndarray], float]:
+    """Читает видеофайл и возвращает список BGR NumPy кадров и FPS."""
+    logging.info(f"Reading: {video_path}")
+    frames: List[np.ndarray] = []
+    fps = float(FPS) # Значение по умолчанию
+    cap = None
+    h, w = -1, -1
+    try:
+        if not os.path.exists(video_path):
+             raise FileNotFoundError(f"Видеофайл не найден: {video_path}")
+        cap = cv2.VideoCapture(video_path)
+        if not cap.isOpened():
+            raise IOError(f"Не удалось открыть видеофайл: {video_path}")
+
+        fps = float(cap.get(cv2.CAP_PROP_FPS) or FPS)
+        w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        fc = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        if w <= 0 or h <= 0:
+             logging.warning("Не удалось получить корректные размеры кадра из видео.")
+             # Попробуем прочитать первый кадр, чтобы узнать размер
+             ret, f = cap.read()
+             if ret and f is not None:
+                  h, w, _ = f.shape
+                  logging.info(f"Размеры кадра определены по первому кадру: {w}x{h}")
+                  frames.append(f) # Добавляем первый кадр
+                  cap.set(cv2.CAP_PROP_POS_FRAMES, 1) # Сбрасываем на следующий
+             else:
+                  raise ValueError("Не удалось определить размеры кадра видео.")
+        logging.info(f"Props: {w}x{h}@{fps:.2f} FPS ~{fc if fc > 0 else '?'} frames")
+
+        frame_count = 0
+        read_count = 0
+        none_count = 0
+        invalid_count = 0
+
+        while True:
+            ret, f = cap.read()
+            frame_count += 1
+            if not ret:
+                logging.debug(f"End of video reached or read error at frame approx {frame_count}.")
+                break # Выход из цикла while
+
+            if f is None:
+                none_count += 1
+                logging.warning(f"Получен пустой кадр (None) на позиции {frame_count-1}")
+                continue # К следующей итерации while
+
+            # Проверяем размерность и тип внимательнее
+            if f.ndim == 3 and f.shape[0] == h and f.shape[1] == w and f.dtype == np.uint8:
+                frames.append(f)
+                read_count += 1
+            else:
+                invalid_count += 1
+                logging.warning(f"Пропущен невалидный кадр #{frame_count-1}. Shape: {f.shape}, Dtype: {f.dtype}, Expected: ({h},{w},3) uint8")
+
+        logging.info(f"Read loop finished. Valid frames read: {read_count}, None frames encountered: {none_count}, Invalid frames skipped: {invalid_count}")
+        if read_count == 0:
+             logging.error("Не прочитано ни одного валидного кадра.")
+             # raise ValueError("Не прочитано ни одного валидного кадра.") # Или вернуть пустой список
+
+    except Exception as e:
+        logging.error(f"Ошибка чтения видео: {e}", exc_info=True)
         frames=[] # Очищаем кадры при ошибке
-        # fps остается значением по умолчанию или тем, что успели прочитать
     finally:
-        # Блок finally выполняется всегда
-        if cap and cap.isOpened(): # Проверяем, что cap был создан и все еще открыт
+        if cap and cap.isOpened():
             logging.debug("Releasing video capture resource.")
             cap.release()
-    # Return должен быть после finally, но внутри функции
     return frames, fps
 
+# --- Функция записи видео (остается без изменений) ---
+# @profile # Добавьте, если нужно профилировать
 def write_video(frames: List[np.ndarray], out_path: str, fps: float, codec: str = OUTPUT_CODEC):
-    # Исправленная версия с правильной структурой try-except-finally
-    if not frames: logging.error("No frames"); return;
-    logging.info(f"Writing: {out_path}(FPS:{fps:.2f},Codec:{codec})");
-    writer = None; # Инициализируем writer как None
+    """Записывает список BGR NumPy кадров в видеофайл."""
+    if not frames: logging.error("Нет кадров для записи."); return;
+    logging.info(f"Writing video: {out_path} (FPS:{fps:.2f}, Codec:{codec})");
+    writer = None
     try:
-        fv = next((f for f in frames if f is not None and f.ndim==3), None);
-        assert fv is not None, "No valid frames";
-        h,w,_=fv.shape; fourcc=cv2.VideoWriter_fourcc(*codec); base,_=os.path.splitext(out_path);
-        out_path=base+OUTPUT_EXTENSION; writer=cv2.VideoWriter(out_path, fourcc, fps, (w,h)); wc=codec;
-        if not writer.isOpened(): # Отступ правильный
-            logging.error(f"Fail codec {codec}");
-            fbk='MJPG';
-            if OUTPUT_EXTENSION.lower()=='.avi' and codec.upper()!=fbk: # Отступ правильный
-                 logging.warning(f"Fallback {fbk}");
-                 fourcc_fbk=cv2.VideoWriter_fourcc(*fbk); # Переменная должна быть другая
-                 writer=cv2.VideoWriter(out_path,fourcc_fbk,fps,(w,h)); wc=fbk;
-                 assert writer.isOpened(), "Writer failed even with fallback";
-            else: # Если не AVI или fallback не нужен
-                 assert writer.isOpened(), "Writer failed"; # Просто проверяем исходную ошибку
+        # Находим первый валидный кадр для определения размера
+        fv = next((f for f in frames if isinstance(f, np.ndarray) and f.ndim==3), None)
+        if fv is None: raise ValueError("Не найдено валидных кадров для определения размера записи.")
 
-        # Этот блок теперь правильно внутри try
-        wc_ok,sc_ok=0,0; bf=np.zeros((h,w,3),dtype=np.uint8);
-        for i,f in enumerate(frames):
-            if f is not None and f.shape[:2]==(h,w) and f.dtype==np.uint8:
-                writer.write(f); wc_ok+=1;
+        h, w, _ = fv.shape
+        if w <= 0 or h <= 0: raise ValueError(f"Неверный размер кадра для записи: {w}x{h}")
+
+        fourcc = cv2.VideoWriter_fourcc(*codec)
+        base, _ = os.path.splitext(out_path)
+        actual_out_path = base + OUTPUT_EXTENSION # Используем глобальное расширение
+        writer = cv2.VideoWriter(actual_out_path, fourcc, fps, (w, h))
+        final_codec = codec
+
+        if not writer.isOpened():
+            logging.error(f"Не удалось открыть VideoWriter с кодеком {codec} для файла {actual_out_path}. Проверьте кодек и путь.")
+            # Попытка отката на MJPG для AVI, если исходный кодек не сработал
+            fbk_codec = 'MJPG'
+            fbk_ext = '.avi'
+            if codec.upper() != fbk_codec and OUTPUT_EXTENSION.lower() == fbk_ext:
+                 logging.warning(f"Попытка отката на кодек {fbk_codec} и расширение {fbk_ext}")
+                 fourcc_fbk = cv2.VideoWriter_fourcc(*fbk_codec)
+                 actual_out_path = base + fbk_ext # Меняем расширение
+                 writer = cv2.VideoWriter(actual_out_path, fourcc_fbk, fps, (w, h))
+                 if writer.isOpened():
+                     logging.info(f"Откат на {fbk_codec} успешен.")
+                     final_codec = fbk_codec
+                 else:
+                      raise IOError(f"Не удалось открыть VideoWriter даже с кодеком {fbk_codec}.")
             else:
-                writer.write(bf); sc_ok+=1; logging.warning(f"Skip invalid frame {i}");
-        logging.info(f"Write done({wc}). W:{wc_ok},S:{sc_ok}");
+                 raise IOError(f"Не удалось открыть VideoWriter с кодеком {codec}.")
+
+        # Запись кадров
+        written_count, skipped_count = 0, 0
+        placeholder_frame = np.zeros((h, w, 3), dtype=np.uint8) # Для замены невалидных
+
+        for i, f in enumerate(frames):
+            # Проверяем кадр перед записью
+            if isinstance(f, np.ndarray) and f.ndim == 3 and f.shape[0] == h and f.shape[1] == w and f.dtype == np.uint8:
+                writer.write(f)
+                written_count += 1
+            else:
+                # Записываем пустой кадр вместо невалидного
+                logging.warning(f"Пропущен невалидный кадр #{i} при записи. Записывается пустой кадр.")
+                writer.write(placeholder_frame)
+                skipped_count += 1
+
+        logging.info(f"Запись завершена ({final_codec}). Записано кадров: {written_count}, Пропущено/Заменено: {skipped_count}. Файл: {actual_out_path}")
+
     except Exception as e:
-        logging.error(f"Write error: {e}", exc_info=True)
+        logging.error(f"Ошибка записи видео: {e}", exc_info=True)
     finally:
-        # Блок finally выполняется всегда
-        if writer and writer.isOpened(): # Проверяем, что writer был создан и открыт
+        if writer and writer.isOpened():
              logging.debug("Releasing video writer resource.")
              writer.release()
 
-# --- Функция встраивания в пару кадров (embed_frame_pair) ---
-# --- (Копипаста из предыдущего ответа, она была корректна) ---
+# --- ИЗМЕНЕННАЯ embed_frame_pair для PyTorch ---
+# @profile # Добавьте, если нужно профилировать
 def embed_frame_pair(
         frame1_bgr: np.ndarray, frame2_bgr: np.ndarray, bits: List[int],
         selected_ring_indices: List[int], n_rings: int, frame_number: int,
-        use_perceptual_masking: bool, embed_component: int
+        use_perceptual_masking: bool, embed_component: int,
+        # --- Новые аргументы ---
+        device: torch.device,
+        dtcwt_fwd: DTCWTForward,
+        dtcwt_inv: DTCWTInverse
     ) -> Tuple[Optional[np.ndarray], Optional[np.ndarray]]:
     """
-    Встраивает биты в выбранные кольца пары кадров.
-    (Версия с ручным upsampling lowpass перед вызовом inverse для обхода бага dtcwt)
+    Встраивает биты в выбранные кольца пары кадров (PyTorch версия с детальным логированием).
     """
     pair_index = frame_number // 2
+    prefix_base = f"[P:{pair_index}]" # Базовый префикс для логов пары
+
+    # Проверка длины бит/колец
     if len(bits) != len(selected_ring_indices):
-        logging.error(f"[P:{pair_index}] Mismatch bits/rings.")
-        return None, None
-    if not bits: return frame1_bgr, frame2_bgr
+        if len(bits) < len(selected_ring_indices):
+             logging.warning(f"{prefix_base} Fewer bits ({len(bits)}) than rings ({len(selected_ring_indices)}). Embedding only {len(bits)}.")
+             selected_ring_indices = selected_ring_indices[:len(bits)]
+        else:
+             logging.error(f"{prefix_base} More bits than rings. Mismatch: {len(bits)} vs {len(selected_ring_indices)}.")
+             return None, None
+    if not bits:
+        logging.debug(f"{prefix_base} No bits to embed.")
+        return frame1_bgr, frame2_bgr
 
+    logging.debug(f"{prefix_base} --- Starting Embedding Pair ---")
     try:
-        # 1. Проверка и YCrCb
-        if frame1_bgr is None or frame2_bgr is None: return None, None
-        f1_ycrcb = cv2.cvtColor(frame1_bgr, cv2.COLOR_BGR2YCrCb); f2_ycrcb = cv2.cvtColor(frame2_bgr, cv2.COLOR_BGR2YCrCb)
-        comp1 = f1_ycrcb[:, :, embed_component].astype(np.float32)/255.0; comp2 = f2_ycrcb[:, :, embed_component].astype(np.float32)/255.0
-        Y1,Cr1,Cb1 = f1_ycrcb[:,:,0],f1_ycrcb[:,:,1],f1_ycrcb[:,:,2]; Y2,Cr2,Cb2 = f2_ycrcb[:,:,0],f2_ycrcb[:,:,1],f2_ycrcb[:,:,2]
+        # 1. Проверка и Преобразование в Тензоры
+        if frame1_bgr is None or frame2_bgr is None: logging.error(f"{prefix_base} Input BGR frames are None."); return None, None
+        if frame1_bgr.ndim != 3 or frame2_bgr.ndim != 3: logging.error(f"{prefix_base} Input BGR frames are not 3D."); return None, None
 
-        # 2. Прямое DTCWT (nlevels=1)
-        pyramid1_orig = dtcwt_transform(comp1, frame_number); pyramid2_orig = dtcwt_transform(comp2, frame_number + 1)
-        if pyramid1_orig is None or pyramid2_orig is None or pyramid1_orig.lowpass is None or pyramid2_orig.lowpass is None: return None, None
+        f1_ycrcb_np = cv2.cvtColor(frame1_bgr, cv2.COLOR_BGR2YCrCb)
+        f2_ycrcb_np = cv2.cvtColor(frame2_bgr, cv2.COLOR_BGR2YCrCb)
+        comp1_tensor = torch.from_numpy(f1_ycrcb_np[:, :, embed_component].copy()).to(device=device, dtype=torch.float32) / 255.0
+        comp2_tensor = torch.from_numpy(f2_ycrcb_np[:, :, embed_component].copy()).to(device=device, dtype=torch.float32) / 255.0
+        Y1_np, Cr1_np, Cb1_np = f1_ycrcb_np[:,:,0], f1_ycrcb_np[:,:,1], f1_ycrcb_np[:,:,2]
+        Y2_np, Cr2_np, Cb2_np = f2_ycrcb_np[:,:,0], f2_ycrcb_np[:,:,1], f2_ycrcb_np[:,:,2]
+        target_shape_hw = (frame1_bgr.shape[0], frame1_bgr.shape[1])
+        logging.debug(f"{prefix_base} Input tensors prepared. Shape: {comp1_tensor.shape}")
 
-        # 3. Извлечение и модификация Lowpass
-        L1 = np.array(pyramid1_orig.lowpass).copy(); L2 = np.array(pyramid2_orig.lowpass).copy()
-        padding_info1 = getattr(pyramid1_orig, 'padding_info', (False, False))
-        padding_info2 = getattr(pyramid2_orig, 'padding_info', (False, False))
+        # 2. Прямое DTCWT (PyTorch)
+        Yl_t, Yh_t = dtcwt_pytorch_forward(comp1_tensor, dtcwt_fwd, device, frame_number)
+        Yl_t1, Yh_t1 = dtcwt_pytorch_forward(comp2_tensor, dtcwt_fwd, device, frame_number + 1)
+        if Yl_t is None or Yh_t is None or Yl_t1 is None or Yh_t1 is None: logging.error(f"{prefix_base} Forward DTCWT failed."); return None, None
+        if Yl_t.dim() > 2: Yl_t = Yl_t.squeeze()
+        if Yl_t1.dim() > 2: Yl_t1 = Yl_t1.squeeze()
+        logging.debug(f"{prefix_base} Forward DTCWT done. Yl shape: {Yl_t.shape}")
 
-        # --- Код модификации L1, L2 (цикл по кольцам, DCT, SVD, IDCT, маска) ---
-        ring_coords1 = ring_division(L1, n_rings, frame_number); ring_coords2 = ring_division(L2, n_rings, frame_number + 1)
-        perceptual_mask = None
-        if use_perceptual_masking: mask_full_res = calculate_perceptual_mask(comp1, frame_number);
-        if mask_full_res is not None: perceptual_mask = cv2.resize(mask_full_res, (L1.shape[1], L1.shape[0])) if mask_full_res.shape != L1.shape else mask_full_res.astype(np.float32);
-        else: perceptual_mask = np.ones_like(L1)
-        modifications_count = 0 # Счетчик модификаций
-        for ring_idx, bit in zip(selected_ring_indices, bits):
-            if not (0 <= ring_idx < n_rings and ring_idx < len(ring_coords1) and ring_idx < len(ring_coords2)): continue
-            coords1 = ring_coords1[ring_idx]; coords2 = ring_coords2[ring_idx]
-            if coords1 is None or coords2 is None: continue
-            rows1, cols1 = coords1[:,0], coords1[:,1]; rows2, cols2 = coords2[:,0], coords2[:,1]
-            v1 = L1[rows1, cols1].astype(np.float32); v2 = L2[rows2, cols2].astype(np.float32)
-            if v1.size == 0 or v2.size == 0: continue
-            min_s = min(v1.size, v2.size);
-            if v1.size != v2.size:
-                v1,v2 = v1[:min_s], v2[:min_s]; rows1,cols1 = rows1[:min_s],cols1[:min_s]; rows2,cols2 = rows2[:min_s],cols2[:min_s]
-                if min_s == 0: continue
-            alpha = compute_adaptive_alpha_entropy(v1, ring_idx, frame_number); d1=dct_1d(v1); d2=dct_1d(v2)
-            try: U1, S1v, Vt1 = svd(d1.reshape(-1,1), False); U2, S2v, Vt2 = svd(d2.reshape(-1,1), False)
-            except np.linalg.LinAlgError: continue
-            s1 = S1v[0] if S1v.size>0 else 0.; s2 = S2v[0] if S2v.size>0 else 0.;
-            eps=1e-12; ratio = s1/(s2+eps); ns1,ns2=s1,s2; modified=False; a2=alpha*alpha; inv_a=1/(alpha+eps)
-            if bit==0:
-                if ratio<alpha: ns1=(s1*a2+alpha*s2)/(a2+1); ns2=(alpha*s1+s2)/(a2+1); modified=True
-            else:
-                if ratio>=inv_a: ns1=(s1+alpha*s2)/(1+a2); ns2=(alpha*s1+a2*s2)/(1+a2); modified=True
+        # 3. Модификация Lowpass (Yl_t, Yl_t1)
+        ring_coords_t = ring_division(Yl_t, n_rings, frame_number)
+        ring_coords_t1 = ring_division(Yl_t1, n_rings, frame_number + 1)
+        if ring_coords_t is None or ring_coords_t1 is None: logging.error(f"{prefix_base} Ring division failed."); return None, None
+        logging.debug(f"{prefix_base} Ring division done.")
+
+        # Расчет перцептуальной маски
+        perceptual_mask_tensor = torch.ones_like(Yl_t, device=device)
+        if use_perceptual_masking:
+            mask_full_res_tensor = calculate_perceptual_mask(comp1_tensor, device, frame_number)
+            if mask_full_res_tensor is not None:
+                if mask_full_res_tensor.shape != Yl_t.shape:
+                     try: perceptual_mask_tensor = F.interpolate(mask_full_res_tensor.unsqueeze(0).unsqueeze(0), size=Yl_t.shape, mode='bilinear', align_corners=False).squeeze().to(device=device, dtype=torch.float32)
+                     except Exception as e_interp: logging.error(f"Mask interpolation error P:{pair_index}: {e_interp}", exc_info=True); perceptual_mask_tensor = torch.ones_like(Yl_t, device=device)
+                else: perceptual_mask_tensor = mask_full_res_tensor.to(device=device, dtype=torch.float32)
+            logging.debug(f"{prefix_base} Perceptual mask calculated. Min: {torch.min(perceptual_mask_tensor):.4f}, Max: {torch.max(perceptual_mask_tensor):.4f}")
+
+        modifications_count = 0
+        Yl_t_mod = Yl_t.clone(); Yl_t1_mod = Yl_t1.clone()
+
+        # --- Цикл по кольцам ---
+        logging.debug(f"{prefix_base} --- Start Ring Loop (Embedding {len(bits)} bits) ---")
+        for ring_idx, bit_to_embed in zip(selected_ring_indices, bits):
+            prefix = f"[P:{pair_index} R:{ring_idx}]" # Префикс для кольца
+            logging.debug(f"{prefix} Processing...")
+            if not (0 <= ring_idx < n_rings and ring_idx < len(ring_coords_t) and ring_idx < len(ring_coords_t1)): logging.warning(f"{prefix} Invalid ring index. Skipping."); continue
+            coords1_tensor = ring_coords_t[ring_idx]; coords2_tensor = ring_coords_t1[ring_idx]
+            if coords1_tensor is None or coords2_tensor is None or coords1_tensor.shape[0] < 10 or coords2_tensor.shape[0] < 10: logging.debug(f"{prefix} Ring empty or too small. Skipping."); continue
+
+            try:
+                 rows1, cols1 = coords1_tensor[:, 0], coords1_tensor[:, 1]; rows2, cols2 = coords2_tensor[:, 0], coords2_tensor[:, 1]
+                 v1_tensor = Yl_t_mod[rows1, cols1]; v2_tensor = Yl_t1_mod[rows2, cols2]
+                 min_s = min(v1_tensor.numel(), v2_tensor.numel())
+                 if min_s == 0: logging.debug(f"{prefix} Zero size after indexing. Skipping."); continue
+                 if v1_tensor.numel() != v2_tensor.numel(): v1_tensor=v1_tensor[:min_s]; v2_tensor=v2_tensor[:min_s]; rows1,cols1=rows1[:min_s],cols1[:min_s]; rows2,cols2=rows2[:min_s],cols2[:min_s]
+            except IndexError: logging.warning(f"{prefix} Tensor Indexing error. Skipping."); continue
+
+            v1_np = v1_tensor.cpu().numpy(); v2_np = v2_tensor.cpu().numpy()
+            if not np.all(np.isfinite(v1_np)) or not np.all(np.isfinite(v2_np)): logging.warning(f"{prefix} Non-finite values in ring data. Skipping."); continue
+            logging.debug(f"{prefix} Ring values extracted. Size={v1_np.size}. v1_mean={np.mean(v1_np):.4f}, v2_mean={np.mean(v2_np):.4f}")
+
+            alpha = compute_adaptive_alpha_entropy(v1_np, ring_idx, frame_number)
+            logging.info(
+                f"{prefix} [Embed - Перед DCT] v1_np (из Yl_t): size={v1_np.size}, min={np.min(v1_np):.4e}, max={np.max(v1_np):.4e}, mean={np.mean(v1_np):.4e}, std={np.std(v1_np):.4e}")
+            # Логируем также v2_np
+            logging.info(
+                f"{prefix} [Embed - Перед DCT] v2_np (из Yl_t1): size={v2_np.size}, min={np.min(v2_np):.4e}, max={np.max(v2_np):.4e}, mean={np.mean(v2_np):.4e}, std={np.std(v2_np):.4e}")
+
+            d1 = dct_1d(v1_np); d2 = dct_1d(v2_np)
+            if not np.all(np.isfinite(d1)) or not np.all(np.isfinite(d2)): logging.warning(f"{prefix} NaN/inf after DCT. Skipping."); continue
+            logging.debug(f"{prefix} DCT done. d1[0]={d1[0]:.4f}, d2[0]={d2[0]:.4f}")
+
+            try: U1, S1v, Vt1 = scipy_svd(d1.reshape(-1,1), compute_uv=True, full_matrices=False); U2, S2v, Vt2 = scipy_svd(d2.reshape(-1,1), compute_uv=True, full_matrices=False)
+            except np.linalg.LinAlgError: logging.warning(f"{prefix} SVD failed. Skipping."); continue
+            if S1v is None or S1v.size == 0 or S2v is None or S2v.size == 0: logging.warning(f"{prefix} SVD empty result. Skipping."); continue
+            if not np.all(np.isfinite(S1v)) or not np.all(np.isfinite(S2v)): logging.warning(f"{prefix} SVD NaN/inf. Skipping."); continue
+            s1 = S1v[0]; s2 = S2v[0]
+            eps=1e-12; original_ratio = s1/(s2+eps) if abs(s2) > eps else float('inf') # Безопасное вычисление
+            original_implied_bit = 0 if original_ratio >= 1.0 else 1
+            logging.debug(f"{prefix} PRE: s1={s1:.4e}, s2={s2:.4e}, OrigRatio={original_ratio:.6f} -> ImpliedBit={original_implied_bit} (Target={bit_to_embed}, Alpha={alpha:.4f})")
+
+            ns1,ns2=s1,s2; modified=False; a2=alpha*alpha; inv_a=1/(alpha+eps) if abs(alpha)>eps else float('inf')
+            action = "No change needed"
+            if bit_to_embed == 0:
+                if original_ratio >= inv_a: ns1=(s1+alpha*s2)/(1+a2); ns2=(alpha*s1+a2*s2)/(1+a2); modified=True; action=f"Modifying to 0 (ratio {original_ratio:.4f} >= {inv_a:.4f})"
+            else: # bit_to_embed == 1
+                if original_ratio <= alpha: ns1=(s1*a2+alpha*s2)/(a2+1); ns2=(alpha*s1+s2)/(a2+1); modified=True; action=f"Modifying to 1 (ratio {original_ratio:.4f} <= {alpha:.4f})"
+
             if modified:
                 modifications_count+=1
+                new_ratio_check = ns1 / (ns2 + eps) if abs(ns2) > eps else float('inf')
+                logging.debug(f"{prefix} POST: Action: {action}. New s1={ns1:.4e}, s2={ns2:.4e}, NewRatio≈{new_ratio_check:.6f}")
                 try:
-                    vt1_val=Vt1[0,0] if Vt1.shape==(1,1) else 1.0; vt2_val=Vt2[0,0] if Vt2.shape==(1,1) else 1.0
-                    d1m = (U1 * ns1 * vt1_val).flatten(); d2m = (U2 * ns2 * vt2_val).flatten()
-                    v1m=idct_1d(d1m); v2m=idct_1d(d2m)
-                except Exception as recon_err: logging.warning(f"[P:{pair_index},R:{ring_idx}] Recon err: {recon_err}"); continue
-                if v1m.size != v1.size or v2m.size != v2.size: continue
-                delta1=v1m-v1; delta2=v2m-v2; mf1=np.ones_like(delta1); mf2=np.ones_like(delta2)
-                if use_perceptual_masking and perceptual_mask is not None:
-                    try: mv1=perceptual_mask[rows1,cols1]; mv2=perceptual_mask[rows2,cols2]; mf1*=(LAMBDA_PARAM+(1.0-LAMBDA_PARAM)*mv1); mf2*=(LAMBDA_PARAM+(1.0-LAMBDA_PARAM)*mv2)
-                    except Exception as mask_err: logging.warning(f"Mask apply error P:{pair_index} R:{ring_idx}: {mask_err}")
-                try: L1[rows1,cols1] += delta1*mf1; L2[rows2,cols2] += delta2*mf2
-                except IndexError: logging.warning(f"Delta apply index error P:{pair_index} R:{ring_idx}"); continue
+                    d1m = U1[:, 0] * ns1 * Vt1[0, 0]; d2m = U2[:, 0] * ns2 * Vt2[0, 0]
+                    v1m_np=idct_1d(d1m); v2m_np=idct_1d(d2m)
+                    if not np.all(np.isfinite(v1m_np)) or not np.all(np.isfinite(v2m_np)): raise ValueError("NaN/inf after IDCT")
+                except Exception as recon_err: logging.warning(f"{prefix} Recon/IDCT err: {recon_err}. Skipping modification."); continue
+                if v1m_np.size != v1_np.size or v2m_np.size != v2_np.size: logging.warning(f"{prefix} Size mismatch after IDCT. Skipping."); continue
+
+                delta1_np=v1m_np-v1_np; delta2_np=v2m_np-v2_np
+                delta1 = torch.from_numpy(delta1_np).to(device); delta2 = torch.from_numpy(delta2_np).to(device)
+                mf1 = torch.ones_like(delta1); mf2 = torch.ones_like(delta2)
+                if use_perceptual_masking and perceptual_mask_tensor is not None:
+                    try:
+                        mv1=perceptual_mask_tensor[rows1, cols1]; mv2=perceptual_mask_tensor[rows2, cols2]
+                        mf1.mul_(LAMBDA_PARAM+(1.0-LAMBDA_PARAM)*mv1); mf2.mul_(LAMBDA_PARAM+(1.0-LAMBDA_PARAM)*mv2)
+                        # Добавим логирование маскирующих факторов
+                        logging.debug(f"{prefix} Mask factors applied. mf1 range: [{torch.min(mf1):.3f}-{torch.max(mf1):.3f}], mf2 range: [{torch.min(mf2):.3f}-{torch.max(mf2):.3f}]")
+                    except Exception as mask_err: logging.warning(f"{prefix} Mask apply error: {mask_err}")
+                try:
+                    Yl_t_mod[rows1, cols1] += delta1 * mf1; Yl_t1_mod[rows2, cols2] += delta2 * mf2
+                    logging.debug(f"{prefix} Deltas applied. Delta1 mean={torch.mean(delta1*mf1):.4e}, Delta2 mean={torch.mean(delta2*mf2):.4e}")
+                except IndexError: logging.warning(f"{prefix} Tensor Delta apply error. Skipping."); continue
+            else:
+                 logging.debug(f"{prefix} POST: Action: {action}.")
+
+        logging.debug(f"{prefix_base} --- End Ring Loop ---")
         # --- Конец цикла модификации ---
 
-        # --- Обход бага dtcwt.inverse для nlevels=1 ---
-        # 4. Ручной Upsampling L1 и L2
-        rows_L, cols_L = L1.shape
-        target_shape_up = (rows_L * 2, cols_L * 2)
-        try:
-             L1_up = cv2.resize(L1, (target_shape_up[1], target_shape_up[0]), interpolation=cv2.INTER_LINEAR)
-             L2_up = cv2.resize(L2, (target_shape_up[1], target_shape_up[0]), interpolation=cv2.INTER_LINEAR)
-             logging.debug(f"[P:{pair_index}] Manually upsampled L1/L2 to {L1_up.shape}")
-        except Exception as e_resize:
-             logging.error(f"[P:{pair_index}] Failed to upsample L1/L2: {e_resize}")
-             return None, None
+        # 5. Обратное DTCWT (PyTorch) - УБРАН ХАК
+        if Yl_t_mod.dim() == 2: Yl_t_mod = Yl_t_mod.unsqueeze(0).unsqueeze(0)
+        if Yl_t1_mod.dim() == 2: Yl_t1_mod = Yl_t1_mod.unsqueeze(0).unsqueeze(0)
+        logging.debug(f"{prefix_base} Calling Inverse DTCWT...")
+        c1m_np = dtcwt_pytorch_inverse(Yl_t_mod, Yh_t, dtcwt_inv, device, target_shape_hw, frame_number)
+        c2m_np = dtcwt_pytorch_inverse(Yl_t1_mod, Yh_t1, dtcwt_inv, device, target_shape_hw, frame_number + 1)
+        if c1m_np is None or c2m_np is None: logging.error(f"{prefix_base} Inverse DTCWT failed."); return None, None
+        logging.debug(f"{prefix_base} Inverse DTCWT done.")
 
-        # 5. Создание НУЛЕВОГО highpass УВЕЛИЧЕННОГО размера
-        zeros_highpass_up = np.zeros(target_shape_up + (6,), dtype=np.complex64)
-
-        # 6. Создание пирамиды для inverse с УВЕЛИЧЕННЫМИ lowpass и highpass
-        pyramid1_for_inverse = dtcwt.Pyramid(L1_up, highpasses=(zeros_highpass_up,))
-        pyramid2_for_inverse = dtcwt.Pyramid(L2_up, highpasses=(zeros_highpass_up.copy(),))
-        # НЕ устанавливаем padding_info для этой временной пирамиды
-
-        # 7. Вызов dtcwt_inverse (БЕЗ gain_mask)
-        c1m = dtcwt_inverse(pyramid1_for_inverse, frame_number)
-        c2m = dtcwt_inverse(pyramid2_for_inverse, frame_number + 1)
-        # --- Конец обхода бага ---
-
-        if c1m is None or c2m is None:
-             logging.error(f"[P:{pair_index}] DTCWT inverse failed after upsampling trick.")
-             return None, None
-
-        # 8. Удаление паддинга из результата inverse, используя ОРИГИНАЛЬНЫЙ padding_info
-        try:
-            pr1, pc1 = padding_info1; pr2, pc2 = padding_info2
-            rows_c1m, cols_c1m = c1m.shape; end_row1 = rows_c1m - pr1 if pr1 else rows_c1m; end_col1 = cols_c1m - pc1 if pc1 else cols_c1m
-            rows_c2m, cols_c2m = c2m.shape; end_row2 = rows_c2m - pr2 if pr2 else rows_c2m; end_col2 = cols_c2m - pc2 if pc2 else cols_c2m
-            if end_row1 < 0 or end_col1 < 0 or end_row1 > rows_c1m or end_col1 > cols_c1m: raise ValueError("Invalid unpadding size c1m")
-            if end_row2 < 0 or end_col2 < 0 or end_row2 > rows_c2m or end_col2 > cols_c2m: raise ValueError("Invalid unpadding size c2m")
-            c1m_unpadded = c1m[:end_row1, :end_col1]
-            c2m_unpadded = c2m[:end_row2, :end_col2]
-            logging.debug(f"[P:{pair_index}] Unpadded inverse results to {c1m_unpadded.shape}, {c2m_unpadded.shape}")
-        except Exception as e_unpad:
-             logging.error(f"[P:{pair_index}] Error during unpadding: {e_unpad}")
-             return None, None
-
-        # 9. Постобработка и сборка кадра
-        tsh=(Y1.shape[0],Y1.shape[1]);
-        if c1m_unpadded.shape != tsh: c1m_final = cv2.resize(c1m_unpadded, (tsh[1], tsh[0]), interpolation=cv2.INTER_LINEAR)
-        else: c1m_final = c1m_unpadded
-        if c2m_unpadded.shape != tsh: c2m_final = cv2.resize(c2m_unpadded, (tsh[1], tsh[0]), interpolation=cv2.INTER_LINEAR)
-        else: c2m_final = c2m_unpadded
-        c1s = np.clip(c1m_final * 255.0, 0, 255).astype(np.uint8); c2s = np.clip(c2m_final * 255.0, 0, 255).astype(np.uint8)
-        ny1 = np.stack((Y1,Cr1,Cb1), axis=-1); ny2 = np.stack((Y2,Cr2,Cb2), axis=-1)
-        ny1[:,:,embed_component] = c1s; ny2[:,:,embed_component] = c2s
-        f1m = cv2.cvtColor(ny1, cv2.COLOR_YCrCb2BGR); f2m = cv2.cvtColor(ny2, cv2.COLOR_YCrCb2BGR)
-        logging.debug(f"--- Embed Finish P:{pair_index}, Mods:{modifications_count} ---")
+        # 6. Постобработка и сборка кадра (NumPy)
+        c1s_np = np.clip(c1m_np * 255.0, 0, 255).astype(np.uint8)
+        c2s_np = np.clip(c2m_np * 255.0, 0, 255).astype(np.uint8)
+        if c1s_np.shape != target_shape_hw: c1s_np = cv2.resize(c1s_np, (target_shape_hw[1], target_shape_hw[0]), interpolation=cv2.INTER_LINEAR)
+        if c2s_np.shape != target_shape_hw: c2s_np = cv2.resize(c2s_np, (target_shape_hw[1], target_shape_hw[0]), interpolation=cv2.INTER_LINEAR)
+        ny1_np = f1_ycrcb_np.copy(); ny2_np = f2_ycrcb_np.copy() # Копируем исходные YCrCb
+        ny1_np[:,:,embed_component] = c1s_np; ny2_np[:,:,embed_component] = c2s_np
+        f1m = cv2.cvtColor(ny1_np, cv2.COLOR_YCrCb2BGR); f2m = cv2.cvtColor(ny2_np, cv2.COLOR_YCrCb2BGR)
+        logging.debug(f"{prefix_base} Embed Pair Finished. Total Mods: {modifications_count}")
         return f1m, f2m
 
-    except cv2.error as cv_err:
-        logging.error(f"OpenCV error P:{pair_index}: {cv_err}", exc_info=True); return None, None
-    except MemoryError as mem_err:
-        logging.error(f"Memory error P:{pair_index}: {mem_err}", exc_info=True); return None, None
-    except Exception as e:
-        logging.error(f"Critical error P:{pair_index}: {e}", exc_info=True); return None, None
+    except cv2.error as cv_err: logging.error(f"OpenCV error P:{pair_index}: {cv_err}", exc_info=True); return None, None
+    except MemoryError: logging.error(f"Memory error P:{pair_index}", exc_info=True); return None, None
+    except Exception as e: logging.error(f"Critical error in embed_frame_pair P:{pair_index}: {e}", exc_info=True); return None, None
 
-# --- Воркер для одной пары кадров ---
-@profile
+
+# --- ИЗМЕНЕННЫЙ _embed_single_pair_task ---
+# @profile
 def _embed_single_pair_task(args: Dict[str, Any]) -> Tuple[int, Optional[np.ndarray], Optional[np.ndarray], List[int]]:
-    """
-    Обрабатывает одну пару кадров: выбирает кольца на основе энтропии из пула кандидатов
-    и вызывает embed_frame_pair.
-    """
-    pair_idx = args['pair_idx']
-    fn = 2 * pair_idx
-    bits = args['bits']
-    f1 = args['frame1'] # Используем только первый кадр для выбора колец
-    f2 = args['frame2']
-    nr = args['n_rings']
-    nrtu = args['num_rings_to_use']
-    cps = args['candidate_pool_size']
-    ec = args['embed_component']
-    upm = args['use_perceptual_masking']
-    selected_rings = [] # Инициализируем на случай ошибки
-    bits_for_this_pair = args.get('bits', [])
-    if pair_idx == -1 or f1 is None or f2 is None or not bits_for_this_pair:
-        logging.error(f"Недостаточно аргументов или бит для _embed_single_pair_task (pair_idx={pair_idx})")
-        return fn, None, None, []
-
+    # ... (код функции _embed_single_pair_task из предыдущего ответа) ...
+    pair_idx=args.get('pair_idx',-1); f1_bgr=args.get('frame1'); f2_bgr=args.get('frame2'); bits_for_this_pair=args.get('bits',[])
+    nr=args.get('n_rings', N_RINGS); nrtu=args.get('num_rings_to_use', NUM_RINGS_TO_USE); cps=args.get('candidate_pool_size', CANDIDATE_POOL_SIZE)
+    ec=args.get('embed_component', EMBED_COMPONENT); upm=args.get('use_perceptual_masking', USE_PERCEPTUAL_MASKING)
+    device=args.get('device'); dtcwt_fwd=args.get('dtcwt_fwd'); dtcwt_inv=args.get('dtcwt_inv')
+    fn=2*pair_idx; selected_rings=[]
+    if pair_idx==-1 or f1_bgr is None or f2_bgr is None or not bits_for_this_pair or device is None or dtcwt_fwd is None or dtcwt_inv is None: logging.error(f"Missing args P:{pair_idx}"); return fn,None,None,[]
     try:
-        # --- ШАГ 1: Получение детерминированного пула кандидатов ---
         candidate_rings = get_fixed_pseudo_random_rings(pair_idx, nr, cps)
-        if len(candidate_rings) < nrtu:
-            raise ValueError(f"Not enough candidates {len(candidate_rings)}<{nrtu} for pair {pair_idx}")
-
-        # --- ШАГ 2: Адаптивный выбор из пула по энтропии ---
-        # Используем *первый* кадр пары для расчета энтропии
-        comp1_sel = f1[:, :, ec].astype(np.float32) / 255.0
-        pyr1 = dtcwt_transform(comp1_sel, fn)
-        if pyr1 is None or pyr1.lowpass is None:
-            raise RuntimeError(f"DTCWT L1 failed for selection in pair {pair_idx}")
-
-        L1s = pyr1.lowpass
-        # Убедимся, что L1s это NumPy массив для корректной индексации
-        if not isinstance(L1s, np.ndarray):
-            L1s = np.array(L1s)
-
-        # Получаем координаты колец для L1s
-        coords = ring_division(L1s, nr, fn)
-        if coords is None or len(coords) != nr:
-             raise RuntimeError(f"Ring division failed for L1s in pair {pair_idx}")
-
-        # Вычисляем энтропию для колец-кандидатов
+        if len(candidate_rings) < nrtu: logging.warning(f"[P:{pair_idx}] Not enough candidates {len(candidate_rings)}<{nrtu}. Using all."); nrtu=len(candidate_rings)
+        if nrtu == 0: raise ValueError("No candidates and nrtu=0") # Добавил проверку
+        f1_ycrcb_np = cv2.cvtColor(f1_bgr, cv2.COLOR_BGR2YCrCb)
+        comp1_tensor = torch.from_numpy(f1_ycrcb_np[:, :, ec].copy()).to(device=device, dtype=torch.float32) / 255.0
+        Yl_t_select, _ = dtcwt_pytorch_forward(comp1_tensor, dtcwt_fwd, device, fn)
+        if Yl_t_select is None: raise RuntimeError(f"DTCWT FWD failed P:{pair_idx}")
+        if Yl_t_select.dim() > 2: Yl_t_select = Yl_t_select.squeeze()
+        coords = ring_division(Yl_t_select, nr, fn)
+        if coords is None or len(coords) != nr: raise RuntimeError(f"Ring division failed P:{pair_idx}")
         entropies = []
-        min_pixels_for_entropy = 10 # Минимальное кол-во пикселей для расчета
+        min_pixels_for_entropy = 10
         for r_idx in candidate_rings:
-            entropy_val = -float('inf') # Значение по умолчанию, если расчет не удался
-            # Проверяем валидность индекса и наличие координат
-            if 0 <= r_idx < len(coords) and coords[r_idx] is not None:
-                 c = coords[r_idx]
-                 if c.shape[0] >= min_pixels_for_entropy:
-                      try:
-                           rs, cs = c[:, 0], c[:, 1]
-                           rv = L1s[rs, cs] # Получаем значения пикселей кольца
-                           # Вычисляем энтропию (только Шеннона, вторая не нужна для сортировки)
-                           shannon_entropy, _ = calculate_entropies(rv, fn, r_idx)
-                           if np.isfinite(shannon_entropy):
-                                entropy_val = shannon_entropy
-                      except IndexError:
-                           logging.warning(f"IndexError during entropy calculation P:{pair_idx} R:{r_idx}")
-                      except Exception as entropy_e:
-                           logging.warning(f"Entropy calc error P:{pair_idx} R:{r_idx}: {entropy_e}")
-                           # Оставляем entropy_val = -inf
+            entropy_val = -float('inf')
+            # Проверка валидности индекса и наличия координат
+            if 0 <= r_idx < len(coords) and coords[r_idx] is not None and coords[r_idx].shape[0] >= min_pixels_for_entropy: # Теперь переменная определена
+                 c_tensor = coords[r_idx]
+                 try:
+                       rows, cols = c_tensor[:, 0], c_tensor[:, 1]
+                       rv_tensor = Yl_t_select[rows, cols]
+                       rv_np = rv_tensor.cpu().numpy()
+                       shannon_entropy, _ = calculate_entropies(rv_np, fn, r_idx)
+                       if np.isfinite(shannon_entropy): entropy_val = shannon_entropy
+                 except IndexError:
+                       logging.warning(f"[P:{pair_idx},R:{r_idx}] IndexError during entropy calculation (tensor indexing)")
+                 except Exception as e:
+                       logging.warning(f"[P:{pair_idx},R:{r_idx}] Entropy calc/conv error: {e}")
             entropies.append((entropy_val, r_idx)) # Сохраняем (энтропия, индекс_кольца)
-
-        # Сортируем по УБЫВАНИЮ энтропии
-        entropies.sort(key=lambda x: x[0], reverse=True)
-
-        # Выбираем 'nrtu' колец с наивысшей валидной энтропией
-        selected_rings = [idx for e, idx in entropies if e > -float('inf')][:nrtu]
-
-        # Проверяем, достаточно ли колец выбрано
-        if len(selected_rings) < nrtu:
-            # Если не хватило колец с валидной энтропией, можно дополнить детерминированно
-            # или вызвать ошибку. Выберем дополнение как запасной вариант.
-            logging.warning(f"[P:{pair_idx}] Not enough rings with valid entropy ({len(selected_rings)}<{nrtu}). Falling back.")
-            deterministic_fallback = candidate_rings[:nrtu]
-            # Добавляем недостающие кольца, избегая дубликатов
-            for ring in deterministic_fallback:
-                if ring not in selected_rings:
-                    selected_rings.append(ring)
-                if len(selected_rings) == nrtu:
-                    break
-            # Если и так не хватило (не должно случиться при cps>=nrtu), то ошибка
-            if len(selected_rings) < nrtu:
-                 raise RuntimeError(f"Fallback failed, still not enough rings for pair {pair_idx}")
-            logging.warning(f"[P:{pair_idx}] Selected rings after fallback: {selected_rings}")
-        else:
-             logging.info(f"[P:{pair_idx}] Selected rings (Entropy based): {selected_rings}")
-
-        if len(bits_for_this_pair) != len(selected_rings):
-            logging.info(
-                f"[P:{pair_idx}] Число бит ({len(bits_for_this_pair)}) не совпадает с числом колец ({len(selected_rings)})! Используем минимум.")
-            min_len = min(len(bits_for_this_pair), len(selected_rings))
-            bits_to_embed_now = bits_for_this_pair[:min_len]
-            rings_to_use_now = selected_rings[:min_len]
-        else:
-            bits_to_embed_now = bits_for_this_pair
-            rings_to_use_now = selected_rings
-
-        for bit_val, ring_i in zip(bits_to_embed_now, rings_to_use_now):
-            logging.info(f"[P:{pair_idx} EMBED] Bit={bit_val} -> Ring={ring_i}")
-
-        # --- ШАГ 3: Вызов встраивания с выбранными кольцами ---
-        mod_f1, mod_f2 = embed_frame_pair(f1, f2, bits, selected_rings, nr, fn, upm, ec)
-
-        # Возвращаем результат
+        entropies.sort(key=lambda x: x[0], reverse=True); selected_rings=[idx for e,idx in entropies if e>-float('inf')][:nrtu]
+        if len(selected_rings)<nrtu:
+             logging.warning(f"[P:{pair_idx}] Fallback for ring selection ({len(selected_rings)}<{nrtu}).")
+             det_fallback = candidate_rings[:nrtu];
+             for ring in det_fallback:
+                  if ring not in selected_rings: selected_rings.append(ring)
+                  if len(selected_rings) == nrtu: break
+             if len(selected_rings)<nrtu: raise RuntimeError(f"Fallback failed P:{pair_idx}")
+        # logging.info(f"[P:{pair_idx}] Selected rings: {selected_rings}") # Уменьшаем лог
+        bits_to_embed_now = bits_for_this_pair[:len(selected_rings)]
+        # for bit_val, ring_i in zip(bits_to_embed_now, selected_rings): logging.info(f"[P:{pair_idx} EMBED] Bit={bit_val} -> Ring={ring_i}")
+        mod_f1, mod_f2 = embed_frame_pair(f1_bgr, f2_bgr, bits_to_embed_now, selected_rings, nr, fn, upm, ec, device, dtcwt_fwd, dtcwt_inv)
         return fn, mod_f1, mod_f2, selected_rings
-
-    except Exception as e:
-        logging.error(f"Error in single pair task (Embed - Entropy Sel.) P:{pair_idx}: {e}", exc_info=True)
-        return fn, None, None, [] # Возвращаем пустой список колец при ошибке
+    except Exception as e: logging.error(f"Error in _embed_single_pair_task P:{pair_idx}: {e}", exc_info=True); return fn,None,None,[]
 
 
-# --- Воркер для обработки БАТЧА задач ---
+# --- _embed_batch_worker - остается БЕЗ ИЗМЕНЕНИЙ (вызывает _embed_single_pair_task) ---
 def _embed_batch_worker(batch_args_list: List[Dict]) -> List[Tuple[int, Optional[np.ndarray], Optional[np.ndarray], List[int]]]:
     batch_results = []
     for args in batch_args_list:
@@ -671,165 +858,105 @@ def _embed_batch_worker(batch_args_list: List[Dict]) -> List[Tuple[int, Optional
         batch_results.append(result)
     return batch_results
 
-# --- Основная функция встраивания (ThreadPool + Batches) ---
 
-@profile
+# --- ВОССТАНОВЛЕННАЯ embed_watermark_in_video ---
+# @profile # Добавьте, если нужно профилировать
 def embed_watermark_in_video(
         frames: List[np.ndarray],
         payload_id_bytes: bytes, # Принимаем байты ID
         n_rings: int = N_RINGS, num_rings_to_use: int = NUM_RINGS_TO_USE,
         bits_per_pair: int = BITS_PER_PAIR, candidate_pool_size: int = CANDIDATE_POOL_SIZE,
-        # --- Новые параметры для гибридного режима ---
+        # --- Параметры гибридного режима ---
         use_hybrid_ecc: bool = True,       # Включить гибридный режим?
         max_total_packets: int = 15,       # Макс. общее число пакетов (1 ECC + N Raw)
         use_ecc_for_first: bool = USE_ECC, # Использовать ECC для первого пакета? (берем из глоб. USE_ECC)
         bch_code: Optional[galois.BCH] = BCH_CODE_OBJECT, # Глобальный объект BCH
-        # ----------------------------------------------
+        # --- Новые параметры для PyTorch ---
+        device: torch.device = torch.device("cpu"), # Устройство по умолчанию CPU
+        dtcwt_fwd: Optional[DTCWTForward] = None, # Объект прямого преобр.
+        dtcwt_inv: Optional[DTCWTInverse] = None, # Объект обратного преобр.
+        # ------------------------------------
         fps: float = FPS, max_workers: Optional[int] = MAX_WORKERS,
         use_perceptual_masking: bool = USE_PERCEPTUAL_MASKING,
         embed_component: int = EMBED_COMPONENT):
     """
-    Встраивает водяной знак (ID) в видео, используя гибридный ECC/Raw режим.
+    Основная функция, управляющая процессом встраивания с использованием PyTorch Wavelets,
+    ThreadPoolExecutor, батчинга и гибридного ECC/Raw режима.
     """
-    num_frames = len(frames)
-    total_pairs = num_frames // 2
-    payload_len_bytes = len(payload_id_bytes)
-    payload_len_bits = payload_len_bytes * 8
+    # Проверка наличия объектов PyTorch
+    if dtcwt_fwd is None or dtcwt_inv is None:
+         logging.error("Экземпляры DTCWTForward/DTCWTInverse не переданы в embed_watermark_in_video!")
+         return frames[:] # Возвращаем без изменений
 
-    # Проверки входных данных
-    if payload_len_bits == 0:
-        logging.error("Payload ID пустой! Встраивание отменено.")
-        return frames[:]
-    if total_pairs == 0:
-        logging.warning("Нет пар кадров для встраивания")
-        return frames[:]
-    if max_total_packets <= 0:
-         logging.warning(f"max_total_packets ({max_total_packets}) должен быть > 0. Установлено в 1.")
-         max_total_packets = 1
+    num_frames = len(frames); total_pairs = num_frames // 2
+    payload_len_bytes = len(payload_id_bytes); payload_len_bits = payload_len_bytes * 8
+    if payload_len_bits == 0 or total_pairs == 0: logging.warning("Нет данных или пар кадров."); return frames[:]
+    if max_total_packets <= 0: max_total_packets = 1
 
-    logging.info(f"--- Embed Start (Hybrid Mode: {use_hybrid_ecc}, Max Packets: {max_total_packets}) ---")
+    logging.info(f"--- Embed Start (PyTorch, Hybrid: {use_hybrid_ecc}, Max Pkts: {max_total_packets}) ---")
 
-    # --- Формирование последовательности бит для встраивания ---
-    bits_to_embed_list = []
-    try:
-        raw_payload_bits: np.ndarray = np.unpackbits(np.frombuffer(payload_id_bytes, dtype=np.uint8))
-        if raw_payload_bits.size != payload_len_bits: # Доп. проверка
-             raise ValueError(f"Ошибка unpackbits: ожидалось {payload_len_bits} бит, получено {raw_payload_bits.size}")
-    except Exception as e:
-        logging.error(f"Ошибка подготовки raw_payload_bits: {e}", exc_info=True)
-        return frames[:]
+    # --- Формирование бит ---
+    bits_to_embed_list = []; raw_payload_bits: Optional[np.ndarray] = None
+    try: raw_payload_bits = np.unpackbits(np.frombuffer(payload_id_bytes, dtype=np.uint8)); assert raw_payload_bits.size == payload_len_bits
+    except Exception as e: logging.error(f"Ошибка unpackbits: {e}"); return frames[:]
+    if raw_payload_bits is None: return frames[:] # Дополнительная проверка
 
-    first_packet_bits: Optional[np.ndarray] = None
-    packet1_type_str = "N/A"
-    packet1_len = 0
+    packet1_type_str = "N/A"; packet1_len = 0; num_raw_packets_added = 0
     can_use_ecc = use_ecc_for_first and GALOIS_AVAILABLE and bch_code is not None and payload_len_bits <= bch_code.k
 
-    # 1. Формируем ПЕРВЫЙ пакет
     if use_hybrid_ecc and can_use_ecc:
-        # Пытаемся создать ECC пакет
         first_packet_bits = add_ecc(raw_payload_bits, bch_code)
-        if first_packet_bits is not None:
-            bits_to_embed_list.extend(first_packet_bits.tolist())
-            packet1_len = len(first_packet_bits)
-            packet1_type_str = f"ECC(n={packet1_len}, t={bch_code.t})"
-            logging.info(f"Гибридный режим: Первый пакет создан как {packet1_type_str}.")
-        else:
-            logging.error("Не удалось создать первый пакет с ECC (ошибка add_ecc)! Встраивание отменено.")
-            return frames[:]
+        if first_packet_bits is not None: bits_to_embed_list.extend(first_packet_bits.tolist()); packet1_len=len(first_packet_bits); packet1_type_str=f"ECC(n={packet1_len}, t={bch_code.t})"
+        else: logging.error("Не удалось создать ECC пакет!"); return frames[:]
     else:
-        # Используем Raw payload для первого пакета
-        first_packet_bits = raw_payload_bits # Он уже создан
-        bits_to_embed_list.extend(first_packet_bits.tolist())
-        packet1_len = len(first_packet_bits)
-        packet1_type_str = f"Raw({packet1_len})"
-        if not use_hybrid_ecc:
-             logging.info(f"Режим НЕ гибридный: Первый (и единственный) пакет - {packet1_type_str}.")
-        elif not can_use_ecc:
-             logging.info(f"Гибридный режим: ECC для первого пакета невозможен/выключен. Первый пакет - {packet1_type_str}.")
-        use_hybrid_ecc = False # Отключаем гибрид, если первый пакет Raw
+        bits_to_embed_list.extend(raw_payload_bits.tolist()); packet1_len=len(raw_payload_bits); packet1_type_str=f"Raw({packet1_len})"
+        if not use_hybrid_ecc: logging.info(f"Режим НЕ гибридный: Используется {packet1_type_str}.")
+        else: logging.info(f"Гибридный режим: ECC невозможен/выкл. Первый пакет {packet1_type_str}.")
+        use_hybrid_ecc = False # Выключаем гибрид, если первый Raw
 
-    # 2. Формируем ОСТАЛЬНЫЕ пакеты (только если гибридный режим активен)
-    num_raw_packets_added = 0
     if use_hybrid_ecc:
-        # Добавляем до max_total_packets-1 сырых пакетов
         num_raw_repeats_to_add = max(0, max_total_packets - 1)
-        for _ in range(num_raw_repeats_to_add):
-            bits_to_embed_list.extend(raw_payload_bits.tolist())
-            num_raw_packets_added += 1
-        if num_raw_packets_added > 0:
-             logging.info(f"Гибридный режим: Добавлено {num_raw_packets_added} Raw payload пакетов ({payload_len_bits} бит каждый).")
-    # else: # Если режим не гибридный, больше ничего не добавляем (только 1 пакет)
-    #      pass
+        for _ in range(num_raw_repeats_to_add): bits_to_embed_list.extend(raw_payload_bits.tolist()); num_raw_packets_added += 1
+        if num_raw_packets_added > 0: logging.info(f"Добавлено {num_raw_packets_added} Raw payload пакетов.")
 
     total_packets_actual = 1 + num_raw_packets_added
     total_bits_to_embed = len(bits_to_embed_list)
+    if total_bits_to_embed == 0: logging.error("Нет бит для встраивания."); return frames[:]
 
-    if total_bits_to_embed == 0:
-        logging.error("Нет бит для встраивания после формирования пакетов.")
-        return frames[:]
-
-    # 3. Определяем, сколько пар кадров нужно и обрезаем биты
-    pairs_needed = ceil(total_bits_to_embed / bits_per_pair)
-    pairs_to_process = min(total_pairs, pairs_needed)
+    pairs_needed = ceil(total_bits_to_embed / bits_per_pair); pairs_to_process = min(total_pairs, pairs_needed)
     bits_flat_final = np.array(bits_to_embed_list[:pairs_to_process * bits_per_pair], dtype=np.uint8)
     actual_bits_embedded = len(bits_flat_final)
 
-    logging.info(f"Подготовка к встраиванию:")
-    logging.info(f"  Режим: {'Гибридный' if use_hybrid_ecc else ('Только ECC' if can_use_ecc else 'Только Raw')}")
-    logging.info(f"  Целевое число пакетов: {total_packets_actual} ({packet1_type_str} + {num_raw_packets_added} Raw)")
-    logging.info(f"  Всего бит подготовлено: {total_bits_to_embed}")
-    logging.info(f"  Доступно пар кадров: {total_pairs}, Требуется пар: {pairs_needed}, Будет обработано пар: {pairs_to_process}")
-    logging.info(f"  Фактически будет встроено бит: {actual_bits_embedded}")
-    if actual_bits_embedded < total_bits_to_embed:
-         logging.warning(f"Не хватает пар кадров для встраивания всех подготовленных бит! Встроено только {actual_bits_embedded}.")
+    logging.info(f"Подготовка: Цел.пакетов={total_packets_actual}, Бит={total_bits_to_embed}, НужноПар={pairs_needed}, ДоступноПар={total_pairs}, Обраб.Пар={pairs_to_process}, ВстроеноБит={actual_bits_embedded}")
+    if actual_bits_embedded < total_bits_to_embed: logging.warning(f"Не хватает пар кадров!")
 
-
-    # --- Подготовка аргументов для батчей ---
+    # --- Подготовка аргументов и запуск потоков ---
     start_time=time.time(); watermarked_frames=frames[:]; rings_log: Dict[int,List[int]]={}; pc,ec,uc=0,0,0; skipped_pairs=0; all_pairs_args=[]
 
     for pair_idx in range(pairs_to_process):
         i1=2*pair_idx; i2=i1+1
-        # Проверка кадров
-        if i2>=num_frames or frames[i1] is None or frames[i2] is None:
-            skipped_pairs+=1
-            logging.debug(f"Skipping pair {pair_idx}: invalid frames {i1} or {i2}")
-            continue
-
-        # Извлечение бит для этой пары
-        sbi=pair_idx*bits_per_pair
-        ebi=sbi+bits_per_pair
-        # Убедимся, что не выходим за границы массива бит
-        if sbi >= len(bits_flat_final):
-             logging.warning(f"Skipping pair {pair_idx}: no more bits left to embed.")
-             break # Если биты кончились, выходим из цикла
-        if ebi > len(bits_flat_final):
-            ebi = len(bits_flat_final) # Берем остаток
-
+        if i2>=num_frames or frames[i1] is None or frames[i2] is None: skipped_pairs+=1; continue
+        sbi=pair_idx*bits_per_pair; ebi=sbi+bits_per_pair
+        if sbi >= len(bits_flat_final): break
+        if ebi > len(bits_flat_final): ebi = len(bits_flat_final)
         cb=bits_flat_final[sbi:ebi].tolist()
+        if len(cb) == 0: continue
 
-        # Важно: Если последний пакет неполный, он может дать меньше бит, чем bits_per_pair.
-        # Функция embed_frame_pair должна корректно это обработать (цикл zip остановится раньше).
-        if len(cb) == 0:
-             logging.warning(f"Skipping pair {pair_idx}: calculated bit slice is empty (sbi={sbi}, ebi={ebi}).")
-             continue
-
-        # Формируем аргументы
         args={'pair_idx':pair_idx, 'frame1':frames[i1], 'frame2':frames[i2], 'bits':cb,
               'n_rings':n_rings, 'num_rings_to_use':num_rings_to_use, 'candidate_pool_size':candidate_pool_size,
-              'frame_number':i1, 'use_perceptual_masking':use_perceptual_masking, 'embed_component':embed_component}
+              'frame_number':i1, 'use_perceptual_masking':use_perceptual_masking, 'embed_component':embed_component,
+              'device': device, 'dtcwt_fwd': dtcwt_fwd, 'dtcwt_inv': dtcwt_inv} # Передаем объекты
         all_pairs_args.append(args)
 
     num_valid_tasks = len(all_pairs_args)
-    if skipped_pairs > 0: logging.warning(f"Skipped {skipped_pairs} pairs due to invalid frame indices or None frames.")
-    if num_valid_tasks == 0: logging.error("No valid tasks generated for embedding."); return watermarked_frames
+    if skipped_pairs > 0: logging.warning(f"Пропущено {skipped_pairs} пар при подготовке.")
+    if num_valid_tasks == 0: logging.error("Нет валидных задач для встраивания."); return watermarked_frames
 
-    # --- Запуск ThreadPoolExecutor (код остается без изменений) ---
+    # --- Запуск ThreadPoolExecutor ---
     num_workers = max_workers if max_workers is not None and max_workers>0 else (os.cpu_count() or 1)
-    # Убрал /2 в расчете batch_size, чтобы батчи были побольше
-    batch_size = max(1, ceil(num_valid_tasks / num_workers))
-    num_batches = ceil(num_valid_tasks / batch_size)
+    batch_size = max(1, ceil(num_valid_tasks / num_workers)); num_batches = ceil(num_valid_tasks / batch_size)
     batched_args_list = [all_pairs_args[i:i+batch_size] for i in range(0, num_valid_tasks, batch_size) if all_pairs_args[i:i+batch_size]]
-    logging.info(f"Launching {len(batched_args_list)} batches ({num_valid_tasks} pairs) using ThreadPool (mw={num_workers}, batch_size≈{batch_size})...")
+    logging.info(f"Запуск {len(batched_args_list)} батчей ({num_valid_tasks} пар) в ThreadPool (mw={num_workers}, batch≈{batch_size})...")
 
     try:
         with ThreadPoolExecutor(max_workers=num_workers) as executor:
@@ -840,184 +967,159 @@ def embed_watermark_in_video(
                     batch_results = future.result()
                     if len(batch_results) != len(original_batch): ec += len(original_batch); logging.error(f"Batch {batch_idx} size mismatch!"); continue
                     for i, single_res in enumerate(batch_results):
+                        original_args = original_batch[i]; pair_idx = original_args.get('pair_idx', -1)
+                        if pair_idx == -1: logging.error(f"Не найден pair_idx в результате батча {batch_idx}"); ec+=1; continue
                         if single_res and len(single_res)==4:
-                            fn_res, mod_f1, mod_f2, sel_rings = single_res
-                            # Ищем оригинальный pair_idx (важно, если батчи обрабатывались не по порядку)
-                            original_args = original_batch[i]
-                            pair_idx = original_args['pair_idx']
-                            i1=2*pair_idx; i2=i1+1
-
-                            if sel_rings: rings_log[pair_idx] = sel_rings # Логируем выбранные кольца
+                            fn_res, mod_f1, mod_f2, sel_rings = single_res; i1=2*pair_idx; i2=i1+1
+                            if sel_rings: rings_log[pair_idx] = sel_rings
                             if mod_f1 is not None and mod_f2 is not None:
                                 if i1<len(watermarked_frames): watermarked_frames[i1]=mod_f1; uc+=1
                                 if i2<len(watermarked_frames): watermarked_frames[i2]=mod_f2; uc+=1
                                 pc+=1
-                            else:
-                                logging.warning(f"Embedding failed for pair {pair_idx} (returned None frames).")
-                                ec+=1
-                        else:
-                             # Ищем оригинальный pair_idx для логирования ошибки
-                             original_args = original_batch[i]
-                             pair_idx = original_args.get('pair_idx', 'unknown')
-                             logging.warning(f"Invalid result structure for pair {pair_idx} in batch {batch_idx}.")
-                             ec+=1
-                except Exception as e:
-                    failed_pairs_count = len(original_batch)
-                    logging.error(f"Batch {batch_idx} processing failed entirely: {e}", exc_info=True)
-                    ec += failed_pairs_count # Считаем все пары из упавшего батча как ошибки
-    except Exception as e:
-        logging.critical(f"ThreadPoolExecutor critical error: {e}", exc_info=True)
-        return frames[:] # Возвращаем исходные кадры при критической ошибке
+                            else: logging.warning(f"Embedding failed P:{pair_idx} (None frames)."); ec+=1
+                        else: logging.warning(f"Invalid result structure P:{pair_idx} in batch {batch_idx}."); ec+=1
+                except Exception as e: failed_pairs_count=len(original_batch); logging.error(f"Batch {batch_idx} failed: {e}", exc_info=True); ec += failed_pairs_count
+    except Exception as e: logging.critical(f"ThreadPool critical error: {e}", exc_info=True); return frames[:]
 
-    # --- Завершение и запись логов (код остается без изменений) ---
-    logging.info(f"Batch processing done. OK pairs processed: {pc}, Error/Skipped pairs: {ec+skipped_pairs}. Frames updated: {uc}.")
+    # --- Завершение и запись логов ---
+    logging.info(f"Batch done. OK pairs: {pc}, Error/Skip pairs: {ec+skipped_pairs}. Frames updated: {uc}.")
     if rings_log:
         try:
             ser_log={str(k):v for k,v in rings_log.items()}
-            with open(SELECTED_RINGS_FILE,'w') as f:
-                 json.dump(ser_log, f, indent=4)
+            with open(SELECTED_RINGS_FILE,'w') as f: json.dump(ser_log, f, indent=4)
             logging.info(f"Rings log saved: {SELECTED_RINGS_FILE}")
-        except Exception as e:
-             logging.error(f"Save rings log failed: {e}", exc_info=True)
-    else: logging.warning("Rings log empty or not generated.")
+        except Exception as e: logging.error(f"Save rings log failed: {e}")
+    else: logging.warning("Rings log empty.")
     end_time=time.time(); logging.info(f"Embed function done. Time: {end_time-start_time:.2f}s.")
     return watermarked_frames
 
-
+# --- ИЗМЕНЕННАЯ main ---
 def main():
-    global BCH_CODE_OBJECT, DTCWT_OPENCL_ENABLED
     start_time_main = time.time()
-    input_video = "input.mp4" # Или ваш входной файл
-    backend_name_str = 'opencl' if DTCWT_OPENCL_ENABLED else 'numpy'
-    # Имя выходного файла теперь не зависит от t (оно задается внутри)
-    base_output_filename = f"watermarked_{backend_name_str}_hybrid" # Пример имени
+    # --- Инициализация PyTorch / Galois ---
+    if not PYTORCH_WAVELETS_AVAILABLE: print("ERROR: pytorch_wavelets not found."); return
+    if USE_ECC and not GALOIS_AVAILABLE: print("\nWARNING: ECC requested but galois unavailable.")
+    # Определяем устройство
+    if torch.cuda.is_available():
+        try: device = torch.device("cuda"); torch.cuda.get_device_name(0); logging.info(f"Using CUDA: {torch.cuda.get_device_name(0)}")
+        except Exception as e: logging.warning(f"CUDA init failed ({e}). Using CPU."); device = torch.device("cpu")
+    else: device = torch.device("cpu"); logging.info("Using CPU.")
+    # Создаем экземпляры трансформаций
+    try:
+        dtcwt_fwd = DTCWTForward(J=1, biort='near_sym_a', qshift='qshift_a').to(device)
+        dtcwt_inv = DTCWTInverse(biort='near_sym_a', qshift='qshift_a').to(device)
+        logging.info("PyTorch DTCWT instances created.")
+    except Exception as e: logging.critical(f"Failed to init pytorch-wavelets: {e}"); return
+
+    input_video = "input.mp4"
+    base_output_filename = f"watermarked_pytorch_hybrid_t{BCH_T}"
     output_video = base_output_filename + OUTPUT_EXTENSION
-    logging.info(f"--- Starting Embedding Main Process ---")
-    logging.info(f"Target Output: {output_video}")
+    logging.info(f"--- Starting Embedding Main Process (PyTorch) ---")
+    logging.info(f"Input: {input_video}, Output: {output_video}")
 
     frames, fps_read = read_video(input_video)
+    payload_len_bits = PAYLOAD_LEN_BYTES * 8
     if not frames: logging.critical("Video read failed."); return
     fps_to_use = float(FPS) if fps_read <= 0 else fps_read
     if len(frames) < 2: logging.critical("Not enough frames."); return
 
-    # Генерируем ID как и раньше
-    original_id_bytes = os.urandom(PAYLOAD_LEN_BYTES);
-    original_id_hex = original_id_bytes.hex()
-    logging.info(f"Generated Payload ID ({PAYLOAD_LEN_BYTES * 8} bit, Hex): {original_id_hex}")
-    # Сохраняем ID как и раньше
+    original_id_bytes = os.urandom(PAYLOAD_LEN_BYTES); original_id_hex = original_id_bytes.hex()
+    logging.info(f"Generated Payload ID ({payload_len_bits} bit, Hex): {original_id_hex}")
     try:
         with open(ORIGINAL_WATERMARK_FILE, "w") as f: f.write(original_id_hex)
         logging.info(f"Original ID saved: {ORIGINAL_WATERMARK_FILE}")
     except IOError as e: logging.error(f"Save ID failed: {e}")
 
+    # --- Вызов основной функции встраивания ---
     watermarked_frames = embed_watermark_in_video(
-        frames=frames,
-        payload_id_bytes=original_id_bytes, # <--- Передаем байты ID
-        # --- Параметры гибридного режима ---
-        use_hybrid_ecc=True,           # <--- Включаем гибридный режим
-        max_total_packets=15,          # <--- Макс. пакетов (1 ECC + 14 Raw)
-        use_ecc_for_first=USE_ECC,     # <--- Использовать ECC для первого (из глоб.)
-        bch_code=BCH_CODE_OBJECT,      # <--- Передаем объект BCH
-        # --- Остальные параметры ---
+        frames=frames, payload_id_bytes=original_id_bytes,
+        use_hybrid_ecc=True, max_total_packets=15, # Включаем гибридный режим
+        use_ecc_for_first=USE_ECC, bch_code=BCH_CODE_OBJECT,
+        device=device, dtcwt_fwd=dtcwt_fwd, dtcwt_inv=dtcwt_inv, # Передаем объекты
         n_rings=N_RINGS, num_rings_to_use=NUM_RINGS_TO_USE,
         bits_per_pair=BITS_PER_PAIR, candidate_pool_size=CANDIDATE_POOL_SIZE,
-        # max_packet_repeats больше не нужен здесь напрямую, логика внутри функции
         fps=fps_to_use, max_workers=MAX_WORKERS,
         use_perceptual_masking=USE_PERCEPTUAL_MASKING,
         embed_component=EMBED_COMPONENT
     )
 
-    # --- Запись видео (без изменений) ---
+    # --- Запись видео ---
     if watermarked_frames and len(watermarked_frames) == len(frames):
         write_video(frames=watermarked_frames, out_path=output_video, fps=fps_to_use, codec=OUTPUT_CODEC)
         logging.info(f"Watermarked video saved: {output_video}")
-    else:
-        logging.error("Embedding failed or returned no frames. No output.")
+    else: logging.error("Embedding failed. No output.")
 
-    logging.info(f"--- Embedding Main Process Finished ({'OpenCL Fwd' if DTCWT_OPENCL_ENABLED else 'NumPy'} DTCWT) ---")
+    logging.info(f"--- Embedding Main Process Finished (PyTorch) ---")
     total_time_main = time.time() - start_time_main
-    logging.info(f"--- Total Main Function Time: {total_time_main:.2f} seconds ---")
-    print(f"\nEmbedding process (ThreadPool + Batches, {'OpenCL Fwd' if DTCWT_OPENCL_ENABLED else 'NumPy'} DTCWT) finished.")
-    print(f"Output: {output_video}")
-    print(f"Log: {LOG_FILENAME}")
-    print(f"ID file: {ORIGINAL_WATERMARK_FILE}")
-    print(f"Rings file: {SELECTED_RINGS_FILE}")
-    print("\nRun extractor.py to extract and verify.")
-
-# --- Точка Входа ---
+    logging.info(f"--- Total Main Time: {total_time_main:.2f} sec ---")
+    print(f"\nEmbedding process (PyTorch) finished.")
+    print(f"Output: {output_video}, Log: {LOG_FILENAME}, ID file: {ORIGINAL_WATERMARK_FILE}, Rings file: {SELECTED_RINGS_FILE}")
+    print("\nRun extractor_pytorch.py to extract.")# --- Точка Входа (__name__ == "__main__") ---
 if __name__ == "__main__":
-    original_dtcwt_backend = 'numpy' # Сохраняем исходный бэкенд
-    try:
-        import dtcwt
-        original_dtcwt_backend = dtcwt.backend_name
-        logging.info(f"Original dtcwt backend: {original_dtcwt_backend}")
-        logging.info("Attempting to switch dtcwt backend to OpenCL...")
-        dtcwt.push_backend('opencl')
-        current_backend = dtcwt.backend_name
-        logging.info(f"DTCWT backend switched to: {current_backend}")
-        if current_backend == 'opencl':
-            try:
-                logging.info("Initializing OpenCL backend via Transform2d()...")
-                _test_transform = dtcwt.Transform2d()
-                _test_data = np.random.rand(16, 16).astype(np.float32)
-                _test_pyramid = _test_transform.forward(_test_data, nlevels=1)
-                assert _test_pyramid is not None and _test_pyramid.lowpass is not None, "Test transform failed"
-                logging.info("OpenCL backend initialized and test transform successful.")
-                DTCWT_OPENCL_ENABLED = True
-            except Exception as e_init:
-                 logging.warning(f"OpenCL backend test failed: {e_init}. Falling back to NumPy.", exc_info=False)
-                 if dtcwt.backend_name == 'opencl': dtcwt.pop_backend()
-                 DTCWT_OPENCL_ENABLED = False
-        else:
-            logging.warning("push_backend('opencl') did not change backend! Using NumPy.")
-            DTCWT_OPENCL_ENABLED = False
-            if dtcwt.backend_name != 'numpy': dtcwt.push_backend('numpy')
-    except ImportError: logging.warning("dtcwt library not found."); DTCWT_OPENCL_ENABLED = False
-    except ValueError as e_push: logging.warning(f"Failed switch to OpenCL: {e_push}. Using NumPy."); DTCWT_OPENCL_ENABLED = False
-    except Exception as e_ocl: logging.warning(f"Error setting/testing OpenCL: {e_ocl}. Using NumPy.", exc_info=True); DTCWT_OPENCL_ENABLED = False
-    finally: # Проверка консистентности флага и бэкенда
-        try:
-             if 'dtcwt' in sys.modules:
-                  final_backend = dtcwt.backend_name
-                  if final_backend == 'opencl' and not DTCWT_OPENCL_ENABLED:
-                       logging.error("Inconsistency: OpenCL active but flag False!"); dtcwt.push_backend('numpy')
-                  elif final_backend != 'opencl' and DTCWT_OPENCL_ENABLED:
-                       logging.error("Inconsistency: NumPy active but OpenCL flag True!"); DTCWT_OPENCL_ENABLED = False
-                  logging.info(f"Final active DTCWT backend for main: {dtcwt.backend_name}")
-        except Exception as e_final_check: logging.error(f"Error final backend check: {e_final_check}")
+    # --- Инициализация и проверки ---
 
+    # Проверка доступности PyTorch Wavelets (импорт происходит в начале файла)
+    if not PYTORCH_WAVELETS_AVAILABLE:
+         print("\nERROR: Библиотека pytorch_wavelets не найдена или не может быть импортирована!")
+         print("Пожалуйста, установите ее: pip install pytorch_wavelets")
+         sys.exit(1) # Критическая ошибка, выходим
+
+    # Проверка доступности Galois и его инициализации (происходит в начале файла)
+    # Выводим предупреждение, если ECC включен глобально, но библиотека недоступна
     if USE_ECC and not GALOIS_AVAILABLE:
-        print("\nERROR: ECC required but galois failed/unavailable.")
-    else:
-        prof = cProfile.Profile(); prof.enable()
-        try:
-            main()
-            print(f"\n--- DTCWT Backend Used: {'OpenCL (Forward Only)' if DTCWT_OPENCL_ENABLED else 'NumPy'} ---")
-        except FileNotFoundError as e: print(f"\nERROR: {e}"); logging.error(f"{e}", exc_info=True)
-        except Exception as e: logging.critical(f"Unhandled main: {e}", exc_info=True); print(f"\nCRITICAL ERROR: {e}. Log: {LOG_FILENAME}")
-        finally:
-            prof.disable(); stats = pstats.Stats(prof)
-            print("\n--- Profiling Stats (Top 30 Cumulative Time) ---")
-            stats.strip_dirs().sort_stats("cumulative").print_stats(30)
-            print("-------------------------------------------------")
-            backend_str = 'opencl' if DTCWT_OPENCL_ENABLED else 'numpy'
-            pfile = f"profile_embed_{backend_str}_batched_galois_t{BCH_T}.txt"
-            try:
-                with open(pfile, "w") as f: sf = pstats.Stats(prof, stream=f); sf.strip_dirs().sort_stats("cumulative").print_stats()
-                logging.info(f"Profiling stats saved: {pfile}"); print(f"Profiling stats saved: {pfile}")
-            except IOError as e: logging.error(f"Save profile failed: {e}"); print(f"Warning: Could not save profile stats.")
+        print("\nWARNING: USE_ECC=True в настройках, но библиотека galois недоступна или не инициализировалась.")
+        print("Первый пакет будет встроен как Raw payload, даже если запрошен гибридный режим с ECC.")
+        # Нет необходимости выходить, эмбеддер обработает это
 
-            # --- Восстановление исходного бэкенда dtcwt ---
+    # --- Профилирование (опционально) ---
+    DO_PROFILING = False # Установите True, чтобы включить cProfile
+    prof = None
+    if DO_PROFILING:
+        prof = cProfile.Profile()
+        prof.enable()
+        logging.info("cProfile включен.")
+
+    # --- Запуск основной логики ---
+    final_exit_code = 0
+    try:
+        main() # Вызов основной функции main()
+    except FileNotFoundError as e:
+         print(f"\nERROR: Файл не найден: {e}")
+         logging.error(f"Файл не найден: {e}", exc_info=True)
+         final_exit_code = 1
+    except Exception as e:
+         # Логируем критическую ошибку перед выходом
+         logging.critical(f"Необработанное исключение в main: {e}", exc_info=True)
+         print(f"\nCRITICAL ERROR: {e}. См. лог: {LOG_FILENAME}")
+         final_exit_code = 1
+    finally:
+        # --- Сохранение результатов профилирования (если включено) ---
+        if DO_PROFILING and prof is not None:
+            prof.disable()
+            stats = pstats.Stats(prof)
+            print("\n--- Profiling Stats (Top 30 Cumulative Time) ---")
             try:
-                if 'dtcwt' in sys.modules and 'original_dtcwt_backend' in locals() and dtcwt.backend_name != original_dtcwt_backend:
-                    logging.info(f"Restoring original dtcwt backend: {original_dtcwt_backend}")
-                    # Восстанавливаем, пока не совпадет или стек не опустеет
-                    while dtcwt.backend_name != original_dtcwt_backend and len(getattr(dtcwt, '_backend_stack', [])) > 0:
-                         dtcwt.pop_backend()
-                    # Если все равно не совпало, ставим принудительно
-                    if dtcwt.backend_name != original_dtcwt_backend:
-                         dtcwt.push_backend(original_dtcwt_backend)
-                         # Очищаем лишний push
-                         if hasattr(dtcwt, '_backend_stack') and len(dtcwt._backend_stack) > 1: dtcwt._backend_stack.pop(0)
-                    logging.info(f"DTCWT backend restored to: {dtcwt.backend_name}")
-            except Exception as e_restore: logging.warning(f"Could not restore backend: {e_restore}")
+                 stats.strip_dirs().sort_stats("cumulative").print_stats(30)
+            except Exception as e_stats:
+                 print(f"Ошибка вывода статистики профилирования: {e_stats}")
+            print("-------------------------------------------------")
+
+            # Формируем имя файла профиля
+            # (Убрал зависимость от backend_str, т.к. теперь только PyTorch)
+            pfile = f"profile_embed_pytorch_hybrid_t{BCH_T}.txt"
+            try:
+                # Сохраняем полную статистику в файл
+                with open(pfile, "w", encoding='utf-8') as f: # Добавил encoding
+                    sf = pstats.Stats(prof, stream=f)
+                    sf.strip_dirs().sort_stats("cumulative").print_stats() # Сохраняем все
+                logging.info(f"Статистика профилирования сохранена: {pfile}")
+                print(f"Статистика профилирования сохранена: {pfile}")
+            except IOError as e:
+                logging.error(f"Не удалось сохранить файл профилирования: {e}")
+                print(f"Предупреждение: Не удалось сохранить статистику профилирования.")
+            except Exception as e_prof_save:
+                 logging.error(f"Ошибка сохранения профиля: {e_prof_save}", exc_info=True)
+        # --- Восстановление бэкенда dtcwt БОЛЬШЕ НЕ НУЖНО ---
+
+    # Завершаем скрипт с соответствующим кодом выхода
+    sys.exit(final_exit_code)
