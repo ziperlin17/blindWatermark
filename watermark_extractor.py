@@ -470,7 +470,7 @@ def extract_single_bit(L1_tensor: torch.Tensor, L2_tensor: torch.Tensor, ring_id
         eps = 1e-12; threshold = 1.0
         if abs(s2) < eps: logging.warning(f"{prefix} s2 near zero ({s2:.2e}). Ratio unreliable."); return None
         ratio = s1 / s2
-        extracted_bit = 0 if ratio >= threshold else 1
+        extracted_bit = 1 if ratio >= threshold else 0
         logging.debug(f"{prefix} ratio={ratio:.6f} -> Bit={extracted_bit}") # Основной лог результата
 
         return extracted_bit
