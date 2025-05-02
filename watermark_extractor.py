@@ -21,6 +21,7 @@ import hashlib
 import torch
 import torch.nn.functional as F
 from galois import BCH
+from line_profiler import profile
 
 try:
     from pytorch_wavelets import DTCWTForward, DTCWTInverse
@@ -262,8 +263,7 @@ def read_video(video_path: str) -> Tuple[List[np.ndarray], float]:
         if cap and cap.isOpened(): cap.release()
     return frames, fps
 
-# --- Функция извлечения бита (БН-версия PyTorch) ---
-# @profile
+@profile
 def extract_single_bit(L1_tensor: torch.Tensor, L2_tensor: torch.Tensor, ring_idx: int, n_rings: int, fn: int) -> Optional[int]:
     """
     Извлекает один бит (PyTorch DCT/SVD, ДЕТАЛЬНОЕ ЛОГИРОВАНИЕ).
@@ -523,6 +523,8 @@ def _extract_batch_worker(batch_args_list: List[Dict]) -> Dict[int, List[Optiona
             batch_results[pair_idx] = [None] * nrtu
 
     return batch_results
+
+
 
 # --- Основная функция извлечения (использует новый _extract_batch_worker) ---
 # @profile
@@ -875,7 +877,7 @@ def main():
     except Exception as e: logging.critical(f"Failed to init DTCWTForward: {e}"); return
 
     # --- Имя входного файла ---
-    input_base = f"watermarked_pytorch_hybrid_t{BCH_T}" # Имя файла зависит от BCH_T
+    input_base = f"output_h264_28" # Имя файла зависит от BCH_T
     input_video = input_base + INPUT_EXTENSION
     original_id = None
 
