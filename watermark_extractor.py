@@ -877,7 +877,7 @@ def main():
     except Exception as e: logging.critical(f"Failed to init DTCWTForward: {e}"); return
 
     # --- Имя входного файла ---
-    input_base = f"watermarked_pyav_hybrid_t9" # Имя файла зависит от BCH_T
+    input_base = f"watermarked_pyav_hw_t9" # Имя файла зависит от BCH_T
     input_video = input_base + INPUT_EXTENSION
     original_id = None
 
@@ -974,7 +974,7 @@ def main():
     except Exception as e: logging.critical(f"Failed to init DTCWTForward: {e}"); return
 
     # Имя входного файла
-    input_base = f"watermarked_pyav_hybrid_t9" # Имя должно совпадать с выходом embedder
+    input_base = f"watermarked_pyav_hw_t9" # Имя должно совпадать с выходом embedder
     input_video = input_base + INPUT_EXTENSION
     original_id = None
 

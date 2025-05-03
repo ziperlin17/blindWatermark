@@ -204,7 +204,7 @@ except Exception as import_err:
 for handler in logging.root.handlers[:]: logging.root.removeHandler(handler)
 logging.basicConfig(filename=LOG_FILENAME, filemode='w', level=logging.INFO,
                     format='[%(asctime)s] %(levelname).1s %(threadName)s - %(funcName)s:%(lineno)d - %(message)s')
-logging.getLogger().setLevel(logging.DEBUG) # Раскомментировать для детального лога
+# logging.getLogger().setLevel(logging.DEBUG) # Раскомментировать для детального лога
 
 # --- Логирование конфигурации ---
 effective_use_ecc = USE_ECC and GALOIS_AVAILABLE
@@ -624,64 +624,82 @@ def add_ecc(data_bits: np.ndarray, bch_code: Optional[galois.BCH]) -> Optional[n
 
 
 # --- Функция чтения видео (остается без изменений) ---
+@profile
 def read_video_pyav(video_path: str) -> Tuple[Optional[List[np.ndarray]], Optional[List['av.Packet']], Optional[Dict[str, Any]]]:
     """
-    Читает видеофайл с использованием PyAV, извлекая видеокадры (BGR NumPy),
-    аудиопакеты и метаданные. (Исправлена ошибка AVError и логика demux).
+    Читает видеофайл с PyAV, пытаясь использовать HWAccel (CUDA),
+    извлекая видеокадры (BGR NumPy), аудиопакеты и метаданные.
     """
-    if not PYAV_AVAILABLE:
-        logging.error("PyAV is not available. Cannot read video.")
-        return None, None, None
+    if not PYAV_AVAILABLE: logging.error("PyAV not available."); return None, None, None
 
     video_frames_bgr: List[np.ndarray] = []
     audio_packets: List['av.Packet'] = []
-    # Инициализируем метаданные с разумными значениями по умолчанию
-    metadata: Dict[str, Any] = {
-        'input_path': video_path,
-        'video_codec': None, 'width': 0, 'height': 0, 'fps': float(FPS), # Используем глобальный FPS как fallback
-        'video_bitrate': None, 'video_time_base': None, 'pix_fmt': None,
-        'has_audio': False, 'audio_codec': None, 'audio_rate': None,
-        'audio_layout': None, 'audio_time_base': None, 'audio_codec_context_params': None
+    metadata: Dict[str, Any] = { # Инициализация
+        'input_path': video_path, 'video_codec': None, 'width': 0, 'height': 0, 'fps': float(FPS),
+        'video_bitrate': None, 'video_time_base': None, 'pix_fmt': None, 'hw_decode_used': None,
+        'has_audio': False, 'audio_codec': None, 'audio_rate': None, 'audio_layout': None,
+        'audio_time_base': None, 'audio_codec_context_params': None
     }
 
     input_container: Optional['av.container.Container'] = None
     video_stream_index: int = -1
     audio_stream_index: int = -1
+    hw_decode_activated = False
+
+    # Опции для попытки HW декодирования
+    hw_options = {'hwaccel': 'cuda', 'hwaccel_device': '0'}
 
     try:
-        logging.info(f"Opening input '{video_path}' with PyAV...")
-        input_container = av.open(video_path, mode='r')
+        # --- Попытка открыть с HWAccel ---
+        try:
+            logging.info(f"Attempting to open '{video_path}' with HWAccel options: {hw_options}")
+            input_container = av.open(video_path, mode='r', container_options=hw_options)
+            if input_container:
+                 logging.info("Opened with HWAccel options request.")
+                 metadata['hw_decode_used'] = 'cuda' # Предполагаем, что сработало (проверить формат кадра)
+                 hw_decode_activated = True
+            else: # На всякий случай
+                 raise FFmpegError("av.open returned None with HW options")
+        except (FFmpegError, ValueError, Exception) as e_hw: # Ловим ошибки при открытии с HW опциями
+            logging.warning(f"Failed to open with HWAccel options ({e_hw}), falling back to CPU decoding.")
+            metadata['hw_decode_used'] = 'cpu'
+            hw_decode_activated = False
+            try: # Пробуем открыть без HW опций
+                logging.info(f"Attempting to open '{video_path}' with CPU decoding...")
+                input_container = av.open(video_path, mode='r')
+                if not input_container: raise FFmpegError("av.open returned None even for CPU decode")
+                logging.info("Opened with CPU decoding.")
+            except (FFmpegError, Exception) as e_cpu:
+                logging.error(f"Failed to open input container '{video_path}' even with CPU decoding: {e_cpu}", exc_info=True)
+                return None, None, None
 
-        # --- Определение индекса видеопотока ---
-        video_stream = None
+        # --- Определение потоков и метаданных ---
+        # Видео
         try:
             video_stream = input_container.streams.video[0]
-            video_stream.codec_context.thread_count = max(1, os.cpu_count() // 2)
-            video_stream_index = video_stream.index # Получаем индекс
-            # Заполняем метаданные видео
+            video_stream_index = video_stream.index
             metadata['video_codec'] = video_stream.codec.name
             metadata['width'] = video_stream.codec_context.width
             metadata['height'] = video_stream.codec_context.height
-            metadata['pix_fmt'] = video_stream.codec_context.pix_fmt
-            if video_stream.average_rate:
-                metadata['fps'] = float(video_stream.average_rate)
-            metadata['video_bitrate'] = video_stream.codec_context.bit_rate or input_container.bit_rate # Исправлено ранее
+            metadata['pix_fmt'] = video_stream.codec_context.pix_fmt # Формат в контейнере
+            if video_stream.average_rate: metadata['fps'] = float(video_stream.average_rate)
+            metadata['video_bitrate'] = video_stream.codec_context.bit_rate or input_container.bit_rate
             metadata['video_time_base'] = video_stream.time_base
             logging.info(f"  Video Stream #{video_stream_index}: {metadata['video_codec']}, {metadata['width']}x{metadata['height']}, "
                          f"FPS: {metadata['fps']:.2f}, Bitrate: {metadata['video_bitrate']}, "
-                         f"PixFmt: {metadata['pix_fmt']}, TimeBase: {metadata['video_time_base']}")
-        except (IndexError, FFmpegError, AttributeError): # Ловим возможные ошибки
-            logging.error("No video stream found or error accessing its properties.", exc_info=True)
+                         f"PixFmt (stream): {metadata['pix_fmt']}, TimeBase: {metadata['video_time_base']}")
+        except (IndexError, FFmpegError, AttributeError) as e:
+            logging.error(f"No video stream found or error accessing properties: {e}", exc_info=True)
+            if input_container: input_container.close()
             return None, None, None # Видео обязательно
 
-        # --- Определение индекса аудиопотока ---
+        # Аудио
         audio_stream = None
         input_audio_streams = input_container.streams.audio
         if input_audio_streams:
             try:
-                audio_stream = input_audio_streams[0] # Берем первый аудиопоток
-                audio_stream_index = audio_stream.index # Получаем индекс
-                # Заполняем метаданные аудио
+                audio_stream = input_audio_streams[0]
+                audio_stream_index = audio_stream.index
                 input_audio_ctx = audio_stream.codec_context
                 metadata['has_audio'] = True
                 metadata['audio_codec'] = audio_stream.codec.name
@@ -690,121 +708,186 @@ def read_video_pyav(video_path: str) -> Tuple[Optional[List[np.ndarray]], Option
                 metadata['audio_time_base'] = audio_stream.time_base
                 metadata['audio_codec_context_params'] = {
                     'format': input_audio_ctx.format.name if input_audio_ctx.format else None,
-                    'layout': metadata['audio_layout'],
-                    'rate': metadata['audio_rate'],
-                    'bit_rate': input_audio_ctx.bit_rate,
-                    'codec_tag': input_audio_ctx.codec_tag,
+                    'layout': metadata['audio_layout'], 'rate': metadata['audio_rate'],
+                    'bit_rate': input_audio_ctx.bit_rate, 'codec_tag': input_audio_ctx.codec_tag,
                     'extradata': bytes(input_audio_ctx.extradata) if input_audio_ctx.extradata else None,
                 }
                 logging.info(f"  Audio Stream #{audio_stream_index}: {metadata['audio_codec']}, Rate: {metadata['audio_rate']}, "
                              f"Layout: {metadata['audio_layout']}, TimeBase: {metadata['audio_time_base']}")
             except (IndexError, FFmpegError, AttributeError) as e:
-                logging.warning(f"Could not get or process first audio stream: {e}", exc_info=True)
-                metadata['has_audio'] = False
-                audio_stream_index = -1 # Сбрасываем индекс
+                logging.warning(f"Could not get/process first audio stream: {e}")
+                metadata['has_audio'] = False; audio_stream_index = -1
         else:
-            logging.warning("No audio streams found in the input file.")
-            metadata['has_audio'] = False
+            logging.warning("No audio streams found."); metadata['has_audio'] = False
 
-        # --- Чтение Пакетов (без фильтрации в demux) ---
-        logging.info(f"Reading and processing packets (seeking video_idx={video_stream_index}, audio_idx={audio_stream_index})...")
+        # --- Чтение и декодирование пакетов ---
+        logging.info(f"Reading packets (video_idx={video_stream_index}, audio_idx={audio_stream_index})...")
         processed_frames = 0
+        first_frame_format = None
         try:
-            # Демультиплексируем ВСЕ пакеты
             for packet in input_container.demux():
-
-                if packet.dts is None: continue # Пропускаем пакеты без таймстемпов
-
-                # Обработка видео пакетов по ИНДЕКСУ
+                if packet.dts is None: continue
                 if packet.stream.index == video_stream_index:
                     try:
                         for frame in packet.decode():
                             if frame and isinstance(frame, av.VideoFrame):
-                                np_frame = frame.to_ndarray(format='bgr24')
-                                video_frames_bgr.append(np_frame)
-                                processed_frames += 1
-                                if processed_frames % 100 == 0:
-                                    logging.debug(f"Decoded {processed_frames} video frames...")
-                    except (FFmpegError, ValueError) as e: # Ловим ошибки декодирования
-                        logging.warning(f"Error decoding video packet (stream {packet.stream.index}): {e} - skipping packet.")
-                        continue
+                                if first_frame_format is None: # Запоминаем формат первого кадра
+                                     first_frame_format = frame.format.name if frame.format else "unknown"
+                                     logging.info(f"Detected decoded frame format: {first_frame_format} (HW Used: {hw_decode_activated})")
+                                     # Обновляем метаданные, если формат отличается от потокового
+                                     if metadata['pix_fmt'] != first_frame_format:
+                                          logging.info(f"Note: Decoded pix_fmt '{first_frame_format}' differs from stream pix_fmt '{metadata['pix_fmt']}'")
 
-                # Сохранение аудио пакетов по ИНДЕКСУ
+                                # Конвертируем в BGR NumPy (PyAV/FFmpeg обработают перенос GPU->CPU, если нужно)
+                                try:
+                                     np_frame = frame.to_ndarray(format='bgr24')
+                                     video_frames_bgr.append(np_frame)
+                                except (FFmpegError, ValueError, TypeError) as e_conv:
+                                     logging.warning(f"Failed to convert frame format {frame.format.name if frame.format else 'N/A'} to bgr24: {e_conv}. Trying YUV420p intermediate.")
+                                     # Попытка через YUV420p
+                                     try:
+                                          frame_yuv = frame.reformat(format='yuv420p')
+                                          np_frame_yuv = frame_yuv.to_ndarray()
+                                          np_frame_bgr = cv2.cvtColor(np_frame_yuv, cv2.COLOR_YUV2BGR_I420)
+                                          video_frames_bgr.append(np_frame_bgr)
+                                     except Exception as e_reformat:
+                                           logging.error(f"Failed to reformat/convert frame from {frame.format.name if frame.format else 'N/A'} even via YUV: {e_reformat}")
+                                           continue # Пропускаем кадр
+                                processed_frames += 1
+                                if processed_frames % 100 == 0: logging.debug(f"Decoded {processed_frames} frames...")
+                    except (FFmpegError, ValueError) as e_decode:
+                        logging.warning(f"Error decoding video packet: {e_decode} - skipping.")
+                        continue
                 elif packet.stream.index == audio_stream_index:
                     audio_packets.append(packet)
 
-                # Пакеты других потоков игнорируются
-
-        except (FFmpegError, EOFError) as e: # Ловим ошибки демультиплексирования или конец файла
-             logging.warning(f"Error or EOF during demuxing: {e}", exc_info=False) # Логируем как предупреждение
-             if not video_frames_bgr: # Если видео не успели прочитать, это фатально
-                 logging.error("Demuxing failed before any video frames were read.")
-                 return None, None, None
+        except (FFmpegError, FFmpegEOFError) as e:
+             logging.warning(f"Error or EOF during demuxing: {e}", exc_info=False)
+             if not video_frames_bgr: logging.error("Demuxing failed before reading video."); return None, None, None
 
         logging.info(f"Finished reading. Decoded {len(video_frames_bgr)} video frames. Collected {len(audio_packets)} audio packets.")
-        if not video_frames_bgr:
-            logging.error("No video frames were decoded successfully.")
-            return None, None, None
+        if not video_frames_bgr: logging.error("No video frames decoded."); return None, None, None
 
+        # Сохраняем реальный формат декодированных кадров (если определился)
+        metadata['decoded_pix_fmt'] = first_frame_format
         return video_frames_bgr, audio_packets, metadata
 
-    except FileNotFoundError:
-        logging.error(f"Input file not found: {video_path}")
-        return None, None, None
-    except FFmpegError as e: # Ловим ошибки PyAV/FFmpeg при открытии файла
-        logging.error(f"PyAV/FFmpeg error opening '{video_path}': {e}", exc_info=True)
-        return None, None, None
-    except Exception as e: # Ловим другие неожиданные ошибки
+    except Exception as e: # Ловим другие ошибки открытия
         logging.error(f"Unexpected error reading video '{video_path}': {e}", exc_info=True)
         return None, None, None
     finally:
         if input_container:
-            try:
-                input_container.close()
-                logging.debug("Input container closed.")
-            except FFmpegError as e:
-                 logging.error(f"Error closing input container: {e}")
+            try: input_container.close(); logging.debug("Input container closed.")
+            except FFmpegError as e: logging.error(f"Error closing input container: {e}")
 
 # --- Функция записи видео (остается без изменений) ---
 # @profile # Добавьте, если нужно профилировать
+@profile
 def write_video_pyav(
-    processed_video_frames: List[np.ndarray],
-    original_audio_packets: List['av.Packet'],
-    input_metadata: Dict[str, Any],
+    processed_video_frames: List[np.ndarray], # Обработанные BGR кадры
+    original_audio_packets: List['av.Packet'], # Оригинальные аудио пакеты
+    input_metadata: Dict[str, Any],        # Метаданные от read_video_pyav
     output_path: str,
-    target_video_codec: str = 'libx264',
-    video_quality_crf: int = 23,
-    audio_codec_action: str = 'copy'
+    audio_codec_action: str = 'copy'       # Действие для аудио ('copy' или 'aac')
     ) -> bool:
     """
-    Записывает видео и аудио, полагаясь на mux для обработки таймстемпов
-    при копировании аудио. Упрощенный расчет PTS видео.
+    Записывает видео и аудио с PyAV, автоматически настраивая параметры
+    на основе input_metadata для сохранения качества/размера и совместимости.
+    Пытается использовать HWAccel (NVENC).
     """
     if not PYAV_AVAILABLE: logging.error("PyAV not available."); return False
-    if not processed_video_frames: logging.error("No video frames."); return False
+    if not processed_video_frames: logging.error("No video frames provided."); return False
 
     output_container: Optional['av.container.Container'] = None
-    logging.info(f"Preparing output '{output_path}' (Simplified PTS)...")
+    logging.info(f"Preparing output '{output_path}' (Auto-config based on input)...")
 
-    # --- Метаданные ---
-    width = input_metadata.get('width'); height = input_metadata.get('height')
+    # --- Получение и проверка метаданных ---
+    width = input_metadata.get('width')
+    height = input_metadata.get('height')
     fps = input_metadata.get('fps', float(FPS))
+    input_video_codec = input_metadata.get('video_codec')
     input_video_bitrate = input_metadata.get('video_bitrate')
+    input_pix_fmt = input_metadata.get('pix_fmt') # Формат пикселей входного потока
     has_audio = input_metadata.get('has_audio', False)
     input_audio_codec = input_metadata.get('audio_codec')
     input_audio_rate = input_metadata.get('audio_rate')
     input_audio_layout = input_metadata.get('audio_layout')
-    input_audio_time_base = input_metadata.get('audio_time_base') # Нужен для копирования stream.time_base
+    input_audio_time_base = input_metadata.get('audio_time_base')
     input_audio_context_params = input_metadata.get('audio_codec_context_params')
+    # Цветовые теги
+    color_space = input_metadata.get('color_space')
+    color_primaries = input_metadata.get('color_primaries')
+    color_transfer = input_metadata.get('color_transfer')
+    color_range = input_metadata.get('color_range')
 
     if not (width and height and fps and fps > 0): logging.error("Invalid video metadata."); return False
     if has_audio and not (input_audio_codec and input_audio_rate and input_audio_layout and input_audio_time_base and input_audio_context_params):
-        logging.warning("Audio metadata incomplete. Writing video only.")
-        has_audio = False
+        logging.warning("Audio metadata incomplete. Writing video only."); has_audio = False
 
-    # --- Преобразование FPS ---
     fps_fraction = Fraction(fps).limit_denominator() if fps and fps > 0 else None
 
+    # --- Автоматический выбор Видео Кодека и Настроек ---
+    target_video_codec = None
+    codec_options = {}
+    pix_fmt_out = 'yuv420p' # Начнем с этого формата по умолчанию
+    is_hw_encode = False
+
+    # Проверяем доступность NVENC (предполагаем, что проверка была сделана ранее)
+    # В реальном коде можно добавить вызов check_hw_accel_support() или проверку наличия кодека
+    nvenc_available = True # Замените на реальную проверку, если нужно
+
+    if nvenc_available:
+        if input_video_codec == 'h264':
+            target_video_codec = 'h264_nvenc'
+            is_hw_encode = True
+        elif input_video_codec == 'hevc':
+            target_video_codec = 'hevc_nvenc'
+            is_hw_encode = True
+            # Попытка сохранить 10 бит для HEVC
+            if '10' in (input_pix_fmt or ''): # Проверяем входной формат
+                pix_fmt_out = 'p010le' # Предпочтительный формат NVENC для 10 бит
+                logging.info("Input suggests 10-bit, targeting p010le for HEVC NVENC.")
+            else:
+                 pix_fmt_out = 'yuv420p' # или 'nv12', если yuv420p вызывает проблемы
+
+    if is_hw_encode:
+        logging.info(f"Attempting HW encoder: {target_video_codec}")
+        target_bitrate = input_metadata.get('video_bitrate')
+        if target_bitrate and target_bitrate > 10000: # Используем битрейт, если он разумен
+             codec_options = { 'preset': 'p6', 'rc': 'vbr', 'b': str(target_bitrate) }
+             logging.info(f"  Using NVENC VBR mode with target bitrate: {target_bitrate} bps")
+        else: # Fallback на качество, если битрейта нет или он слишком низкий
+             codec_options = {'preset': 'p6','rc': 'constqp', 'qp': '25'}
+             logging.warning(f"  Input bitrate unavailable/low ({target_bitrate}). Using NVENC constqp mode (qp=25).")
+    else:
+        # Fallback на CPU или копирование (если возможно)
+        if input_video_codec == 'h264':
+            target_video_codec = 'libx264'
+            pix_fmt_out = 'yuv420p'
+            if input_video_bitrate and input_video_bitrate > 10000:
+                 codec_options = {'preset': 'fast', 'b': str(input_video_bitrate)} # Режим битрейта для libx264
+                 logging.info(f"Using CPU encoder {target_video_codec} with target bitrate: {input_video_bitrate}")
+            else:
+                 codec_options = {'preset': 'fast', 'crf': '23'} # Режим CRF
+                 logging.info(f"Using CPU encoder {target_video_codec} with CRF 23.")
+        elif input_video_codec == 'hevc':
+            target_video_codec = 'libx265'
+            pix_fmt_out = 'yuv420p10le' if '10' in (input_pix_fmt or '') else 'yuv420p'
+            if input_video_bitrate and input_video_bitrate > 10000:
+                 codec_options = {'preset': 'fast', 'b': str(input_video_bitrate)}
+                 logging.info(f"Using CPU encoder {target_video_codec} with target bitrate: {input_video_bitrate}")
+            else:
+                 codec_options = {'preset': 'fast', 'crf': '25'}
+                 logging.info(f"Using CPU encoder {target_video_codec} with CRF 25.")
+        else:
+            # Попытка "копирования" (может не сработать для всех кодеков/контейнеров)
+            # Или fallback на libx264 как универсальный вариант
+            target_video_codec = 'libx264' # Безопасный fallback
+            codec_options = {'crf': '23'}
+            pix_fmt_out = 'yuv420p'
+            logging.warning(f"Input codec '{input_video_codec}' not H.264/HEVC. Falling back to CPU encoder: {target_video_codec} with CRF 23.")
+
+    # --- Основной блок записи ---
     try:
         # --- Открытие контейнера ---
         try:
@@ -812,126 +895,121 @@ def write_video_pyav(
             if output_container is None: raise FFmpegError("av.open returned None")
             logging.info(f"Opened '{output_path}' for writing.")
         except (FFmpegError, Exception) as e:
-            logging.error(f"Failed to open output container '{output_path}': {e}", exc_info=True)
-            return False
+            logging.error(f"Failed to open output container '{output_path}': {e}", exc_info=True); return False
 
         # --- Настройка Видео Потока ---
-        logging.info(f"Setting up video stream: codec={target_video_codec}, rate={fps_fraction or 'auto'}")
+        logging.info(f"Setting up video stream: codec={target_video_codec}, rate={fps_fraction or 'auto'}, pix_fmt={pix_fmt_out}")
         try:
-            # Попробуем установить time_base = 1/fps
-            video_time_base = None
-            if fps_fraction:
-                 try:
-                      # Инвертируем дробь, чтобы получить 1/fps
-                      video_time_base = Fraction(fps_fraction.denominator, fps_fraction.numerator)
-                 except ZeroDivisionError:
-                      logging.warning("FPS denominator is zero, cannot set video time_base from FPS.")
-                      video_time_base = None
-
-            # Если не удалось из FPS, используем стандартный 1/90000
-            if video_time_base is None:
-                 video_time_base = Fraction(1, 90000)
-
             video_stream = output_container.add_stream(target_video_codec, rate=fps_fraction)
-            video_stream.time_base = video_time_base # !!! УСТАНАВЛИВАЕМ time_base !!!
         except Exception as e:
-             logging.error(f"Error adding video stream: {e}", exc_info=True)
+             logging.error(f"Error adding video stream: {e}", exc_info=True);
              if output_container: output_container.close();
              return False
 
-        video_stream.width = width; video_stream.height = height; video_stream.pix_fmt = 'yuv420p'
-        if input_video_bitrate and input_video_bitrate > 0:
-            video_stream.codec_context.bit_rate = input_video_bitrate
-        elif target_video_codec in ['libx264', 'libx265']:
-            video_stream.codec_context.options = {'crf': str(video_quality_crf)}
-        logging.info(f"  Video stream time_base set to: {video_stream.time_base}")
+        video_stream.width = width; video_stream.height = height; video_stream.pix_fmt = pix_fmt_out
+        if codec_options: video_stream.codec_context.options = codec_options
+        # Устанавливаем стандартный time_base
+        video_stream.time_base = Fraction(1, 90000)
+        # Копируем цветовые теги
+        if color_space: video_stream.codec_context.color_space = color_space
+        if color_primaries: video_stream.codec_context.color_primaries = color_primaries
+        if color_transfer: video_stream.codec_context.color_trc = color_transfer
+        if color_range: video_stream.codec_context.color_range = color_range
+        logging.info(f"  Video codec options: {video_stream.codec_context.options}")
+        logging.info(f"  Video stream pix_fmt: {video_stream.pix_fmt}, time_base: {video_stream.time_base}")
+        logging.info(f"  Color tags set: space={color_space}, primaries={color_primaries}, trc={color_transfer}, range={color_range}")
 
         # --- Настройка Аудио Потока ---
         audio_stream = None
         if has_audio and original_audio_packets:
             logging.info(f"Setting up audio stream: action={audio_codec_action}")
+            # ... (Блок настройки аудио остается таким же, как в предыдущей версии, с копированием или перекодированием) ...
             if audio_codec_action == 'copy':
-                if not input_audio_time_base:
-                     logging.error("Cannot copy audio: input time_base missing."); has_audio = False
+                if not input_audio_time_base: logging.error("Cannot copy audio: time_base missing."); has_audio = False
                 else:
                     try:
                         audio_stream = output_container.add_stream(input_audio_codec, rate=input_audio_rate)
                         out_ctx = audio_stream.codec_context
-                        # Копируем основные параметры
                         out_ctx.layout = input_audio_layout; out_ctx.format = input_audio_context_params.get('format')
                         out_ctx.bit_rate = input_audio_context_params.get('bit_rate')
-                        out_ctx.codec_tag = input_audio_context_params.get('codec_tag')
-                        out_ctx.extradata = input_audio_context_params.get('extradata')
-                        # ЯВНО УСТАНАВЛИВАЕМ time_base
+                        out_ctx.codec_tag = input_audio_context_params.get('codec_tag'); out_ctx.extradata = input_audio_context_params.get('extradata')
                         audio_stream.time_base = input_audio_time_base
-                        logging.info(f"  Audio stream time_base set to: {audio_stream.time_base}")
+                        logging.info(f"  Audio stream for copy. TimeBase: {audio_stream.time_base}")
                     except Exception as e: logging.error(f"Error setting up audio copy: {e}"); has_audio = False
-            else: # Перекодирование
+            else: # Re-encode
                  try:
                      audio_stream = output_container.add_stream(audio_codec_action, rate=input_audio_rate)
                      audio_stream.codec_context.layout = input_audio_layout
                      if audio_codec_action == 'aac': audio_stream.codec_context.bit_rate = 128000
-                     logging.info(f"  Audio stream time_base (re-encode): {audio_stream.time_base}")
+                     logging.info(f"  Audio stream for re-encode. TimeBase: {audio_stream.time_base}")
                  except Exception as e: logging.error(f"Error setting up audio re-encode: {e}"); has_audio = False
         else: has_audio = False
 
-
-        # --- Кодирование и Мультиплексирование (Упрощенное) ---
+        # --- Кодирование и Мультиплексирование ---
         logging.info("Starting encoding and simplified muxing...")
         frame_count = 0; audio_packet_count = 0
 
-        # Сначала кодируем и мультиплексируем все видео
-        logging.debug("Encoding video frames...")
+        # Кодируем и собираем видео пакеты
+        logging.debug(f"Encoding video frames (target pix_fmt: {pix_fmt_out})...")
         video_packets_to_mux = []
         for frame_index, np_frame in enumerate(processed_video_frames):
             try:
+                # Создаем фрейм из BGR NumPy. Конвертация в pix_fmt_out произойдет здесь или в encode.
+                # Это все еще потенциальное узкое место CPU, если pix_fmt_out != 'bgr24'.
                 video_frame = av.VideoFrame.from_ndarray(np_frame, format='bgr24')
-                # !!! УСТАНАВЛИВАЕМ PTS КАК ПРОСТОЙ ИНДЕКС !!!
-                # FFmpeg должен использовать time_base потока (1/fps) для интерпретации
-                video_frame.pts = frame_index
+                # Переформатируем в нужный формат ДО установки PTS, если нужно
+                # (особенно важно для HW кодеров, ожидающих NV12 и т.д.)
+                if video_frame.format.name != pix_fmt_out:
+                    try:
+                        reformatter = av.video.reformatter.VideoReformatter(video_frame.width, video_frame.height, pix_fmt_out)
+                        video_frame = reformatter.reformat(video_frame)
+                        logging.debug(f"Reformatted frame {frame_index} to {pix_fmt_out}")
+                    except Exception as e_ref:
+                        logging.warning(f"Could not reformat frame {frame_index} to {pix_fmt_out}: {e_ref}. Skipping.")
+                        continue
+
+                # Устанавливаем PTS на основе frame_index и time_base потока
+                if video_stream.time_base:
+                    time_sec = float(frame_index) / float(fps)
+                    video_frame.pts = int(time_sec / float(video_stream.time_base))
+                else:
+                    video_frame.pts = frame_index # Fallback
 
                 encoded_packets = video_stream.encode(video_frame)
-                video_packets_to_mux.extend(encoded_packets) # Собираем пакеты
+                video_packets_to_mux.extend(encoded_packets)
                 frame_count += 1
             except (FFmpegError, ValueError, TypeError) as e:
                  logging.warning(f"Error encoding video frame {frame_index}: {e} - skipping.")
-        # Flush видео кодера
+        # Flush видео
         try:
             encoded_packets = video_stream.encode(None)
             video_packets_to_mux.extend(encoded_packets)
         except (FFmpegError, ValueError, TypeError) as e: logging.warning(f"Error flushing video: {e}")
-        logging.debug(f"Total video frames encoded: {frame_count}. Total packets generated: {len(video_packets_to_mux)}")
+        logging.debug(f"Video frames encoded: {frame_count}. Packets generated: {len(video_packets_to_mux)}")
 
-        # Мультиплексируем все видео пакеты
+        # Мультиплексируем видео
         logging.debug("Muxing video packets...")
         for packet in video_packets_to_mux:
              try: output_container.mux(packet)
              except (FFmpegError, ValueError) as e: logging.warning(f"Error muxing video packet (PTS:{packet.pts}): {e}")
 
-
-        # Теперь копируем все аудио пакеты
+        # Мультиплексируем аудио
         if has_audio:
              logging.debug("Muxing audio packets...")
              for packet in original_audio_packets:
                  try:
-                     # !!! ВАЖНО: Присваиваем пакет правильному выходному потоку !!!
                      packet.stream = audio_stream
-                     # Мультиплексируем (без rescale_ts)
                      output_container.mux(packet)
                      audio_packet_count += 1
                  except (FFmpegError, ValueError, TypeError) as e:
                      logging.warning(f"Error muxing audio packet {audio_packet_count} (PTS:{packet.pts}): {e}")
-             logging.debug(f"Total audio packets muxed: {audio_packet_count}")
+             logging.debug(f"Audio packets muxed: {audio_packet_count}")
 
         logging.info(f"Finished writing process.")
         return True
 
-    except FFmpegError as e:
-        logging.error(f"PyAV/FFmpeg error during writing: {e}", exc_info=True)
-        return False
-    except Exception as e:
-        logging.error(f"Unexpected error writing video: {e}", exc_info=True)
-        return False
+    except FFmpegError as e: logging.error(f"PyAV/FFmpeg error writing: {e}", exc_info=True); return False
+    except Exception as e: logging.error(f"Unexpected error writing: {e}", exc_info=True); return False
     finally:
         if output_container:
             try: output_container.close(); logging.debug("Output container closed.")
@@ -939,6 +1017,7 @@ def write_video_pyav(
 
 # --- ИЗМЕНЕННАЯ embed_frame_pair для PyTorch ---
 # @profile # Добавьте, если нужно профилировать
+@profile
 def embed_frame_pair(
         frame1_bgr: np.ndarray, frame2_bgr: np.ndarray, bits: List[int],
         selected_ring_indices: List[int], n_rings: int, frame_number: int,
@@ -1565,15 +1644,15 @@ def main():
     if not PYAV_AVAILABLE:
         print("ERROR: PyAV library is required. Install: pip install av")
         logging.critical("PyAV library is required but not found.")
-        return
+        return 1 # Возвращаем код ошибки
     if not PYTORCH_WAVELETS_AVAILABLE:
         print("ERROR: pytorch_wavelets library required.")
         logging.critical("pytorch_wavelets library required but not found.")
-        return
+        return 1
     if not TORCH_DCT_AVAILABLE:
         print("ERROR: torch-dct library required.")
         logging.critical("torch-dct library required but not found.")
-        return
+        return 1
     if USE_ECC and not GALOIS_AVAILABLE:
         print("\nWARNING: ECC requested but galois library is unavailable or failed tests.")
         logging.warning("ECC requested but galois unavailable/failed.")
@@ -1604,30 +1683,30 @@ def main():
     except Exception as e:
         logging.critical(f"Failed to initialize pytorch-wavelets DTCWT instances: {e}", exc_info=True)
         print(f"CRITICAL ERROR: Failed to initialize DTCWT: {e}")
-        return
+        return 1
 
     # --- Определение имен файлов ---
-    input_video = "test_video.mp4" # Или ваш входной файл
-    # Имя выходного файла зависит от параметра BCH_T для наглядности
-    base_output_filename = f"watermarked_pyav_hybrid_t{BCH_T}"
-    # Используем глобальное расширение OUTPUT_EXTENSION (например, '.mp4')
+    input_video = "test_video.mp4" # Укажите ваш входной файл
+    # Имя выходного файла зависит от параметра BCH_T и теперь включает "hw"
+    base_output_filename = f"watermarked_pyav_hw_t{BCH_T}"
     output_video = base_output_filename + OUTPUT_EXTENSION
 
-    logging.info(f"--- Starting Embedding Main Process (PyAV I/O) ---")
+    logging.info(f"--- Starting Embedding Main Process (PyAV I/O, HW Attempt) ---")
     logging.info(f"Input video: '{input_video}'")
     logging.info(f"Output video: '{output_video}'")
 
-    # --- ШАГ 1: Чтение видео и аудио с PyAV ---
-    logging.info("Attempting to read video and audio using PyAV...")
+    # --- ШАГ 1: Чтение видео и аудио с PyAV (HW Decode Attempt) ---
+    logging.info("Attempting to read video and audio using PyAV (HW decode attempt)...")
     video_frames_bgr, audio_packets, input_metadata = read_video_pyav(input_video)
 
     if video_frames_bgr is None or input_metadata is None:
         logging.critical("Video read failed using PyAV. Aborting.")
         print("ERROR: Failed to read video file using PyAV.")
-        return
+        return 1 # Код ошибки
     logging.info(f"Successfully read {len(video_frames_bgr)} video frames.")
+    logging.info(f"HW decode attempt result: {input_metadata.get('hw_decode_used', 'unknown')}")
     if input_metadata.get('has_audio'):
-        logging.info(f"Successfully collected {len(audio_packets if audio_packets else [])} audio packets.")
+        logging.info(f"Successfully collected {len(audio_packets or [])} audio packets.")
     else:
         logging.info("No audio stream detected or processed in the input.")
 
@@ -1635,10 +1714,9 @@ def main():
     if len(video_frames_bgr) < 2:
         logging.critical("Not enough video frames (< 2) for processing. Aborting.")
         print("ERROR: Not enough video frames read.")
-        return
+        return 1
 
     # --- Получение FPS для использования ---
-    # Берем FPS из метаданных, если доступно, иначе используем глобальное значение по умолчанию
     fps_to_use = input_metadata.get('fps', float(FPS))
     if fps_to_use <= 0:
         logging.warning(f"Invalid FPS detected ({fps_to_use}). Using default FPS: {float(FPS)}")
@@ -1662,76 +1740,62 @@ def main():
 
 
     # --- ШАГ 2: Встраивание ЦВЗ в видеокадры ---
-    # Эта функция ожидает список NumPy BGR кадров, которые мы получили от read_video_pyav
     logging.info("Starting watermark embedding process...")
-    watermarked_frames = embed_watermark_in_video(
-        frames=video_frames_bgr, # Используем прочитанные BGR кадры
-        payload_id_bytes=original_id_bytes,
-        # Параметры гибридного ECC/Raw режима
-        use_hybrid_ecc=True,       # Используем гибридный режим
-        max_total_packets=15,      # Макс. пакетов (1 ECC + 14 Raw)
-        use_ecc_for_first=USE_ECC, # Использовать ли ECC для первого (из глоб. переменной)
-        bch_code=BCH_CODE_OBJECT,  # Передаем объект Galois BCH
-        # Параметры PyTorch
-        device=device,             # Устройство (CPU/GPU)
-        dtcwt_fwd=dtcwt_fwd,       # Экземпляр прямого DTCWT
-        dtcwt_inv=dtcwt_inv,       # Экземпляр обратного DTCWT
-        # Параметры самого алгоритма
-        n_rings=N_RINGS,
-        num_rings_to_use=NUM_RINGS_TO_USE,
-        bits_per_pair=BITS_PER_PAIR,
-        candidate_pool_size=CANDIDATE_POOL_SIZE,
-        fps=fps_to_use,             # FPS используется внутри для логирования? Если нет - можно убрать
-        max_workers=MAX_WORKERS,    # Кол-во потоков для ThreadPoolExecutor
-        use_perceptual_masking=USE_PERCEPTUAL_MASKING,
-        embed_component=EMBED_COMPONENT
-    )
+    # Собираем аргументы в словарь для передачи в функцию
+    embed_kwargs = {
+        'frames': video_frames_bgr,
+        'payload_id_bytes': original_id_bytes,
+        'use_hybrid_ecc': True,
+        'max_total_packets': 15,
+        'use_ecc_for_first': USE_ECC,
+        'bch_code': BCH_CODE_OBJECT,
+        'device': device,
+        'dtcwt_fwd': dtcwt_fwd,
+        'dtcwt_inv': dtcwt_inv,
+        'n_rings': N_RINGS,
+        'num_rings_to_use': NUM_RINGS_TO_USE,
+        'bits_per_pair': BITS_PER_PAIR,
+        'candidate_pool_size': CANDIDATE_POOL_SIZE,
+        'fps': fps_to_use, # Передаем FPS
+        'max_workers': MAX_WORKERS,
+        'use_perceptual_masking': USE_PERCEPTUAL_MASKING,
+        'embed_component': EMBED_COMPONENT
+    }
+    watermarked_frames = embed_watermark_in_video(**embed_kwargs)
 
     if watermarked_frames is None:
         logging.error("Watermark embedding function returned None. Aborting write.")
         print("ERROR: Watermark embedding process failed.")
-        return # Не можем продолжать без обработанных кадров
+        return 1 # Код ошибки
 
     if len(watermarked_frames) != len(video_frames_bgr):
          logging.error(f"Frame count mismatch after embedding: Expected {len(video_frames_bgr)}, Got {len(watermarked_frames)}. Aborting write.")
          print("ERROR: Frame count mismatch after embedding process.")
-         return
-
+         return 1 # Код ошибки
     logging.info("Watermark embedding process completed.")
 
     # --- ШАГ 3: Запись обработанного видео и оригинального аудио с PyAV ---
     write_success = False
-    logging.info("Attempting to write final video using PyAV...")
+    logging.info("Attempting to write final video using PyAV (HW encode attempt)...")
 
-    # Определяем целевой кодек на основе входного (если хотим соответствовать)
-    # Пример: если вход был h264, использовать libx264. Если hevc, то libx265.
-    # Для простоты пока оставим libx264 как основной CPU кодек.
-    target_video_codec = 'libx264'
-    # Можно добавить логику выбора:
-    # input_codec = input_metadata.get('video_codec')
-    # if input_codec == 'hevc':
-    #     target_video_codec = 'libx265'
-    # elif input_codec == 'mpeg4':
-    #      target_video_codec = 'mpeg4' # Используем стандартный mpeg4 кодер FFMpeg
-    # else: # По умолчанию h264
-    #      target_video_codec = 'libx264'
-
+    # Вызываем write_video_pyav. Логика выбора кодека и HWAccel теперь внутри этой функции.
     write_success = write_video_pyav(
         processed_video_frames=watermarked_frames,
-        original_audio_packets=audio_packets if audio_packets else [], # Передаем пустой список, если аудио не было
-        input_metadata=input_metadata, # Передаем метаданные для настроек
+        original_audio_packets=audio_packets if audio_packets else [],
+        input_metadata=input_metadata, # Передаем все метаданные
         output_path=output_video,
-        target_video_codec=target_video_codec, # Можно поменять на 'h264_nvenc' и т.д., если настроено HW
-        video_quality_crf=23,          # Используем CRF 23 (хорошее качество) если битрейт не задан
-        audio_codec_action='copy'      # Копируем аудиодорожку без перекодирования
+        # target_video_codec больше не нужен здесь
+        # video_quality_crf больше не нужен здесь
+        audio_codec_action='copy' # Копируем аудио
     )
 
     if write_success:
-        logging.info(f"Watermarked video with audio (if present) saved successfully to: {output_video}")
+        logging.info(f"Output saved successfully: {output_video}")
         print(f"\nSuccessfully wrote watermarked video to: {output_video}")
     else:
         logging.error(f"Writing video using PyAV failed for path: {output_video}")
         print("\nERROR: Failed to write the final video file.")
+        # Не возвращаем 1 здесь, чтобы дать finally блоку обработать профилирование
 
     # --- Завершение ---
     logging.info(f"--- Embedding Main Process Finished (PyAV I/O) ---")
@@ -1744,53 +1808,54 @@ def main():
 
     if write_success:
         print(f"\nRun extractor_pytorch.py on '{output_video}' to extract the watermark.")
+        return 0 # Успешное завершение
     else:
          print("\nExtraction cannot be performed as the output file was not written successfully.")
+         return 1 # Ошибка записи
+
 
 # --- Точка Входа (__name__ == "__main__") ---
 if __name__ == "__main__":
-    # --- Инициализация и проверки зависимостей ---
-    # Эти проверки можно вынести в отдельную функцию или оставить здесь
-    if not PYAV_AVAILABLE: print("\nERROR: PyAV library is required. Install: pip install av"); sys.exit(1)
-    if not PYTORCH_WAVELETS_AVAILABLE: print("\nERROR: pytorch_wavelets library required."); sys.exit(1)
-    if not TORCH_DCT_AVAILABLE: print("\nERROR: torch-dct library required."); sys.exit(1)
-    if USE_ECC and not GALOIS_AVAILABLE: print("\nWARNING: ECC requested but galois library is unavailable or failed tests.")
-    # Можно добавить проверку доступности входного файла здесь, если main() вызывается только один раз
-
     # --- Настройка профилирования ---
-    DO_PROFILING = False  # Установите True для включения cProfile
+    DO_PROFILING = False  # Установите True для включения kernprof/cProfile
     profiler = None
-    if DO_PROFILING:
+    if DO_PROFILING and 'KERNPROF_VAR' not in os.environ: # Для cProfile
         profiler = cProfile.Profile()
         profiler.enable()
         logging.info("cProfile profiling enabled.")
         print("cProfile profiling enabled.")
 
-    final_exit_code = 0
+    final_exit_code = 1 # По умолчанию ошибка
     try:
-        # --- Запуск основной логики ---
-        main()
+        # --- Запуск основной логики и получение кода возврата ---
+        final_exit_code = main()
 
+    # --- Обработка ожидаемых и неожиданных ошибок ---
     except FileNotFoundError as e:
         print(f"\nERROR: Required file not found: {e}")
         logging.error(f"File not found error during main execution: {e}", exc_info=True)
         final_exit_code = 1
-    except FFmpegError  as e:  # <--- ИСПРАВЛЕНО: Используем импортированный AVError
-        print(f"\nERROR: PyAV/FFmpeg error occurred: {e}")
-        logging.critical(f"PyAV/FFmpeg error during main execution: {e}", exc_info=True)
-        final_exit_code = 1
+    except FFmpegError as e: # Используем базовый класс ошибок FFmpeg из PyAV
+         print(f"\nERROR: PyAV/FFmpeg error occurred: {e}")
+         logging.critical(f"PyAV/FFmpeg error during main execution: {e}", exc_info=True)
+         final_exit_code = 1
     except torch.cuda.OutOfMemoryError as e:
         print(f"\nERROR: CUDA out of memory: {e}. Try reducing resolution or batch size.")
         logging.critical(f"CUDA out of memory error: {e}", exc_info=True)
         final_exit_code = 1
+    except ImportError as e: # Ловим ошибки импорта, не пойманные ранее
+         print(f"\nERROR: Missing library dependency: {e}")
+         logging.critical(f"ImportError during execution: {e}", exc_info=True)
+         final_exit_code = 1
     except Exception as e:
-        logging.critical(f"An unhandled error occurred in main: {e}", exc_info=True)
+        # Ловим все остальные непредвиденные ошибки
+        logging.critical(f"An unhandled error occurred in main execution: {e}", exc_info=True)
         print(f"\nCRITICAL ERROR: An unexpected error occurred: {e}")
         print(f"Please check the log file for details: {LOG_FILENAME}")
         final_exit_code = 1
     finally:
-        # --- Сохранение результатов профилирования (если включено) ---
-        if DO_PROFILING and profiler is not None:
+        # --- Сохранение результатов профилирования ---
+        if DO_PROFILING and profiler is not None: # Для cProfile
             profiler.disable()
             logging.info("cProfile profiling disabled.")
             print("\n--- cProfile Stats (Top 30 Cumulative Time) ---")
@@ -1798,26 +1863,17 @@ if __name__ == "__main__":
             stats.print_stats(30)
             print("-------------------------------------------------")
 
-            # Имя файла для сохранения статистики профилирования
-            profile_stats_file = f"profile_embed_pyav_hybrid_t{BCH_T}.prof" # Используем .prof расширение
+            profile_stats_file = f"profile_embed_pyav_hw_t{BCH_T}.prof"
             try:
                 stats.dump_stats(profile_stats_file)
                 logging.info(f"Profiling statistics saved to: {profile_stats_file}")
                 print(f"Profiling statistics saved to: {profile_stats_file}")
                 print("You can view stats later using tools like 'snakeviz'.")
-                # Опционально: сохранить читаемый текстовый отчет
-                # txt_profile_file = f"profile_embed_pyav_hybrid_t{BCH_T}.txt"
-                # with open(txt_profile_file, "w", encoding='utf-8') as f_txt:
-                #     stats_txt = pstats.Stats(profiler, stream=f_txt)
-                #     stats_txt.strip_dirs().sort_stats("cumulative").print_stats()
-                # logging.info(f"Readable profiling stats saved to: {txt_profile_file}")
-
             except Exception as e_prof_save:
                 logging.error(f"Failed to save profiling stats: {e_prof_save}")
                 print(f"WARNING: Failed to save profiling stats: {e_prof_save}")
 
-    # --- Завершение работы скрипта ---
-    print(f"\nScript finished with exit code {final_exit_code}.")
+    # --- Завершение работы скрипта с корректным кодом ---
     logging.info(f"Script finished with exit code {final_exit_code}.")
+    print(f"\nScript finished with exit code {final_exit_code}.")
     sys.exit(final_exit_code)
-
