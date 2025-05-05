@@ -877,7 +877,7 @@ def main():
     except Exception as e: logging.critical(f"Failed to init DTCWTForward: {e}"); return
 
     # --- Имя входного файла ---
-    input_base = f"watermarked_pyav_hw_t9" # Имя файла зависит от BCH_T
+    input_base = f"watermarked_pyav_unified_t9"
     input_video = input_base + INPUT_EXTENSION
     original_id = None
 
@@ -974,7 +974,7 @@ def main():
     except Exception as e: logging.critical(f"Failed to init DTCWTForward: {e}"); return
 
     # Имя входного файла
-    input_base = f"watermarked_pyav_hw_t9" # Имя должно совпадать с выходом embedder
+    input_base = f"watermarked_pyav_unified_t9" # Имя должно совпадать с выходом embedder
     input_video = input_base + INPUT_EXTENSION
     original_id = None
 
@@ -999,8 +999,8 @@ def main():
         frames=frames,
         nr=N_RINGS, nrtu=NUM_RINGS_TO_USE, bp=BITS_PER_PAIR,
         cps=CANDIDATE_POOL_SIZE, ec=EMBED_COMPONENT,
-        expect_hybrid_ecc=True,     # <--- Указываем, что ожидаем гибрид
-        max_expected_packets=15,    # <--- Макс. пакетов
+        expect_hybrid_ecc=True,
+        max_expected_packets=15,
         ue=USE_ECC, bch_code=BCH_CODE_OBJECT, # Передаем объект BCH
         device=device, dtcwt_fwd=dtcwt_fwd,   # Передаем объекты PyTorch
         plb=PAYLOAD_LEN_BYTES, mw=MAX_WORKERS_EXTRACT
