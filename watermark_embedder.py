@@ -1645,7 +1645,8 @@ def concatenate_with_ffmpeg(
     cmd_create_tail = cmd_create_tail_prefix + [
         '-vf', f"trim=start={trim_start_relative_to_seek:.6f},setpts=PTS-STARTPTS",
         '-af', f"atrim=start={trim_start_relative_to_seek:.6f},asetpts=PTS-STARTPTS",
-        '-c:v', 'libx264', '-preset', 'fast', '-crf', '22', '-pix_fmt', 'yuv420p',
+        '-c:v', 'libx264', '-preset', 'medium', '-crf', '22', '-pix_fmt', 'yuv420p',
+        '-force_key_frames', "expr:eq(n,0)",
         '-c:a', 'aac', '-b:a', target_audio_bitrate_str_for_tail,
         '-map_metadata', '-1',
         temp_tail_path
@@ -2501,7 +2502,7 @@ def main() -> int:
 
     # --- Этап 3: Запись "Головы" во Временный Файл ---
     logging.info("Запись обработанной 'головы' во временный файл...")
-    video_enc_opts_head = {'preset': 'fast', 'crf': '20'}
+    video_enc_opts_head = {'preset': 'medium', 'crf': '20'}
     # Используем оригинальный битрейт для аудио головы, если доступен, иначе дефолт
     audio_enc_opts_head = {
         'b:a': str(original_audio_bitrate)} if original_audio_bitrate and original_audio_bitrate >= 32000 else {
