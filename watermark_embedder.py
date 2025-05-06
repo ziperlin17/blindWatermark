@@ -1,4 +1,10 @@
 # Файл: embedder_pytorch_wavelets.py (ПОСЛЕ РЕФАКТОРИНГА)
+import gc
+import math
+import shutil
+import subprocess
+import tempfile
+
 import cv2
 import numpy as np
 import random
@@ -97,11 +103,11 @@ CODEC_CONTAINER_COMPATIBILITY: Dict[str, Set[Tuple[str, str]]] = {
     ".mkv": {('video', 'h264'), ('video', 'hevc'), ('video', 'vp9'), ('video', 'av1'), ('video', 'mpeg4'), ('video', 'mpeg2video'), ('video', 'theora'), ('video', 'prores'), ('audio', 'aac'), ('audio', 'opus'), ('audio', 'vorbis'), ('audio', 'flac'), ('audio', 'ac3'), ('audio', 'dts'), ('audio', 'mp3'), ('audio', 'pcm_s16le'), ('audio', 'alac')},
     ".webm": {('video', 'vp8'), ('video', 'vp9'), ('video', 'av1'), ('audio', 'opus'), ('audio', 'vorbis')},
 }
-DEFAULT_OUTPUT_CONTAINER_EXT: str = ".mp4"
-DEFAULT_VIDEO_ENCODER_LIB: str = "libx264"
-DEFAULT_VIDEO_CODEC_NAME: str = "h264"
-DEFAULT_AUDIO_ENCODER: str = "aac"
-FALLBACK_CONTAINER_EXT: str = ".mkv"
+DEFAULT_OUTPUT_CONTAINER_EXT_FINAL: str = ".mp4"  # Для финального файла
+DEFAULT_VIDEO_ENCODER_LIB_FOR_HEAD: str = "libx264" # Для временного файла головы
+DEFAULT_VIDEO_CODEC_NAME_FOR_HEAD: str = "h264"    # Для временного файла головы
+DEFAULT_AUDIO_CODEC_FOR_FFMPEG: str = "aac"        # Если FFmpeg нужно перекодировать аудио хвоста
+FALLBACK_CONTAINER_EXT_FINAL: str = ".mkv"       # Для финального файла
 
 
 # --- Глобальные Параметры ---
@@ -127,9 +133,9 @@ OUTPUT_CODEC: str = 'mp4v'
 OUTPUT_EXTENSION: str = '.mp4'
 SELECTED_RINGS_FILE: str = 'selected_rings_embed_pytorch.json'
 ORIGINAL_WATERMARK_FILE: str = 'original_watermark_id.txt'
-MAX_WORKERS: Optional[int] = 1
+MAX_WORKERS: Optional[int] = 8
 MAX_TOTAL_PACKETS = 15
-SAFE_MAX_WORKERS = 1
+SAFE_MAX_WORKERS = 8
 
 # --- Инициализация Галуа (с t=9, k=187) ---
 BCH_CODE_OBJECT: Optional['galois.BCH'] = None  # Аннотация в кавычках для отложенного импорта
@@ -635,672 +641,1106 @@ def add_ecc(data_bits: np.ndarray, bch_code: Optional[galois.BCH]) -> Optional[n
         return None
 
 
-def check_compatibility_and_choose_output(input_metadata: Dict[str, Any]) -> Tuple[str, str, str]:
+CODEC_CONTAINER_COMPATIBILITY: Dict[str, Set[Tuple[str, str]]] = {
+    ".mp4": {('video', 'h264'), ('video', 'hevc'), ('video', 'mpeg4'), ('audio', 'aac'), ('audio', 'mp3'),
+             ('audio', 'alac')},
+    ".mov": {('video', 'h264'), ('video', 'hevc'), ('video', 'mpeg4'), ('video', 'prores'), ('audio', 'aac'),
+             ('audio', 'mp3'), ('audio', 'alac'), ('audio', 'pcm_s16le')},
+    ".mkv": {('video', 'h264'), ('video', 'hevc'), ('video', 'vp9'), ('video', 'av1'), ('video', 'mpeg4'),
+             ('video', 'mpeg2video'), ('video', 'theora'), ('video', 'prores'), ('audio', 'aac'), ('audio', 'opus'),
+             ('audio', 'vorbis'), ('audio', 'flac'), ('audio', 'ac3'), ('audio', 'dts'), ('audio', 'mp3'),
+             ('audio', 'pcm_s16le'), ('audio', 'alac')},
+    ".webm": {('video', 'vp8'), ('video', 'vp9'), ('video', 'av1'), ('audio', 'opus'), ('audio', 'vorbis')},
+}
+DEFAULT_OUTPUT_CONTAINER_EXT_FINAL: str = ".mp4"  # Для финального файла
+DEFAULT_VIDEO_ENCODER_LIB_FOR_HEAD: str = "libx264"  # Для временного файла головы
+DEFAULT_VIDEO_CODEC_NAME_FOR_HEAD: str = "h264"  # Имя кодека для головы
+DEFAULT_AUDIO_CODEC_FOR_FFMPEG_TAIL: str = "aac"  # Если FFmpeg нужно перекодировать аудио хвоста
+FALLBACK_CONTAINER_EXT_FINAL: str = ".mkv"  # Для финального файла
+
+
+# --- ПОЛНАЯ ФУНКЦИЯ: check_compatibility_and_choose_output ---
+def check_compatibility_and_choose_output(
+        input_metadata: Dict[str, Any]
+) -> Tuple[str, str, str]:
     """
-    Анализирует метаданные, выбирает CPU-кодер, проверяет совместимость с MP4 (или MKV как fallback),
-    и выбирает выходной контейнер и действие для аудио (перекодирование в AAC при несовместимости).
+    Анализирует метаданные входа, выбирает:
+    1. Рекомендуемую библиотеку CPU-кодера для "головы" (для записи в temp_head).
+    2. Расширение для ФИНАЛЬНОГО выходного файла.
+    3. Рекомендуемое действие для аудиопотока "хвоста" при склейке FFmpeg
+       ('copy', 'none', или имя кодека для перекодирования, e.g., 'aac').
 
     Returns:
-        Tuple[str, str, str]: (output_extension, target_video_encoder_lib, final_audio_action)
+        Tuple[str, str, str]:
+            - final_output_extension (e.g., ".mp4")
+            - recommended_head_video_encoder_lib (e.g., "libx264")
+            - ffmpeg_tail_audio_action (e.g., "copy", "none", "aac")
     """
-    in_video_codec = input_metadata.get('video_codec')
+    in_video_codec = input_metadata.get('video_codec')  # e.g., 'h264', 'hevc'
     in_audio_codec = input_metadata.get('audio_codec') if input_metadata.get('has_audio') else None
-    has_audio = input_metadata.get('has_audio', False)
+    has_audio_original = input_metadata.get('has_audio', False)
 
-    logging.info(f"Compatibility Check: Input Video='{in_video_codec}', Audio='{in_audio_codec}'")
+    logging.info(f"Проверка совместимости и выбор параметров выхода:")
+    logging.info(f"  Вход: Видео='{in_video_codec}', Аудио='{in_audio_codec}' (есть: {has_audio_original})")
 
-    # --- 1. Выбираем ЦЕЛЕВУЮ БИБЛИОТЕКУ и ИМЯ КОДЕКА видео (CPU) ---
-    target_video_encoder_lib = DEFAULT_VIDEO_ENCODER_LIB
-    target_video_codec_name = DEFAULT_VIDEO_CODEC_NAME
-    if in_video_codec == 'h264': target_video_encoder_lib = 'libx264'; target_video_codec_name = 'h264'
-    elif in_video_codec == 'hevc': target_video_encoder_lib = 'libx265'; target_video_codec_name = 'hevc'
-    elif in_video_codec == 'vp9': target_video_encoder_lib = 'libvpx-vp9'; target_video_codec_name = 'vp9'
-    elif in_video_codec == 'vp8': target_video_encoder_lib = 'libvpx'; target_video_codec_name = 'vp8'
-    elif in_video_codec == 'av1': target_video_encoder_lib = 'libaom-av1'; target_video_codec_name = 'av1'
-    elif in_video_codec == 'mpeg4': target_video_encoder_lib = 'mpeg4'; target_video_codec_name = 'mpeg4'
-    else:
-        if in_video_codec: logging.warning(f"Input video codec '{in_video_codec}' unhandled. Using default: {DEFAULT_VIDEO_ENCODER_LIB} -> {DEFAULT_VIDEO_CODEC_NAME}.")
-        target_video_encoder_lib = DEFAULT_VIDEO_ENCODER_LIB
-        target_video_codec_name = DEFAULT_VIDEO_CODEC_NAME
-    logging.info(f"Selected Target Video Encoder Lib (CPU): {target_video_encoder_lib} -> Codec Name: {target_video_codec_name}")
+    # --- 1. Выбор рекомендуемого CPU-кодера для "головы" (temp_head.mp4) ---
+    # Цель: создать "голову" с высокой совместимостью для последующей склейки.
+    # libx264 (H.264) - хороший, широко совместимый выбор.
+    # Аудио для головы всегда будет 'aac' (это решается в write_head_only).
 
-    # --- 2. Определяем начальное аудио действие и целевой кодек ---
-    initial_audio_action = 'copy' if has_audio else 'none'
-    target_audio_codec_name = None
-    if initial_audio_action == 'copy': target_audio_codec_name = in_audio_codec
-    elif has_audio: target_audio_codec_name = DEFAULT_AUDIO_ENCODER
+    recommended_head_video_encoder_lib = DEFAULT_VIDEO_ENCODER_LIB_FOR_HEAD
+    # Можно было бы сделать более сложный выбор, например:
+    # if in_video_codec == 'hevc':
+    #     recommended_head_video_encoder_lib = 'libx265'
+    # elif in_video_codec == 'vp9':
+    #     recommended_head_video_encoder_lib = 'libvpx-vp9'
+    # Но для простоты и надежности стыковки, кодирование головы в H.264 (libx264)
+    # обычно является безопасным вариантом, даже если оригинал был другим.
 
-    # --- 3. Определяем предпочтительный контейнер ---
-    preferred_extension = DEFAULT_OUTPUT_CONTAINER_EXT # .mp4
-    if target_video_codec_name in ('vp8', 'vp9', 'av1') and \
-       (not has_audio or target_audio_codec_name in ('opus', 'vorbis')):
-       preferred_extension = ".webm"
-       logging.info("Preferring WebM container for VPx/AV1 + Opus/Vorbis.")
-    elif target_video_codec_name in ('h264', 'hevc') and \
-         (not has_audio or target_audio_codec_name in ('aac', 'mp3', 'alac')):
-         preferred_extension = ".mp4"
-         logging.info("Preferring MP4 container for H.264/HEVC + AAC/MP3/ALAC.")
+    logging.info(f"  Рекомендуемый видеокодер для 'головы' (temp_file): {recommended_head_video_encoder_lib}")
+    # Аудио для головы будет 'aac', это задается в write_head_only.
+    head_audio_codec_name_assumed = 'aac'
 
-    # --- 4. Проверяем совместимость с ПРЕДПОЧТИТЕЛЬНЫМ контейнером ---
-    output_extension = preferred_extension
-    final_audio_action = initial_audio_action
-    logging.debug(f"Checking compatibility for preferred container: {output_extension}")
-    allowed_codecs = CODEC_CONTAINER_COMPATIBILITY.get(output_extension, set())
+    # --- 2. Определение расширения для ФИНАЛЬНОГО файла и действия для аудио "хвоста" (в FFmpeg) ---
+    # Это зависит от кодеков ОРИГИНАЛЬНОГО видео (которое станет хвостом)
+    # и аудио (голова будет AAC, хвост - оригинальный аудиокодек или перекодированный).
 
-    video_ok = ('video', target_video_codec_name) in allowed_codecs
-    audio_ok = not has_audio or \
-               (target_audio_codec_name and ('audio', target_audio_codec_name) in allowed_codecs)
+    final_output_extension = DEFAULT_OUTPUT_CONTAINER_EXT_FINAL  # По умолчанию .mp4
 
-    if not (video_ok and audio_ok):
-        output_extension = FALLBACK_CONTAINER_EXT # .mkv
-        logging.warning(f"Incompatibility detected with preferred '{preferred_extension}' (Video OK: {video_ok}, Audio OK: {audio_ok}). Switching to fallback '{output_extension}'.")
-        if has_audio:
-            # Для MKV пытаемся копировать исходное аудио, если возможно
-            if in_audio_codec and ('audio', in_audio_codec) in CODEC_CONTAINER_COMPATIBILITY.get(output_extension, set()):
-                 final_audio_action = 'copy'
-                 logging.info(f"Audio action set to 'copy' for fallback MKV container.")
-            else: # Если даже MKV не поддерживает или кодек небезопасен, перекодируем
-                 final_audio_action = DEFAULT_AUDIO_ENCODER
-                 logging.warning(f"Input audio codec '{in_audio_codec}' not suitable even for MKV fallback. Re-encoding to '{DEFAULT_AUDIO_ENCODER}'.")
-        else: final_audio_action = 'none'
-    else:
-        # Предпочтительный контейнер совместим, но нужно ли перекодировать аудио?
-        if initial_audio_action == 'copy' and has_audio and not audio_ok:
-             # Эта ветка сработает, если, например, предпочли MP4, но аудио было Opus
-             logging.warning(f"Input audio codec '{in_audio_codec}' not standard for preferred container '{output_extension}'. Switching audio action to re-encode ('{DEFAULT_AUDIO_ENCODER}').")
-             final_audio_action = DEFAULT_AUDIO_ENCODER
-        # Если audio_ok было True (либо не было аудио, либо оно совместимо для копии/перекодирования), то final_audio_action остается как initial
+    # Определяем, можно ли копировать аудио хвоста, или его нужно будет перекодировать FFmpeg
+    ffmpeg_tail_audio_action = DEFAULT_AUDIO_CODEC_FOR_FFMPEG_TAIL  # По умолчанию перекодировать
+    if not has_audio_original:
+        ffmpeg_tail_audio_action = 'none'  # Нет аудио в оригинале, значит и в хвосте
+    elif in_audio_codec:
+        # Пытаемся подобрать контейнер, который поддерживает копирование оригинального видео И аудио
+        # Если аудио хвоста AAC, MP3, Opus, Vorbis - хорошие кандидаты для копирования в совместимые контейнеры
+        if in_audio_codec == 'aac' and (DEFAULT_OUTPUT_CONTAINER_EXT_FINAL in ['.mp4', '.mov', '.mkv']):
+            ffmpeg_tail_audio_action = 'copy'
+        elif in_audio_codec == 'mp3' and (DEFAULT_OUTPUT_CONTAINER_EXT_FINAL in ['.mp4', '.mov', '.mkv']):
+            ffmpeg_tail_audio_action = 'copy'
+        elif in_audio_codec == 'opus' and (DEFAULT_OUTPUT_CONTAINER_EXT_FINAL in ['.webm', '.mkv']):
+            ffmpeg_tail_audio_action = 'copy'
+            final_output_extension = ".webm" if in_video_codec in ['vp8', 'vp9', 'av1'] else ".mkv"
+        elif in_audio_codec == 'vorbis' and (DEFAULT_OUTPUT_CONTAINER_EXT_FINAL in ['.webm', '.mkv']):
+            ffmpeg_tail_audio_action = 'copy'
+            final_output_extension = ".webm" if in_video_codec in ['vp8', 'vp9', 'av1'] else ".mkv"
+        # Если не один из распространенных "копируемых" кодеков, оставляем ffmpeg_tail_audio_action
+        # на DEFAULT_AUDIO_CODEC_FOR_FFMPEG_TAIL ('aac'), что означает перекодирование хвоста.
 
-    # --- Финальный Лог ---
-    logging.info(f"Final Decision: Output Extension='{output_extension}', Video Encoder Lib='{target_video_encoder_lib}', Audio Action='{final_audio_action}'")
-    return output_extension, target_video_encoder_lib, final_audio_action
+    # Корректируем final_output_extension на основе видеокодека хвоста, если нужно
+    if in_video_codec in ['vp8', 'vp9', 'av1']:
+        # Для этих кодеков WebM или MKV предпочтительнее MP4
+        if final_output_extension == ".mp4":  # Если не было изменено выше аудио логикой
+            final_output_extension = ".mkv"  # MKV более гибкий
+            if ffmpeg_tail_audio_action not in ['opus', 'vorbis', 'aac', 'none', 'copy']:
+                # Если аудио хвоста будет перекодироваться, и это не Opus/Vorbis, то AAC для MKV
+                ffmpeg_tail_audio_action = DEFAULT_AUDIO_CODEC_FOR_FFMPEG_TAIL
+
+    # Финальная проверка совместимости выбранного final_output_extension
+    # с видеокодеком хвоста (in_video_codec) и аудиокодеками
+    # (голова = 'aac', хвост = in_audio_codec если 'copy', иначе ffmpeg_tail_audio_action)
+
+    final_check_audio_codec = in_audio_codec if ffmpeg_tail_audio_action == 'copy' else ffmpeg_tail_audio_action
+    if final_check_audio_codec == 'none': final_check_audio_codec = None  # Для проверки
+
+    allowed_codecs_in_final = CODEC_CONTAINER_COMPATIBILITY.get(final_output_extension, set())
+
+    video_ok_final = (in_video_codec is None) or (('video', in_video_codec) in allowed_codecs_in_final)
+    # Аудио головы (всегда 'aac') должно быть совместимо
+    audio_head_ok_final = ('audio', head_audio_codec_name_assumed) in allowed_codecs_in_final
+    # Аудио хвоста (либо скопированное, либо перекодированное) должно быть совместимо
+    audio_tail_ok_final = (final_check_audio_codec is None) or \
+                          (('audio', final_check_audio_codec) in allowed_codecs_in_final)
+
+    if not (video_ok_final and audio_head_ok_final and audio_tail_ok_final):
+        logging.warning(
+            f"  Выбранный финальный контейнер '{final_output_extension}' может быть несовместим с кодеками:")
+        logging.warning(f"    Видео хвоста ({in_video_codec or 'N/A'}): {video_ok_final}")
+        logging.warning(f"    Аудио головы ({head_audio_codec_name_assumed}): {audio_head_ok_final}")
+        logging.warning(f"    Аудио хвоста ({final_check_audio_codec or 'N/A'}): {audio_tail_ok_final}")
+
+        current_problematic_ext = final_output_extension
+        final_output_extension = FALLBACK_CONTAINER_EXT_FINAL  # Переключаемся на .mkv
+        logging.warning(f"  Переключение на fallback финальный контейнер: '{final_output_extension}'")
+
+        # Перепроверяем совместимость для MKV
+        allowed_codecs_in_mkv = CODEC_CONTAINER_COMPATIBILITY.get(".mkv", set())
+        video_ok_mkv = (in_video_codec is None) or (('video', in_video_codec) in allowed_codecs_in_mkv)
+        audio_head_ok_mkv = ('audio', head_audio_codec_name_assumed) in allowed_codecs_in_mkv
+        audio_tail_ok_mkv = (final_check_audio_codec is None) or \
+                            (('audio', final_check_audio_codec) in allowed_codecs_in_mkv)
+
+        if not (video_ok_mkv and audio_head_ok_mkv and audio_tail_ok_mkv):
+            logging.error(f"  Даже fallback контейнер '{final_output_extension}' несовместим! "
+                          f"Возврат к '{current_problematic_ext}'. FFmpeg может потребовать перекодирование или выдать ошибку.")
+            final_output_extension = current_problematic_ext
+            # В этом случае, если ffmpeg_tail_audio_action был 'copy', лучше принудительно перекодировать
+            if ffmpeg_tail_audio_action == 'copy' and has_audio_original:
+                logging.warning(
+                    f"   Аудио хвоста будет принудительно перекодировано в {DEFAULT_AUDIO_CODEC_FOR_FFMPEG_TAIL} из-за несовместимости контейнера.")
+                ffmpeg_tail_audio_action = DEFAULT_AUDIO_CODEC_FOR_FFMPEG_TAIL
+
+    logging.info(f"  Итоговое решение для финального файла: Расширение='{final_output_extension}', "
+                 f"Видеокодер 'головы' (для temp файла)='{recommended_head_video_encoder_lib}', "
+                 f"Действие для аудио 'хвоста' (FFmpeg)='{ffmpeg_tail_audio_action}'")
+
+    return final_output_extension, recommended_head_video_encoder_lib, ffmpeg_tail_audio_action
+
 
 # --- Функция чтения видео (остается без изменений) ---
 def get_input_metadata(video_path: str) -> Optional[Dict[str, Any]]:
     """
-    Читает только метаданные из видеофайла с использованием PyAV,
-    с fallback на OpenCV для базовых параметров (W, H, FPS).
-    """
-    if not PYAV_AVAILABLE: logging.error("PyAV not available."); return None
+    Читает метаданные из видеофайла с использованием PyAV, включая битрейт аудио
+    и индексы потоков. Предоставляет fallback на OpenCV для базовых параметров.
 
+    Args:
+        video_path: Путь к видеофайлу.
+
+    Returns:
+        Словарь с метаданными или None при критической ошибке.
+        Ключи словаря включают:
+        'input_path', 'format_name', 'duration' (в микросекундах, если есть),
+        'video_codec', 'width', 'height', 'fps' (Fraction или float),
+        'video_bitrate', 'video_time_base' (Fraction), 'pix_fmt',
+        'color_space_tag', 'color_primaries_tag', 'color_transfer_tag', 'color_range_tag',
+        'video_stream_index' (int),
+        'has_audio' (bool), 'audio_codec', 'audio_rate' (int), 'audio_layout' (str),
+        'audio_time_base' (Fraction), 'audio_bitrate' (int, bps, или None),
+        'audio_stream_index' (int, или -1),
+        'audio_codec_context_params' (dict),
+        'total_frames' (int, оценка, может быть неточной).
+    """
+    if not PYAV_AVAILABLE:  # Глобальный флаг
+        logging.error("PyAV недоступен для get_input_metadata.")
+        return None
+
+    # Инициализация словаря метаданных
     metadata: Dict[str, Any] = {
-        'input_path': video_path, 'format_name': '',
-        'video_codec': None, 'width': 0, 'height': 0, 'fps': float(FPS),
-        'video_bitrate': None, 'video_time_base': None, 'pix_fmt': None,
-        'color_space_tag': None, 'color_primaries_tag': None,
-        'color_transfer_tag': None, 'color_range_tag': None,
-        'has_audio': False, 'audio_codec': None, 'audio_rate': None,
-        'audio_layout': None, 'audio_time_base': None, 'audio_codec_context_params': None,
-        'video_stream_index': -1, 'audio_stream_index': -1 # Добавляем индексы
+        'input_path': video_path,
+        'format_name': None,
+        'duration': None,  # В микросекундах (AV_TIME_BASE)
+        'video_codec': None,
+        'width': 0,
+        'height': 0,
+        'fps': None,  # Будет Fraction или float
+        'video_bitrate': None,
+        'video_time_base': None,
+        'pix_fmt': None,
+        'color_space_tag': None,
+        'color_primaries_tag': None,
+        'color_transfer_tag': None,
+        'color_range_tag': None,
+        'video_stream_index': -1,
+        'has_audio': False,
+        'audio_codec': None,
+        'audio_rate': None,
+        'audio_layout': None,
+        'audio_time_base': None,
+        'audio_bitrate': None,  # Важное поле
+        'audio_stream_index': -1,
+        'audio_codec_context_params': None,
+        'total_frames': 0  # Оценка
     }
-    input_container: Optional['av.container.Container'] = None
+    input_container: Optional[av.container.Container] = None
     opencv_fallback_used = False
 
     try:
         # --- Попытка открыть с PyAV ---
+        logging.info(f"Attempting to open '{video_path}' with PyAV to read metadata...")
         try:
-            logging.info(f"Attempting to open '{video_path}' with PyAV to read metadata...")
             input_container = av.open(video_path, mode='r')
-            if not input_container: raise FFmpegError("av.open returned None")
+            if input_container is None:
+                raise av.FFmpegError(f"av.open вернул None для '{video_path}'")
             logging.info("Opened with PyAV successfully.")
-            if input_container.format: metadata['format_name'] = input_container.format.name
-            else: logging.warning("Could not determine container format name.")
-
-        except (FFmpegError, Exception) as e_open:
-            logging.error(f"PyAV failed to open '{video_path}' for metadata: {e_open}", exc_info=True)
-            logging.warning("Attempting OpenCV fallback for basic metadata.")
+        except (av.FFmpegError, FileNotFoundError, Exception) as e_open:
+            logging.error(f"PyAV не смог открыть '{video_path}' для метаданных: {e_open}", exc_info=True)
+            logging.warning("Попытка fallback на OpenCV для базовых метаданных (W, H, FPS)...")
             opencv_fallback_used = True
             cap_cv2 = None
             try:
                 cap_cv2 = cv2.VideoCapture(video_path)
                 if cap_cv2.isOpened():
-                    w_cv2 = int(cap_cv2.get(cv2.CAP_PROP_FRAME_WIDTH)); h_cv2 = int(cap_cv2.get(cv2.CAP_PROP_FRAME_HEIGHT)); fps_cv2 = float(cap_cv2.get(cv2.CAP_PROP_FPS))
-                    if w_cv2 > 0 and h_cv2 > 0: metadata['width'] = w_cv2; metadata['height'] = h_cv2; logging.info(f"OpenCV Fallback: Got dimensions {w_cv2}x{h_cv2}")
-                    if fps_cv2 and fps_cv2 > 0: metadata['fps'] = fps_cv2; logging.info(f"OpenCV Fallback: Got FPS {fps_cv2:.2f}")
-                else: logging.error("OpenCV fallback failed: Could not open video.")
-            except Exception as e_cv2_meta: logging.error(f"Error during OpenCV metadata fallback: {e_cv2_meta}")
+                    w_cv2 = int(cap_cv2.get(cv2.CAP_PROP_FRAME_WIDTH))
+                    h_cv2 = int(cap_cv2.get(cv2.CAP_PROP_FRAME_HEIGHT))
+                    fps_cv2 = cap_cv2.get(cv2.CAP_PROP_FPS)  # Может быть 0
+                    if w_cv2 > 0 and h_cv2 > 0:
+                        metadata['width'] = w_cv2
+                        metadata['height'] = h_cv2
+                        logging.info(f"  OpenCV Fallback: Получены размеры {w_cv2}x{h_cv2}")
+                    if fps_cv2 and fps_cv2 > 0:
+                        metadata['fps'] = float(fps_cv2)  # Сохраняем как float
+                        logging.info(f"  OpenCV Fallback: Получен FPS {fps_cv2:.2f}")
+                else:
+                    logging.error("  OpenCV fallback не удался: Не удалось открыть видео.")
+            except Exception as e_cv2_meta:
+                logging.error(f"  Ошибка во время OpenCV fallback: {e_cv2_meta}")
             finally:
                 if cap_cv2: cap_cv2.release()
-            # Если PyAV не открылся, дальше идти нет смысла, возвращаем что есть
-            return metadata
+            # Если PyAV не открылся, дальше нет смысла, возвращаем что есть (или None)
+            if not (metadata['width'] > 0 and metadata['height'] > 0):
+                logging.critical("Не удалось получить даже базовые размеры кадра.")
+                return None
+            return metadata  # Возвращаем то, что удалось получить через OpenCV
 
-        # --- Чтение метаданных потоков через PyAV ---
-        # Видео
-        try:
-            video_stream = input_container.streams.video[0]
-            metadata['video_stream_index'] = video_stream.index
-            ctx = video_stream.codec_context
-            metadata['video_codec'] = video_stream.codec.name
-            metadata['width'] = ctx.width if ctx.width and ctx.width > 0 else metadata['width']
-            metadata['height'] = ctx.height if ctx.height and ctx.height > 0 else metadata['height']
-            if video_stream.average_rate: metadata['fps'] = float(video_stream.average_rate)
-            metadata['pix_fmt'] = ctx.pix_fmt
-            metadata['video_bitrate'] = ctx.bit_rate or input_container.bit_rate
-            metadata['video_time_base'] = video_stream.time_base
-            metadata['color_space_tag'] = video_stream.metadata.get('color_space')
-            metadata['color_primaries_tag'] = video_stream.metadata.get('color_primaries')
-            metadata['color_transfer_tag'] = video_stream.metadata.get('color_transfer')
-            metadata['color_range_tag'] = video_stream.metadata.get('color_range')
-            logging.info(f"  PyAV Video Stream Meta: Codec={metadata['video_codec']}, Res={metadata['width']}x{metadata['height']}, FPS={metadata['fps']:.2f}")
-        except (IndexError, FFmpegError, AttributeError) as e:
-            logging.error(f"PyAV: Error accessing video stream properties: {e}")
-            if not (metadata['width'] > 0 and metadata['height'] > 0 and metadata['fps'] > 0):
-                 logging.critical("Essential video metadata missing after checks."); return None # Не можем продолжить
+        # --- Чтение метаданных контейнера ---
+        if input_container.format:
+            metadata['format_name'] = input_container.format.name
+        if input_container.duration:  # Длительность в микросекундах
+            metadata['duration'] = input_container.duration
+        if input_container.bit_rate:  # Общий битрейт файла
+            # Можно сохранить, но видео/аудио битрейты потоков важнее
+            # metadata['container_bitrate'] = input_container.bit_rate
+            pass
 
-        # Аудио
-        input_audio_streams = input_container.streams.audio
-        if input_audio_streams:
+        # --- Чтение метаданных видеопотока ---
+        if not input_container.streams.video:
+            logging.warning("Видеопотоки не найдены PyAV.")
+            # Проверим, есть ли размеры из OpenCV fallback
+            if not (metadata['width'] > 0 and metadata['height'] > 0):
+                logging.error("Нет видеопотоков и не удалось получить размеры через OpenCV.")
+                return None  # Не можем работать без видео
+        else:
             try:
-                audio_stream = input_audio_streams[0]
+                # Берем первый видеопоток
+                video_stream = input_container.streams.video[0]
+                metadata['video_stream_index'] = video_stream.index
+                ctx = video_stream.codec_context
+
+                metadata['video_codec'] = video_stream.codec.name
+                # Используем размеры из контекста, если они валидны, иначе оставляем из OpenCV fallback
+                if ctx.width and ctx.width > 0: metadata['width'] = ctx.width
+                if ctx.height and ctx.height > 0: metadata['height'] = ctx.height
+
+                # Получение FPS: приоритет average_rate, затем r_frame_rate, затем из OpenCV
+                fps_val = None
+                if video_stream.average_rate and float(video_stream.average_rate) > 0:
+                    fps_val = video_stream.average_rate  # Это Fraction
+                elif video_stream.r_frame_rate and float(video_stream.r_frame_rate) > 0:
+                    fps_val = video_stream.r_frame_rate  # Это Fraction
+                if fps_val: metadata['fps'] = fps_val
+                # Если fps все еще None, оставляем значение из OpenCV fallback (если было)
+
+                metadata['pix_fmt'] = ctx.pix_fmt
+                if ctx.bit_rate and ctx.bit_rate > 0:  # Битрейт видеопотока
+                    metadata['video_bitrate'] = ctx.bit_rate
+                elif input_container.bit_rate and input_container.bit_rate > 0 and not input_container.streams.audio:
+                    # Если аудио нет, общий битрейт = видео битрейт
+                    metadata['video_bitrate'] = input_container.bit_rate
+
+                if video_stream.time_base: metadata['video_time_base'] = video_stream.time_base
+
+                # Цветовые теги
+                metadata['color_space_tag'] = video_stream.metadata.get('color_space')
+                metadata['color_primaries_tag'] = video_stream.metadata.get('color_primaries')
+                metadata['color_transfer_tag'] = video_stream.metadata.get('color_transfer')
+                metadata['color_range_tag'] = video_stream.metadata.get('color_range')
+
+                # Оценка общего числа кадров (может быть неточной)
+                if video_stream.frames and video_stream.frames > 0:
+                    metadata['total_frames'] = video_stream.frames
+                elif metadata['duration'] and metadata['fps'] and float(metadata['fps']) > 0:
+                    # Рассчитываем из длительности и FPS, если stream.frames нет
+                    try:
+                        metadata['total_frames'] = int(
+                            round((float(metadata['duration']) / 1_000_000.0) * float(metadata['fps'])))
+                    except Exception:
+                        pass  # Ошибка расчета
+
+                logging.info(
+                    f"  PyAV Video Stream Meta: Codec={metadata['video_codec']}, Res={metadata['width']}x{metadata['height']}, "
+                    f"FPS={float(metadata['fps']):.2f if metadata['fps'] else 'N/A'}, Frames={metadata['total_frames'] or 'N/A'}, "
+                    f"Index={metadata['video_stream_index']}")
+
+            except (AttributeError, ValueError, TypeError, av.FFmpegError) as e_video:
+                logging.error(f"Ошибка при доступе к свойствам видеопотока: {e_video}")
+                # Проверяем критичные параметры еще раз
+                if not (metadata['width'] > 0 and metadata['height'] > 0 and metadata['fps']):
+                    logging.critical("Критичные видео метаданные отсутствуют после всех проверок.")
+                    return None  # Не можем продолжать без W, H, FPS
+
+        # --- Чтение метаданных аудиопотока ---
+        if not input_container.streams.audio:
+            logging.info("Аудиопотоки не найдены PyAV.")
+            metadata['has_audio'] = False
+            metadata['audio_stream_index'] = -1
+            metadata['audio_bitrate'] = None
+        else:
+            try:
+                # Берем первый аудиопоток
+                audio_stream = input_container.streams.audio[0]
                 metadata['audio_stream_index'] = audio_stream.index
                 ctx = audio_stream.codec_context
+
                 metadata['has_audio'] = True
                 metadata['audio_codec'] = audio_stream.codec.name
                 metadata['audio_rate'] = ctx.rate
-                metadata['audio_layout'] = ctx.layout.name
-                metadata['audio_time_base'] = audio_stream.time_base
-                metadata['audio_codec_context_params'] = {
-                    'format': ctx.format.name if ctx.format else None, 'layout': metadata['audio_layout'],
-                    'rate': metadata['audio_rate'], 'bit_rate': ctx.bit_rate,
-                    'codec_tag': ctx.codec_tag, 'extradata': bytes(ctx.extradata) if ctx.extradata else None,
-                }
-                logging.info(f"  PyAV Audio Stream Meta: Codec={metadata['audio_codec']}, Rate={metadata['audio_rate']}")
-            except (IndexError, FFmpegError, AttributeError) as e:
-                logging.warning(f"Could not get/process audio stream metadata: {e}"); metadata['has_audio'] = False
-        else: logging.info("No audio streams found by PyAV."); metadata['has_audio'] = False
+                metadata['audio_layout'] = ctx.layout.name if ctx.layout else None
+                if audio_stream.time_base: metadata['audio_time_base'] = audio_stream.time_base
 
-        # Проверяем еще раз критичные параметры
-        if not (metadata['width'] > 0 and metadata['height'] > 0 and metadata['fps'] > 0):
-             logging.critical("Essential video metadata missing after all checks."); return None
+                # --- Получение аудио битрейта ---
+                audio_bitrate = ctx.bit_rate  # int или None
+                if audio_bitrate and audio_bitrate > 0:
+                    metadata['audio_bitrate'] = audio_bitrate
+                else:
+                    metadata['audio_bitrate'] = None  # Явно None
+                    # Можно попытаться рассчитать, если знаем размер потока и длительность, но это ненадежно
+
+                # Сохраняем другие параметры контекста, если они могут понадобиться
+                # (например, для настройки декодера в write_head_only)
+                metadata['audio_codec_context_params'] = {
+                    'format': ctx.format.name if ctx.format else None,
+                    'layout': metadata['audio_layout'],
+                    'rate': metadata['audio_rate'],
+                    'bit_rate': metadata['audio_bitrate'],
+                    'codec_tag': ctx.codec_tag,
+                    'extradata': bytes(ctx.extradata) if ctx.extradata else None,
+                }
+                logging.info(
+                    f"  PyAV Audio Stream Meta: Codec={metadata['audio_codec']}, Rate={metadata['audio_rate']}, "
+                    f"Layout={metadata['audio_layout']}, Bitrate={metadata['audio_bitrate'] or 'N/A'}, "
+                    f"Index={metadata['audio_stream_index']}")
+
+            except (AttributeError, ValueError, TypeError, av.FFmpegError) as e_audio:
+                logging.warning(f"Не удалось получить/обработать метаданные аудиопотока: {e_audio}")
+                metadata['has_audio'] = False
+                metadata['audio_stream_index'] = -1
+                metadata['audio_bitrate'] = None  # Сбрасываем при ошибке
+
+        # Финальная проверка критичных видео параметров
+        if not (metadata['width'] > 0 and metadata['height'] > 0 and metadata['fps']):
+            logging.critical("Критичные видео метаданные (W, H, FPS) отсутствуют.")
+            return None
 
         return metadata
 
-    except Exception as e: # Ловим другие неожиданные ошибки
-        logging.error(f"Unexpected error getting metadata for '{video_path}': {e}", exc_info=True)
-        return None # Возвращаем None при серьезной ошибке
+    except Exception as e_general:  # Ловим другие неожиданные ошибки
+        logging.error(f"Неожиданная ошибка при получении метаданных для '{video_path}': {e_general}", exc_info=True)
+        return None  # Возвращаем None при серьезной ошибке
     finally:
         if input_container:
-            try: input_container.close(); logging.debug("Metadata reading: Input container closed.")
-            except FFmpegError as e: logging.error(f"Error closing input container after metadata read: {e}")
+            try:
+                input_container.close()
+                logging.debug("Metadata reading: Input container closed.")
+            except av.FFmpegError as e_close:
+                logging.error(f"Error closing input container after metadata read: {e_close}")
 
 
 # --- Новая функция для чтения ТОЛЬКО нужных кадров и ВСЕХ аудиопакетов ---
-@profile
-def read_processing_head(video_path: str, frames_to_read: int, video_stream_index: int, audio_stream_index: int) -> Tuple[Optional[List[np.ndarray]], Optional[List['av.Packet']]]:
+@profile  # Если используете line_profiler
+def read_processing_head(
+        video_path: str,
+        frames_to_read: int,
+        video_stream_index: int,  # Индекс видеопотока для чтения
+        audio_stream_index: int  # Индекс аудиопотока для чтения (-1 если нет аудио)
+) -> Tuple[Optional[List[np.ndarray]], Optional[List[av.Packet]]]:
     """
-    Читает и декодирует ТОЛЬКО первые `frames_to_read` видеокадров
+    Читает и декодирует ТОЛЬКО первые `frames_to_read` видеокадров (в BGR NumPy)
     и собирает ВСЕ аудиопакеты из указанных потоков.
+
+    Args:
+        video_path: Путь к входному видеофайлу.
+        frames_to_read: Количество видеокадров, которые нужно прочитать и декодировать.
+        video_stream_index: Индекс видеопотока в контейнере.
+        audio_stream_index: Индекс аудиопотока в контейнере (-1, если аудио не нужно/нет).
+
+    Returns:
+        Кортеж (list_of_bgr_frames, list_of_audio_packets).
+        list_of_bgr_frames: Список NumPy массивов (кадры в BGR).
+        list_of_audio_packets: Список всех av.Packet аудиопотока.
+        Возвращает (None, None) при критической ошибке.
     """
-    if not PYAV_AVAILABLE: logging.error("PyAV not available."); return None, None
-    if frames_to_read <= 0: logging.warning("Frames to read is zero or negative."); return [], []
+    if not PYAV_AVAILABLE:  # PYAV_AVAILABLE должно быть определено глобально
+        logging.error("PyAV недоступен для read_processing_head.")
+        return None, None
+
+    if frames_to_read <= 0:
+        logging.warning(
+            f"read_processing_head: Количество кадров для чтения ({frames_to_read}) <= 0. Возвращаем пустые списки.")
+        return [], []  # Возвращаем пустые списки, это не ошибка, просто нечего читать
 
     head_frames_bgr: List[np.ndarray] = []
-    all_audio_packets: List['av.Packet'] = []
-    input_container: Optional['av.container.Container'] = None
+    all_audio_packets: List[av.Packet] = []
+    input_container: Optional[av.container.Container] = None
     frames_decoded_count = 0
+    reformatter_yuv_to_bgr: Optional[VideoReformatter] = None
 
-    logging.info(f"Reading processing head: {frames_to_read} video frames and all audio packets...")
+    logging.info(f"Чтение 'головы': {frames_to_read} видеокадров и все аудиопакеты из '{video_path}'...")
+    logging.debug(f"  Целевой видеопоток: индекс {video_stream_index}, аудиопоток: индекс {audio_stream_index}")
+
     try:
         input_container = av.open(video_path, mode='r')
-        if input_container is None: raise FFmpegError("av.open returned None")
+        if input_container is None:
+            # Это может случиться, если av.open вернул None вместо исключения
+            raise av.FFmpegError(f"av.open вернул None для файла: {video_path}")
 
-        logging.debug(f"Reading packets (target video_idx={video_stream_index}, audio_idx={audio_stream_index})")
-        try:
-            for packet in input_container.demux():
-                # Собираем ВСЕ аудио пакеты нужного потока
-                if packet.stream.index == audio_stream_index:
-                    if packet.dts is not None: # Пропускаем flush пакеты
-                         all_audio_packets.append(packet)
+        # Проверяем наличие нужных потоков
+        has_target_video_stream = any(
+            s.index == video_stream_index and s.type == 'video' for s in input_container.streams)
+        has_target_audio_stream = audio_stream_index != -1 and any(
+            s.index == audio_stream_index and s.type == 'audio' for s in input_container.streams)
 
-                # Декодируем видео пакеты, пока не наберем нужное количество кадров
-                elif packet.stream.index == video_stream_index:
-                    if frames_decoded_count >= frames_to_read:
-                        continue # Больше видео кадры не нужны
+        if not has_target_video_stream and frames_to_read > 0:
+            logging.error(f"  Видеопоток с индексом {video_stream_index} не найден в '{video_path}'.")
+            # Если кадры нужны, но потока нет - это проблема
+            return None, None  # или ([], all_audio_packets) если аудио важнее
+        if audio_stream_index != -1 and not has_target_audio_stream:
+            logging.warning(f"  Аудиопоток с индексом {audio_stream_index} не найден. Аудиопакеты не будут собраны.")
+            # Не прерываем, если видео еще можно прочитать
 
-                    if packet.dts is None: continue
+        logging.debug("Начало демультиплексирования пакетов...")
+        packet_count = 0
+        for packet in input_container.demux():
+            packet_count += 1
+            if packet.dts is None:  # Пропускаем flush-пакеты или пакеты без DTS
+                logging.debug(f"  Пакет {packet_count}: пропущен (нет DTS). Stream index: {packet.stream.index}")
+                continue
 
-                    try:
-                        for frame in packet.decode():
-                            if frame and isinstance(frame, av.VideoFrame):
-                                # Конвертируем в BGR NumPy
-                                try:
-                                     np_frame = frame.to_ndarray(format='bgr24')
-                                     head_frames_bgr.append(np_frame)
-                                     frames_decoded_count += 1
-                                     if frames_decoded_count % 100 == 0:
-                                          logging.debug(f"Decoded {frames_decoded_count}/{frames_to_read} head video frames...")
-                                     if frames_decoded_count >= frames_to_read:
-                                          break # Выходим из внутреннего цикла по кадрам
-                                except (FFmpegError, ValueError, TypeError) as e_conv:
-                                     logging.warning(f"Failed convert frame to bgr24: {e_conv}. Try YUV.")
-                                     try:
-                                          frame_yuv = frame.reformat(format='yuv420p')
-                                          np_frame_yuv = frame_yuv.to_ndarray()
-                                          np_frame_bgr = cv2.cvtColor(np_frame_yuv, cv2.COLOR_YUV2BGR_I420)
-                                          head_frames_bgr.append(np_frame_bgr)
-                                          frames_decoded_count += 1
-                                          if frames_decoded_count % 100 == 0: logging.debug(f"Decoded {frames_decoded_count}/{frames_to_read} head video frames...")
-                                          if frames_decoded_count >= frames_to_read: break
-                                     except Exception as e_reformat: logging.error(f"Failed reformat/convert frame via YUV: {e_reformat}"); continue
-                    except (FFmpegError, ValueError) as e_decode:
-                        logging.warning(f"Error decoding video packet: {e_decode} - skipping.")
-                # Выходим из основного цикла, если набрали достаточно видеокадров
+            # Собираем ВСЕ аудиопакеты нужного потока
+            if has_target_audio_stream and packet.stream.index == audio_stream_index:
+                try:
+                    packet_data = bytes(packet)
+                    new_packet = av.Packet(packet_data)
+
+                    # Копируем важные атрибуты вручную
+                    new_packet.pts = packet.pts
+                    new_packet.dts = packet.dts
+                    new_packet.duration = packet.duration
+                    # --- УДАЛЕНО: new_packet.stream_index = packet.stream_index ---
+                    # new_packet.is_keyframe = packet.is_keyframe # Если нужно
+
+                    # Сохраняем оригинальный stream_index, если он понадобится позже для идентификации
+                    # (например, если у вас несколько аудиопотоков и вы хотите их различать)
+                    # Но для самого new_packet это поле не пишется напрямую.
+                    # Можно сохранить его в отдельной структуре или как временный атрибут, если PyAV это позволяет
+                    # setattr(new_packet, '_original_stream_index', packet.stream.index) # Нестандартно, может не работать
+
+                    all_audio_packets.append(new_packet)
+                except Exception as e_packet_create:
+                    logging.error(f"  Ошибка при создании копии аудиопакета: {e_packet_create}", exc_info=True)
+
+                if len(all_audio_packets) % 200 == 0:
+                    logging.debug(f"  Собрано {len(all_audio_packets)} аудиопакетов...")
+
+            # Декодируем видеопакеты, пока не наберем нужное количество кадров
+            elif has_target_video_stream and packet.stream.index == video_stream_index:
                 if frames_decoded_count >= frames_to_read:
-                    # Но продолжаем читать аудио до конца файла! (Упрощение)
-                    # Чтобы читать аудио только для "головы", нужна логика сравнения PTS
-                    pass # Пока читаем все аудио
+                    # Видеокадры головы уже набраны, но продолжаем собирать аудио, если нужно
+                    continue
 
-            # Если вышли из цикла, а кадров не хватило (например, короткое видео)
-            if frames_decoded_count < frames_to_read:
-                 logging.warning(f"Read only {frames_decoded_count} video frames, less than requested {frames_to_read}.")
+                try:
+                    for frame in packet.decode():  # packet.decode() может вернуть несколько кадров
+                        if frame and isinstance(frame, av.VideoFrame):
+                            # Конвертируем в BGR NumPy
+                            try:
+                                # Попытка прямого преобразования в BGR24
+                                np_frame_bgr = frame.to_ndarray(format='bgr24')
+                            except (av.FFmpegError, ValueError, TypeError) as e_to_ndarray:
+                                logging.warning(
+                                    f"    Не удалось напрямую конвертировать видеокадр в bgr24: {e_to_ndarray}. Попытка через YUV420p.")
+                                # Попытка реформатирования в YUV420P, затем в NumPy, затем OpenCV
+                                try:
+                                    # Инициализируем реформаттер один раз
+                                    if reformatter_yuv_to_bgr is None:
+                                        # Убедимся, что frame.width и frame.height валидны
+                                        if frame.width <= 0 or frame.height <= 0:
+                                            logging.error(
+                                                f"    Невалидные размеры кадра для реформаттера: {frame.width}x{frame.height}")
+                                            continue  # Пропускаем этот кадр
+                                        reformatter_yuv_to_bgr = VideoReformatter(frame.width, frame.height, 'yuv420p')
 
-        except (FFmpegError, FFmpegEOFError) as e:
-             logging.warning(f"Error or EOF during demuxing in read_processing_head: {e}")
-             # Продолжаем с тем, что успели прочитать
+                                    frame_yuv = reformatter_yuv_to_bgr.reformat(frame)
+                                    np_frame_yuv = frame_yuv.to_ndarray()  # Это будет массив YUV (planes)
 
-        logging.info(f"Finished reading head. Decoded {len(head_frames_bgr)} video frames. Collected {len(all_audio_packets)} audio packets.")
-        return head_frames_bgr, all_audio_packets
+                                    # Конвертация YUV (скорее всего I420/YUV420P) в BGR
+                                    if np_frame_yuv.shape[
+                                        0] * 2 // 3 == frame_yuv.height:  # Проверка типичной структуры YUV420P
+                                        np_frame_bgr = cv2.cvtColor(np_frame_yuv, cv2.COLOR_YUV2BGR_I420)
+                                    else:  # Фоллбек на другой формат YUV, если известен, или ошибка
+                                        logging.error(
+                                            f"    Неизвестный формат NumPy массива после YUV реформатирования: {np_frame_yuv.shape}")
+                                        continue  # Пропускаем этот кадр
+                                except Exception as e_reformat_cv:
+                                    logging.error(
+                                        f"    Ошибка при реформатировании в YUV или конвертации OpenCV: {e_reformat_cv}",
+                                        exc_info=True)
+                                    continue  # Пропускаем этот кадр
 
-    except (FFmpegError, FileNotFoundError, Exception) as e:
-        logging.error(f"Error reading processing head from '{video_path}': {e}", exc_info=True)
+                            head_frames_bgr.append(np_frame_bgr)
+                            frames_decoded_count += 1
+
+                            if frames_decoded_count % 50 == 0:  # Логируем каждые 50 кадров
+                                logging.debug(
+                                    f"  Декодировано {frames_decoded_count}/{frames_to_read} видеокадров 'головы'...")
+
+                            if frames_decoded_count >= frames_to_read:
+                                break  # Выходим из внутреннего цикла по кадрам в пакете
+
+                    if frames_decoded_count >= frames_to_read:
+                        # Видеокадры головы набраны, но продолжаем собирать аудио, если оно еще не все
+                        pass  # Цикл по пакетам продолжится
+
+                except (av.FFmpegError, ValueError) as e_decode_video:
+                    # Некоторые ошибки декодирования могут быть некритичны (например, для поврежденных кадров)
+                    logging.warning(
+                        f"  Ошибка декодирования видеопакета (stream {packet.stream.index}): {e_decode_video} - пакет пропущен.")
+                except Exception as e_unexpected_decode:
+                    logging.error(f"  Неожиданная ошибка при декодировании видеопакета: {e_unexpected_decode}",
+                                  exc_info=True)
+                    # Решаем, стоит ли прерывать при неожиданной ошибке
+                    # return None, None # Вариант: прервать
+
+            if frames_to_read > 0 and has_target_video_stream and frames_decoded_count >= frames_to_read and \
+                    (audio_stream_index == -1 or not has_target_audio_stream):
+                # Если видео набрано и аудио не нужно/нет, можно выйти раньше
+                logging.info(
+                    "  Все необходимые видеокадры 'головы' прочитаны, аудио не требуется/нет. Завершение демультиплексирования.")
+                break
+
+        # Цикл по пакетам завершен
+        if frames_to_read > 0 and frames_decoded_count < frames_to_read:
+            logging.warning(
+                f"  Прочитано только {frames_decoded_count} видеокадров 'головы', запрашивалось {frames_to_read} (возможно, конец файла).")
+
+    except FFmpegEOFError:
+        logging.info("  Достигнут конец файла (EOF) при чтении 'головы'.")
+    except av.FFmpegError as e_av:
+        logging.error(f"Ошибка PyAV/FFmpeg при чтении 'головы' из '{video_path}': {e_av}", exc_info=True)
+        return None, None  # Критическая ошибка
+    except FileNotFoundError:
+        logging.error(f"Файл не найден при попытке открыть для чтения 'головы': '{video_path}'")
+        return None, None
+    except Exception as e_main:
+        logging.error(f"Неожиданная ошибка при чтении 'головы' из '{video_path}': {e_main}", exc_info=True)
         return None, None
     finally:
         if input_container:
-            try: input_container.close(); logging.debug("Head reading: Input container closed.")
-            except FFmpegError as e: logging.error(f"Error closing input container after head read: {e}")
+            try:
+                input_container.close()
+                logging.debug("  Контейнер входного файла для 'головы' закрыт.")
+            except av.FFmpegError as e_close:
+                logging.error(f"  Ошибка при закрытии контейнера входного файла 'головы': {e_close}")
+
+    logging.info(
+        f"Чтение 'головы' завершено. Декодировано {len(head_frames_bgr)} видеокадров. Собрано {len(all_audio_packets)} аудиопакетов.")
+    return head_frames_bgr, all_audio_packets
 
 
 # --- Функция записи видео (остается без изменений) ---
 # @profile # Добавьте, если нужно профилировать
+
+
 def rescale_time(value: Optional[int], old_tb: Optional[Fraction], new_tb: Optional[Fraction], label: str = "") -> Optional[int]:
     """
     Пересчитывает значение времени (PTS, DTS, Duration) из одной time_base в другую.
     Возвращает None при ошибке или если входные данные некорректны.
-    Добавлено логирование при ошибке.
     """
     if value is None or old_tb is None or new_tb is None \
        or not isinstance(old_tb, Fraction) or not isinstance(new_tb, Fraction) \
        or old_tb.denominator == 0 or new_tb.denominator == 0:
-         # Не логируем None как ошибку, просто возвращаем None
-         # logging.debug(f"Rescale ({label}): Input value or time base is None/invalid. value={value}, old={old_tb}, new={new_tb}")
          return None
     try:
-         # Формула: новое = старое * (старый_tb / новый_tb)
          scaled_value = Fraction(value * old_tb.numerator * new_tb.denominator, old_tb.denominator * new_tb.numerator)
-         # Округляем до ближайшего целого
          if scaled_value >= 0: result = int(scaled_value + Fraction(1, 2))
          else: result = int(scaled_value - Fraction(1, 2))
-         # logging.debug(f"Rescale ({label}): {value} * ({old_tb} / {new_tb}) = {scaled_value} -> {result}")
          return result
     except (ZeroDivisionError, OverflowError, TypeError) as e:
          logging.warning(f"Rescale warning ({label}): value={value}, old={old_tb}, new={new_tb}. Error: {e}")
          return None
 
-# --- Функция записи "Голова + Хвост" с детальным логированием ---
-@profile
-def write_video_head_tail(
-    watermarked_head_frames: List[np.ndarray],
-    all_audio_packets: List['av.Packet'],
-    input_metadata: Dict[str, Any],
-    output_path: str,
-    target_video_encoder_lib: str, # Имя библиотеки кодера (e.g., 'libx264')
-    audio_codec_action: str,      # 'copy' или 'aac'
-    num_processed_frames: int     # Количество кадров в голове
-    ) -> bool:
+# --- Основная функция записи "Голова + Хвост" ---
+def get_assumed_color_properties(width: int, height: int,
+                                 original_tags: Dict[str, Optional[str]]) -> Dict[str, Optional[str]]:
     """
-    Записывает видео: кодирует обработанную "голову" и копирует "хвост" видео и аудио.
-    Использует переданные параметры кодера и аудио действия.
-    Выполняет ручной пересчет таймстемпов для копируемых пакетов.
-    Реализована потоковая запись головы и детальное логирование.
+    Определяет предполагаемые/стандартные цветовые свойства на основе разрешения
+    и имеющихся оригинальных тегов.
+    Возвращает словарь с ключами 'colorspace', 'primaries', 'trc', 'range'.
+    Значения - строки, понятные FFmpeg/PyAV.
     """
-    if not PYAV_AVAILABLE: logging.error("PyAV not available."); return False
+    cs_tag = original_tags.get('color_space')  # Пример ключей, используйте ваши из get_input_metadata
+    cp_tag = original_tags.get('color_primaries')
+    ct_tag = original_tags.get('color_transfer')
+    cr_tag = original_tags.get('color_range')
+
+    # Значения по умолчанию (для HD)
+    assumed_cs = 'bt709'
+    assumed_cp = 'bt709'
+    assumed_ct = 'bt709'
+    assumed_cr = 'tv'  # Limited range ('mpeg' в некоторых API)
+
+    # Логика на основе разрешения (упрощенный пример, нужно адаптировать)
+    if height <= 576:  # Пример для SD
+        assumed_cs = 'bt470bg' if cs_tag and '601' not in cs_tag else 'bt470bg'  # или smpte170m
+        assumed_cp = 'bt470bg' if cp_tag and '601' not in cp_tag else 'bt470bg'  # или smpte170m
+        assumed_ct = 'gamma28' if ct_tag and '601' not in ct_tag else 'gamma28'  # или smpte170m
+        assumed_cr = cr_tag if cr_tag in ['tv', 'pc', 'mpeg', 'jpeg'] else 'tv'
+    elif height > 1080:  # Пример для UHD
+        # Оставим BT.709 для совместимости, если не указано иное
+        if cs_tag == 'bt2020ncl': assumed_cs = 'bt2020ncl'
+        if cp_tag == 'bt2020': assumed_cp = 'bt2020'
+        # Для HDR нужны специфичные transfer functions (e.g., smpte2084/pq, arib-std-b67/hlg)
+        if ct_tag and ('bt2020' in ct_tag or 'pq' in ct_tag or 'hlg' in ct_tag):
+            assumed_ct = ct_tag
+        # Для SDR UHD часто используют тот же bt709/gamma2.4 или iec61966-2-1/srgb
+        # elif ct_tag and ('iec61966' in ct_tag or 'srgb' in ct_tag) : assumed_ct = ct_tag
+        else:
+            assumed_ct = 'bt709'  # Fallback к bt709 для SDR UHD
+
+        if cr_tag == 'pc': assumed_cr = 'pc'  # Если диапазон полный, сохраняем
+    else:  # HD
+        # Проверяем, если исходные теги похожи на bt709, используем их
+        if cs_tag and '709' in cs_tag: assumed_cs = cs_tag
+        if cp_tag and '709' in cp_tag: assumed_cp = cp_tag
+        if ct_tag and '709' in ct_tag: assumed_ct = ct_tag
+        if cr_tag == 'pc': assumed_cr = 'pc'
+
+    # Финальный словарь свойств
+    final_props = {
+        'colorspace': assumed_cs,
+        'primaries': assumed_cp,
+        'trc': assumed_ct,
+        'range': assumed_cr
+    }
+    logging.debug(f"Определены цветовые свойства для {width}x{height}: {final_props} (исходные: {original_tags})")
+    return final_props
+
+
+# --- НОВАЯ ФУНКЦИЯ: Запись "Головы" во Временный Файл ---
+# @profile # Если используете line_profiler
+def write_head_only(
+        watermarked_head_frames: List[np.ndarray],
+        all_audio_packets: Optional[List[av.Packet]],
+        input_metadata: Dict[str, Any],
+        temp_head_path: str,
+        target_video_encoder_lib: str,
+        audio_action_for_head: str,
+        video_encoder_options: Optional[Dict[str, str]] = None,
+        audio_encoder_options: Optional[Dict[str, str]] = None
+) -> Optional[float]:
+    if not PYAV_AVAILABLE:
+        logging.error("PyAV недоступен для write_head_only.")
+        return None
+    if not watermarked_head_frames:
+        logging.warning("write_head_only: Нет кадров для записи в 'голову'.")
+        return 0.0
+
+    num_head_frames = len(watermarked_head_frames)
+    logging.info(f"Запись 'головы' в '{temp_head_path}' ({num_head_frames} кадров)...")
+    logging.info(f"  Видеокодер: {target_video_encoder_lib}, Аудио для головы: {audio_action_for_head}")
 
     output_container: Optional['av.container.Container'] = None
-    input_container_tail: Optional['av.container.Container'] = None
-    input_audio_decoder: Optional['av.codec.context.CodecContext'] = None
     video_stream: Optional['av.stream.Stream'] = None
     audio_stream: Optional['av.stream.Stream'] = None
+    input_audio_decoder: Optional['av.codec.context.CodecContext'] = None
+    reformatter: Optional[VideoReformatter] = None
 
-    logging.info(f"Preparing output '{output_path}' (Head+Tail - Video: {target_video_encoder_lib}, Audio: {audio_codec_action})...")
+    calculated_video_duration_sec: Optional[float] = None
+    last_encoded_video_pts = -1
+    video_frame_duration_tb = 0  # Длительность видеокадра в единицах time_base
 
-    # --- Получение и проверка метаданных ---
-    width = input_metadata.get('width'); height = input_metadata.get('height')
-    fps = input_metadata.get('fps', float(FPS))
-    input_video_bitrate = input_metadata.get('video_bitrate')
-    input_pix_fmt = input_metadata.get('pix_fmt')
-    input_video_time_base = input_metadata.get('video_time_base')
-    input_video_stream_index = input_metadata.get('video_stream_index', -1)
-    has_audio = input_metadata.get('has_audio', False) and audio_codec_action != 'none'
-    input_audio_codec = input_metadata.get('audio_codec')
-    input_audio_rate = input_metadata.get('audio_rate')
-    input_audio_layout = input_metadata.get('audio_layout')
-    input_audio_time_base = input_metadata.get('audio_time_base')
-    input_audio_context_params = input_metadata.get('audio_codec_context_params')
-    input_audio_stream_index = input_metadata.get('audio_stream_index', -1)
-    in_color_space = input_metadata.get('color_space_tag')
-    in_color_primaries = input_metadata.get('color_primaries_tag')
-    in_color_transfer = input_metadata.get('color_transfer_tag')
-    in_color_range = input_metadata.get('color_range_tag')
+    # Глобальная константа FPS (пример, должна быть определена в вашем коде)
+    FPS = 30.0
 
-    if not (width and height and fps and fps > 0): logging.error("Invalid video metadata."); return False
-    if has_audio and audio_codec_action == 'copy' and not input_audio_time_base: logging.error("Cannot copy audio: input audio time_base missing."); has_audio = False
-    if has_audio and audio_codec_action != 'copy' and not (input_audio_codec and input_audio_rate and input_audio_layout): logging.warning("Essential audio metadata missing for re-encoding."); has_audio = False
-
-    fps_fraction = Fraction(fps).limit_denominator() if fps and fps > 0 else None
-
-    # --- Определение Видео Настроек для кодирования "Головы" ---
-    codec_options = {}; pix_fmt_out = 'yuv420p'
-    if target_video_encoder_lib == 'libx264': codec_options = {'preset': 'fast', 'crf': '20'};
-    elif target_video_encoder_lib == 'libx265': codec_options = {'preset': 'fast', 'crf': '22'}; pix_fmt_out = 'yuv420p10le' if '10' in (input_pix_fmt or '') else 'yuv420p'
-    elif target_video_encoder_lib == 'libvpx-vp9': codec_options = {'crf': '30', 'b:v': '0'}
-    elif target_video_encoder_lib == 'mpeg4': codec_options = {'qscale:v': '4'}
-    # Установка битрейта, если он есть и кодек не CRF/qscale/QP
-    if input_video_bitrate and input_video_bitrate > 10000 and not any(k in codec_options for k in ['crf', 'qp', 'qscale:v']):
-         codec_options['b'] = str(input_video_bitrate)
-    logging.info(f"Using codec options for head ({target_video_encoder_lib}): {codec_options}")
-
-    # --- Основной блок записи ---
     try:
-        # --- Открытие выходного контейнера ---
-        try:
-            output_container = av.open(output_path, mode='w')
-            if output_container is None: raise FFmpegError("av.open returned None")
-            logging.info(f"Opened '{output_path}' for writing.")
-        except (FFmpegError, Exception) as e: logging.error(f"Failed to open output container: {e}", exc_info=True); return False
+        width = input_metadata.get('width')
+        height = input_metadata.get('height')
+        fps_meta = input_metadata.get('fps')
 
-        # --- Настройка Видео Потока ---
-        logging.info(
-            f"Setting up video stream: codec={target_video_encoder_lib}, rate={fps_fraction or 'auto'}, pix_fmt={pix_fmt_out}")
-        try:
-            video_stream = output_container.add_stream(target_video_encoder_lib, rate=fps_fraction)
-            # !!! ИСПРАВЛЕНО: Настройка потока ВНУТРИ try после успешного add_stream !!!
-            video_stream.width = width
-            video_stream.height = height
-            video_stream.pix_fmt = pix_fmt_out
-            if codec_options:
-                video_stream.codec_context.options = codec_options
-            # Устанавливаем стандартный time_base
-            video_stream.time_base = Fraction(1, 90000)
-            # --- Установка цветовых тегов (через metadata) ---
-            # (Логика проверки и установки тегов как раньше)
-            force_standard_tags = False
-            # ... (код проверки in_color_space и т.д.) ...
-            if force_standard_tags or not any(
-                    t is not None for t in [in_color_space, in_color_primaries, in_color_transfer, in_color_range]):
-                output_color_space, output_color_primaries, output_color_transfer, output_color_range = 'bt709', 'bt709', 'bt709', 'tv'
-                logging.info("Forcing/Setting BT.709 TV color tags.")
-            else:
-                output_color_space, output_color_primaries, output_color_transfer, output_color_range = in_color_space, in_color_primaries, in_color_transfer, in_color_range
-                logging.info("Using input color tags.")
+        if not (width and height and width > 0 and height > 0):
+            logging.error(f"Некорректные размеры кадра: {width}x{height}");
+            return None
+
+        fps_to_use = float(FPS)
+        if fps_meta and isinstance(fps_meta, (float, int, Fraction)) and float(fps_meta) > 0:
+            fps_to_use = fps_meta
+        else:
+            logging.warning(f"Некорректный FPS ({fps_meta}). Используется fallback FPS={fps_to_use}.")
+        fps_fraction = Fraction(fps_to_use).limit_denominator()
+
+        has_audio_original = input_metadata.get('has_audio', False)
+        process_audio = has_audio_original and audio_action_for_head == 'aac' and all_audio_packets is not None
+
+        output_container = av.open(temp_head_path, mode='w')
+        if output_container is None: raise av.FFmpegError("Не удалось открыть выходной контейнер")
+
+        original_color_tags = {key: input_metadata.get(f'{key}_tag') for key in
+                               ['color_space', 'color_primaries', 'color_transfer', 'color_range']}
+        color_props_for_output = get_assumed_color_properties(width, height, original_color_tags)
+
+        output_pix_fmt = 'yuv420p'
+        video_stream = output_container.add_stream(target_video_encoder_lib, rate=fps_fraction)
+        video_stream.width = width;
+        video_stream.height = height;
+        video_stream.pix_fmt = output_pix_fmt
+
+        codec_options = video_encoder_options.copy() if video_encoder_options else {}
+        if color_props_for_output.get('colorspace'): codec_options['colorspace'] = color_props_for_output['colorspace']
+        if color_props_for_output.get('primaries'): codec_options['color_primaries'] = color_props_for_output[
+            'primaries']
+        if color_props_for_output.get('trc'): codec_options['color_trc'] = color_props_for_output['trc']
+        if color_props_for_output.get('range'): codec_options['color_range'] = color_props_for_output['range']
+        if codec_options: video_stream.codec_context.options = codec_options; logging.debug(
+            f"Опции видеокодека: {codec_options}")
+
+        input_video_time_base = input_metadata.get('video_time_base')
+        if input_video_time_base and isinstance(input_video_time_base, Fraction):
+            video_stream.time_base = input_video_time_base
+            logging.info(f"Видеопоток time_base из оригинала: {video_stream.time_base}")
+        else:
+            if video_stream.time_base is None: video_stream.time_base = Fraction(1, 90000)
+            logging.info(f"Видеопоток time_base (auto/fallback): {video_stream.time_base}")
+
+        if video_stream.time_base and float(fps_fraction) > 0:
             try:
-                if output_color_space: video_stream.metadata['color_space'] = output_color_space
-                if output_color_primaries: video_stream.metadata['color_primaries'] = output_color_primaries
-                if output_color_transfer: video_stream.metadata['color_transfer'] = output_color_transfer
-                if output_color_range: video_stream.metadata['color_range'] = output_color_range
-                logging.info(f"Set output stream metadata color tags.")
-            except Exception as e_meta:
-                logging.warning(f"Could not set color tags via metadata: {e_meta}")
-            logging.info(f"  Video stream time_base: {video_stream.time_base}")
+                video_frame_duration_tb = int(round((1.0 / float(fps_fraction)) / float(video_stream.time_base)))
+            except:
+                pass
+        if video_frame_duration_tb <= 0: video_frame_duration_tb = 1; logging.warning(
+            "Не удалось рассчитать video_frame_duration_tb, используется 1.")
+        logging.debug(f"Расчетная длительность видео кадра (в time_base): {video_frame_duration_tb}")
 
-        except Exception as e:
-            # Ловим ошибку при add_stream или при настройке параметров
-            logging.error(f"Error setting up video stream: {e}", exc_info=True)
-            if output_container:
+        decoded_audio_frames_for_head: List[av.AudioFrame] = []
+        head_duration_sec_estimated = num_head_frames / float(fps_fraction) if float(fps_fraction) > 0 else 0.0
+
+        if process_audio:
+            input_audio_codec_name = input_metadata.get('audio_codec')
+            input_audio_rate = input_metadata.get('audio_rate')
+            input_audio_layout_str = input_metadata.get('audio_layout')
+            input_audio_time_base = input_metadata.get('audio_time_base')
+
+            if not (input_audio_codec_name and input_audio_rate and input_audio_layout_str and input_audio_time_base):
+                logging.warning("Аудио: Недостаточно метаданных для обработки.");
+                process_audio = False
+            else:
+                logging.info(f"Аудио: Перекодирование в AAC, Rate={input_audio_rate}, Layout={input_audio_layout_str}")
                 try:
-                    output_container.close()
-                except FFmpegError as e_close:
-                    logging.error(f"Error closing container after stream setup error: {e_close}")
-            return False  # Возвращаем False, если не удалось настроить поток
+                    audio_stream = output_container.add_stream('aac', rate=input_audio_rate)
+                    audio_stream.codec_context.layout = input_audio_layout_str
+                    default_audio_opts = {'b:a': '128k'};
+                    final_audio_opts = default_audio_opts.copy()
+                    if audio_encoder_options: final_audio_opts.update(audio_encoder_options)
+                    audio_stream.codec_context.options = final_audio_opts;
+                    logging.debug(f"Опции AAC: {final_audio_opts}")
+                    if audio_stream.time_base is None: audio_stream.time_base = Fraction(1, input_audio_rate)
+                    logging.info(f"Аудиопоток time_base: {audio_stream.time_base}")
 
-        # --- Настройка Аудио Потока ---
-        output_audio_time_base = None
-        if has_audio:
-            logging.info(f"Setting up audio stream: action={audio_codec_action}")
-            if audio_codec_action == 'copy':
+                    # --- НАЧАЛО ПОЛНОЙ ЛОГИКИ ДЕКОДИРОВАНИЯ АУДИО ---
+                    input_audio_decoder = av.Codec(input_audio_codec_name, 'r').create()  # type: ignore
+                    if input_audio_decoder is None: raise av.FFmpegError("Не удалось создать аудио декодер.")
+
+                    in_audio_ctx_params = input_metadata.get('audio_codec_context_params')
+                    if in_audio_ctx_params:
+                        if in_audio_ctx_params.get('format'): input_audio_decoder.format = in_audio_ctx_params['format']
+                        if in_audio_ctx_params.get('layout'): input_audio_decoder.layout = in_audio_ctx_params['layout']
+                        if in_audio_ctx_params.get('rate'): input_audio_decoder.sample_rate = in_audio_ctx_params[
+                            'rate']
+                        if in_audio_ctx_params.get('extradata'): input_audio_decoder.extradata = in_audio_ctx_params[
+                            'extradata']
+                    # Если какие-то параметры не установились из ctx_params, берем из основных метаданных
+                    if input_audio_decoder.layout is None and input_audio_layout_str: input_audio_decoder.layout = input_audio_layout_str
+                    if input_audio_decoder.sample_rate is None and input_audio_rate: input_audio_decoder.sample_rate = input_audio_rate
+
+                    logging.debug(
+                        f"Декодирование аудиопакетов (оценка длины головы ~{head_duration_sec_estimated:.3f}s)")
+                    processed_packet_count = 0
+                    for audio_packet_from_list in all_audio_packets or []:
+                        processed_packet_count += 1
+                        if audio_packet_from_list.dts is None: continue  # Пропускаем flush пакеты
+
+                        packet_time_sec = 0.0
+                        if audio_packet_from_list.pts is not None and input_audio_time_base:
+                            try:
+                                packet_time_sec = float(audio_packet_from_list.pts * input_audio_time_base)
+                            except Exception:
+                                pass  # Ошибка при расчете времени
+
+                        # Прерываем декодирование, если время пакета вышло за ОЦЕНОЧНУЮ длит. головы + буфер
+                        if packet_time_sec > head_duration_sec_estimated + 1.0:  # +1 секунда буфера
+                            logging.debug(
+                                f"Аудиопакет {processed_packet_count} PTS {audio_packet_from_list.pts} ({packet_time_sec:.3f}s) за пределами ОЦЕНОЧНОЙ длины головы. Прерывание декодирования.")
+                            break
+                        try:
+                            frames = input_audio_decoder.decode(audio_packet_from_list)
+                            if frames: decoded_audio_frames_for_head.extend(frames)
+                        except av.FFmpegError as e_decode:
+                            if e_decode.errno == -11 or 'again' in str(e_decode).lower():  # EAGAIN
+                                logging.debug(
+                                    f"Ошибка декодирования аудиопакета {processed_packet_count} (EAGAIN), требуется больше данных.")
+                                continue
+                            logging.warning(f"Ошибка декодирования аудиопакета {processed_packet_count}: {e_decode}")
+                    try:  # Flush декодера
+                        frames = input_audio_decoder.decode(None)
+                        if frames: decoded_audio_frames_for_head.extend(frames)
+                    except av.FFmpegError:
+                        pass  # Ошибки при flush часто нормальны
+                    logging.info(f"Декодировано {len(decoded_audio_frames_for_head)} аудиокадров.")
+                    # --- КОНЕЦ ПОЛНОЙ ЛОГИКИ ДЕКОДИРОВАНИЯ АУДИО ---
+                except Exception as e_setup_audio:
+                    logging.error(f"Ошибка при настройке/декодировании аудио: {e_setup_audio}", exc_info=True)
+                    process_audio = False;
+                    audio_stream = None
+
+        logging.info(f"Кодирование и мультиплексирование {num_head_frames} видеокадров...")
+        encoded_video_frame_count = 0
+        current_video_pts = 0
+
+        for frame_idx, bgr_frame_np in enumerate(watermarked_head_frames):
+            try:
+                if not isinstance(bgr_frame_np, np.ndarray) or bgr_frame_np.shape[:2] != (height, width):
+                    logging.warning(f"Пропуск некорректного видеокадра {frame_idx}");
+                    continue
+                video_frame_in = VideoFrame.from_ndarray(bgr_frame_np, format='bgr24')
+                if reformatter is None:
+                    reformatter = VideoReformatter(
+                        video_frame_in.width, video_frame_in.height, output_pix_fmt,
+                        src_format='bgr24', src_colorspace='srgb',
+                        dst_colorspace=color_props_for_output.get('colorspace'),
+                        dst_primaries=color_props_for_output.get('primaries'),
+                        dst_trc=color_props_for_output.get('trc'),
+                        dst_color_range=color_props_for_output.get('range'))
+                video_frame_out = reformatter.reformat(video_frame_in)
+                video_frame_out.pts = current_video_pts
+
+                encoded_video_packets = video_stream.encode(video_frame_out)  # type: ignore
+                if encoded_video_packets is not None:  # encode может вернуть пустой список
+                    last_encoded_video_pts = current_video_pts
+                    current_video_pts += video_frame_duration_tb
+                    encoded_video_frame_count += 1
+                    for packet in encoded_video_packets: output_container.mux(packet)  # type: ignore
+            except Exception as e_vf:
+                logging.error(f"Ошибка при обработке/кодировании видеокадра {frame_idx}: {e_vf}", exc_info=True);
+                raise
+
+        logging.debug("Flush видеокодера...");
+        encoded_video_packets = video_stream.encode(None)  # type: ignore
+        if encoded_video_packets: output_container.mux(encoded_video_packets)  # type: ignore
+        logging.info(f"Закодировано и записано {encoded_video_frame_count} видеокадров.")
+
+        if video_stream and last_encoded_video_pts >= 0 and video_frame_duration_tb > 0 and video_stream.time_base:
+            try:
+                last_effective_pts = last_encoded_video_pts + video_frame_duration_tb
+                duration_val = float(last_effective_pts * video_stream.time_base)
+                if duration_val >= 0:
+                    calculated_video_duration_sec = duration_val
+                else:
+                    logging.error("Рассчитана отрицательная видео длительность!")
+            except Exception as e_calc_vid:
+                logging.error(f"Ошибка расчета видео длительности: {e_calc_vid}")
+        elif encoded_video_frame_count == 0 and num_head_frames > 0:
+            calculated_video_duration_sec = None
+        else:
+            calculated_video_duration_sec = 0.0
+
+        if calculated_video_duration_sec is not None:
+            logging.info(f"Финальная расчетная ВИДЕО длительность: {calculated_video_duration_sec:.6f}s")
+        else:
+            logging.error("Не удалось рассчитать финальную видео длительность.")
+
+        if process_audio and audio_stream and decoded_audio_frames_for_head:
+            logging.info(
+                f"Кодирование и мультиплексирование аудиокадров (до ~{calculated_video_duration_sec or head_duration_sec_estimated:.3f}s)...")
+            encoded_audio_frame_count = 0
+            duration_limit_for_audio = calculated_video_duration_sec if (
+                        calculated_video_duration_sec is not None and calculated_video_duration_sec > 0) else head_duration_sec_estimated
+            for audio_frame_idx, audio_frame in enumerate(decoded_audio_frames_for_head):
                 try:
-                    audio_stream = output_container.add_stream(input_audio_codec, rate=input_audio_rate)
-                    out_ctx = audio_stream.codec_context
-                    # ... (копирование параметров контекста) ...
-                    out_ctx.layout = input_audio_layout; out_ctx.format = input_audio_context_params.get('format'); out_ctx.bit_rate = input_audio_context_params.get('bit_rate'); out_ctx.codec_tag = input_audio_context_params.get('codec_tag'); out_ctx.extradata = input_audio_context_params.get('extradata')
-                    audio_stream.time_base = input_audio_time_base # Явно устанавливаем
-                    output_audio_time_base = audio_stream.time_base
-                    logging.info(f"  Audio Stream Setup (Copy): codec={audio_stream.codec.name}, "
-                                 f"time_base={audio_stream.time_base}, "
-                                 f"rate={audio_stream.codec_context.rate}, "
-                                 f"layout={audio_stream.codec_context.layout.name}, "
-                                 f"format={audio_stream.codec_context.format.name if audio_stream.codec_context.format else 'N/A'}")
-                except Exception as e: logging.error(f"Error setting up audio copy: {e}"); has_audio = False
-            else: # Перекодирование
-                 target_audio_codec_actual = audio_codec_action
-                 try:
-                     audio_stream = output_container.add_stream(target_audio_codec_actual, rate=input_audio_rate)
-                     audio_stream.codec_context.layout = input_audio_layout
-                     if target_audio_codec_actual == 'aac': audio_stream.codec_context.bit_rate = 128000
-                     output_audio_time_base = audio_stream.time_base
-                     logging.info(f"  Audio Stream Setup (Re-encode): codec={audio_stream.codec.name}, "
-                                  f"time_base={audio_stream.time_base}, "
-                                  f"rate={audio_stream.codec_context.rate}, "
-                                  f"layout={audio_stream.codec_context.layout.name}, "
-                                  f"format={audio_stream.codec_context.format.name if audio_stream.codec_context.format else 'N/A'}, "
-                                  f"bitrate={audio_stream.codec_context.bit_rate}")
-                 except Exception as e: logging.error(f"Error setting up audio re-encode: {e}"); has_audio = False
-        else: has_audio = False
-
-
-        # --- Декодирование аудио для перекодирования "головы" ---
-        audio_frames_to_encode = []
-        audio_frame_iter = iter([])
-        if has_audio and audio_codec_action != 'copy':
-             head_duration_sec = float(num_processed_frames / fps) if fps > 0 else 0
-             logging.debug(f"Decoding audio packets up to ~{head_duration_sec:.2f}s for re-encoding head...")
-             try:
-                 in_audio_codec_name = input_metadata.get('audio_codec')
-                 if not in_audio_codec_name: raise ValueError("Input audio codec name missing")
-                 input_audio_decoder = av.Codec(in_audio_codec_name, 'r').create()
-                 packets_processed_for_decode = 0
-                 for packet in all_audio_packets:
-                      packet_time_sec = float(packet.pts * input_audio_time_base) if packet.pts is not None and input_audio_time_base else None
-                      if packet_time_sec is not None and packet_time_sec > head_duration_sec and packets_processed_for_decode > 0: break
-                      decoded = input_audio_decoder.decode(packet)
-                      if decoded: audio_frames_to_encode.extend(decoded)
-                      packets_processed_for_decode += 1
-                 decoded = input_audio_decoder.decode(None)
-                 if decoded: audio_frames_to_encode.extend(decoded)
-                 logging.debug(f"Decoded {len(audio_frames_to_encode)} audio frames for head.")
-                 audio_frame_iter = iter(audio_frames_to_encode)
-             except (FFmpegError, ValueError, Exception) as e_adec: logging.error(f"Error decoding audio for head: {e_adec}. Disabling audio."); has_audio = False; audio_frames_to_encode = []
-             finally:
-                  if input_audio_decoder: input_audio_decoder.close()
-
-        # --- ЧАСТЬ 1: Потоковая Запись "Головы" ---
-        logging.info(f"Encoding and muxing video head ({num_processed_frames} frames)...")
-        head_frame_count = 0; head_audio_packets_muxed = 0; head_audio_frames_encoded = 0
-        reformatter = None
-        audio_packet_iter = iter(all_audio_packets) if (has_audio and audio_codec_action == 'copy') else iter([])
-        current_audio_packet = next(audio_packet_iter, None)
-        current_audio_frame = next(audio_frame_iter, None) # Для перекодирования
-
-        for frame_index, np_frame in enumerate(watermarked_head_frames):
-            try: # Обертка для одного кадра
-                video_frame: Optional[VideoFrame] = None
-                if np_frame is None: logging.warning(f"Head frame {frame_index} is None."); continue
-                # logging.debug(f"Frame {frame_index} shape: {np_frame.shape}, dtype: {np_frame.dtype}")
-
-                video_frame = VideoFrame.from_ndarray(np_frame, format='bgr24')
-                if video_frame.format.name != pix_fmt_out:
-                    if reformatter is None: reformatter = VideoReformatter(video_frame.width, video_frame.height, pix_fmt_out)
-                    video_frame = reformatter.reformat(video_frame)
-
-                if video_stream.time_base and fps > 0:
-                    time_sec = float(frame_index) / float(fps); video_frame.pts = int(time_sec / float(video_stream.time_base))
-                else: video_frame.pts = frame_index
-                if video_frame.pts is None: logging.warning(f"Head Video frame {frame_index} got None PTS."); continue
-
-                encoded_video_packets = video_stream.encode(video_frame)
-                for packet in encoded_video_packets: output_container.mux(packet)
-                head_frame_count += 1
-
-                # --- Мультиплексирование Аудио (чередование) ---
-                if has_audio and video_frame.pts is not None and audio_stream:
-                    current_video_pts_in_audio_tb = rescale_time(video_frame.pts, video_stream.time_base, output_audio_time_base, f"Vid{frame_index}_PTS") if video_stream.time_base and output_audio_time_base else None
-
-                    if audio_codec_action == 'copy':
-                        while current_audio_packet is not None:
-                            packet_pts_in_out_tb = rescale_time(current_audio_packet.pts, input_audio_time_base, output_audio_time_base, f"AudPkt_PTS_Comp")
-                            if current_audio_packet.pts is None or current_video_pts_in_audio_tb is None or packet_pts_in_out_tb is None or packet_pts_in_out_tb <= current_video_pts_in_audio_tb:
-                                try:
-                                    original_pts = current_audio_packet.pts; original_dts = current_audio_packet.dts
-                                    current_audio_packet.pts = rescale_time(current_audio_packet.pts, input_audio_time_base, output_audio_time_base, "AudPkt_PTS_Mux")
-                                    current_audio_packet.dts = rescale_time(current_audio_packet.dts, input_audio_time_base, output_audio_time_base, "AudPkt_DTS_Mux")
-                                    if current_audio_packet.pts is None and original_pts is not None: logging.warning("Audio head PTS became None.")
-                                    current_audio_packet.stream = audio_stream
-                                    output_container.mux(current_audio_packet); head_audio_packets_muxed += 1
-                                except Exception as e_mux_a: logging.warning(f"Muxing head audio packet failed: {e_mux_a}")
-                                current_audio_packet = next(audio_packet_iter, None)
-                            else: break
-                    else: # Перекодирование
-                         while current_audio_frame is not None:
-                             frame_pts = current_audio_frame.pts # PTS должен быть в output_audio_time_base
-                             if frame_pts is None or current_video_pts_in_audio_tb is None or frame_pts <= current_video_pts_in_audio_tb:
-                                 try:
-                                     encoded_audio_packets = audio_stream.encode(current_audio_frame)
-                                     output_container.mux(encoded_audio_packets); head_audio_frames_encoded += 1
-                                 except Exception as e_enc_a: logging.warning(f"Encoding/Muxing head audio frame failed: {e_enc_a}")
-                                 current_audio_frame = next(audio_frame_iter, None)
-                             else: break
-
-            except (FFmpegError, ValueError, TypeError, ZeroDivisionError, MemoryError, AttributeError, Exception) as e_inner:
-                 logging.error(f"!!! CRITICAL ERROR processing head frame {frame_index}: {e_inner} !!!", exc_info=True)
-                 logging.error("Aborting write process due to critical error in head processing.")
-                 if output_container: output_container.close();
-                 return False # Прерываем запись
-
-        logging.info(f"Finished encoding/muxing head: {head_frame_count} video frames processed.")
-        if has_audio: logging.info(f"  Head audio: {head_audio_packets_muxed} packets copied / {head_audio_frames_encoded} frames re-encoded.")
-
-        # --- ЧАСТЬ 2: Копирование "Хвоста" ---
-        logging.info("Starting tail copying process...")
-        tail_video_packets_copied = 0; tail_audio_packets_copied = 0
-        input_container_tail = None
-        last_video_pts_head_scaled = rescale_time(video_frame.pts, video_stream.time_base, input_video_time_base, "LastHeadVidPTS_In") if video_frame and video_frame.pts is not None and video_stream.time_base and input_video_time_base else None
-
-        try:
-            input_container_tail = av.open(input_metadata['input_path'], mode='r')
-            logging.debug("Re-opened input container for tail reading.")
-
-            # --- Логика пропуска пакетов "головы" (ОСНОВАНА НА PTS) ---
-            head_skipped = False
-            packets_scanned = 0
-            logging.debug("Scanning input packets to find tail start...")
-            for packet in input_container_tail.demux():
-                packets_scanned += 1
-                if packet.dts is None: continue
-
-                # Пропуск пакетов головы
-                if not head_skipped:
-                    # Ищем первый видео пакет, чей PTS (в своей базе) БОЛЬШЕ последнего PTS головы (в той же базе)
-                    if packet.stream.index == input_video_stream_index:
-                        if last_video_pts_head_scaled is not None and packet.pts is not None and packet.pts > last_video_pts_head_scaled:
-                             if packet.is_keyframe:
-                                 head_skipped = True
-                                 logging.info(f"Found starting keyframe for tail copy at PTS {packet.pts} (orig) after scanning ~{packets_scanned} packets.")
-                                 # Этот пакет уже относится к хвосту, обрабатываем его ниже
-                             else: continue # Ищем ключевой кадр
-                        else: continue # Продолжаем пропускать
-                    else: continue # Пропускаем не-видео
-
-                # --- Логика Копирования Пакетов Хвоста ---
-                if not head_skipped: continue # Если все еще не пропустили голову
-
-                is_video = packet.stream.type == 'video'
-                packet_log_prefix = f"Tail {'Vid' if is_video else 'Aud'} Pkt:" # Упрощенный префикс
-
-                try:
-                    input_tb = packet.stream.time_base
-                    output_stream = video_stream if is_video else audio_stream
-                    output_tb = output_stream.time_base if output_stream else None
-
-                    if not (output_stream and input_tb and output_tb):
-                         logging.log(logging.DEBUG if not has_audio and not is_video else logging.WARNING, # Логируем как DEBUG если аудио просто нет
-                                     f"{packet_log_prefix} Skipping due to missing stream/time_base (Stream Idx: {packet.stream.index})")
-                         continue
-
-                    # --- Ручной пересчет таймстемпов ---
-                    original_pts = packet.pts; original_dts = packet.dts; original_duration = packet.duration
-                    new_pts = rescale_time(packet.pts, input_tb, output_tb, "PTS")
-                    new_dts = rescale_time(packet.dts, input_tb, output_tb, "DTS")
-                    new_duration = rescale_time(packet.duration, input_tb, output_tb, "DUR") if original_duration is not None and original_duration > 0 else 0
-
-                    # !!! ДЕТАЛЬНОЕ ЛОГИРОВАНИЕ ПЕРЕД MUX !!!
-                    log_level = logging.DEBUG # Уровень для детального лога пакетов
-                    logging.log(log_level, f"{packet_log_prefix} "
-                                     f"Key={packet.is_keyframe if is_video else '-'}, "
-                                     f"Size={packet.size}, "
-                                     f"In [PTS:{original_pts}, DTS:{original_dts}, DUR:{original_duration}, TB:{input_tb}] -> "
-                                     f"Out [PTS:{new_pts}, DTS:{new_dts}, DUR:{new_duration}, TB:{output_tb}]")
-
-                    if new_pts is None and original_pts is not None:
-                        logging.error(f"{packet_log_prefix} FATAL: PTS became None after rescale! Skipping.")
+                    audio_pts_sec = 0.0
+                    if audio_frame.pts is not None and audio_stream.time_base:
+                        try:
+                            audio_pts_sec = float(audio_frame.pts * audio_stream.time_base)
+                        except:
+                            pass
+                    if audio_pts_sec > duration_limit_for_audio + 0.01:  # Небольшой буфер
+                        logging.debug(f"Пропуск аудиокадра {audio_frame_idx} (PTS={audio_pts_sec:.3f}s > {duration_limit_for_audio:.3f}s)")
                         continue
-                    if new_dts is None and original_dts is not None:
-                        logging.warning(f"{packet_log_prefix} DTS became None after rescale.")
+                    encoded_audio_packets = audio_stream.encode(audio_frame)
+                    if encoded_audio_packets is not None:
+                        encoded_audio_frame_count += 1
+                        for packet in encoded_audio_packets: output_container.mux(packet)  # type: ignore
+                except Exception as e_af:
+                    logging.warning(f"Ошибка кодирования/мультиплексирования аудиокадра {audio_frame_idx}: {e_af}")
+            logging.debug("Flush аудиокодера...");
+            encoded_audio_packets = audio_stream.encode(None)  # type: ignore
+            if encoded_audio_packets: output_container.mux(encoded_audio_packets)  # type: ignore
+            logging.info(f"Закодировано и записано {encoded_audio_frame_count} аудиокадров.")
 
-                    packet.pts = new_pts
-                    packet.dts = new_dts
-                    packet.duration = new_duration if new_duration is not None else 0
+        logging.info(f"Запись 'головы' в '{temp_head_path}' завершена.")
+        return calculated_video_duration_sec
 
-                    packet.stream = output_stream
-                    # logging.debug(f"{packet_log_prefix} Muxing...")
-                    output_container.mux(packet)
-                    # logging.debug(f"{packet_log_prefix} Mux OK.")
-
-                    if is_video: tail_video_packets_copied += 1
-                    elif has_audio: tail_audio_packets_copied += 1
-
-                except (FFmpegError, ValueError, TypeError) as e:
-                     logging.warning(f"{packet_log_prefix} Error rescaling/muxing tail packet (Orig PTS: {original_pts}): {e}")
-
-            if not head_skipped: logging.warning("Could not find start of tail? Tail might be missing.")
-            logging.info(f"Finished copying tail. Video packets: {tail_video_packets_copied}, Audio packets: {tail_audio_packets_copied}")
-
-        except (FFmpegError, FFmpegEOFError) as e: logging.warning(f"Error or EOF during tail demuxing: {e}")
-        finally:
-             if input_container_tail: input_container_tail.close(); logging.debug("Tail reading: Input container closed.")
-
-
-        # --- Flush Кодеров ---
-        logging.info("Flushing encoders (if any)...")
-        try: # Flush видео
-            if video_stream is not None:
-                encoded_packets = video_stream.encode(None)
-                if encoded_packets: output_container.mux(encoded_packets)
-        except (FFmpegError, ValueError, TypeError) as e:
-             logging.warning(f"Non-critical error flushing video encoder: {e}")
-
-        if has_audio and audio_stream is not None and audio_codec_action != 'copy':
-            try: # Flush аудио (если перекодировали)
-                 while current_audio_frame is not None: # Докодируем остатки
-                     try: encoded_audio_packets = audio_stream.encode(current_audio_frame); output_container.mux(encoded_audio_packets)
-                     except Exception as e_f: logging.warning(f"Encoding/Muxing final audio frame failed: {e_f}")
-                     current_audio_frame = next(audio_frame_iter, None)
-                 encoded_packets = audio_stream.encode(None) # Сам flush
-                 if encoded_packets: output_container.mux(encoded_packets)
-            except (FFmpegError, ValueError, TypeError) as e: logging.warning(f"Error flushing audio encoder: {e}")
-
-        logging.info(f"Finished writing process.")
-        return True
-
-    # --- Обработка Основных Ошибок ---
-    except FFmpegError as e: logging.error(f"PyAV/FFmpeg error during writing setup or muxing: {e}", exc_info=True); return False
-    except Exception as e: logging.error(f"Unexpected error writing video: {e}", exc_info=True); return False
+    except av.FFmpegError as e:
+        logging.error(f"Ошибка PyAV/FFmpeg при записи 'головы': {e}", exc_info=True); return None
+    except Exception as e:
+        logging.error(f"Неожиданная ошибка при записи 'головы': {e}", exc_info=True); return None
     finally:
-        # --- Закрытие Ресурсов ---
-        if input_audio_decoder:
-             try: input_audio_decoder.close(); logging.debug("Input audio decoder closed.")
-             except Exception as e_dclose: logging.warning(f"Error closing input audio decoder: {e_dclose}")
-        if output_container:
-            try: output_container.close(); logging.debug("Output container closed.")
-            except FFmpegError as e: logging.error(f"Error closing output container: {e}")
+        if output_container:  # type: ignore
+            try:
+                output_container.close()  # type: ignore
+            except av.FFmpegError as e_close:
+                logging.error(f"Ошибка при закрытии контейнера 'головы': {e_close}")
+
+# --- НОВАЯ ФУНКЦИЯ: Склейка с "Хвостом" через FFmpeg ---
+def concatenate_with_ffmpeg(
+        original_input_path: str,
+        temp_head_path: str,
+        final_output_path: str,
+        head_duration_sec: float,
+        input_metadata: Dict[str, Any],
+        original_audio_bitrate: Optional[int] = None
+) -> bool:
+    logging.info(
+        f"Склейка FFmpeg (2-этапный, хвост trim/re-encode, concat с видео-copy): '{temp_head_path}' + хвост из '{original_input_path}' (с {head_duration_sec:.3f}s) -> '{final_output_path}'")
+
+    ffmpeg_path = shutil.which("ffmpeg")
+    if not ffmpeg_path:
+        logging.error("Ошибка: FFmpeg не найден.")
+        return False
+
+    pid = os.getpid()
+    output_extension = os.path.splitext(final_output_path)[1]
+    temp_tail_path = temp_head_path.replace("_head" + output_extension, f"_tail_pid{pid}" + output_extension)
+    list_file_path = None  # Инициализируем
+
+    # Расчет длительности оригинала
+    original_duration_av = input_metadata.get('duration')
+    total_original_duration_sec = 0.0
+    if original_duration_av and isinstance(original_duration_av, (int, float)) and original_duration_av > 0:
+        total_original_duration_sec = float(original_duration_av) / 1_000_000.0
+    elif input_metadata.get('total_frames_estimated', -1) > 0 and isinstance(input_metadata.get('fps'),
+                                                                             (int, float)) and input_metadata[
+        'fps'] > 0:
+        total_original_duration_sec = float(input_metadata['total_frames_estimated']) / float(input_metadata['fps'])
+
+    # Этап 0: Проверка, нужен ли хвост
+    if total_original_duration_sec > 0 and head_duration_sec >= total_original_duration_sec - 0.01:
+        logging.warning(f"Длительность головы ({head_duration_sec:.3f}s) покрывает оригинал. Хвост не нужен.")
+        try:
+            if os.path.exists(final_output_path): os.remove(final_output_path)
+            try:
+                os.rename(temp_head_path, final_output_path)
+            except OSError:
+                shutil.copy2(temp_head_path, final_output_path)
+            return True
+        except Exception as e_rn_cp:
+            logging.error(f"Ошибка переименования/копирования файла головы: {e_rn_cp}")
+            return False
+
+    # --- Этап 1: Создание временного файла хвоста с ПЕРЕКОДИРОВАНИЕМ через фильтры ---
+    logging.info(f"Этап 1: Создание '{temp_tail_path}' (с фильтрами trim/setpts и перекодированием)...")
+
+    target_audio_bitrate_str_for_tail = str(
+        original_audio_bitrate) if original_audio_bitrate and original_audio_bitrate >= 32000 else '128k'
+
+    # Логика для -ss и trim
+    # Используем -ss перед -i для быстрого поиска до точки, немного предшествующей trim_start.
+    # trim_start_target_abs - это head_duration_sec
+    # seek_to_time_abs - немного раньше, чтобы у trim был "запас" для точного старта
+    seek_to_time_abs = max(0.0, head_duration_sec - 10.0)  # Например, за 10 секунд до
+    trim_start_relative_to_seek = head_duration_sec - seek_to_time_abs  # Начало для trim относительно seek_to_time_abs
+
+    cmd_create_tail_prefix = [ffmpeg_path, '-y']
+    # Добавляем -ss только если есть смысл искать (не с самого начала)
+    if seek_to_time_abs > 0.01:  # Небольшой порог, чтобы не ставить -ss 0
+        cmd_create_tail_prefix.extend(['-ss', f"{seek_to_time_abs:.6f}"])
+    cmd_create_tail_prefix.extend(['-i', original_input_path])
+
+    cmd_create_tail = cmd_create_tail_prefix + [
+        '-vf', f"trim=start={trim_start_relative_to_seek:.6f},setpts=PTS-STARTPTS",
+        '-af', f"atrim=start={trim_start_relative_to_seek:.6f},asetpts=PTS-STARTPTS",
+        '-c:v', 'libx264', '-preset', 'fast', '-crf', '22', '-pix_fmt', 'yuv420p',
+        '-c:a', 'aac', '-b:a', target_audio_bitrate_str_for_tail,
+        '-map_metadata', '-1',
+        temp_tail_path
+    ]
+    logging.debug(f"Команда создания хвоста (фильтры, перекодирование): {' '.join(cmd_create_tail)}")
+
+    tail_created_successfully = False
+    try:
+        result_tail = subprocess.run(cmd_create_tail, check=False, capture_output=True, text=True, encoding='utf-8')
+        if result_tail.returncode != 0:
+            logging.error(
+                f"Ошибка FFmpeg при создании хвоста (код {result_tail.returncode}).\nStderr: {result_tail.stderr}")
+        elif not os.path.exists(temp_tail_path) or os.path.getsize(temp_tail_path) < 100:
+            logging.error(f"Файл хвоста '{temp_tail_path}' не создан или пуст.\nStderr: {result_tail.stderr}")
+        else:
+            logging.info(f"Этап 1: Временный файл хвоста '{temp_tail_path}' успешно создан (перекодирован).")
+            tail_created_successfully = True
+    except Exception as e_tail:
+        logging.error(f"Неожиданная ошибка при создании хвоста: {e_tail}", exc_info=True)
+
+    if not tail_created_successfully:
+        if os.path.exists(temp_tail_path):
+            try:
+                os.remove(temp_tail_path)
+            except OSError:
+                pass
+        return False
+
+    # --- Этап 2: Склейка головы и хвоста через concat демультиплексор ---
+    # Видео копируется (т.к. хвост уже "чистый"), аудио перекодируется для идеального стыка.
+    logging.info("Этап 2: Склейка головы и хвоста (concat, видео-copy, аудио-re-encode)...")
+    success_concat = False
+    try:
+        abs_temp_head_path = os.path.abspath(temp_head_path).replace('\\', '/')
+        abs_temp_tail_path = os.path.abspath(temp_tail_path).replace('\\', '/')
+        list_file_content = (
+            f"file '{abs_temp_head_path}'\n"
+            f"file '{abs_temp_tail_path}'\n"  # Хвост теперь "чистый" и начинается с 0
+        )
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False, encoding='utf-8') as list_file:
+            list_file_path = list_file.name
+            list_file.write(list_file_content)
+        logging.debug(f"Создан временный файл списка для concat: '{list_file_path}'")
+
+        # Определяем целевой аудио битрейт для финальной склейки
+        final_target_audio_bitrate_str = str(
+            original_audio_bitrate) if original_audio_bitrate and original_audio_bitrate >= 32000 else '192k'
+        logging.info(f"Аудио битрейт для финальной склейки (concat): {final_target_audio_bitrate_str}")
+
+        cmd_concat = [
+            ffmpeg_path,
+            '-y',
+            '-f', 'concat',
+            '-safe', '0',
+            '-i', list_file_path,
+            '-c:v', 'copy',  # Копировать видео (оба сегмента теперь "чистые")
+            '-c:a', 'aac',  # Перекодировать аудио для идеального слияния
+            '-b:a', final_target_audio_bitrate_str,
+            '-avoid_negative_ts', 'make_zero',  # На всякий случай, для финального потока
+            '-movflags', '+faststart',
+            final_output_path
+        ]
+        logging.debug(f"Команда склейки (concat, видео-copy, аудио-re-encode): {' '.join(cmd_concat)}")
+
+        result_concat = subprocess.run(cmd_concat, check=False, capture_output=True, text=True, encoding='utf-8')
+
+        if result_concat.returncode == 0:
+            logging.info("FFmpeg склейка (concat) успешно завершена.")
+            if result_concat.stderr: logging.debug(f"FFmpeg stderr (concat):\n{result_concat.stderr}")
+            if os.path.exists(final_output_path) and os.path.getsize(final_output_path) > 100:
+                success_concat = True
+            else:
+                logging.error(
+                    f"FFmpeg (concat) завершился успешно, но выходной файл '{final_output_path}' не создан или пуст.\nStderr: {result_concat.stderr}")
+        else:
+            logging.error(
+                f"Ошибка выполнения FFmpeg (concat) (код {result_concat.returncode}).\nStderr: {result_concat.stderr}")
+
+    except Exception as e_concat:
+        logging.error(f"Неожиданная ошибка при склейке concat: {e_concat}", exc_info=True)
+    finally:
+        if list_file_path and os.path.exists(list_file_path):
+            try:
+                os.remove(list_file_path)
+            except OSError:
+                pass  # Ошибку удаления временного файла можно проигнорировать
+
+        if os.path.exists(temp_tail_path):
+            try:
+                os.remove(temp_tail_path)
+            except OSError:
+                pass
+
+    return success_concat
+
 
 @profile
 def embed_frame_pair(
@@ -1853,183 +2293,390 @@ def embed_watermark_in_video(
     return watermarked_frames
 
 # --- ИЗМЕНЕННАЯ main ---
-@profile
-def main():
+@profile  # Если используете line_profiler для main
+def main() -> int:
     start_time_main = time.time()
+    logging.info(f"--- Запуск Основного Процесса Встраивания (Голова+Хвост FFmpeg) ---")
 
-    # --- Инициализация и проверки зависимостей ---
-    if not PYAV_AVAILABLE: print("ERROR: PyAV required."); return 1
-    if not PYTORCH_WAVELETS_AVAILABLE: print("ERROR: pytorch_wavelets required."); return 1
-    if not TORCH_DCT_AVAILABLE: print("ERROR: torch-dct required."); return 1
-    if USE_ECC and not GALOIS_AVAILABLE: print("\nWARNING: ECC requested but galois unavailable.")
+    # --- Этап 1: Подготовка и Анализ ---
+    # Проверки доступности библиотек уже в __main__
 
-    # --- Настройка PyTorch ---
+    # Настройка PyTorch device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     if torch.cuda.is_available():
-        gpu_name = torch.cuda.get_device_name(0)
-        logging.info(f"Using CUDA: {gpu_name}")
-        try: _ = torch.tensor([1.0], device=device); logging.info("CUDA check OK.")
-        except RuntimeError as e: logging.error(f"CUDA error: {e}. Fallback CPU."); device = torch.device("cpu")
-    else: logging.info("Using CPU.")
+        try:
+            _ = torch.tensor([1.0], device=device)
+            logging.info(f"Используется CUDA: {torch.cuda.get_device_name(0)}")
+        except RuntimeError as e_cuda:
+            logging.error(f"Ошибка CUDA: {e_cuda}. Переключение на CPU.")
+            device = torch.device("cpu")
+    else:
+        logging.info("Используется CPU.")
 
-    # --- Создание экземпляров DTCWT ---
-    dtcwt_fwd: Optional[DTCWTForward] = None; dtcwt_inv: Optional[DTCWTInverse] = None
+    # Создание экземпляров DTCWT
+    dtcwt_fwd: Optional[DTCWTForward] = None
+    dtcwt_inv: Optional[DTCWTInverse] = None
+    if PYTORCH_WAVELETS_AVAILABLE:  # Глобальный флаг
+        try:
+            dtcwt_fwd = DTCWTForward(J=1, biort='near_sym_a', qshift='qshift_a').to(device)
+            dtcwt_inv = DTCWTInverse(biort='near_sym_a', qshift='qshift_a').to(device)
+            logging.info("Экземпляры DTCWTForward и DTCWTInverse созданы.")
+        except Exception as e_dtcwt:
+            logging.critical(f"Не удалось инициализировать DTCWT: {e_dtcwt}")
+            return 1
+    else:  # Эта проверка уже есть в __main__, но для надежности
+        logging.critical("pytorch_wavelets недоступен! Невозможно создать DTCWT.")
+        return 1
+
+    # Определить Имена Файлов
+    input_video_path = "test_video.mp4"  # ЗАМЕНИТЕ НА ВАШ ВХОДНОЙ ФАЙЛ
+    if not os.path.exists(input_video_path):
+        logging.critical(f"Входной файл не найден: {input_video_path}")
+        print(f"ОШИБКА: Входной файл не найден: {input_video_path}")
+        return 1
+
+    base_output_filename = f"watermarked_ffmpeg_t{BCH_T}"  # Используем t из BCH для имени
+
+    logging.info(f"Входное видео: '{input_video_path}'")
+    logging.info(f"Базовое имя выходного файла: '{base_output_filename}'")
+
+    # Получить Общее Число Кадров (OpenCV)
+    total_original_frames = 0
+    cap_check = None
     try:
-        dtcwt_fwd = DTCWTForward(J=1, biort='near_sym_a', qshift='qshift_a').to(device)
-        dtcwt_inv = DTCWTInverse(biort='near_sym_a', qshift='qshift_a').to(device)
-        logging.info("DTCWT instances created.")
-    except Exception as e: logging.critical(f"Failed to init DTCWT: {e}"); return 1
+        logging.debug(f"Попытка получить общее число кадров через OpenCV для '{input_video_path}'...")
+        cap_check = cv2.VideoCapture(input_video_path)
+        if cap_check.isOpened():
+            total_original_frames = int(cap_check.get(cv2.CAP_PROP_FRAME_COUNT))
+            if total_original_frames <= 0:
+                logging.warning("OpenCV вернул невалидное число кадров (<= 0).")
+            else:
+                logging.info(f"OpenCV определил общее число кадров: {total_original_frames}")
+        else:
+            logging.warning(f"OpenCV не смог открыть файл '{input_video_path}' для подсчета кадров.")
+    except Exception as e_cv2_count:
+        logging.warning(f"Ошибка при получении числа кадров через OpenCV: {e_cv2_count}")
+    finally:
+        if cap_check:
+            cap_check.release()
 
-    # --- Определение имен файлов ---
-    input_video = "test_video.mp4" # Укажите ваш входной файл
-    base_output_filename = f"watermarked_pyav_h+t_t{BCH_T}" # Новое имя для "Голова+Хвост"
-    # Полное имя выходного файла будет определено позже
+    # Читать Метаданные (PyAV)
+    logging.debug(f"Чтение метаданных через PyAV для '{input_video_path}'...")
+    input_metadata = get_input_metadata(input_video_path)
+    if input_metadata is None:
+        logging.critical("Не удалось прочитать метаданные. Прерывание.")
+        return 1
 
-    logging.info(f"--- Starting Embedding Main Process (Head+Tail Mode) ---")
-    logging.info(f"Input video: '{input_video}'")
-    logging.info(f"Base output filename: '{base_output_filename}'")
+    # Уточнить Число Кадров (используя PyAV, если OpenCV не справился)
+    if total_original_frames <= 0:
+        pyav_frames_meta = input_metadata.get('total_frames')
+        if pyav_frames_meta and isinstance(pyav_frames_meta, int) and pyav_frames_meta > 0:
+            total_original_frames = pyav_frames_meta
+            logging.info(f"Используется общее число кадров из метаданных PyAV: {total_original_frames}")
+        else:
+            logging.warning(
+                "Не удалось определить общее число кадров ни через OpenCV, ни через PyAV. Копирование хвоста может быть неточным или невозможным.")
+            total_original_frames = -1  # Флаг неизвестного числа кадров
+    input_metadata['total_frames_estimated'] = total_original_frames
 
-    # --- Шаг 1: Чтение Метаданных ---
-    logging.info("Reading input metadata...")
-    input_metadata = get_input_metadata(input_video)
-    if input_metadata is None: logging.critical("Failed to read metadata. Aborting."); return 1
-    # Получаем FPS сразу из прочитанных метаданных
-    fps_to_use = input_metadata.get('fps', float(FPS))
-    if fps_to_use <= 0: logging.warning(f"Invalid FPS ({fps_to_use}). Using default {float(FPS)}"); fps_to_use = float(FPS)
-    logging.info(f"Using FPS: {fps_to_use:.2f}")
+    # Извлечь оригинальный аудио битрейт для передачи
+    original_audio_bitrate = input_metadata.get('audio_bitrate')  # Может быть int или None
+    if original_audio_bitrate:
+        logging.info(f"Извлечен оригинальный аудио битрейт: {original_audio_bitrate} bps")
+    else:
+        logging.info("Оригинальный аудио битрейт не найден в метаданных.")
 
-    # --- Шаг 1.5: Выбор параметров выхода и проверка совместимости ---
-    logging.info("Checking compatibility and choosing output parameters...")
-    output_extension, target_video_encoder_lib, final_audio_action = check_compatibility_and_choose_output(input_metadata)
-    output_video = base_output_filename + output_extension # Формируем ПОЛНОЕ имя
-    logging.info(f"Output settings: Extension='{output_extension}', Video Encoder='{target_video_encoder_lib}', Audio Action='{final_audio_action}'")
-    logging.info(f"Output file path: '{output_video}'")
+    # Рассчитать "Голову"
+    payload_id_for_calc_len = os.urandom(PAYLOAD_LEN_BYTES)
+    bits_for_calc_len_list: List[int] = []
+    raw_payload_bits_for_calc: np.ndarray = np.unpackbits(np.frombuffer(payload_id_for_calc_len, dtype=np.uint8))
+    can_use_ecc_for_calc = USE_ECC and GALOIS_AVAILABLE and BCH_CODE_OBJECT and (
+                len(raw_payload_bits_for_calc) <= BCH_CODE_OBJECT.k)
 
-    # --- Шаг 1.7: Расчет необходимого количества кадров/пар для обработки ---
-    payload_id_bytes_for_calc = os.urandom(PAYLOAD_LEN_BYTES) # Генерируем временный для расчета
-    payload_len_bits = len(payload_id_bytes_for_calc) * 8
-    bits_to_embed_list_for_calc = []
-    raw_payload_bits_for_calc = np.unpackbits(np.frombuffer(payload_id_bytes_for_calc, dtype=np.uint8))
-    if USE_ECC and GALOIS_AVAILABLE and BCH_CODE_OBJECT and payload_len_bits <= BCH_CODE_OBJECT.k:
-        first_packet = add_ecc(raw_payload_bits_for_calc, BCH_CODE_OBJECT)
-        if first_packet is not None: bits_to_embed_list_for_calc.extend(first_packet.tolist())
-        else: logging.error("ECC calculation failed for size estimation."); return 1
-        num_raw_packets = max(0, MAX_TOTAL_PACKETS - 1)
-        for _ in range(num_raw_packets): bits_to_embed_list_for_calc.extend(raw_payload_bits_for_calc.tolist())
-    else: # Только Raw
-        bits_to_embed_list_for_calc.extend(raw_payload_bits_for_calc.tolist()) # Только один пакет
-    total_bits_to_embed = len(bits_to_embed_list_for_calc)
-    if BITS_PER_PAIR <= 0: logging.error("bits_per_pair must be positive."); return 1
-    pairs_needed = ceil(total_bits_to_embed / BITS_PER_PAIR)
+    if can_use_ecc_for_calc:
+        first_packet_calc = add_ecc(raw_payload_bits_for_calc, BCH_CODE_OBJECT)  # type: ignore
+        if first_packet_calc is not None:
+            bits_for_calc_len_list.extend(first_packet_calc.tolist())
+        else:
+            logging.warning("Ошибка расчета ECC для определения длины. Используется Raw для расчета.")
+            bits_for_calc_len_list.extend(raw_payload_bits_for_calc.tolist())
+        num_raw_to_add = max(0, MAX_TOTAL_PACKETS - 1)
+        for _ in range(num_raw_to_add):
+            bits_for_calc_len_list.extend(raw_payload_bits_for_calc.tolist())
+    else:
+        for _ in range(MAX_TOTAL_PACKETS if MAX_TOTAL_PACKETS > 0 else 1):
+            bits_for_calc_len_list.extend(raw_payload_bits_for_calc.tolist())
+
+    total_bits_to_embed_estimation = len(bits_for_calc_len_list)
+
+    if BITS_PER_PAIR <= 0:
+        logging.critical("BITS_PER_PAIR должен быть > 0. Прерывание.")
+        return 1
+
+    pairs_needed = math.ceil(
+        total_bits_to_embed_estimation / BITS_PER_PAIR) if total_bits_to_embed_estimation > 0 else 0
     frames_to_process = pairs_needed * 2
-    logging.info(f"Calculated frames to process (head): {frames_to_process} ({pairs_needed} pairs)")
 
-    # --- Шаг 2: Чтение "Головы" видео и ВСЕГО аудио ---
-    logging.info(f"Reading head ({frames_to_process} frames) and all audio packets...")
+    if total_original_frames > 0:  # Если известно общее число кадров
+        frames_to_process = min(frames_to_process, total_original_frames)
+
+    if frames_to_process % 2 != 0:  # Должно быть четным для парной обработки
+        frames_to_process -= 1
+
+    if frames_to_process <= 0:
+        logging.warning(
+            "Расчетное число кадров для обработки 'головы' равно нулю или отрицательно. Проверьте настройки полезной нагрузки, BITS_PER_PAIR и MAX_TOTAL_PACKETS.")
+        print(
+            "ПРЕДУПРЕЖДЕНИЕ: Нет кадров для обработки ЦВЗ. Выходной файл не будет изменен (или будет копией оригинала).")
+        return 0
+    logging.info(f"Расчетная 'голова' для встраивания ЦВЗ: {frames_to_process} кадров ({frames_to_process // 2} пар).")
+
+    # Выбрать Параметры Выхода
+    output_extension, target_video_encoder_lib_for_head, _ = check_compatibility_and_choose_output(input_metadata)
+    audio_action_for_head_file = 'aac'  # Всегда AAC для временного файла головы
+    logging.info(
+        f"Параметры для временного файла 'головы': Видеокодер={target_video_encoder_lib_for_head}, Аудиокодер={audio_action_for_head_file}")
+    logging.info(f"Параметры для финального файла: Расширение={output_extension}")
+
+    # Определить Имена Файлов
+    temp_head_path = base_output_filename + "_head" + output_extension
+    final_output_path = base_output_filename + output_extension
+    logging.info(f"Временный файл 'головы': {temp_head_path}")
+    logging.info(f"Финальный выходной файл: {final_output_path}")
+
+    # --- Этап 2: Чтение и Обработка "Головы" ---
+    logging.info(f"Чтение 'головы' ({frames_to_process} кадров) и всех аудиопакетов...")
+    video_idx = input_metadata.get('video_stream_index', 0)
+    audio_idx = input_metadata.get('audio_stream_index', -1 if not input_metadata.get('has_audio') else 1)
+
     head_frames_bgr, all_audio_packets = read_processing_head(
-        input_video,
-        frames_to_process,
-        input_metadata.get('video_stream_index', -1),
-        input_metadata.get('audio_stream_index', -1)
+        input_video_path, frames_to_process, video_idx, audio_idx
     )
-    if head_frames_bgr is None: logging.critical("Failed to read processing head. Aborting."); return 1
-    # all_audio_packets может быть None или []
-    logging.info(f"Read head: {len(head_frames_bgr)} video frames. Collected {len(all_audio_packets or [])} audio packets.")
-    if len(head_frames_bgr) < frames_to_process:
-         logging.warning(f"Actual head frames read ({len(head_frames_bgr)}) is less than calculated ({frames_to_process}). Video might be too short.")
-         # Обновляем количество реально обработанных кадров/пар, если видео короче
-         frames_to_process = len(head_frames_bgr)
-         pairs_needed = frames_to_process // (2 * BITS_PER_PAIR) * BITS_PER_PAIR # Пересчет пар, кратных BITS_PER_PAIR
 
-    # --- Шаг 3: Генерация и Сохранение ID ---
+    if head_frames_bgr is None or not head_frames_bgr:
+        logging.critical(f"Не удалось прочитать 'голову' из '{input_video_path}' или список кадров пуст. Прерывание.")
+        return 1
+
+    if len(head_frames_bgr) < frames_to_process:
+        logging.warning(
+            f"Фактически прочитано кадров для 'головы' ({len(head_frames_bgr)}) меньше, чем рассчитано ({frames_to_process}). Используется фактическое число.")
+        frames_to_process = len(head_frames_bgr)
+        if frames_to_process % 2 != 0: frames_to_process -= 1
+        if frames_to_process <= 0:
+            logging.error("После коррекции не осталось кадров для обработки головы.")
+            return 1
+        head_frames_bgr = head_frames_bgr[:frames_to_process]  # Обрезаем список
+    logging.info(
+        f"Прочитано {len(head_frames_bgr)} видеокадров для 'головы'. Собрано {len(all_audio_packets or [])} аудиопакетов.")
+
+    # Генерировать ID
     original_id_bytes = os.urandom(PAYLOAD_LEN_BYTES)
     original_id_hex = original_id_bytes.hex()
-    logging.info(f"Generated Payload ID: {original_id_hex}")
+    logging.info(f"Сгенерирован Payload ID: {original_id_hex}")
     try:
-        with open(ORIGINAL_WATERMARK_FILE, "w") as f: f.write(original_id_hex)
-        logging.info(f"Original ID saved: {ORIGINAL_WATERMARK_FILE}")
-    except IOError as e: logging.error(f"Save ID failed: {e}")
+        with open(ORIGINAL_WATERMARK_FILE, "w", encoding='utf-8') as f:
+            f.write(original_id_hex)
+        logging.info(f"Оригинальный ID сохранен: {ORIGINAL_WATERMARK_FILE}")
+    except IOError as e_id_save:
+        logging.error(f"Не удалось сохранить ID: {e_id_save}")
 
-    # --- Шаг 4: Встраивание ЦВЗ в "Голову" ---
-    logging.info("Starting watermark embedding on head frames...")
-    embed_kwargs = { # Собираем аргументы
-        'frames_to_process': head_frames_bgr, # <--- Передаем только "голову"
-        'payload_id_bytes': original_id_bytes,
-        'use_hybrid_ecc': True, 'max_total_packets': 15, 'use_ecc_for_first': USE_ECC,
-        'bch_code': BCH_CODE_OBJECT, 'device': device, 'dtcwt_fwd': dtcwt_fwd, 'dtcwt_inv': dtcwt_inv,
-        'n_rings': N_RINGS, 'num_rings_to_use': NUM_RINGS_TO_USE, 'bits_per_pair': BITS_PER_PAIR,
-        'candidate_pool_size': CANDIDATE_POOL_SIZE,
-        'max_workers': SAFE_MAX_WORKERS, # <--- Используем БЕЗОПАСНОЕ значение
-        'use_perceptual_masking': USE_PERCEPTUAL_MASKING, 'embed_component': EMBED_COMPONENT
-    }
-    watermarked_head_frames = embed_watermark_in_video(**embed_kwargs)
+    # Встроить ЦВЗ
+    logging.info("Встраивание ЦВЗ в 'голову'...")
+    watermarked_head_frames = embed_watermark_in_video(
+        frames_to_process=head_frames_bgr, payload_id_bytes=original_id_bytes,
+        n_rings=N_RINGS, num_rings_to_use=NUM_RINGS_TO_USE, bits_per_pair=BITS_PER_PAIR,
+        candidate_pool_size=CANDIDATE_POOL_SIZE, use_hybrid_ecc=USE_ECC,
+        max_total_packets=MAX_TOTAL_PACKETS, use_ecc_for_first=USE_ECC,
+        bch_code=BCH_CODE_OBJECT, device=device, dtcwt_fwd=dtcwt_fwd, dtcwt_inv=dtcwt_inv,
+        max_workers=SAFE_MAX_WORKERS, use_perceptual_masking=USE_PERCEPTUAL_MASKING,
+        embed_component=EMBED_COMPONENT
+    )
     if watermarked_head_frames is None or len(watermarked_head_frames) != len(head_frames_bgr):
-        logging.error("Embedding failed or frame count mismatch for head."); return 1
-    logging.info("Watermark embedding on head completed.")
+        logging.critical("Ошибка при встраивании ЦВЗ в 'голову'. Прерывание.")
+        return 1
+    logging.info("Встраивание ЦВЗ в 'голову' завершено.")
+    del head_frames_bgr;
+    gc.collect();
+    logging.debug("Память из-под исходных кадров 'головы' освобождена.")
 
-    # --- Шаг 5: Запись "Головы" и Копирование "Хвоста" ---
-    write_success = False
-    logging.info("Attempting to write final video (Head+Tail)...")
-    write_success = write_video_head_tail(
+    # --- Этап 3: Запись "Головы" во Временный Файл ---
+    logging.info("Запись обработанной 'головы' во временный файл...")
+    video_enc_opts_head = {'preset': 'fast', 'crf': '20'}
+    # Используем оригинальный битрейт для аудио головы, если доступен, иначе дефолт
+    audio_enc_opts_head = {
+        'b:a': str(original_audio_bitrate)} if original_audio_bitrate and original_audio_bitrate >= 32000 else {
+        'b:a': '128k'}
+
+    head_duration_sec_calculated_from_pts = write_head_only(
         watermarked_head_frames=watermarked_head_frames,
         all_audio_packets=all_audio_packets if all_audio_packets else [],
-        input_metadata=input_metadata,
-        output_path=output_video,
-        target_video_encoder_lib=target_video_encoder_lib, # Передаем выбранный кодер
-        audio_codec_action=final_audio_action,           # Передаем выбранное действие
-        num_processed_frames=len(watermarked_head_frames) # Передаем реальное число обработанных кадров
+        input_metadata=input_metadata, temp_head_path=temp_head_path,
+        target_video_encoder_lib=target_video_encoder_lib_for_head,
+        audio_action_for_head=audio_action_for_head_file,
+        video_encoder_options=video_enc_opts_head, audio_encoder_options=audio_enc_opts_head
     )
+    del watermarked_head_frames;
+    gc.collect();
+    logging.debug("Память из-под обработанных кадров 'головы' освобождена.")
 
-    if write_success: logging.info(f"Output saved successfully: {output_video}"); print(f"\nOutput: {output_video}")
-    else: logging.error("Writing video failed."); print("\nERROR: Failed to write video.")
+    if head_duration_sec_calculated_from_pts is None or head_duration_sec_calculated_from_pts < 0:
+        logging.critical(
+            f"Ошибка при записи 'головы' или получена некорректная длительность ({head_duration_sec_calculated_from_pts}).")
+        if os.path.exists(temp_head_path):
+            try:
+                os.remove(temp_head_path)
+            except OSError as e_del_temp:
+                logging.error(f"Не удалось удалить временный файл {temp_head_path}: {e_del_temp}")
+        return 1
+    logging.info(
+        f"Обработанная 'голова' записана в '{temp_head_path}'. Расчетная видео длительность: {head_duration_sec_calculated_from_pts:.6f} сек.")
 
-    # --- Завершение ---
-    logging.info(f"--- Embedding Main Process Finished (Head+Tail Mode) ---")
+    # Используем расчетную длительность, возвращенную write_head_only
+    duration_to_use_for_ffmpeg = head_duration_sec_calculated_from_pts
+    logging.info(f"Длительность, передаваемая в FFmpeg для '-ss': {duration_to_use_for_ffmpeg:.6f}s")
+
+    # --- Этап 4: Склейка с "Хвостом" через FFmpeg ---
+    ffmpeg_success = False
+    # Проверяем, если голова была пустой или покрывает весь файл
+    if duration_to_use_for_ffmpeg == 0 and frames_to_process == 0:
+        logging.info("Голова не содержала кадров для записи. Финальный файл не будет создан этим скриптом.")
+        ffmpeg_success = True  # Не ошибка, просто нечего делать
+        if os.path.exists(temp_head_path):  # На всякий случай, если он был создан (не должен)
+            try:
+                os.remove(temp_head_path);
+            except OSError:
+                pass
+        print("ПРЕДУПРЕЖДЕНИЕ: Голова пуста. Финальный файл не создан.")
+        return 0  # Выходим без ошибки, так как это ожидаемое поведение
+    else:
+        # Вызываем concatenate_with_ffmpeg (она сама проверит, нужен ли хвост)
+        logging.info("Склейка 'головы' и 'хвоста' через FFmpeg...")
+        ffmpeg_success = concatenate_with_ffmpeg(
+            original_input_path=input_video_path, temp_head_path=temp_head_path,
+            final_output_path=final_output_path, head_duration_sec=duration_to_use_for_ffmpeg,
+            input_metadata=input_metadata, original_audio_bitrate=original_audio_bitrate
+        )
+
+    # Удалить Временный Файл Головы
+    if os.path.exists(temp_head_path):
+        # Удаляем, только если основной процесс (FFmpeg или переименование) прошел
+        # или если FFmpeg не вызывался (голова была пуста, но этот случай обработан выше)
+        if ffmpeg_success:
+            try:
+                os.remove(temp_head_path)
+                logging.info(f"Временный файл 'головы' '{temp_head_path}' удален.")
+            except OSError as e_remove:
+                logging.error(f"Не удалось удалить временный файл 'головы' '{temp_head_path}': {e_remove}")
+        else:
+            logging.warning(f"Временный файл 'головы' '{temp_head_path}' не удален из-за предыдущей ошибки.")
+
+    if not ffmpeg_success:
+        logging.critical(f"Ошибка при создании финального файла '{final_output_path}'.")
+        if os.path.exists(final_output_path):  # Почистить, если что-то создалось некорректно
+            try:
+                os.remove(final_output_path)
+            except OSError:
+                pass
+        return 1
+
+    # Проверка финального файла (только если он должен был быть создан)
+    if duration_to_use_for_ffmpeg > 0 or (frames_to_process > 0 and os.path.exists(final_output_path)):
+        if os.path.exists(final_output_path):
+            logging.info(f"Финальный файл успешно создан: '{final_output_path}'")
+            print(f"\nУспешно! Выходной файл: {final_output_path}")
+        else:
+            logging.error(
+                f"Финальный файл '{final_output_path}' не найден после предполагаемого успеха (голова не была пустой).");
+            return 1
+    # Если голова была пуста, и ffmpeg_success=True, то файл не создавался, это нормально
+
     total_time_main = time.time() - start_time_main
-    logging.info(f"--- Total Main Time: {total_time_main:.2f} sec ---")
-    print(f"\nFinished in {total_time_main:.2f} seconds.")
-    print(f"Log: {LOG_FILENAME}, ID: {ORIGINAL_WATERMARK_FILE}, Rings: {SELECTED_RINGS_FILE}")
-    if write_success: print(f"\nRun extractor_pytorch.py on '{output_video}'")
-    else: print("\nOutput file write failed.")
-    return 0 if write_success else 1
+    logging.info(f"--- Общее Время Выполнения: {total_time_main:.2f} сек ---")
+    print(f"Завершено за {total_time_main:.2f} секунд.");
+    print(f"Лог: {LOG_FILENAME}, ID: {ORIGINAL_WATERMARK_FILE}")
+    return 0
 
-# --- Точка Входа (__name__ == "__main__") ---
+
+# --- ПОЛНЫЙ БЛОК: Точка Входа (__name__ == "__main__") ---
 if __name__ == "__main__":
-    # --- Настройка профилирования ---
-    DO_PROFILING = False
-    profiler = None
-    if DO_PROFILING and 'KERNPROF_VAR' not in os.environ:
-        profiler = cProfile.Profile(); profiler.enable()
-        logging.info("cProfile profiling enabled."); print("cProfile profiling enabled.")
+    # Настройка логирования ДО всех операций
+    if not logging.getLogger().hasHandlers():
+        logging.basicConfig(filename=LOG_FILENAME, filemode='w', level=logging.INFO,
+                            format='[%(asctime)s] %(levelname).1s %(threadName)s - %(funcName)s:%(lineno)d - %(message)s')
+    logging.getLogger().setLevel(logging.DEBUG)  # Установите logging.INFO для менее подробного лога
 
-    final_exit_code = 1 # По умолчанию ошибка
+    # Проверка зависимостей на верхнем уровне
+    missing_libs = []
     try:
-        # --- Инициализация и проверки зависимостей ---
-        if not PYAV_AVAILABLE: print("\nERROR: PyAV required."); sys.exit(1)
-        if not PYTORCH_WAVELETS_AVAILABLE: print("\nERROR: pytorch_wavelets required."); sys.exit(1)
-        if not TORCH_DCT_AVAILABLE: print("\nERROR: torch-dct required."); sys.exit(1)
-        if USE_ECC and not GALOIS_AVAILABLE: print("\nWARNING: ECC requested but galois unavailable.")
+        import cv2
+    except ImportError:
+        missing_libs.append("OpenCV (cv2)")
+    try:
+        import numpy  # np используется в add_ecc и т.д.
+    except ImportError:
+        missing_libs.append("NumPy")
+    try:
+        import torch
+    except ImportError:
+        missing_libs.append("PyTorch")
+    try:
+        import av
+    except ImportError:
+        missing_libs.append("PyAV (av)")
 
-        # --- Запуск основной логики ---
+    if not PYTORCH_WAVELETS_AVAILABLE: missing_libs.append("pytorch_wavelets")
+    if not TORCH_DCT_AVAILABLE: missing_libs.append("torch-dct")
+    if USE_ECC and not GALOIS_AVAILABLE:  # GALOIS_AVAILABLE устанавливается при попытке импорта/инициализации BCH
+        logging.warning("Библиотека 'galois' не найдена или не инициализирована корректно. ECC будет недоступен.")
+
+    if missing_libs:
+        error_msg = f"ОШИБКА: Отсутствуют необходимые библиотеки: {', '.join(missing_libs)}. Пожалуйста, установите их."
+        print(error_msg)
+        logging.critical(error_msg)
+        sys.exit(1)
+
+    DO_PROFILING = False  # Установите True для профилирования
+    profiler = None
+    if DO_PROFILING:
+        if 'KERNPROF_VAR' not in os.environ and 'profile' not in globals():
+            profiler = cProfile.Profile()
+            profiler.enable()
+            logging.info("cProfile профилирование включено.")
+            print("cProfile профилирование включено.")
+
+    final_exit_code = 1  # По умолчанию - ошибка
+    try:
         final_exit_code = main()
-
-    # --- Обработка ошибок ---
-    except FileNotFoundError as e: print(f"\nERROR: File not found: {e}"); logging.error(f"{e}", exc_info=True); final_exit_code = 1
-    except FFmpegError as e: print(f"\nERROR: PyAV/FFmpeg: {e}"); logging.critical(f"{e}", exc_info=True); final_exit_code = 1
-    except torch.cuda.OutOfMemoryError as e: print(f"\nERROR: CUDA OOM: {e}"); logging.critical(f"{e}", exc_info=True); final_exit_code = 1
-    except ImportError as e: print(f"\nERROR: Missing library: {e}"); logging.critical(f"{e}", exc_info=True); final_exit_code = 1
-    except Exception as e: logging.critical(f"Unhandled error: {e}", exc_info=True); print(f"\nCRITICAL ERROR: {e}"); final_exit_code = 1
+    except FileNotFoundError as e_fnf:
+        print(f"\nОШИБКА: Файл не найден: {e_fnf}")
+        logging.critical(f"Файл не найден: {e_fnf}", exc_info=True)
+    except av.FFmpegError as e_av:  # Убедитесь, что FFmpegError импортирован из av
+        print(f"\nОШИБКА PyAV/FFmpeg: {e_av}")
+        logging.critical(f"Ошибка PyAV/FFmpeg: {e_av}", exc_info=True)
+    except torch.cuda.OutOfMemoryError as e_oom:
+        print(f"\nОШИБКА: Недостаточно памяти CUDA: {e_oom}")
+        logging.critical(f"Недостаточно памяти CUDA: {e_oom}", exc_info=True)
+    except ImportError as e_imp:
+        print(f"\nОШИБКА Импорта: {e_imp}")
+        logging.critical(f"Ошибка импорта: {e_imp}", exc_info=True)
+    except Exception as e_global:
+        print(f"\nКРИТИЧЕСКАЯ НЕОБРАБОТАННАЯ ОШИБКА: {e_global}")
+        logging.critical(f"Необработанная ошибка в __main__: {e_global}", exc_info=True)
     finally:
-        # --- Сохранение профиля ---
         if DO_PROFILING and profiler is not None:
-            profiler.disable(); logging.info("cProfile profiling disabled.")
+            profiler.disable()
+            logging.info("cProfile профилирование выключено.")
             stats = pstats.Stats(profiler).strip_dirs().sort_stats("cumulative")
+            print("\n--- Статистика Профилирования (cProfile, Top 30) ---");
             stats.print_stats(30)
-            profile_stats_file = f"profile_embed_head_tail_t{BCH_T}.prof" # Новое имя файла профиля
-            try: stats.dump_stats(profile_stats_file); logging.info(f"Profile saved: {profile_stats_file}")
-            except Exception as e_p: logging.error(f"Save profile failed: {e_p}")
+            profile_stats_file = f"profile_embed_ffmpeg_t{BCH_T}.prof"
+            try:
+                stats.dump_stats(profile_stats_file)
+                logging.info(f"Статистика профилирования cProfile сохранена: {profile_stats_file}")
+                print(f"Статистика профилирования cProfile сохранена: {profile_stats_file}")
+            except Exception as e_p_save:
+                logging.error(f"Не удалось сохранить статистику профилирования cProfile: {e_p_save}")
 
-    # --- Завершение скрипта ---
-    logging.info(f"Script finished with exit code {final_exit_code}.")
-    print(f"\nScript finished with exit code {final_exit_code}.")
-    sys.exit(final_exit_code)
+        logging.info(f"Скрипт завершен с кодом выхода {final_exit_code}.")
+        print(f"\nСкрипт завершен с кодом выхода {final_exit_code}.")
+        sys.exit(final_exit_code)
