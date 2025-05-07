@@ -3113,7 +3113,7 @@ if __name__ == "__main__":
         logging.basicConfig(filename=LOG_FILENAME, filemode='w', level=logging.INFO,
                             format='[%(asctime)s] %(levelname).1s %(threadName)s - %(funcName)s:%(lineno)d - %(message)s')
     # Уровень логирования
-    # logging.getLogger().setLevel(logging.DEBUG) # Для отладки
+    logging.getLogger().setLevel(logging.DEBUG) # Для отладки
     logging.getLogger().setLevel(logging.INFO)  # Для обычной работы
 
     # Проверка ключевых зависимостей
