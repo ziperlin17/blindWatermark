@@ -2126,16 +2126,18 @@ def concatenate_smart_stitch(
                 list_file_path = list_file_obj.name
                 list_file_obj.write(list_file_content)
             logging.debug(f"Создан временный файл списка для concat: '{list_file_path}'")
-
+            final_audio_bitrate = head_encoding_params['audio_options'].get('b:a', '192k')
+            final_audio_rate = str(head_encoding_params.get('audio_rate', '44100'))
+            final_audio_layout = head_encoding_params.get('audio_layout', 'stereo')
             cmd_concat_final = [
                 ffmpeg_path, '-y',
-                '-f', 'concat',
-                '-safe', '0',
-                '-i', list_file_path,
-                '-c', 'copy',  # Копируем ВСЕ потоки (видео и аудио)
+                '-f', 'concat', '-safe', '0', '-i', list_file_path,
+                '-c:v', 'copy',  # Видео копируем
+                '-c:a', 'aac',  # <-- Аудио ПЕРЕКОДИРУЕМ
+                '-b:a', final_audio_bitrate,
+                '-ar', final_audio_rate,
+                '-channel_layout', final_audio_layout,
                 '-movflags', '+faststart',
-                # '-ignore_unknown', # Игнорировать неизвестные потоки
-                # '-fflags', '+igndts', # Экспериментально: игнорировать ошибки DTS
                 final_output_path
             ]
             logging.debug(f"Команда финальной склейки (-c copy): {' '.join(cmd_concat_final)}")
@@ -2772,7 +2774,7 @@ def main() -> int:
 
     # --- Этап 1: Подготовка и Анализ ---
     # Определить Имена Файлов
-    input_video_path = "large.mp4"  # ЗАМЕНИТЕ НА ВАШ ВХОДНОЙ ФАЙЛ
+    input_video_path = "test_video.mp4"  # ЗАМЕНИТЕ НА ВАШ ВХОДНОЙ ФАЙЛ
     if not os.path.exists(input_video_path):
         logging.critical(f"Входной файл не найден: {input_video_path}")
         print(f"ОШИБКА: Входной файл не найден: {input_video_path}")
@@ -3025,7 +3027,13 @@ def main() -> int:
 
     # --- Этап 3: Запись "Головы" и получение точной длительности + параметров ---
     logging.info("Запись обработанной 'головы' и получение параметров...")
-    video_enc_opts_for_head = {'preset': 'medium', 'crf': '20'}  # Ваши настройки
+    video_enc_opts_for_head = {
+        'preset': 'veryfast',  # или 'ultrafast' для максимальной скорости/мин. задержки
+        'crf': '20',  # Ваше значение качества
+        'tune': 'zerolatency'  # Ключевая опция для отключения bframes и lookahead
+    }
+    logging.info(f"Используются опции видеокодера для головы: {video_enc_opts_for_head}")
+
     audio_bitrate_for_head_str = str(
         original_audio_bitrate) if original_audio_bitrate and original_audio_bitrate >= 32000 else "128k"
     audio_enc_opts_for_head = {'b:a': audio_bitrate_for_head_str}
