@@ -1835,13 +1835,11 @@ def concatenate_smart_stitch(
         original_input_path: str,
         temp_head_path: str,
         final_output_path: str,
-        head_end_time_sec: float,  # Точная длительность видео из write_head_only
-        input_metadata: Dict[str, Any],  # Метаданные оригинального файла
-        iframe_times_sec: List[float],  # Список времен I-кадров оригинала в секундах
-        # Параметры кодирования, использованные для головы (из write_head_only)
+        head_end_time_sec: float,
+        input_metadata: Dict[str, Any],
+        iframe_times_sec: List[float],
         head_encoding_params: Dict[str, Any],
-        # Порог для "дыры", при превышении которого создается переходный сегмент
-        gap_threshold_sec: float = 0.005  # Например, 5 миллисекунд (можно настроить)
+        gap_threshold_sec: float = 0.005
 ) -> bool:
     """
     Выполняет "умную" склейку видео ("Голова + Переход + Хвост_Копия"):
@@ -1851,9 +1849,9 @@ def concatenate_smart_stitch(
        параметры кодирования головы.
     3. Создает КОПИРОВАННЫЙ "хвост" (`temp_tail_copy`), начиная с подходящего
        I-кадра оригинала (после головы или после перехода).
-    4. Склеивает все сегменты (голова, [переход], хвост) с помощью FFmpeg
-       concat демультиплексора. ВИДЕО копируется, АУДИО перекодируется в AAC
-       на финальном этапе для надежности.
+    4. Пытается "очистить" копированный хвост перепаковкой (`temp_tail_copy_clean`).
+    5. Склеивает все сегменты (голова, [переход], хвост/очищенный хвост) с помощью
+       FFmpeg concat демультиплексора и опции `-c copy` для ВСЕХ потоков.
 
     Args:
         original_input_path: Путь к оригинальному видеофайлу.
@@ -1862,10 +1860,8 @@ def concatenate_smart_stitch(
         head_end_time_sec: Точная длительность видеоданных в `temp_head_path` в секундах.
         input_metadata: Словарь с метаданными оригинального видео.
         iframe_times_sec: Отсортированный список времен начала I-кадров оригинала в секундах.
-        head_encoding_params: Словарь с параметрами кодирования головы
-                              (возвращаемый из обновленной write_head_only).
-        gap_threshold_sec: Минимальная длительность "дыры" в секундах, при
-                           которой необходимо создавать переходный сегмент.
+        head_encoding_params: Словарь с параметрами кодирования головы.
+        gap_threshold_sec: Минимальная длительность "дыры" в секундах.
 
     Returns:
         True в случае успеха, False в случае ошибки.
@@ -1876,67 +1872,55 @@ def concatenate_smart_stitch(
 
     ffmpeg_path = shutil.which("ffmpeg")
     if not ffmpeg_path:
-        logging.error("FFmpeg не найден в системных путях (PATH).")
+        logging.error("FFmpeg не найден.")
         return False
 
-    # Проверка наличия необходимых параметров кодирования головы
     required_head_params = [
         'video_encoder_lib', 'video_options', 'video_pix_fmt', 'video_fps_fraction',
         'video_time_base', 'audio_codec', 'audio_options', 'audio_rate',
-        'audio_layout', 'audio_time_base'
-    ]
+        'audio_layout', 'audio_time_base']
     if not head_encoding_params or not all(key in head_encoding_params for key in required_head_params):
-        logging.error("Недостаточно параметров кодирования головы для concatenate_smart_stitch.")
+        logging.error("Недостаточно параметров кодирования головы.")
         logging.debug(f"Полученные параметры головы: {head_encoding_params}")
         return False
 
-    # Инициализация переменных для временных файлов
     temp_transition_path: Optional[str] = None
     temp_tail_copy_path: Optional[str] = None
+    temp_tail_copy_clean_path: Optional[str] = None
     list_file_path: Optional[str] = None
-    files_to_concat: List[str] = [temp_head_path]  # Голова всегда первая
+    files_to_concat: List[str] = [temp_head_path]
 
-    try:  # Общий try-блок для корректной очистки временных файлов в finally
-        # --- Определение точки начала хвоста (ближайший I-кадр) ---
-        search_start_time = head_end_time_sec - 0.001  # Небольшой запас назад
-        if iframe_times_sec is None:  # Проверка, если get_iframe_start_times вернул ошибку
-            logging.error("Список времен I-кадров не предоставлен. Невозможно выполнить умную склейку.")
-            return False  # Возвращаем ошибку, не пытаемся копировать голову
-
+    try:
+        search_start_time = head_end_time_sec - 0.001
+        if iframe_times_sec is None:
+            logging.error("Список времен I-кадров не предоставлен.")
+            return False
         suitable_iframe_times = [t for t in iframe_times_sec if t >= search_start_time]
 
         if not suitable_iframe_times:
-            logging.warning(f"Не найден подходящий I-кадр в оригинале после {search_start_time:.6f}s. "
-                            f"Предполагается, что голова покрывает все видео.")
-            logging.info(f"Файл '{temp_head_path}' будет использован как финальный '{final_output_path}'.")
+            logging.warning(f"Не найден I-кадр после {search_start_time:.6f}s. Голова покрывает все видео.")
             try:
                 if os.path.exists(final_output_path) and final_output_path != temp_head_path:
-                    time.sleep(0.1)  # Небольшая пауза перед удалением
+                    time.sleep(0.1);
                     os.remove(final_output_path)
                 if final_output_path != temp_head_path:
-                    time.sleep(0.1)  # Пауза перед копированием
+                    time.sleep(0.1);
                     shutil.copy2(temp_head_path, final_output_path)
-                    time.sleep(0.1)  # Пауза перед удалением исходника
+                    time.sleep(0.1);
                     os.remove(temp_head_path)
-                    logging.info(f"Файл '{temp_head_path}' скопирован в '{final_output_path}' и исходник удален.")
+                    logging.info(f"Голова скопирована в '{final_output_path}', исходник удален.")
                 else:
-                    logging.info(f"Файл головы уже является финальным ('{final_output_path}').")
-                return True  # Успешное завершение без склейки
-            except PermissionError as e_perm_head:
-                logging.error(f"Ошибка доступа (PermissionError) при копировании/удалении файла головы: {e_perm_head}",
-                              exc_info=True)
-                return False
+                    logging.info(f"Голова уже финальный файл.")
+                return True
             except Exception as e_copyhead:
-                logging.error(f"Другая ошибка при копировании/удалении файла головы: {e_copyhead}", exc_info=True)
+                logging.error(f"Ошибка при копировании/удалении головы: {e_copyhead}", exc_info=True)
                 return False
 
         keyframe_tail_start_sec = suitable_iframe_times[0]
         gap_duration = keyframe_tail_start_sec - head_end_time_sec
-
         logging.info(
             f"Точка стыка: Конец головы={head_end_time_sec:.9f}s, Начало след. I-кадра={keyframe_tail_start_sec:.9f}s. Дыра={gap_duration:.9f}s")
 
-        # Определяем имена временных файлов
         output_dir = os.path.dirname(temp_head_path)
         base_name_head = os.path.splitext(os.path.basename(temp_head_path))[0].replace('_head', '')
         output_extension = os.path.splitext(final_output_path)[1]
@@ -1948,43 +1932,36 @@ def concatenate_smart_stitch(
         temp_transition_path = os.path.join(output_dir,
                                             f"{base_name_head}_transition_pid{current_pid}{output_extension}")
         temp_tail_copy_path = os.path.join(output_dir, f"{base_name_head}_tail_copy_pid{current_pid}{output_extension}")
+        temp_tail_copy_clean_path = temp_tail_copy_path.replace('_tail_copy_',
+                                                                '_tail_clean_')  # Имя для очищенного хвоста
 
         create_transition = gap_duration > gap_threshold_sec
         transition_created = False
         tail_copy_created = False
+        tail_copy_cleaned = False
 
         # --- Этап 1: Создание Переходного Сегмента (если нужен) ---
         if create_transition:
-            logging.info(f"Создание ПЕРЕКОДИРОВАННОГО переходного сегмента (длительность ~{gap_duration:.3f}s)...")
-            logging.info(f"  Файл: {temp_transition_path}")
-
+            logging.info(
+                f"Создание ПЕРЕКОДИРОВАННОГО переходного сегмента '{temp_transition_path}' (длительность ~{gap_duration:.3f}s)...")
             transition_start_sec = head_end_time_sec
-            transition_end_sec = keyframe_tail_start_sec
-            transition_duration_sec = max(0.0, transition_end_sec - transition_start_sec)  # Гарантируем >= 0
-
-            # Используем перемотку (-ss) немного раньше начала перехода для точности trim
-            seek_transition_start = max(0.0, transition_start_sec - 1.0)  # На 1 сек раньше
+            transition_duration_sec = max(0.0, keyframe_tail_start_sec - transition_start_sec)
+            seek_transition_start = max(0.0, transition_start_sec - 1.0)
             trim_start_relative = max(0.0, transition_start_sec - seek_transition_start)
 
-            # --- Формирование команды для temp_transition.mp4 ---
             cmd_create_transition = [
                 ffmpeg_path, '-y',
                 '-ss', f"{seek_transition_start:.9f}",
                 '-i', original_input_path,
-                # Фильтры для точной обрезки и нормализации таймстемпов
                 '-vf',
                 f"trim=start={trim_start_relative:.9f}:duration={transition_duration_sec:.9f},setpts=PTS-STARTPTS",
                 '-af',
                 f"atrim=start={trim_start_relative:.9f}:duration={transition_duration_sec:.9f},asetpts=PTS-STARTPTS",
-                # Параметры кодирования ВИДЕО - ИДЕНТИЧНЫЕ ГОЛОВЕ
                 '-c:v', head_encoding_params['video_encoder_lib'],
                 '-pix_fmt', head_encoding_params['video_pix_fmt'],
-                # Явно устанавливаем FPS и time_base из параметров головы
                 '-r', str(float(head_encoding_params['video_fps_fraction'])),
-                '-video_track_timescale', str(head_encoding_params['video_time_base'].denominator)
-                # Используем знаменатель для timescale
-            ]
-            # Добавляем видео опции (профили, пресеты, crf и т.д.) из словаря
+                '-video_track_timescale', str(head_encoding_params['video_time_base'].denominator)]
+
             video_opts = head_encoding_params.get('video_options', {})
             if isinstance(video_opts, dict):
                 for key, value in video_opts.items():
@@ -1995,32 +1972,21 @@ def concatenate_smart_stitch(
             else:
                 logging.warning(f"video_options в head_encoding_params не являются словарем: {video_opts}")
 
-            # Параметры кодирования АУДИО - ИДЕНТИЧНЫЕ ГОЛОВЕ
-            audio_layout_str = head_encoding_params.get('audio_layout', 'stereo')  # Получаем строку, fallback='stereo'
+            audio_layout_str = head_encoding_params.get('audio_layout', 'stereo')
             audio_rate_str = str(head_encoding_params.get('audio_rate', '44100'))
             audio_codec_str = head_encoding_params.get('audio_codec', 'aac')
             audio_opts = head_encoding_params.get('audio_options', {})
-
-            # Проверяем, что layout - это строка и не пустая
             if not isinstance(audio_layout_str, str) or not audio_layout_str:
-                logging.warning(
-                    f"Некорректный audio_layout ('{audio_layout_str}') в head_encoding_params. Используется fallback='stereo'.")
-                audio_layout_str = 'stereo'  # Устанавливаем fallback
+                logging.warning(f"Некорректный audio_layout ('{audio_layout_str}'). Fallback='stereo'.")
+                audio_layout_str = 'stereo'
 
-            # --- Формируем часть команды для аудио ---
-            # Используем -channel_layout вместо -ac
-            cmd_create_transition_audio = [
-                '-c:a', audio_codec_str,  # Кодек (например, 'aac')
-                '-ar', audio_rate_str,  # Частота дискретизации (например, '44100')
-                '-channel_layout', audio_layout_str,  # <--- ПРАВИЛЬНАЯ ОПЦИЯ И ЗНАЧЕНИЕ (например, 'stereo')
-            ]
+            cmd_create_transition_audio = ['-c:a', audio_codec_str, '-ar', audio_rate_str, '-channel_layout',
+                                           audio_layout_str]
             logging.debug(
                 f"Установка аудио параметров для перехода: codec={audio_codec_str}, rate={audio_rate_str}, layout={audio_layout_str}")
 
-            # Добавляем другие аудио опции (например, битрейт 'b:a') из словаря
             if isinstance(audio_opts, dict):
                 for key, value in audio_opts.items():
-                    # Пропускаем опции, связанные с layout/каналами, т.к. используем -channel_layout
                     if key.lower() not in ['ac', 'channel_layout', 'layout']:
                         try:
                             cmd_create_transition_audio.extend([f'-{str(key)}', str(value)])
@@ -2028,18 +1994,12 @@ def concatenate_smart_stitch(
                             logging.warning(f"Не удалось добавить аудио опцию {key}={value}: {e_aopt_str}")
             else:
                 logging.warning(f"audio_options в head_encoding_params не являются словарем: {audio_opts}")
-
-            # Добавляем собранные аудио параметры к основной команде
             cmd_create_transition.extend(cmd_create_transition_audio)
 
-            # Гарантируем I-кадр в начале перехода
-            cmd_create_transition.extend(['-force_key_frames', 'expr:eq(n,0)'])
-            # Убираем метаданные
-            cmd_create_transition.extend(['-map_metadata', '-1'])
-            cmd_create_transition.append(temp_transition_path)
+            cmd_create_transition.extend(
+                ['-force_key_frames', 'expr:eq(n,0)', '-map_metadata', '-1', temp_transition_path])
 
             logging.debug(f"Команда FFmpeg для создания переходного сегмента: {' '.join(cmd_create_transition)}")
-
             try:
                 result_transition = subprocess.run(cmd_create_transition, check=False, capture_output=True, text=True,
                                                    encoding='utf-8', errors='replace')
@@ -2047,26 +2007,25 @@ def concatenate_smart_stitch(
                         temp_transition_path) > 100:
                     logging.info(f"Переходный сегмент '{temp_transition_path}' успешно создан.")
                     transition_created = True
-                    files_to_concat.append(temp_transition_path)  # Добавляем в список для склейки
+                    files_to_concat.append(temp_transition_path)
                 else:
                     logging.error(
-                        f"Ошибка FFmpeg при создании переходного сегмента (код {result_transition.returncode}).\nStderr: {result_transition.stderr}")
+                        f"Ошибка FFmpeg при создании перехода (код {result_transition.returncode}).\nStderr: {result_transition.stderr}")
+                    # Не выходим сразу, попробуем склеить без перехода, если хвост создастся
             except Exception as e_transition_run:
-                logging.error(f"Неожиданная ошибка при создании переходного сегмента: {e_transition_run}",
-                              exc_info=True)
+                logging.error(f"Ошибка создания перехода: {e_transition_run}", exc_info=True)
+                # Не выходим сразу
 
-            if not transition_created:
-                logging.error("Не удалось создать переходный сегмент. Отмена операции.")
-                return False  # Критическая ошибка
+            # Если переход создать не удалось, но он был нужен - это ошибка для smart stitch
+            if create_transition and not transition_created:
+                logging.error("Не удалось создать необходимый переходный сегмент. Отмена операции.")
+                return False
 
-        # --- Этап 2: Создание КОПИРОВАННОГО Хвоста (`temp_tail_copy.mp4`) ---
-        # Начало хвоста всегда keyframe_tail_start_sec (I-кадр после "дыры" или сразу после головы)
+                # --- Этап 2: Создание КОПИРОВАННОГО Хвоста (`temp_tail_copy.mp4`) ---
         start_copy_sec = keyframe_tail_start_sec
         logging.info(f"Создание КОПИРОВАННОГО хвоста '{temp_tail_copy_path}', начиная с {start_copy_sec:.9f}s...")
 
-        # Определяем действие для аудио хвоста при копировании
         original_audio_codec = input_metadata.get('audio_codec')
-        # Копируем аудио хвоста, только если оно AAC и контейнер совместим
         output_ext_tail = os.path.splitext(temp_tail_copy_path)[1].lower()
         can_copy_tail_audio = (original_audio_codec == 'aac') and (output_ext_tail in ['.mp4', '.mov', '.mkv'])
         tail_copy_audio_action = 'copy' if can_copy_tail_audio else 'aac'
@@ -2074,26 +2033,23 @@ def concatenate_smart_stitch(
 
         cmd_create_tail_copy = [
             ffmpeg_path, '-y',
-            '-ss', f"{start_copy_sec:.9f}",  # Точное позиционирование по I-кадру
+            '-ss', f"{start_copy_sec:.9f}",
             '-i', original_input_path,
-            '-c:v', 'copy',  # Копируем видео
-            '-c:a', tail_copy_audio_action,  # Копируем или кодируем аудио хвоста
-            '-map_metadata', '-1',  # Убираем метаданные
-            # '-avoid_negative_ts', 'make_zero', # Можно добавить для хвоста
+            '-c:v', 'copy',
+            '-c:a', tail_copy_audio_action,
+            '-map_metadata', '-1',
             temp_tail_copy_path
         ]
-        # Добавляем битрейт, если аудио хвоста перекодируется
         if tail_copy_audio_action != 'copy':
             original_audio_bitrate_val = input_metadata.get('audio_bitrate')
             bitrate_str_tail = str(
                 original_audio_bitrate_val) if original_audio_bitrate_val and original_audio_bitrate_val >= 32000 else "192k"
-            cmd_create_tail_copy.insert(-1, '-b:a')  # Вставляем перед именем файла
+            cmd_create_tail_copy.insert(-1, '-b:a');
             cmd_create_tail_copy.insert(-1, bitrate_str_tail)
             logging.info(
                 f"    (Перекодирование аудио хвоста в {tail_copy_audio_action} с битрейтом {bitrate_str_tail})")
 
         logging.debug(f"Команда FFmpeg для создания копированного хвоста: {' '.join(cmd_create_tail_copy)}")
-
         try:
             result_tail_copy = subprocess.run(cmd_create_tail_copy, check=False, capture_output=True, text=True,
                                               encoding='utf-8', errors='replace')
@@ -2101,16 +2057,48 @@ def concatenate_smart_stitch(
                     temp_tail_copy_path) > 1024:
                 logging.info(f"Копированный хвост '{temp_tail_copy_path}' успешно создан.")
                 tail_copy_created = True
-                files_to_concat.append(temp_tail_copy_path)  # Добавляем в список
+                # Не добавляем в files_to_concat напрямую, сначала попробуем очистить
             else:
                 logging.error(
                     f"Ошибка FFmpeg при создании копированного хвоста (код {result_tail_copy.returncode}).\nStderr: {result_tail_copy.stderr}")
         except Exception as e_tail_copy:
-            logging.error(f"Неожиданная ошибка при создании копированного хвоста: {e_tail_copy}", exc_info=True)
+            logging.error(f"Ошибка создания копированного хвоста: {e_tail_copy}", exc_info=True)
 
         if not tail_copy_created:
             logging.error("Не удалось создать копированный хвост. Отмена операции.")
-            return False  # Ошибка (переходный сегмент уже удалится в finally)
+            return False  # Критическая ошибка
+
+        # --- Этап 2.5: "Очистка" Копированного Хвоста Перепаковкой ---
+        path_to_concat_for_tail = temp_tail_copy_path  # По умолчанию используем неочищенный
+        if tail_copy_created:  # Только если исходный хвост создан
+            logging.info(f"Этап 2.5: Очистка/Перепаковка копированного хвоста в '{temp_tail_copy_clean_path}'...")
+            cmd_clean_tail = [
+                ffmpeg_path, '-y',
+                '-i', temp_tail_copy_path,
+                '-c', 'copy',
+                '-map', '0',
+                '-movflags', '+faststart',
+                temp_tail_copy_clean_path
+            ]
+            logging.debug(f"Команда FFmpeg для очистки хвоста: {' '.join(cmd_clean_tail)}")
+            try:
+                result_clean_tail = subprocess.run(cmd_clean_tail, check=False, capture_output=True, text=True,
+                                                   encoding='utf-8', errors='replace')
+                if result_clean_tail.returncode == 0 and os.path.exists(temp_tail_copy_clean_path) and os.path.getsize(
+                        temp_tail_copy_clean_path) > 100:
+                    logging.info(f"Очищенный хвост '{temp_tail_copy_clean_path}' успешно создан.")
+                    tail_copy_cleaned = True
+                    path_to_concat_for_tail = temp_tail_copy_clean_path  # Используем очищенный для склейки
+                else:
+                    logging.warning(
+                        f"Не удалось очистить хвост (код {result_clean_tail.returncode}). Будет использован неочищенный.\nStderr: {result_clean_tail.stderr}")
+                    # path_to_concat_for_tail остается temp_tail_copy_path
+            except Exception as e_clean_tail:
+                logging.warning(
+                    f"Не удалось очистить хвост из-за исключения: {e_clean_tail}. Будет использован неочищенный.")
+                # path_to_concat_for_tail остается temp_tail_copy_path
+
+        files_to_concat.append(path_to_concat_for_tail)  # Добавляем путь к хвосту (очищенному или нет)
 
         # --- Этап 3: Финальная Склейка (concat демультиплексор с -c copy) ---
         logging.info(
@@ -2126,17 +2114,14 @@ def concatenate_smart_stitch(
                 list_file_path = list_file_obj.name
                 list_file_obj.write(list_file_content)
             logging.debug(f"Создан временный файл списка для concat: '{list_file_path}'")
-            final_audio_bitrate = head_encoding_params['audio_options'].get('b:a', '192k')
-            final_audio_rate = str(head_encoding_params.get('audio_rate', '44100'))
-            final_audio_layout = head_encoding_params.get('audio_layout', 'stereo')
+
+            # Финальная склейка с -c copy для ВСЕХ потоков
             cmd_concat_final = [
                 ffmpeg_path, '-y',
-                '-f', 'concat', '-safe', '0', '-i', list_file_path,
-                '-c:v', 'copy',  # Видео копируем
-                '-c:a', 'aac',  # <-- Аудио ПЕРЕКОДИРУЕМ
-                '-b:a', final_audio_bitrate,
-                '-ar', final_audio_rate,
-                '-channel_layout', final_audio_layout,
+                '-f', 'concat',
+                '-safe', '0',
+                '-i', list_file_path,
+                '-c', 'copy',
                 '-movflags', '+faststart',
                 final_output_path
             ]
@@ -2168,8 +2153,8 @@ def concatenate_smart_stitch(
         return success_concat
 
     finally:
-        # Очистка временных файлов
-        files_to_delete = [list_file_path, temp_transition_path, temp_tail_copy_path]
+        # Очистка всех временных файлов
+        files_to_delete = [list_file_path, temp_transition_path, temp_tail_copy_path, temp_tail_copy_clean_path]
         for f_path in files_to_delete:
             if f_path and os.path.exists(f_path):
                 try:
