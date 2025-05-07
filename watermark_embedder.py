@@ -1629,16 +1629,18 @@ def concatenate_with_ffmpeg(
     target_audio_bitrate_str_for_tail = str(
         original_audio_bitrate) if original_audio_bitrate and original_audio_bitrate >= 32000 else '128k'
 
-    # Логика для -ss и trim
-    # Используем -ss перед -i для быстрого поиска до точки, немного предшествующей trim_start.
-    # trim_start_target_abs - это head_duration_sec
-    # seek_to_time_abs - немного раньше, чтобы у trim был "запас" для точного старта
-    seek_to_time_abs = max(0.0, head_duration_sec - 10.0)  # Например, за 10 секунд до
-    trim_start_relative_to_seek = head_duration_sec - seek_to_time_abs  # Начало для trim относительно seek_to_time_abs
+    fps_value = float(input_metadata.get('fps', 30.0))  # Получаем FPS
+    one_frame_duration = 1.0 / fps_value if fps_value > 0 else (1.0 / 30.0)
+
+    # Начать хвост на 1-2 кадра раньше
+    # tail_start_time_adjusted = max(0.0, head_duration_sec - (1 * one_frame_duration))  # На 1 кадр раньше
+    tail_start_time_adjusted = max(0.0, head_duration_sec - (2 * one_frame_duration)) # На 2 кадра раньше
+
+    seek_to_time_abs = max(0.0, tail_start_time_adjusted - 10.0)
+    trim_start_relative_to_seek = tail_start_time_adjusted - seek_to_time_abs
 
     cmd_create_tail_prefix = [ffmpeg_path, '-y']
-    # Добавляем -ss только если есть смысл искать (не с самого начала)
-    if seek_to_time_abs > 0.01:  # Небольшой порог, чтобы не ставить -ss 0
+    if seek_to_time_abs > 0.01:
         cmd_create_tail_prefix.extend(['-ss', f"{seek_to_time_abs:.6f}"])
     cmd_create_tail_prefix.extend(['-i', original_input_path])
 
@@ -2330,7 +2332,7 @@ def main() -> int:
         return 1
 
     # Определить Имена Файлов
-    input_video_path = "test_video.mp4"  # ЗАМЕНИТЕ НА ВАШ ВХОДНОЙ ФАЙЛ
+    input_video_path = "test_video1.mp4"  # ЗАМЕНИТЕ НА ВАШ ВХОДНОЙ ФАЙЛ
     if not os.path.exists(input_video_path):
         logging.critical(f"Входной файл не найден: {input_video_path}")
         print(f"ОШИБКА: Входной файл не найден: {input_video_path}")
