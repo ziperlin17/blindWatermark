@@ -1,4 +1,4 @@
-# Файл: embedder_pytorch_wavelets.py (ПОСЛЕ РЕФАКТОРИНГА)
+# Файл: watermark_embedder.py
 import gc
 import math
 import shutil
@@ -22,12 +22,9 @@ from scipy.fftpack import dct as scipy_dct, idct as scipy_idct
 from scipy.linalg import svd as scipy_svd
 
 from galois import BCH
-# from PIL import Image # Не используется
-from line_profiler import line_profiler, profile # Раскомментировать для профилирования
-# --- SciPy убираем (или оставляем только SVD, если PyTorch SVD не подойдет) ---
-# from scipy.fftpack import dct as scipy_dct, idct as scipy_idct
-# from scipy.linalg import svd as scipy_svd
-# --- PyTorch импорты ---
+# from PIL import Image
+from line_profiler import line_profiler, profile
+
 import torch
 import torch.nn.functional as F
 try:
@@ -39,13 +36,12 @@ except ImportError:
     class DTCWTInverse: pass
     logging.error("Библиотека pytorch_wavelets не найдена!")
 try:
-    # Используем нашу новую библиотеку для DCT/IDCT
-    import torch_dct as dct_torch # Импортируем под псевдонимом
+    import torch_dct as dct_torch
     TORCH_DCT_AVAILABLE = True
 except ImportError:
     TORCH_DCT_AVAILABLE = False
     logging.error("Библиотека torch-dct не найдена! Невозможно использовать PyTorch DCT.")
-# --------------------------
+
 from typing import List, Tuple, Optional, Dict, Any, Set
 import uuid
 from math import ceil
@@ -60,24 +56,20 @@ try:
     logging.info("pymediainfo library imported successfully.")
 except ImportError:
     logging.warning("pymediainfo library not found. Install it: pip install pymediainfo. MediaInfo fallback will not be available.")
-    class MediaInfo: # Класс-пустышка
+    class MediaInfo:
         def __init__(self, xml): pass
         @staticmethod
         def can_parse(): return False
-        def Tofile(self, filepath): return self # Возвращаем self для цепочки вызовов
+        def Tofile(self, filepath): return self
         @property
         def tracks(self): return []
 
 # --- Импорт PyAV ---
 try:
     import av
-    # Импортируем базовый класс ошибок FFmpeg
-    from av import FFmpegError, VideoFrame  # Базовый класс доступен напрямую из av
-    # Импортируем специфичные ошибки, которые хотим ловить отдельно (если нужно)
-    # Например:
-    from av import EOFError as FFmpegEOFError # Переименуем, чтобы не конфликтовать со встроенным
-    from av import ValueError as FFmpegValueError # Переименуем
-    # Или можно просто ловить встроенные ValueError/EOFError, так как ошибки PyAV от них наследуются
+    from av import FFmpegError, VideoFrame
+    from av import EOFError as FFmpegEOFError
+    from av import ValueError as FFmpegValueError
 
     PYAV_AVAILABLE = True
     logging.info("PyAV library imported successfully.")
@@ -85,24 +77,21 @@ try:
 except ImportError:
     PYAV_AVAILABLE = False
     logging.error("PyAV library not found! Install it: pip install av")
-    # --- Определим классы-пустышки ---
-    class av_dummy: # Используем другое имя
+    class av_dummy:
         class VideoFrame: pass
         class AudioFrame: pass
         class Packet: pass
         class TimeBase: pass
         class container:
             class Container: pass
-        # Добавим заглушки для классов ошибок, которые мы импортировали выше
-        FFmpegError = Exception # Базовый тип - Exception
-        EOFError = EOFError     # Используем встроенный для заглушки
-        ValueError = ValueError # Используем встроенный для заглушки
+        FFmpegError = Exception
+        EOFError = EOFError
+        ValueError = ValueError
         NotFoundError = Exception
-    # Переопределяем сам модуль 'av' и классы ошибок глобально ТОЛЬКО при ошибке импорта
     av = av_dummy
     FFmpegError = Exception
-    FFmpegEOFError = EOFError # Используем встроенный
-    FFmpegValueError = ValueError # Используем встроенный
+    FFmpegEOFError = EOFError
+    FFmpegValueError = ValueError
 
 try:
     import galois
@@ -118,16 +107,15 @@ CODEC_CONTAINER_COMPATIBILITY: Dict[str, Set[Tuple[str, str]]] = {
     ".mkv": {('video', 'h264'), ('video', 'hevc'), ('video', 'vp9'), ('video', 'av1'), ('video', 'mpeg4'), ('video', 'mpeg2video'), ('video', 'theora'), ('video', 'prores'), ('audio', 'aac'), ('audio', 'opus'), ('audio', 'vorbis'), ('audio', 'flac'), ('audio', 'ac3'), ('audio', 'dts'), ('audio', 'mp3'), ('audio', 'pcm_s16le'), ('audio', 'alac')},
     ".webm": {('video', 'vp8'), ('video', 'vp9'), ('video', 'av1'), ('audio', 'opus'), ('audio', 'vorbis')},
 }
-DEFAULT_OUTPUT_CONTAINER_EXT_FINAL: str = ".mp4"  # Для финального файла
-DEFAULT_VIDEO_ENCODER_LIB_FOR_HEAD: str = "libx264" # Для временного файла головы
-DEFAULT_VIDEO_CODEC_NAME_FOR_HEAD: str = "h264"    # Для временного файла головы
-DEFAULT_AUDIO_CODEC_FOR_FFMPEG: str = "aac"        # Если FFmpeg нужно перекодировать аудио хвоста
-FALLBACK_CONTAINER_EXT_FINAL: str = ".mkv"       # Для финального файла
+DEFAULT_OUTPUT_CONTAINER_EXT_FINAL: str = ".mp4"
+DEFAULT_VIDEO_ENCODER_LIB_FOR_HEAD: str = "libx264"
+DEFAULT_VIDEO_CODEC_NAME_FOR_HEAD: str = "h264"
+DEFAULT_AUDIO_CODEC_FOR_FFMPEG: str = "aac"
+FALLBACK_CONTAINER_EXT_FINAL: str = ".mkv"
 
 
 # --- Глобальные Параметры ---
-# (Остаются те же, что и в вашей последней версии embedder)
-LAMBDA_PARAM: float = 0.05 # Вернул ваше значение
+LAMBDA_PARAM: float = 0.05
 ALPHA_MIN: float = 1.13
 ALPHA_MAX: float = 1.28 # Ваше новое значение
 N_RINGS: int = 8
@@ -153,7 +141,7 @@ MAX_TOTAL_PACKETS = 15
 SAFE_MAX_WORKERS = 8
 
 # --- Инициализация Галуа (с t=9, k=187) ---
-BCH_CODE_OBJECT: Optional['galois.BCH'] = None  # Аннотация в кавычках для отложенного импорта
+BCH_CODE_OBJECT: Optional['galois.BCH'] = None
 GALOIS_AVAILABLE = False
 try:
     import galois
@@ -195,20 +183,18 @@ try:
             _test_bch_ok = False;
             BCH_CODE_OBJECT = None
 
-        # Тест декодирования (если инициализация прошла)
+        # Тест декодирования
         if _test_bch_ok and BCH_CODE_OBJECT is not None:
             _n_bits = BCH_CODE_OBJECT.n
             _dummy_cw_bits = np.zeros(_n_bits, dtype=np.uint8)
             GF2 = galois.GF(2);
             _dummy_cw_vec = GF2(_dummy_cw_bits)
-            # Подавляем вывод ошибок декодера в тесте
             _msg, _flips = BCH_CODE_OBJECT.decode(_dummy_cw_vec, errors=True)
-            if _flips is not None:  # Проверяем, что декодирование не вызвало исключение
+            if _flips is not None:
                 logging.info(f"galois: decode() test OK (flips={_flips}).")
                 _test_decode_ok = True
             else:
-                # decode() может вернуть None для _flips если ошибок 0, проверим и так
-                _test_decode_ok = True  # Считаем тест пройденным, если исключения не было
+                _test_decode_ok = True
                 logging.info("galois: decode() test potentially OK (flips is None/0).")
     except ValueError as ve:
         logging.error(f"galois: ОШИБКА ValueError при инициализации BCH: {ve}")
@@ -238,7 +224,7 @@ except Exception as import_err:
 for handler in logging.root.handlers[:]: logging.root.removeHandler(handler)
 logging.basicConfig(filename=LOG_FILENAME, filemode='w', level=logging.INFO,
                     format='[%(asctime)s] %(levelname).1s %(threadName)s - %(funcName)s:%(lineno)d - %(message)s')
-logging.getLogger().setLevel(logging.DEBUG) # Раскомментировать для детального лога
+logging.getLogger().setLevel(logging.DEBUG)
 
 # --- Логирование конфигурации ---
 effective_use_ecc = USE_ECC and GALOIS_AVAILABLE
@@ -264,7 +250,7 @@ if NUM_RINGS_TO_USE != BITS_PER_PAIR: logging.warning(
     f"NUM_RINGS_TO_USE ({NUM_RINGS_TO_USE}) != BITS_PER_PAIR ({BITS_PER_PAIR}).")
 
 
-# --- Базовые Функции (с изменениями для PyTorch) ---
+# --- Базовые Функции ---
 
 def dct1d_torch(s_tensor: torch.Tensor) -> torch.Tensor:
     """1D DCT-II используя torch-dct."""
@@ -282,21 +268,19 @@ def svd_torch(tensor_1d: torch.Tensor) -> Tuple[Optional[torch.Tensor], Optional
     try:
         # Добавляем измерение, чтобы сделать его 2D (N, 1)
         tensor_2d = tensor_1d.unsqueeze(-1)
-        # full_matrices=False не так важно для Nx1 матрицы
         U, S, Vh = torch.linalg.svd(tensor_2d, full_matrices=False)
-        # Vh для матрицы Nx1 будет тензором 1x1. Нам нужен V, который тоже 1x1.
         # S - вектор сингулярных чисел (в нашем случае одно)
         # U - матрица Nx1
-        return U, S, Vh.T # Возвращаем V = Vh.T
+        return U, S, Vh.T
     except Exception as e:
         logging.error(f"PyTorch SVD error: {e}", exc_info=True)
         return None, None, None
 
-# --- НОВАЯ функция обертка для PyTorch DTCWT Forward ---
+# ---  обертка для PyTorch DTCWT Forward ---
 def dtcwt_pytorch_forward(yp_tensor: torch.Tensor, xfm: DTCWTForward, device: torch.device, fn: int = -1) -> Tuple[
     Optional[torch.Tensor], Optional[List[torch.Tensor]]]:
     """Применяет прямое DTCWT PyTorch к одному каналу (2D тензору)."""
-    if not PYTORCH_WAVELETS_AVAILABLE:  # Проверка доступности библиотеки
+    if not PYTORCH_WAVELETS_AVAILABLE:
         logging.error("PyTorch Wavelets не доступна для dtcwt_pytorch_forward.")
         return None, None
     if not isinstance(yp_tensor, torch.Tensor):
@@ -307,12 +291,11 @@ def dtcwt_pytorch_forward(yp_tensor: torch.Tensor, xfm: DTCWTForward, device: to
         return None, None
     try:
         # Добавляем Batch и Channel измерения, перемещаем на device
-        # Убедимся, что тензор имеет тип float32
         yp_tensor = yp_tensor.unsqueeze(0).unsqueeze(0).to(device=device, dtype=torch.float32)  # -> (1, 1, H, W)
         xfm = xfm.to(device)
 
-        with torch.no_grad():  # Отключаем расчет градиентов для экономии памяти/скорости
-            Yl, Yh = xfm(yp_tensor)  # Yh - список
+        with torch.no_grad():
+            Yl, Yh = xfm(yp_tensor)
 
         # Проверка результата
         if Yl is None or Yh is None or not isinstance(Yh, list) or not Yh:
@@ -320,7 +303,6 @@ def dtcwt_pytorch_forward(yp_tensor: torch.Tensor, xfm: DTCWTForward, device: to
             return None, None
 
         # logging.debug(f"[Frame:{fn}] PyTorch DTCWT FWD done. Yl shape: {Yl.shape}, Yh[0] shape: {Yh[0].shape}")
-        # Возвращаем тензоры как есть (на device)
         return Yl, Yh
     except RuntimeError as e:
         if "CUDA out of memory" in str(e):
@@ -333,7 +315,7 @@ def dtcwt_pytorch_forward(yp_tensor: torch.Tensor, xfm: DTCWTForward, device: to
         return None, None
 
 
-# --- НОВАЯ функция обертка для PyTorch DTCWT Inverse ---
+# --- функция обертка для PyTorch DTCWT Inverse ---
 def dtcwt_pytorch_inverse(Yl: torch.Tensor, Yh: List[torch.Tensor], ifm: DTCWTInverse, device: torch.device,
                           target_shape: Tuple[int, int], fn: int = -1) -> Optional[np.ndarray]:
     """Применяет обратное DTCWT PyTorch и возвращает NumPy массив float32."""
@@ -349,7 +331,6 @@ def dtcwt_pytorch_inverse(Yl: torch.Tensor, Yh: List[torch.Tensor], ifm: DTCWTIn
         Yh = [h.to(device) for h in Yh if h is not None and h.numel() > 0]  # Фильтруем пустые/None
         ifm = ifm.to(device)
 
-        # Убедимся, что Yh не стал пустым после фильтрации
         if not Yh:
             logging.error(f"[Frame:{fn}] Yh list is empty after filtering Nones/empty tensors.")
             return None
@@ -357,7 +338,6 @@ def dtcwt_pytorch_inverse(Yl: torch.Tensor, Yh: List[torch.Tensor], ifm: DTCWTIn
         with torch.no_grad():  # Отключаем градиенты
             reconstructed_X_tensor = ifm((Yl, Yh))
 
-        # Убираем batch и channel измерения
         if reconstructed_X_tensor.dim() == 4 and reconstructed_X_tensor.shape[0] == 1 and reconstructed_X_tensor.shape[
             1] == 1:
             reconstructed_X_tensor = reconstructed_X_tensor.squeeze(0).squeeze(0)  # (H, W)
@@ -367,13 +347,11 @@ def dtcwt_pytorch_inverse(Yl: torch.Tensor, Yh: List[torch.Tensor], ifm: DTCWTIn
 
         # logging.debug(f"[Frame:{fn}] PyTorch DTCWT INV done. Output shape: {reconstructed_X_tensor.shape}")
 
-        # Обрезаем до нужного размера
         current_h, current_w = reconstructed_X_tensor.shape
         target_h, target_w = target_shape
         if current_h > target_h or current_w > target_w:
             logging.warning(
                 f"[Frame:{fn}] Inverse result shape {reconstructed_X_tensor.shape} > target {target_shape}. Cropping.")
-            # Убедимся, что не обрезаем до нуля или отрицательного размера
             if target_h > 0 and target_w > 0:
                 reconstructed_X_tensor = reconstructed_X_tensor[:target_h, :target_w]
             else:
@@ -382,9 +360,8 @@ def dtcwt_pytorch_inverse(Yl: torch.Tensor, Yh: List[torch.Tensor], ifm: DTCWTIn
         elif current_h < target_h or current_w < target_w:
             logging.warning(
                 f"[Frame:{fn}] Inverse result shape {reconstructed_X_tensor.shape} < target {target_shape}. Padding might be needed if this causes issues.")
-            # Паддинг обычно не требуется, т.к. inverse восстанавливает размер
 
-        # Перемещаем на CPU и конвертируем в NumPy float32
+        # Перемещаем на CPU и конвертиртация в NumPy float32
         reconstructed_np = reconstructed_X_tensor.cpu().numpy().astype(np.float32)
 
         if np.any(np.isnan(reconstructed_np)):
@@ -402,7 +379,7 @@ def dtcwt_pytorch_inverse(Yl: torch.Tensor, Yh: List[torch.Tensor], ifm: DTCWTIn
         return None
 
 
-# --- ПЕРЕПИСАННАЯ ring_division для PyTorch ---
+# ---  ring_division для PyTorch ---
 def ring_division(lp_tensor: torch.Tensor, nr: int = N_RINGS, fn: int = -1) -> List[Optional[torch.Tensor]]:
     """Разбивает 2D PyTorch тензор на N концентрических колец. Возвращает список тензоров координат."""
     if not isinstance(lp_tensor, torch.Tensor) or lp_tensor.ndim != 2:
@@ -417,7 +394,7 @@ def ring_division(lp_tensor: torch.Tensor, nr: int = N_RINGS, fn: int = -1) -> L
     device = lp_tensor.device
 
     try:
-        # Создаем сетку координат
+        # сетка координат
         rr, cc = torch.meshgrid(torch.arange(H, device=device, dtype=torch.float32),
                                 torch.arange(W, device=device, dtype=torch.float32),
                                 indexing='ij')  # indexing='ij' важно для H, W порядка
@@ -428,7 +405,7 @@ def ring_division(lp_tensor: torch.Tensor, nr: int = N_RINGS, fn: int = -1) -> L
         min_dist, max_dist = torch.tensor(0.0, device=device), torch.max(distances)
 
         # Границы колец
-        if max_dist < 1e-9:  # Избегаем деления на ноль или проблем с linspace
+        if max_dist < 1e-9:
             logging.warning(f"[Frame:{fn}] Max distance in ring division is near zero ({max_dist}).")
             # Все пиксели попадут в первое кольцо
             ring_bins = torch.tensor([0.0, max_dist + 1e-6] + [max_dist + 1e-6] * (nr - 1), device=device)
@@ -436,8 +413,7 @@ def ring_division(lp_tensor: torch.Tensor, nr: int = N_RINGS, fn: int = -1) -> L
             ring_bins = torch.linspace(min_dist.item(), (max_dist + 1e-6).item(), nr + 1, device=device)
 
         # Назначение индексов кольца
-        # Используем маски для большей ясности и избежания проблем с bucketize
-        ring_indices = torch.zeros_like(distances, dtype=torch.long) - 1  # Инициализируем -1
+        ring_indices = torch.zeros_like(distances, dtype=torch.long) - 1
         for i in range(nr):
             lower_bound = ring_bins[i]
             upper_bound = ring_bins[i + 1]
@@ -445,11 +421,10 @@ def ring_division(lp_tensor: torch.Tensor, nr: int = N_RINGS, fn: int = -1) -> L
             # Включаем нижнюю границу, исключаем верхнюю (кроме последнего кольца)
             if i < nr - 1:
                 mask = (distances >= lower_bound) & (distances < upper_bound)
-            else:  # Последнее кольцо включает верхнюю границу
+            else:
                 mask = (distances >= lower_bound) & (distances <= upper_bound)  # <= для max_dist
             ring_indices[mask] = i
 
-        # Убедимся, что центр в первом кольце (если вдруг не попал из-за точности float)
         ring_indices[distances < ring_bins[1]] = 0
 
         rings: List[Optional[torch.Tensor]] = [None] * nr
@@ -457,8 +432,8 @@ def ring_division(lp_tensor: torch.Tensor, nr: int = N_RINGS, fn: int = -1) -> L
             # Находим координаты (индексы) пикселей для кольца rdx
             coords_tensor = torch.nonzero(ring_indices == rdx, as_tuple=False)  # -> shape (N_pixels, 2)
             if coords_tensor.shape[0] > 0:
-                rings[rdx] = coords_tensor.long()  # Сохраняем как LongTensor
-            else:  # Кольцо пустое
+                rings[rdx] = coords_tensor.long()
+            else:
                 logging.debug(f"[Frame:{fn}] Ring {rdx} is empty.")
 
         return rings
@@ -467,9 +442,25 @@ def ring_division(lp_tensor: torch.Tensor, nr: int = N_RINGS, fn: int = -1) -> L
         return [None] * nr
 
 
-# --- calculate_entropies, compute_adaptive_alpha_entropy - остаются на NumPy ---
-# Они принимают 1D NumPy массив значений кольца
 def calculate_entropies(rv: np.ndarray, fn: int = -1, ri: int = -1) -> Tuple[float, float]:
+    """
+        Вычисляет шенноновскую энтропию и энтропию столкновений (по вашей старой формуле)
+        для одномерного NumPy массива значений пикселей (предположительно, нормализованных).
+
+        Эта функция используется для оценки текстурности или сложности области (кольца)
+        с целью выбора наиболее подходящих областей для встраивания ЦВЗ.
+
+        Args:
+            rv: Одномерный NumPy массив значений пикселей, нормализованных в диапазоне [0, 1].
+            fn: Номер кадра (для логирования, опционально).
+            ri: Индекс кольца (для логирования, опционально).
+
+        Returns:
+            Кортеж (float, float):
+                - Шенноновская энтропия.
+                - Энтропия столкновений (согласно вашей предыдущей реализации).
+                Возвращает (0.0, 0.0), если массив пуст или все его значения одинаковы.
+        """
     eps = 1e-12;
     shannon_entropy = 0.;
     collision_entropy = 0.  # Ваша старая формула давала ee
@@ -487,14 +478,32 @@ def calculate_entropies(rv: np.ndarray, fn: int = -1, ri: int = -1) -> Tuple[flo
                 shannon_entropy = -np.sum(p * np.log2(p))
                 # Используем Реньи 2-го порядка как collision entropy
                 # collision_entropy = -np.log2(np.sum(p**2)) if np.sum(p**2) > eps else 0.0
-                # Возвращаем вашу старую ee для совместимости, если она нужна где-то еще
                 ee = -np.sum(p * np.exp(1. - p))
-                collision_entropy = ee  # Присваиваем ee, чтобы сигнатура не менялась
-    return shannon_entropy, collision_entropy  # Возвращаем (ve, ee)
+                collision_entropy = ee
+    return shannon_entropy, collision_entropy
 
 
 def compute_adaptive_alpha_entropy(rv: np.ndarray, ri: int, fn: int) -> float:
-    if rv.size < 10: return ALPHA_MIN  # Мало данных для статистики
+    """
+        Вычисляет адаптивный коэффициент силы встраивания (альфа) на основе
+        энтропии и дисперсии значений пикселей в указанном кольце.
+
+        Более высокие значения альфы (ближе к ALPHA_MAX) используются для более
+        текстурированных/сложных областей, что позволяет встроить более сильный
+        (робастный) сигнал с меньшим риском визуальных искажений. Для гладких
+        областей используется меньшая альфа (ближе к ALPHA_MIN).
+
+        Args:
+            rv: Одномерный NumPy массив значений пикселей кольца (нормализованных).
+            ri: Индекс кольца (для логирования).
+            fn: Номер кадра (для логирования).
+
+        Returns:
+            float: Адаптивный коэффициент альфа в диапазоне [ALPHA_MIN, ALPHA_MAX].
+                   Возвращает ALPHA_MIN, если данных для статистики недостаточно
+                   или при ошибках вычисления.
+        """
+    if rv.size < 10: return ALPHA_MIN
     # Используем shannon_entropy (первый элемент кортежа)
     ve, _ = calculate_entropies(rv, fn, ri)
     lv = np.var(rv)
@@ -506,12 +515,11 @@ def compute_adaptive_alpha_entropy(rv: np.ndarray, ri: int, fn: int) -> float:
     en = np.clip(ve / MAX_THEORETICAL_ENTROPY, 0., 1.)
     vmp = 0.005;
     vsc = 500
-    # Использование np.exp может дать overflow если lv очень велико, добавим clip или обработку
     try:
         exp_term = np.exp(-vsc * (lv - vmp))
     except OverflowError:
         exp_term = 0.0  # Если экспонента уходит в -inf, результат 0
-    tn = 1. / (1. + exp_term) if (1. + exp_term) != 0 else 1.0  # Избегаем деления на ноль
+    tn = 1. / (1. + exp_term) if (1. + exp_term) != 0 else 1.0
 
     we = .6;
     wt = .4
@@ -521,7 +529,6 @@ def compute_adaptive_alpha_entropy(rv: np.ndarray, ri: int, fn: int) -> float:
     return np.clip(fa, ALPHA_MIN, ALPHA_MAX)
 
 
-# --- get_fixed_pseudo_random_rings - остается без изменений ---
 def get_fixed_pseudo_random_rings(pi: int, nr: int, ps: int) -> List[int]:
     """
     Генерирует детерминированный псевдослучайный набор индексов колец.
@@ -542,41 +549,36 @@ def get_fixed_pseudo_random_rings(pi: int, nr: int, ps: int) -> List[int]:
     seed_int = int.from_bytes(hash_digest, 'big')
     prng = random.Random(seed_int)
 
-    # Генерируем выборку без повторений
     try:
         candidate_indices = prng.sample(range(nr), ps)
     except ValueError:
-        # Это может случиться, если nr < ps, но мы уже обработали это выше.
-        # На всякий случай, если nr == 0:
         if nr == 0:
             candidate_indices = []
         else:
-            # Альтернативный метод, если sample по какой-то причине не сработал
             logging.warning(f"prng.sample failed for P:{pi}, nr:{nr}, ps:{ps}. Using shuffle fallback.")
             candidate_indices = list(range(nr))
             prng.shuffle(candidate_indices)
             candidate_indices = candidate_indices[:ps]
 
-    # logging.debug(f"[P:{pi}] Candidate rings: {candidate_indices}") # Можно раскомментировать
+    # logging.debug(f"[P:{pi}] Candidate rings: {candidate_indices}")
     return candidate_indices
 
-# --- calculate_perceptual_mask - АДАПТИРОВАНА под тензоры ---
+# --- calculate_perceptual_mask ---
 def calculate_perceptual_mask(ip_tensor: torch.Tensor, device: torch.device, fn: int = -1) -> Optional[torch.Tensor]:
     """Вычисляет перцептуальную маску для 2D тензора."""
     if not isinstance(ip_tensor, torch.Tensor) or ip_tensor.ndim != 2:
         logging.error(f"Mask error F{fn}: Input is not a 2D tensor.")
-        return torch.ones_like(ip_tensor, device=device)  # Возвращаем единичную маску
+        return torch.ones_like(ip_tensor, device=device)
     try:
         # Конвертация в NumPy для OpenCV
         pf = ip_tensor.cpu().numpy().astype(np.float32)
-        # Проверка на NaN/inf после конвертации
         if not np.all(np.isfinite(pf)):
             logging.warning(f"Mask error F{fn}: Input tensor contains NaN/inf.")
             return torch.ones_like(ip_tensor, device=device)
 
-        # Операции OpenCV
         gx = cv2.Sobel(pf, cv2.CV_32F, 1, 0, ksize=3);
         gy = cv2.Sobel(pf, cv2.CV_32F, 0, 1, ksize=3)
+
         # Проверка на NaN/inf после Sobel
         if not np.all(np.isfinite(gx)) or not np.all(np.isfinite(gy)):
             logging.warning(f"Mask error F{fn}: Sobel result contains NaN/inf.")
@@ -596,9 +598,8 @@ def calculate_perceptual_mask(ip_tensor: torch.Tensor, device: torch.device, fn:
         lv = np.sqrt(np.maximum(lms - lm ** 2, 0))
         if not np.all(np.isfinite(lv)):  # Проверка после sqrt
             logging.warning(f"Mask error F{fn}: Local variance result contains NaN/inf.")
-            # Попробуем заменить NaN/inf нулями перед np.maximum(gm, lv)
             lv = np.nan_to_num(lv, nan=0.0, posinf=0.0, neginf=0.0)
-            # return torch.ones_like(ip_tensor, device=device) # Раньше возвращали единицы
+            # return torch.ones_like(ip_tensor, device=device)
 
         cm = np.maximum(gm, lv)
         eps = 1e-9;
@@ -624,11 +625,28 @@ def calculate_perceptual_mask(ip_tensor: torch.Tensor, device: torch.device, fn:
         return torch.ones_like(ip_tensor, device=device)
 
 
-# --- add_ecc - остается без изменений (работает с NumPy) ---
 def add_ecc(data_bits: np.ndarray, bch_code: Optional[galois.BCH]) -> Optional[np.ndarray]:
+    """
+        Добавляет биты коррекции ошибок (ECC) к предоставленному массиву информационных бит
+        с использованием указанного объекта кода BCH (Bose-Chaudhuri-Hocquenghem).
+
+        Если ECC недоступен или объект bch_code не предоставлен, функция возвращает
+        исходные биты данных без изменений (если это допустимо по логике).
+
+        Args:
+            data_bits: Одномерный NumPy массив информационных бит (0 или 1, dtype=uint8).
+            bch_code: Объект galois.BCH, используемый для кодирования.
+                      Если None, ECC не применяется.
+
+        Returns:
+            Optional[np.ndarray]: NumPy массив, содержащий кодовое слово (информационные биты + биты ECC).
+                                  Возвращает исходные data_bits, если ECC не применен.
+                                  Возвращает None в случае ошибки (например, если длина данных
+                                  превышает возможности кода k).
+        """
     if not GALOIS_AVAILABLE or bch_code is None:
         logging.warning("ECC не доступен или не предоставлен, возвращаем исходные биты.")
-        return data_bits  # Возвращаем как есть, если ECC нет
+        return data_bits
     try:
         k = bch_code.k;
         n = bch_code.n
@@ -636,7 +654,7 @@ def add_ecc(data_bits: np.ndarray, bch_code: Optional[galois.BCH]) -> Optional[n
             logging.error(f"ECC Error: Data size ({data_bits.size}) > k ({k})")
             return None
         pad_len = k - data_bits.size
-        # Убедимся, что data_bits - это 1D массив uint8
+
         msg_bits = data_bits.astype(np.uint8).flatten()
         if pad_len > 0:
             msg_bits = np.pad(msg_bits, (0, pad_len), 'constant')
@@ -646,7 +664,7 @@ def add_ecc(data_bits: np.ndarray, bch_code: Optional[galois.BCH]) -> Optional[n
         cw_vec = bch_code.encode(msg_vec)
         pkt_bits = cw_vec.view(np.ndarray).astype(np.uint8)
 
-        if pkt_bits.size != n:  # Используем if вместо assert для мягкой ошибки
+        if pkt_bits.size != n:
             logging.error(f"ECC Error: Output packet size ({pkt_bits.size}) != n ({n})")
             return None
         logging.info(f"Galois ECC: Data({data_bits.size}b->{k}b) -> Packet({pkt_bits.size}b).")
@@ -711,7 +729,6 @@ def get_iframe_start_times(filepath: str) -> List[float]:
             logging.error(f"Отсутствует time_base для видеопотока в '{filepath}'. Невозможно рассчитать времена.")
             return []
 
-        # Убедимся, что time_base имеет ненулевой знаменатель
         if video_stream.time_base.denominator == 0:
             logging.error(f"Некорректный time_base (знаменатель 0) для видеопотока в '{filepath}'.")
             return []
@@ -719,18 +736,11 @@ def get_iframe_start_times(filepath: str) -> List[float]:
         logging.debug(
             f"Видеопоток найден: index={video_stream.index}, codec={video_stream.name}, time_base={video_stream.time_base}")
 
-        # Перемотка на начало файла перед демультиплексированием для большей надежности,
-        # хотя demux должен начинать с начала по умолчанию.
-        # try:
-        #     container.seek(0, whence='byte', backward=True, any_frame=False)  # Перемотка к началу файла
-        # except av.FFmpegError as e_seek:
-        #     logging.warning(
-        #         f"Не удалось выполнить перемотку к началу файла '{filepath}': {e_seek}. Продолжение без перемотки.")
 
         key_packet_pts_set = set()  # Для хранения уникальных PTS ключевых пакетов
 
         for packet in container.demux(video_stream):
-            # Обрабатываем только пакеты, принадлежащие видеопотоку (на случай, если demux вернет что-то еще)
+            # Обрабатываем только пакеты, принадлежащие видеопотоку
             if packet.stream.type != 'video' or packet.stream.index != video_stream.index:
                 continue
 
@@ -748,7 +758,7 @@ def get_iframe_start_times(filepath: str) -> List[float]:
 
     except av.FFmpegError as e_av:
         logging.error(f"Ошибка PyAV/FFmpeg при поиске I-кадров в '{filepath}': {e_av}", exc_info=True)
-        return []  # Возвращаем пустой список при ошибке
+        return []
     except Exception as e:
         logging.error(f"Неожиданная ошибка при поиске I-кадров в '{filepath}': {e}", exc_info=True)
         return []
@@ -761,7 +771,6 @@ def get_iframe_start_times(filepath: str) -> List[float]:
 
     return iframe_times_sec
 
-# --- ПОЛНАЯ ФУНКЦИЯ: check_compatibility_and_choose_output ---
 def check_compatibility_and_choose_output(
         input_metadata: Dict[str, Any]
 ) -> Tuple[str, str, str]:
@@ -786,33 +795,20 @@ def check_compatibility_and_choose_output(
     logging.info(f"  Вход: Видео='{in_video_codec}', Аудио='{in_audio_codec}' (есть: {has_audio_original})")
 
     # --- 1. Выбор рекомендуемого CPU-кодера для "головы" (temp_head.mp4) ---
-    # Цель: создать "голову" с высокой совместимостью для последующей склейки.
-    # libx264 (H.264) - хороший, широко совместимый выбор.
-    # Аудио для головы всегда будет 'aac' (это решается в write_head_only).
-
     recommended_head_video_encoder_lib = DEFAULT_VIDEO_ENCODER_LIB_FOR_HEAD
-    # Можно было бы сделать более сложный выбор, например:
-    # if in_video_codec == 'hevc':
-    #     recommended_head_video_encoder_lib = 'libx265'
-    # elif in_video_codec == 'vp9':
-    #     recommended_head_video_encoder_lib = 'libvpx-vp9'
-    # Но для простоты и надежности стыковки, кодирование головы в H.264 (libx264)
-    # обычно является безопасным вариантом, даже если оригинал был другим.
 
     logging.info(f"  Рекомендуемый видеокодер для 'головы' (temp_file): {recommended_head_video_encoder_lib}")
-    # Аудио для головы будет 'aac', это задается в write_head_only.
+
     head_audio_codec_name_assumed = 'aac'
 
     # --- 2. Определение расширения для ФИНАЛЬНОГО файла и действия для аудио "хвоста" (в FFmpeg) ---
-    # Это зависит от кодеков ОРИГИНАЛЬНОГО видео (которое станет хвостом)
-    # и аудио (голова будет AAC, хвост - оригинальный аудиокодек или перекодированный).
 
     final_output_extension = DEFAULT_OUTPUT_CONTAINER_EXT_FINAL  # По умолчанию .mp4
 
     # Определяем, можно ли копировать аудио хвоста, или его нужно будет перекодировать FFmpeg
-    ffmpeg_tail_audio_action = DEFAULT_AUDIO_CODEC_FOR_FFMPEG_TAIL  # По умолчанию перекодировать
+    ffmpeg_tail_audio_action = DEFAULT_AUDIO_CODEC_FOR_FFMPEG_TAIL
     if not has_audio_original:
-        ffmpeg_tail_audio_action = 'none'  # Нет аудио в оригинале, значит и в хвосте
+        ffmpeg_tail_audio_action = 'none'
     elif in_audio_codec:
         # Пытаемся подобрать контейнер, который поддерживает копирование оригинального видео И аудио
         # Если аудио хвоста AAC, MP3, Opus, Vorbis - хорошие кандидаты для копирования в совместимые контейнеры
@@ -826,14 +822,10 @@ def check_compatibility_and_choose_output(
         elif in_audio_codec == 'vorbis' and (DEFAULT_OUTPUT_CONTAINER_EXT_FINAL in ['.webm', '.mkv']):
             ffmpeg_tail_audio_action = 'copy'
             final_output_extension = ".webm" if in_video_codec in ['vp8', 'vp9', 'av1'] else ".mkv"
-        # Если не один из распространенных "копируемых" кодеков, оставляем ffmpeg_tail_audio_action
-        # на DEFAULT_AUDIO_CODEC_FOR_FFMPEG_TAIL ('aac'), что означает перекодирование хвоста.
 
-    # Корректируем final_output_extension на основе видеокодека хвоста, если нужно
     if in_video_codec in ['vp8', 'vp9', 'av1']:
-        # Для этих кодеков WebM или MKV предпочтительнее MP4
-        if final_output_extension == ".mp4":  # Если не было изменено выше аудио логикой
-            final_output_extension = ".mkv"  # MKV более гибкий
+        if final_output_extension == ".mp4":
+            final_output_extension = ".mkv"
             if ffmpeg_tail_audio_action not in ['opus', 'vorbis', 'aac', 'none', 'copy']:
                 # Если аудио хвоста будет перекодироваться, и это не Opus/Vorbis, то AAC для MKV
                 ffmpeg_tail_audio_action = DEFAULT_AUDIO_CODEC_FOR_FFMPEG_TAIL
@@ -850,7 +842,7 @@ def check_compatibility_and_choose_output(
     video_ok_final = (in_video_codec is None) or (('video', in_video_codec) in allowed_codecs_in_final)
     # Аудио головы (всегда 'aac') должно быть совместимо
     audio_head_ok_final = ('audio', head_audio_codec_name_assumed) in allowed_codecs_in_final
-    # Аудио хвоста (либо скопированное, либо перекодированное) должно быть совместимо
+    # Аудио хвоста должно быть совместимо
     audio_tail_ok_final = (final_check_audio_codec is None) or \
                           (('audio', final_check_audio_codec) in allowed_codecs_in_final)
 
@@ -862,10 +854,9 @@ def check_compatibility_and_choose_output(
         logging.warning(f"    Аудио хвоста ({final_check_audio_codec or 'N/A'}): {audio_tail_ok_final}")
 
         current_problematic_ext = final_output_extension
-        final_output_extension = FALLBACK_CONTAINER_EXT_FINAL  # Переключаемся на .mkv
+        final_output_extension = FALLBACK_CONTAINER_EXT_FINAL
         logging.warning(f"  Переключение на fallback финальный контейнер: '{final_output_extension}'")
 
-        # Перепроверяем совместимость для MKV
         allowed_codecs_in_mkv = CODEC_CONTAINER_COMPATIBILITY.get(".mkv", set())
         video_ok_mkv = (in_video_codec is None) or (('video', in_video_codec) in allowed_codecs_in_mkv)
         audio_head_ok_mkv = ('audio', head_audio_codec_name_assumed) in allowed_codecs_in_mkv
@@ -876,7 +867,6 @@ def check_compatibility_and_choose_output(
             logging.error(f"  Даже fallback контейнер '{final_output_extension}' несовместим! "
                           f"Возврат к '{current_problematic_ext}'. FFmpeg может потребовать перекодирование или выдать ошибку.")
             final_output_extension = current_problematic_ext
-            # В этом случае, если ffmpeg_tail_audio_action был 'copy', лучше принудительно перекодировать
             if ffmpeg_tail_audio_action == 'copy' and has_audio_original:
                 logging.warning(
                     f"   Аудио хвоста будет принудительно перекодировано в {DEFAULT_AUDIO_CODEC_FOR_FFMPEG_TAIL} из-за несовместимости контейнера.")
@@ -889,7 +879,7 @@ def check_compatibility_and_choose_output(
     return final_output_extension, recommended_head_video_encoder_lib, ffmpeg_tail_audio_action
 
 
-# --- Функция чтения видео (остается без изменений) ---
+# --- Функция чтения видео ---
 def get_input_metadata(video_path: str) -> Optional[Dict[str, Any]]:
     """
     Читает метаданные из видеофайла с использованием PyAV, включая битрейт аудио
@@ -916,15 +906,14 @@ def get_input_metadata(video_path: str) -> Optional[Dict[str, Any]]:
         logging.error("PyAV недоступен для get_input_metadata.")
         return None
 
-    # Инициализация словаря метаданных
     metadata: Dict[str, Any] = {
         'input_path': video_path,
         'format_name': None,
-        'duration': None,  # В микросекундах (AV_TIME_BASE)
+        'duration': None,
         'video_codec': None,
         'width': 0,
         'height': 0,
-        'fps': None,  # Будет Fraction или float
+        'fps': None,
         'video_bitrate': None,
         'video_time_base': None,
         'pix_fmt': None,
@@ -938,7 +927,7 @@ def get_input_metadata(video_path: str) -> Optional[Dict[str, Any]]:
         'audio_rate': None,
         'audio_layout': None,
         'audio_time_base': None,
-        'audio_bitrate': None,  # Важное поле
+        'audio_bitrate': None,
         'audio_stream_index': -1,
         'audio_codec_context_params': None,
         'total_frames': 0  # Оценка
@@ -964,7 +953,7 @@ def get_input_metadata(video_path: str) -> Optional[Dict[str, Any]]:
                 if cap_cv2.isOpened():
                     w_cv2 = int(cap_cv2.get(cv2.CAP_PROP_FRAME_WIDTH))
                     h_cv2 = int(cap_cv2.get(cv2.CAP_PROP_FRAME_HEIGHT))
-                    fps_cv2 = cap_cv2.get(cv2.CAP_PROP_FPS)  # Может быть 0
+                    fps_cv2 = cap_cv2.get(cv2.CAP_PROP_FPS)
                     if w_cv2 > 0 and h_cv2 > 0:
                         metadata['width'] = w_cv2
                         metadata['height'] = h_cv2
@@ -982,51 +971,45 @@ def get_input_metadata(video_path: str) -> Optional[Dict[str, Any]]:
             if not (metadata['width'] > 0 and metadata['height'] > 0):
                 logging.critical("Не удалось получить даже базовые размеры кадра.")
                 return None
-            return metadata  # Возвращаем то, что удалось получить через OpenCV
+            return metadata
 
         # --- Чтение метаданных контейнера ---
         if input_container.format:
             metadata['format_name'] = input_container.format.name
-        if input_container.duration:  # Длительность в микросекундах
+        if input_container.duration:
             metadata['duration'] = input_container.duration
-        if input_container.bit_rate:  # Общий битрейт файла
-            # Можно сохранить, но видео/аудио битрейты потоков важнее
-            # metadata['container_bitrate'] = input_container.bit_rate
+        if input_container.bit_rate:
             pass
 
         # --- Чтение метаданных видеопотока ---
         if not input_container.streams.video:
             logging.warning("Видеопотоки не найдены PyAV.")
-            # Проверим, есть ли размеры из OpenCV fallback
             if not (metadata['width'] > 0 and metadata['height'] > 0):
                 logging.error("Нет видеопотоков и не удалось получить размеры через OpenCV.")
-                return None  # Не можем работать без видео
+                return None
         else:
             try:
-                # Берем первый видеопоток
                 video_stream = input_container.streams.video[0]
                 metadata['video_stream_index'] = video_stream.index
                 ctx = video_stream.codec_context
 
                 metadata['video_codec'] = video_stream.codec.name
-                # Используем размеры из контекста, если они валидны, иначе оставляем из OpenCV fallback
+                # размеры из контекста, если они валидны, иначе оставляем из OpenCV fallback
                 if ctx.width and ctx.width > 0: metadata['width'] = ctx.width
                 if ctx.height and ctx.height > 0: metadata['height'] = ctx.height
 
                 # Получение FPS: приоритет average_rate, затем r_frame_rate, затем из OpenCV
                 fps_val = None
                 if video_stream.average_rate and float(video_stream.average_rate) > 0:
-                    fps_val = video_stream.average_rate  # Это Fraction
+                    fps_val = video_stream.average_rate
                 elif video_stream.r_frame_rate and float(video_stream.r_frame_rate) > 0:
-                    fps_val = video_stream.r_frame_rate  # Это Fraction
+                    fps_val = video_stream.r_frame_rate
                 if fps_val: metadata['fps'] = fps_val
-                # Если fps все еще None, оставляем значение из OpenCV fallback (если было)
 
                 metadata['pix_fmt'] = ctx.pix_fmt
-                if ctx.bit_rate and ctx.bit_rate > 0:  # Битрейт видеопотока
+                if ctx.bit_rate and ctx.bit_rate > 0:
                     metadata['video_bitrate'] = ctx.bit_rate
                 elif input_container.bit_rate and input_container.bit_rate > 0 and not input_container.streams.audio:
-                    # Если аудио нет, общий битрейт = видео битрейт
                     metadata['video_bitrate'] = input_container.bit_rate
 
                 if video_stream.time_base: metadata['video_time_base'] = video_stream.time_base
@@ -1037,7 +1020,7 @@ def get_input_metadata(video_path: str) -> Optional[Dict[str, Any]]:
                 metadata['color_transfer_tag'] = video_stream.metadata.get('color_transfer')
                 metadata['color_range_tag'] = video_stream.metadata.get('color_range')
 
-                # Оценка общего числа кадров (может быть неточной)
+                # Оценка общего числа кадров
                 if video_stream.frames and video_stream.frames > 0:
                     metadata['total_frames'] = video_stream.frames
                 elif metadata['duration'] and metadata['fps'] and float(metadata['fps']) > 0:
@@ -1046,7 +1029,7 @@ def get_input_metadata(video_path: str) -> Optional[Dict[str, Any]]:
                         metadata['total_frames'] = int(
                             round((float(metadata['duration']) / 1_000_000.0) * float(metadata['fps'])))
                     except Exception:
-                        pass  # Ошибка расчета
+                        pass
 
                 logging.info(
                     f"  PyAV Video Stream Meta: Codec={metadata['video_codec']}, Res={metadata['width']}x{metadata['height']}, "
@@ -1055,7 +1038,6 @@ def get_input_metadata(video_path: str) -> Optional[Dict[str, Any]]:
 
             except (AttributeError, ValueError, TypeError, av.FFmpegError) as e_video:
                 logging.error(f"Ошибка при доступе к свойствам видеопотока: {e_video}")
-                # Проверяем критичные параметры еще раз
                 if not (metadata['width'] > 0 and metadata['height'] > 0 and metadata['fps']):
                     logging.critical("Критичные видео метаданные отсутствуют после всех проверок.")
                     return None  # Не можем продолжать без W, H, FPS
@@ -1080,15 +1062,13 @@ def get_input_metadata(video_path: str) -> Optional[Dict[str, Any]]:
                 if audio_stream.time_base: metadata['audio_time_base'] = audio_stream.time_base
 
                 # --- Получение аудио битрейта ---
-                audio_bitrate = ctx.bit_rate  # int или None
+                audio_bitrate = ctx.bit_rate
                 if audio_bitrate and audio_bitrate > 0:
                     metadata['audio_bitrate'] = audio_bitrate
                 else:
-                    metadata['audio_bitrate'] = None  # Явно None
-                    # Можно попытаться рассчитать, если знаем размер потока и длительность, но это ненадежно
+                    metadata['audio_bitrate'] = None
 
-                # Сохраняем другие параметры контекста, если они могут понадобиться
-                # (например, для настройки декодера в write_head_only)
+                # Сохраняем другие параметры контекста
                 metadata['audio_codec_context_params'] = {
                     'format': ctx.format.name if ctx.format else None,
                     'layout': metadata['audio_layout'],
@@ -1106,18 +1086,17 @@ def get_input_metadata(video_path: str) -> Optional[Dict[str, Any]]:
                 logging.warning(f"Не удалось получить/обработать метаданные аудиопотока: {e_audio}")
                 metadata['has_audio'] = False
                 metadata['audio_stream_index'] = -1
-                metadata['audio_bitrate'] = None  # Сбрасываем при ошибке
+                metadata['audio_bitrate'] = None
 
-        # Финальная проверка критичных видео параметров
         if not (metadata['width'] > 0 and metadata['height'] > 0 and metadata['fps']):
             logging.critical("Критичные видео метаданные (W, H, FPS) отсутствуют.")
             return None
 
         return metadata
 
-    except Exception as e_general:  # Ловим другие неожиданные ошибки
+    except Exception as e_general:
         logging.error(f"Неожиданная ошибка при получении метаданных для '{video_path}': {e_general}", exc_info=True)
-        return None  # Возвращаем None при серьезной ошибке
+        return None
     finally:
         if input_container:
             try:
@@ -1127,13 +1106,13 @@ def get_input_metadata(video_path: str) -> Optional[Dict[str, Any]]:
                 logging.error(f"Error closing input container after metadata read: {e_close}")
 
 
-# --- Новая функция для чтения ТОЛЬКО нужных кадров и ВСЕХ аудиопакетов ---
-@profile  # Если используете line_profiler
+# --- функция для чтения ТОЛЬКО нужных кадров и ВСЕХ аудиопакетов ---
+# @profile
 def read_processing_head(
         video_path: str,
         frames_to_read: int,
-        video_stream_index: int,  # Индекс видеопотока для чтения
-        audio_stream_index: int  # Индекс аудиопотока для чтения (-1 если нет аудио)
+        video_stream_index: int,
+        audio_stream_index: int
 ) -> Tuple[Optional[List[np.ndarray]], Optional[List[av.Packet]]]:
     """
     Читает и декодирует ТОЛЬКО первые `frames_to_read` видеокадров (в BGR NumPy)
@@ -1151,14 +1130,14 @@ def read_processing_head(
         list_of_audio_packets: Список всех av.Packet аудиопотока.
         Возвращает (None, None) при критической ошибке.
     """
-    if not PYAV_AVAILABLE:  # PYAV_AVAILABLE должно быть определено глобально
+    if not PYAV_AVAILABLE:
         logging.error("PyAV недоступен для read_processing_head.")
         return None, None
 
     if frames_to_read <= 0:
         logging.warning(
             f"read_processing_head: Количество кадров для чтения ({frames_to_read}) <= 0. Возвращаем пустые списки.")
-        return [], []  # Возвращаем пустые списки, это не ошибка, просто нечего читать
+        return [], []
 
     head_frames_bgr: List[np.ndarray] = []
     all_audio_packets: List[av.Packet] = []
@@ -1172,7 +1151,6 @@ def read_processing_head(
     try:
         input_container = av.open(video_path, mode='r')
         if input_container is None:
-            # Это может случиться, если av.open вернул None вместо исключения
             raise av.FFmpegError(f"av.open вернул None для файла: {video_path}")
 
         # Проверяем наличие нужных потоков
@@ -1183,11 +1161,9 @@ def read_processing_head(
 
         if not has_target_video_stream and frames_to_read > 0:
             logging.error(f"  Видеопоток с индексом {video_stream_index} не найден в '{video_path}'.")
-            # Если кадры нужны, но потока нет - это проблема
-            return None, None  # или ([], all_audio_packets) если аудио важнее
+            return None, None
         if audio_stream_index != -1 and not has_target_audio_stream:
             logging.warning(f"  Аудиопоток с индексом {audio_stream_index} не найден. Аудиопакеты не будут собраны.")
-            # Не прерываем, если видео еще можно прочитать
 
         logging.debug("Начало демультиплексирования пакетов...")
         packet_count = 0
@@ -1207,14 +1183,8 @@ def read_processing_head(
                     new_packet.pts = packet.pts
                     new_packet.dts = packet.dts
                     new_packet.duration = packet.duration
-                    # --- УДАЛЕНО: new_packet.stream_index = packet.stream_index ---
-                    # new_packet.is_keyframe = packet.is_keyframe # Если нужно
 
                     # Сохраняем оригинальный stream_index, если он понадобится позже для идентификации
-                    # (например, если у вас несколько аудиопотоков и вы хотите их различать)
-                    # Но для самого new_packet это поле не пишется напрямую.
-                    # Можно сохранить его в отдельной структуре или как временный атрибут, если PyAV это позволяет
-                    # setattr(new_packet, '_original_stream_index', packet.stream.index) # Нестандартно, может не работать
 
                     all_audio_packets.append(new_packet)
                 except Exception as e_packet_create:
@@ -1226,11 +1196,10 @@ def read_processing_head(
             # Декодируем видеопакеты, пока не наберем нужное количество кадров
             elif has_target_video_stream and packet.stream.index == video_stream_index:
                 if frames_decoded_count >= frames_to_read:
-                    # Видеокадры головы уже набраны, но продолжаем собирать аудио, если нужно
                     continue
 
                 try:
-                    for frame in packet.decode():  # packet.decode() может вернуть несколько кадров
+                    for frame in packet.decode():
                         if frame and isinstance(frame, av.VideoFrame):
                             # Конвертируем в BGR NumPy
                             try:
@@ -1241,13 +1210,12 @@ def read_processing_head(
                                     f"    Не удалось напрямую конвертировать видеокадр в bgr24: {e_to_ndarray}. Попытка через YUV420p.")
                                 # Попытка реформатирования в YUV420P, затем в NumPy, затем OpenCV
                                 try:
-                                    # Инициализируем реформаттер один раз
                                     if reformatter_yuv_to_bgr is None:
                                         # Убедимся, что frame.width и frame.height валидны
                                         if frame.width <= 0 or frame.height <= 0:
                                             logging.error(
                                                 f"    Невалидные размеры кадра для реформаттера: {frame.width}x{frame.height}")
-                                            continue  # Пропускаем этот кадр
+                                            continue
                                         reformatter_yuv_to_bgr = VideoReformatter(frame.width, frame.height, 'yuv420p')
 
                                     frame_yuv = reformatter_yuv_to_bgr.reformat(frame)
@@ -1257,48 +1225,43 @@ def read_processing_head(
                                     if np_frame_yuv.shape[
                                         0] * 2 // 3 == frame_yuv.height:  # Проверка типичной структуры YUV420P
                                         np_frame_bgr = cv2.cvtColor(np_frame_yuv, cv2.COLOR_YUV2BGR_I420)
-                                    else:  # Фоллбек на другой формат YUV, если известен, или ошибка
+                                    else:
                                         logging.error(
                                             f"    Неизвестный формат NumPy массива после YUV реформатирования: {np_frame_yuv.shape}")
-                                        continue  # Пропускаем этот кадр
+                                        continue
                                 except Exception as e_reformat_cv:
                                     logging.error(
                                         f"    Ошибка при реформатировании в YUV или конвертации OpenCV: {e_reformat_cv}",
                                         exc_info=True)
-                                    continue  # Пропускаем этот кадр
+                                    continue
 
                             head_frames_bgr.append(np_frame_bgr)
                             frames_decoded_count += 1
 
-                            if frames_decoded_count % 50 == 0:  # Логируем каждые 50 кадров
+                            if frames_decoded_count % 50 == 0:
                                 logging.debug(
                                     f"  Декодировано {frames_decoded_count}/{frames_to_read} видеокадров 'головы'...")
 
                             if frames_decoded_count >= frames_to_read:
-                                break  # Выходим из внутреннего цикла по кадрам в пакете
+                                break
 
                     if frames_decoded_count >= frames_to_read:
                         # Видеокадры головы набраны, но продолжаем собирать аудио, если оно еще не все
                         pass  # Цикл по пакетам продолжится
 
                 except (av.FFmpegError, ValueError) as e_decode_video:
-                    # Некоторые ошибки декодирования могут быть некритичны (например, для поврежденных кадров)
                     logging.warning(
                         f"  Ошибка декодирования видеопакета (stream {packet.stream.index}): {e_decode_video} - пакет пропущен.")
                 except Exception as e_unexpected_decode:
                     logging.error(f"  Неожиданная ошибка при декодировании видеопакета: {e_unexpected_decode}",
                                   exc_info=True)
-                    # Решаем, стоит ли прерывать при неожиданной ошибке
-                    # return None, None # Вариант: прервать
 
             if frames_to_read > 0 and has_target_video_stream and frames_decoded_count >= frames_to_read and \
                     (audio_stream_index == -1 or not has_target_audio_stream):
-                # Если видео набрано и аудио не нужно/нет, можно выйти раньше
                 logging.info(
                     "  Все необходимые видеокадры 'головы' прочитаны, аудио не требуется/нет. Завершение демультиплексирования.")
                 break
 
-        # Цикл по пакетам завершен
         if frames_to_read > 0 and frames_decoded_count < frames_to_read:
             logging.warning(
                 f"  Прочитано только {frames_decoded_count} видеокадров 'головы', запрашивалось {frames_to_read} (возможно, конец файла).")
@@ -1327,10 +1290,8 @@ def read_processing_head(
     return head_frames_bgr, all_audio_packets
 
 
-# --- Функция записи видео (остается без изменений) ---
-# @profile # Добавьте, если нужно профилировать
-
-
+# --- Функция записи видео ---
+# @profile
 def rescale_time(value: Optional[int], old_tb: Optional[Fraction], new_tb: Optional[Fraction], label: str = "") -> Optional[int]:
     """
     Пересчитывает значение времени (PTS, DTS, Duration) из одной time_base в другую.
@@ -1358,7 +1319,7 @@ def get_assumed_color_properties(width: int, height: int,
     Возвращает словарь с ключами 'colorspace', 'primaries', 'trc', 'range'.
     Значения - строки, понятные FFmpeg/PyAV.
     """
-    cs_tag = original_tags.get('color_space')  # Пример ключей, используйте ваши из get_input_metadata
+    cs_tag = original_tags.get('color_space')
     cp_tag = original_tags.get('color_primaries')
     ct_tag = original_tags.get('color_transfer')
     cr_tag = original_tags.get('color_range')
@@ -1367,19 +1328,17 @@ def get_assumed_color_properties(width: int, height: int,
     assumed_cs = 'bt709'
     assumed_cp = 'bt709'
     assumed_ct = 'bt709'
-    assumed_cr = 'tv'  # Limited range ('mpeg' в некоторых API)
+    assumed_cr = 'tv'
 
-    # Логика на основе разрешения (упрощенный пример, нужно адаптировать)
+    # Логика на основе разрешения
     if height <= 576:  # Пример для SD
         assumed_cs = 'bt470bg' if cs_tag and '601' not in cs_tag else 'bt470bg'  # или smpte170m
         assumed_cp = 'bt470bg' if cp_tag and '601' not in cp_tag else 'bt470bg'  # или smpte170m
         assumed_ct = 'gamma28' if ct_tag and '601' not in ct_tag else 'gamma28'  # или smpte170m
         assumed_cr = cr_tag if cr_tag in ['tv', 'pc', 'mpeg', 'jpeg'] else 'tv'
     elif height > 1080:  # Пример для UHD
-        # Оставим BT.709 для совместимости, если не указано иное
         if cs_tag == 'bt2020ncl': assumed_cs = 'bt2020ncl'
         if cp_tag == 'bt2020': assumed_cp = 'bt2020'
-        # Для HDR нужны специфичные transfer functions (e.g., smpte2084/pq, arib-std-b67/hlg)
         if ct_tag and ('bt2020' in ct_tag or 'pq' in ct_tag or 'hlg' in ct_tag):
             assumed_ct = ct_tag
         # Для SDR UHD часто используют тот же bt709/gamma2.4 или iec61966-2-1/srgb
@@ -1387,7 +1346,7 @@ def get_assumed_color_properties(width: int, height: int,
         else:
             assumed_ct = 'bt709'  # Fallback к bt709 для SDR UHD
 
-        if cr_tag == 'pc': assumed_cr = 'pc'  # Если диапазон полный, сохраняем
+        if cr_tag == 'pc': assumed_cr = 'pc'
     else:  # HD
         # Проверяем, если исходные теги похожи на bt709, используем их
         if cs_tag and '709' in cs_tag: assumed_cs = cs_tag
@@ -1406,15 +1365,14 @@ def get_assumed_color_properties(width: int, height: int,
     return final_props
 
 
-# --- НОВАЯ ФУНКЦИЯ: Запись "Головы" во Временный Файл ---
-# @profile # Если используете line_profiler
+# --- Запись "Головы" во Временный Файл ---
+# @profile
 def write_head_only(
         watermarked_head_frames: List[np.ndarray],
         all_audio_packets: Optional[List[av.Packet]],
         input_metadata: Dict[str, Any],
         temp_head_path: str,
-        target_video_encoder_lib: str,  # Например, 'libx264'
-        # audio_action_for_head: str, # Этот параметр больше не нужен, т.к. аудио головы всегда AAC
+        target_video_encoder_lib: str,
         video_encoder_options: Optional[Dict[str, str]] = None,
         audio_encoder_options: Optional[Dict[str, str]] = None
 ) -> Tuple[Optional[float], Optional[Dict[str, Any]]]:
@@ -1435,7 +1393,6 @@ def write_head_only(
         return None, None
     if not watermarked_head_frames:
         logging.warning("write_head_only: Нет кадров для записи в 'голову'.")
-        # Возвращаем 0.0 длительность и пустой словарь параметров, если нет кадров
         return 0.0, {}
 
     num_head_frames = len(watermarked_head_frames)
@@ -1453,27 +1410,20 @@ def write_head_only(
     video_reformatter: Optional[VideoReformatter] = None  # Переименовал
 
     actual_video_duration_sec: Optional[float] = None
-    last_successfully_muxed_video_pts: int = -1  # PTS последнего успешно ЗАМУКСИРОВАННОГО пакета
-    # Не video_frame_out.pts, а pts пакета, который может отличаться или быть None если encode вернул пустой список
-    # Но для простоты и если encode всегда возвращает пакеты для кадра, можно отталкиваться от current_video_pts
-    # Однако, точнее всего будет брать PTS из последнего packet, который был успешно смuxирован,
-    # или PTS последнего кадра, который УСПЕШНО дал пакеты.
-    # Для упрощения, пока будем полагаться на `last_encoded_video_pts` (PTS кадра).
+    last_successfully_muxed_video_pts: int = -1
 
-    last_encoded_video_frame_pts: int = -1  # PTS последнего кадра, переданного в video_stream_out.encode()
-    video_frame_duration_in_tb: int = 0  # Длительность одного видеокадра в единицах video_stream_out.time_base
+    last_encoded_video_frame_pts: int = -1
+    video_frame_duration_in_tb: int = 0
 
     # --- Параметры кодирования, которые будут возвращены ---
-    # Инициализируем значениями по умолчанию или None
     used_encoding_params: Dict[str, Any] = {
         'video_encoder_lib': target_video_encoder_lib,
         'video_options': video_encoder_options.copy() if video_encoder_options else {},
-        # Копируем, т.к. можем модифицировать
         'video_pix_fmt': 'yuv420p',  # Фиксированный для вывода libx264
         'video_fps_fraction': None,
         'video_time_base': None,
         'audio_codec': actual_audio_codec_for_head,
-        'audio_options': audio_encoder_options.copy() if audio_encoder_options else {},  # Копируем
+        'audio_options': audio_encoder_options.copy() if audio_encoder_options else {},
         'audio_rate': None,
         'audio_layout': None,
         'audio_time_base': None,
@@ -1482,14 +1432,14 @@ def write_head_only(
     try:
         width = input_metadata.get('width')
         height = input_metadata.get('height')
-        fps_meta = input_metadata.get('fps')  # Может быть Fraction, float, int
+        fps_meta = input_metadata.get('fps')
 
         if not (width and height and width > 0 and height > 0):
             logging.error(f"Некорректные размеры кадра из input_metadata: {width}x{height}")
             return None, None
 
         # Определение FPS для использования
-        fps_to_use_float = float(FPS)  # Глобальный FPS как fallback
+        fps_to_use_float = float(FPS)
         if fps_meta:
             try:
                 fps_meta_float = float(fps_meta)
@@ -1507,7 +1457,6 @@ def write_head_only(
         used_encoding_params['video_fps_fraction'] = Fraction(fps_to_use_float).limit_denominator()
 
         has_audio_original = input_metadata.get('has_audio', False)
-        # Аудио обрабатывается, если оно было в оригинале и есть аудиопакеты
         process_audio = has_audio_original and (all_audio_packets is not None)
 
         output_container = av.open(temp_head_path, mode='w', metadata_errors='ignore')
@@ -1523,7 +1472,6 @@ def write_head_only(
         }
         color_props_for_output = get_assumed_color_properties(width, height, original_color_tags)
 
-        # Добавляем цветовые свойства в опции кодека, если они не пустые
         if color_props_for_output.get('colorspace'): used_encoding_params['video_options']['colorspace'] = \
         color_props_for_output['colorspace']
         if color_props_for_output.get('primaries'): used_encoding_params['video_options']['color_primaries'] = \
@@ -1539,19 +1487,19 @@ def write_head_only(
         video_stream_out.height = height
         video_stream_out.pix_fmt = used_encoding_params['video_pix_fmt']  # 'yuv420p'
 
-        if used_encoding_params['video_options']:  # Применяем опции, если они есть
+        if used_encoding_params['video_options']:
             video_stream_out.codec_context.options = used_encoding_params['video_options']
         logging.debug(f"Опции видеокодека для головы: {video_stream_out.codec_context.options}")
 
         # Установка time_base для видеопотока
-        input_video_time_base = input_metadata.get('video_time_base')  # Должен быть Fraction
+        input_video_time_base = input_metadata.get('video_time_base')
         if input_video_time_base and isinstance(input_video_time_base,
                                                 Fraction) and input_video_time_base.denominator != 0:
             video_stream_out.time_base = input_video_time_base
             logging.info(f"Видеопоток 'головы' time_base установлен из оригинала: {video_stream_out.time_base}")
         else:
             # PyAV может сам установить time_base при add_stream или оставить None.
-            # Если None, FFmpeg выберет его при открытии файла. Для большей предсказуемости лучше установить.
+            # Если None, FFmpeg выберет его при открытии файла.
             if video_stream_out.time_base is None or video_stream_out.time_base.denominator == 0:
                 # Типичное значение для многих кодеров/контейнеров
                 video_stream_out.time_base = Fraction(1, 90000)
@@ -1568,8 +1516,8 @@ def write_head_only(
                 ))
             except (ZeroDivisionError, ValueError, TypeError) as e_calc_dur:
                 logging.warning(f"Не удалось рассчитать video_frame_duration_in_tb: {e_calc_dur}. Используется 1.")
-                video_frame_duration_in_tb = 1  # Минимальная длительность
-        if video_frame_duration_in_tb <= 0:  # Дополнительная проверка
+                video_frame_duration_in_tb = 1
+        if video_frame_duration_in_tb <= 0:
             video_frame_duration_in_tb = 1
             logging.warning(
                 f"Рассчитанная video_frame_duration_in_tb ({video_frame_duration_in_tb}) некорректна. Установлено в 1.")
@@ -1658,7 +1606,6 @@ def write_head_only(
                             decoded_frames = input_audio_decoder.decode(audio_packet_original)
                             if decoded_frames: decoded_audio_frames_for_head.extend(decoded_frames)
                         except av.FFmpegError as e_decode_audio:
-                            # EAGAIN означает, что декодеру нужно больше данных
                             if e_decode_audio.errno == -11 or 'again' in str(e_decode_audio).lower():
                                 logging.debug(
                                     f"Ошибка декодирования аудиопакета {processed_audio_packet_count} (EAGAIN), требуется больше данных.")
@@ -1669,7 +1616,7 @@ def write_head_only(
                         decoded_frames_flush = input_audio_decoder.decode(None)
                         if decoded_frames_flush: decoded_audio_frames_for_head.extend(decoded_frames_flush)
                     except av.FFmpegError:
-                        pass  # Ошибки при flush часто нормальны
+                        pass
                     logging.info(
                         f"Для 'головы' декодировано {len(decoded_audio_frames_for_head)} аудиокадров из оригинала.")
 
@@ -1677,7 +1624,7 @@ def write_head_only(
                     logging.error(f"Ошибка при настройке или декодировании аудио для 'головы': {e_setup_audio_stream}",
                                   exc_info=True)
                     process_audio = False
-                    audio_stream_out = None  # Сбрасываем, если была ошибка
+                    audio_stream_out = None
 
         # --- Кодирование и мультиплексирование видео ---
         logging.info(f"Кодирование и мультиплексирование {num_head_frames} видеокадров для 'головы'...")
@@ -1692,7 +1639,7 @@ def write_head_only(
 
                 video_frame_in = av.VideoFrame.from_ndarray(bgr_frame_np, format='bgr24')
 
-                if video_reformatter is None:  # Инициализируем реформаттер один раз
+                if video_reformatter is None:
                     video_reformatter = VideoReformatter(
                         video_frame_in.width, video_frame_in.height, used_encoding_params['video_pix_fmt'],  # 'yuv420p'
                         src_format='bgr24',  # Формат входных NumPy массивов
@@ -1708,7 +1655,7 @@ def write_head_only(
 
                 encoded_video_packets = video_stream_out.encode(video_frame_to_encode)
 
-                if encoded_video_packets:  # encode() может вернуть пустой список
+                if encoded_video_packets:
                     last_encoded_video_frame_pts = current_video_pts_for_frame  # Сохраняем PTS кадра, давшего пакеты
                     for packet_vid in encoded_video_packets:
                         output_container.mux(packet_vid)
@@ -1720,13 +1667,11 @@ def write_head_only(
                 logging.error(
                     f"Ошибка при обработке/кодировании видеокадра {frame_idx} для 'головы': {e_encode_video_frame}",
                     exc_info=True)
-                # Решаем, прерывать ли всю запись или пропустить кадр
-                # В данном случае лучше прервать, т.к. это может нарушить ЦВЗ
-                raise  # Перевыбрасываем исключение, чтобы оно было поймано внешним try-except
+                raise
 
         # Flush видеокодера
         logging.debug("Завершение (flush) видеокодера для 'головы'...")
-        encoded_video_packets_flush = video_stream_out.encode(None)  # Отправляем None для flush
+        encoded_video_packets_flush = video_stream_out.encode(None)
         if encoded_video_packets_flush:
             output_container.mux(encoded_video_packets_flush)
         logging.info(f"Закодировано и записано {encoded_video_frame_count} видеокадров в 'голову'.")
@@ -1775,12 +1720,6 @@ def write_head_only(
                     audio_frame_pts_sec = 0.0
                     if audio_frame_to_encode.pts is not None and audio_stream_out.time_base:  # Используем time_base ВЫХОДНОГО аудиопотока
                         try:
-                            # PTS аудиокадра уже должен быть в правильном time_base, если он пришел из декодера
-                            # Но если мы его как-то меняли, нужно быть осторожным.
-                            # В данном случае, PTS из input_audio_decoder должен быть в input_audio_time_base.
-                            # При кодировании в audio_stream_out, PyAV должен сам обработать PTS, если time_base разные.
-                            # Для отсечки используем время в секундах.
-                            # Конвертируем PTS аудиокадра (из input_audio_time_base) в секунды
                             if input_audio_time_base and input_audio_time_base.denominator != 0:  # Проверка для input_audio_time_base
                                 audio_frame_pts_sec = float(audio_frame_to_encode.pts * input_audio_time_base)
                             else:  # Если нет input_audio_time_base, сложно точно отсечь
@@ -1793,7 +1732,7 @@ def write_head_only(
                         logging.debug(
                             f"Пропуск аудиокадра {audio_frame_idx} для 'головы' (его PTS {audio_frame_pts_sec:.3f}s "
                             f"> лимита {duration_limit_for_audio_sec:.3f}s + буфер)")
-                        continue  # Пропускаем этот и последующие (если они отсортированы по PTS)
+                        continue
 
                     encoded_audio_packets = audio_stream_out.encode(audio_frame_to_encode)
                     if encoded_audio_packets:
@@ -1830,7 +1769,7 @@ def write_head_only(
                 logging.error(f"Ошибка при закрытии контейнера 'головы' ('{temp_head_path}'): {e_close_container}")
 
 
-# --- НОВАЯ ФУНКЦИЯ: Склейка с "Хвостом" через FFmpeg ---
+# --- Склейка с "Хвостом" через FFmpeg ---
 def concatenate_smart_stitch(
         original_input_path: str,
         temp_head_path: str,
@@ -1940,7 +1879,7 @@ def concatenate_smart_stitch(
         tail_copy_created = False
         tail_copy_cleaned = False
 
-        # --- Этап 1: Создание Переходного Сегмента (если нужен) ---
+        # --- Этап 1: Создание Переходного Сегмента ---
         if create_transition:
             logging.info(
                 f"Создание ПЕРЕКОДИРОВАННОГО переходного сегмента '{temp_transition_path}' (длительность ~{gap_duration:.3f}s)...")
@@ -2011,10 +1950,8 @@ def concatenate_smart_stitch(
                 else:
                     logging.error(
                         f"Ошибка FFmpeg при создании перехода (код {result_transition.returncode}).\nStderr: {result_transition.stderr}")
-                    # Не выходим сразу, попробуем склеить без перехода, если хвост создастся
             except Exception as e_transition_run:
                 logging.error(f"Ошибка создания перехода: {e_transition_run}", exc_info=True)
-                # Не выходим сразу
 
             # Если переход создать не удалось, но он был нужен - это ошибка для smart stitch
             if create_transition and not transition_created:
@@ -2097,8 +2034,8 @@ def concatenate_smart_stitch(
                 logging.warning(
                     f"Не удалось очистить хвост из-за исключения: {e_clean_tail}. Будет использован неочищенный.")
                 # path_to_concat_for_tail остается temp_tail_copy_path
-
-        files_to_concat.append(path_to_concat_for_tail)  # Добавляем путь к хвосту (очищенному или нет)
+        # Добавляем путь к хвосту (очищенному или нет)
+        files_to_concat.append(path_to_concat_for_tail)
 
         # --- Этап 3: Финальная Склейка (concat демультиплексор с -c copy) ---
         logging.info(
@@ -2246,7 +2183,7 @@ def embed_frame_pair(
                     v1_tensor = v1_tensor[:min_s]; v2_tensor = v2_tensor[:min_s]
                     rows1, cols1 = rows1[:min_s], cols1[:min_s]; rows2, cols2 = rows2[:min_s], cols2[:min_s]
 
-                # logging.debug(f"{prefix} v1 stats...") # Логи можно оставить
+                # logging.debug(f"{prefix} v1 stats...")
                 # logging.debug(f"{prefix} v2 stats...")
 
                 alpha_float = compute_adaptive_alpha_entropy(v1_tensor.cpu().numpy(), ring_idx, frame_number)
@@ -2299,7 +2236,7 @@ def embed_frame_pair(
 
                 if modified:
                     modifications_count += 1
-                    # logging.debug(f"{prefix}    Target Ratio...") # Логи можно оставить
+                    # logging.debug(f"{prefix}    Target Ratio...")
                     # logging.debug(f"{prefix}    New Ratio Check...")
                     # logging.debug(f"{prefix}    New s1..., s2...")
 
@@ -2313,7 +2250,7 @@ def embed_frame_pair(
                     if not torch.isfinite(v1m_tensor).all() or not torch.isfinite(v2m_tensor).all(): continue
                     if v1m_tensor.shape != v1_tensor.shape or v2m_tensor.shape != v2_tensor.shape: continue
 
-                    delta1_pt = v1m_tensor - v1_tensor # Используем _pt для ясности
+                    delta1_pt = v1m_tensor - v1_tensor
                     delta2_pt = v2m_tensor - v2_tensor
                     logging.debug(f"{prefix} PT Delta1 Stats: mean={delta1_pt.mean():.6e}, std={delta1_pt.std():.6e}")
                     logging.debug(f"{prefix} PT Delta2 Stats: mean={delta2_pt.mean():.6e}, std={delta2_pt.std():.6e}")
@@ -2340,7 +2277,7 @@ def embed_frame_pair(
                     # -------------------------------------
 
                     # --- ЛОГ ПОСЛЕ ПРИМЕНЕНИЯ ДЕЛЬТЫ ---
-                    yl_sub_after = Yl_t_mod[rows1, cols1] # Читаем снова после присваивания
+                    yl_sub_after = Yl_t_mod[rows1, cols1]
                     logging.debug(f"{prefix} Yl_t_mod[ring] AFTER apply: mean={yl_sub_after.mean():.6e}, std={yl_sub_after.std():.6e}")
                     yl_sub2_after = Yl_t1_mod[rows2, cols2]
                     logging.debug(f"{prefix} Yl_t1_mod[ring] AFTER apply: mean={yl_sub2_after.mean():.6e}, std={yl_sub2_after.std():.6e}")
@@ -2383,7 +2320,7 @@ def embed_frame_pair(
         if 'device' in locals() and device.type == 'cuda':
             with torch.no_grad(): torch.cuda.empty_cache()
         return None, None
-# --- ИЗМЕНЕННЫЙ _embed_single_pair_task ---
+# --- _embed_single_pair_task ---
 # @profile
 def _embed_single_pair_task(args: Dict[str, Any]) -> Tuple[int, Optional[np.ndarray], Optional[np.ndarray], List[int]]:
     """
@@ -2394,7 +2331,7 @@ def _embed_single_pair_task(args: Dict[str, Any]) -> Tuple[int, Optional[np.ndar
     nr = args.get('n_rings', N_RINGS); nrtu = args.get('nu  m_rings_to_use', NUM_RINGS_TO_USE)
     cps = args.get('candidate_pool_size', CANDIDATE_POOL_SIZE); ec = args.get('embed_component', EMBED_COMPONENT)
     upm = args.get('use_perceptual_masking', USE_PERCEPTUAL_MASKING)
-    # Получаем объекты PyTorch из аргументов
+    # объекты PyTorch из аргументов
     device = args.get('device'); dtcwt_fwd = args.get('dtcwt_fwd'); dtcwt_inv = args.get('dtcwt_inv')
     fn = 2 * pair_idx; selected_rings = []
 
@@ -2408,13 +2345,11 @@ def _embed_single_pair_task(args: Dict[str, Any]) -> Tuple[int, Optional[np.ndar
 
     try:
         # --- ШАГ 1: Выбор колец ---
-        # (Логика остается прежней, но использует PyTorch DTCWT и ring_division)
         candidate_rings = get_fixed_pseudo_random_rings(pair_idx, nr, cps)
         if len(candidate_rings) < nrtu: # Используем фактическое nrtu
             logging.warning(f"[P:{pair_idx}] Not enough candidates {len(candidate_rings)}<{nrtu}. Using all.")
-            # Не меняем nrtu здесь, пусть используется меньше колец, если надо
             if len(candidate_rings) == 0: raise ValueError("No candidates found.")
-        #else: # Лог не обязателен
+        #else:
         #   logging.debug(f"[P:{pair_idx}] Candidates: {candidate_rings}")
 
         # Конвертируем кадр для выбора колец
@@ -2475,11 +2410,11 @@ def _embed_single_pair_task(args: Dict[str, Any]) -> Tuple[int, Optional[np.ndar
 
     except Exception as e:
         logging.error(f"Error in _embed_single_pair_task P:{pair_idx}: {e}", exc_info=True)
-        return fn, None, None, [] # Возвращаем пустой список колец при ошибке
+        return fn, None, None, []
 
 
 
-# --- _embed_batch_worker - остается БЕЗ ИЗМЕНЕНИЙ (вызывает _embed_single_pair_task) ---
+# --- _embed_batch_worker  ---
 def _embed_batch_worker(batch_args_list: List[Dict]) -> List[
     Tuple[int, Optional[np.ndarray], Optional[np.ndarray], List[int]]]:
     batch_results = []
@@ -2491,7 +2426,7 @@ def _embed_batch_worker(batch_args_list: List[Dict]) -> List[
 
 @profile
 def embed_watermark_in_video(
-        frames_to_process: List[np.ndarray], # <--- Принимаем только кадры "головы"
+        frames_to_process: List[np.ndarray],
         payload_id_bytes: bytes,
         n_rings: int = N_RINGS,
         num_rings_to_use: int = NUM_RINGS_TO_USE,
@@ -2506,16 +2441,48 @@ def embed_watermark_in_video(
         device: torch.device = torch.device("cpu"),
         dtcwt_fwd: Optional[DTCWTForward] = None,
         dtcwt_inv: Optional[DTCWTInverse] = None,
-        # --- Другие параметры ---
-        max_workers: Optional[int] = MAX_WORKERS, # <--- Принимаем безопасное значение
+
+        max_workers: Optional[int] = MAX_WORKERS,
         use_perceptual_masking: bool = USE_PERCEPTUAL_MASKING,
         embed_component: int = EMBED_COMPONENT
-        # Параметр fps убран, так как расчет пар идет от len(frames_to_process)
-    ) -> Optional[List[np.ndarray]]: # <--- Возвращаем обработанные кадры "головы"
+
+    ) -> Optional[List[np.ndarray]]:
     """
-    Основная функция встраивания, адаптированная для подхода "Голова + Хвост".
-    Обрабатывает ТОЛЬКО переданные кадры (frames_to_process) параллельно
-    с ограниченным числом воркеров.
+    Основная функция встраивания ЦВЗ в предоставленный список видеокадров ("голова").
+
+    Формирует полную битовую последовательность ЦВЗ (с учетом ECC и/или
+    многократного встраивания Raw-пакетов), а затем параллельно обрабатывает
+    пары кадров для встраивания этих бит. Использует PyTorch для вычислительно
+    интенсивных операций (DTCWT, DCT, SVD).
+
+    Args:
+        frames_to_process: Список NumPy массивов (кадры в BGR), представляющих "голову" видео.
+        payload_id_bytes: Полезная нагрузка (например, ID) для встраивания, в виде байт.
+        n_rings: Общее количество концентрических колец для разделения LL-поддиапазона.
+        num_rings_to_use: Количество колец, выбираемых для встраивания `bits_per_pair` бит.
+        bits_per_pair: Количество бит, встраиваемых в одну пару кадров.
+        candidate_pool_size: Размер пула колец-кандидатов, из которых выбираются
+                             наилучшие по энтропии.
+        use_hybrid_ecc: Если True, первый пакет полезной нагрузки кодируется с ECC
+                        (если use_ecc_for_first=True и ECC доступен), а последующие
+                        копии встраиваются как Raw-данные.
+        max_total_packets: Общее желаемое количество пакетов ЦВЗ (первый + Raw-копии).
+        use_ecc_for_first: Если True и use_hybrid_ecc=True, попытаться применить ECC
+                           к первому пакету.
+        bch_code: Объект galois.BCH для ECC кодирования.
+        device: Устройство PyTorch (`torch.device`) для вычислений (CPU или CUDA).
+        dtcwt_fwd: Предварительно инициализированный объект DTCWTForward (pytorch_wavelets).
+        dtcwt_inv: Предварительно инициализированный объект DTCWTInverse (pytorch_wavelets).
+        max_workers: Максимальное количество потоков для ThreadPoolExecutor.
+        use_perceptual_masking: Использовать ли перцептуальную маску для модуляции
+                                силы встраивания.
+        embed_component: Индекс цветового компонента (0=Y, 1=Cr, 2=Cb в YCrCb),
+                         в который производится встраивание.
+
+    Returns:
+        Optional[List[np.ndarray]]: Список обработанных NumPy кадров (BGR) "головы"
+                                     со встроенным ЦВЗ.
+                                     Возвращает None в случае критической ошибки.
     """
     # Проверка наличия PyTorch объектов
     if not PYTORCH_WAVELETS_AVAILABLE or not TORCH_DCT_AVAILABLE:
@@ -2546,7 +2513,7 @@ def embed_watermark_in_video(
     logging.info(f"--- Embed Head Start (Processing {num_frames_head} frames / {total_pairs_head} pairs) ---")
     logging.info(f"Using max_workers: {max_workers}")
 
-    # --- Формирование последовательности бит для встраивания (как раньше) ---
+    # --- Формирование последовательности бит для встраивания ---
     bits_to_embed_list = []
     raw_payload_bits: Optional[np.ndarray] = None
     try:
@@ -2574,7 +2541,7 @@ def embed_watermark_in_video(
         packet1_len = len(first_packet_bits); packet1_type_str = f"Raw({packet1_len})"
         if not use_hybrid_ecc: logging.info(f"Режим НЕ гибридный: Первый пакет - {packet1_type_str}.")
         elif not can_use_ecc: logging.info(f"Гибридный режим: ECC невозможен/выключен. Первый пакет - {packet1_type_str}.")
-        use_hybrid_ecc = False # Отключаем добавление Raw пакетов, если первый Raw
+        use_hybrid_ecc = False
 
     if use_hybrid_ecc:
         num_raw_repeats_to_add = max(0, max_total_packets - 1)
@@ -2608,17 +2575,16 @@ def embed_watermark_in_video(
     # --- Подготовка аргументов для батчей ---
     start_time_embed_loop = time.time()
     # Создаем копию ТОЛЬКО переданных кадров "головы"
-    watermarked_frames = [frame.copy() for frame in frames_to_process] # Используем list comprehension + copy
+    watermarked_frames = [frame.copy() for frame in frames_to_process]
     rings_log: Dict[int, List[int]] = {}
     pc, ec, uc = 0, 0, 0
     skipped_pairs = 0
     all_pairs_args = []
 
-    for pair_idx in range(pairs_to_process): # Итерируем только по нужным парам
+    for pair_idx in range(pairs_to_process):
         i1 = 2 * pair_idx
         i2 = i1 + 1
         # Проверка валидности кадров ВНУТРИ frames_to_process
-        # (хотя они должны быть валидны, если read_processing_head отработал)
         if i2 >= len(frames_to_process) or frames_to_process[i1] is None or frames_to_process[i2] is None:
             skipped_pairs += 1
             logging.warning(f"Skipping pair {pair_idx}: invalid frames/indices within the head list.")
@@ -2626,18 +2592,18 @@ def embed_watermark_in_video(
 
         sbi = pair_idx * bits_per_pair
         ebi = sbi + bits_per_pair
-        if sbi >= len(bits_flat_final): break # Выходим, если биты кончились
+        if sbi >= len(bits_flat_final): break
         if ebi > len(bits_flat_final): ebi = len(bits_flat_final)
         cb = bits_flat_final[sbi:ebi].tolist()
         if len(cb) == 0: continue
 
         args = {'pair_idx': pair_idx,
-                'frame1': frames_to_process[i1], # Берем из переданного списка
-                'frame2': frames_to_process[i2], # Берем из переданного списка
+                'frame1': frames_to_process[i1],
+                'frame2': frames_to_process[i2],
                 'bits': cb,
                 'n_rings': n_rings, 'num_rings_to_use': num_rings_to_use,
                 'candidate_pool_size': candidate_pool_size,
-                'frame_number': i1, # Индекс кадра относительно начала "головы"
+                'frame_number': i1,
                 'use_perceptual_masking': use_perceptual_masking,
                 'embed_component': embed_component,
                 'device': device, 'dtcwt_fwd': dtcwt_fwd, 'dtcwt_inv': dtcwt_inv}
@@ -2648,7 +2614,6 @@ def embed_watermark_in_video(
     if num_valid_tasks == 0: logging.error("No valid tasks to process."); return None
 
     # --- Запуск ThreadPoolExecutor с ОГРАНИЧЕННЫМ числом воркеров ---
-    # Используем переданный max_workers (который должен быть безопасным)
     num_workers_to_use = max_workers if max_workers is not None and max_workers > 0 else 1 # Минимум 1
     # Адаптируем размер батча
     batch_size = max(1, ceil(num_valid_tasks / num_workers_to_use));
@@ -2694,14 +2659,14 @@ def embed_watermark_in_video(
                     ec += failed_pairs_count
     except Exception as e:
         logging.critical(f"ThreadPoolExecutor critical error: {e}", exc_info=True)
-        return None # Возвращаем None при ошибке пула
+        return None
 
     # --- Завершение и запись логов колец ---
     processing_time = time.time() - start_time_embed_loop
     logging.info(f"Processing {pairs_to_process} pairs finished in {processing_time:.2f} sec.")
     logging.info(f"Result: Processed OK: {pc}, Errors/Skipped: {ec + skipped_pairs}, Frames Updated: {uc}.")
 
-    # Запись лога колец (без изменений)
+    # Запись лога колец
     if rings_log:
         try:
             serializable_log = {str(k): v for k, v in rings_log.items()}
@@ -2714,9 +2679,14 @@ def embed_watermark_in_video(
     # Возвращаем ТОЛЬКО обработанные кадры "головы"
     return watermarked_frames
 
-# --- ИЗМЕНЕННАЯ main ---
-@profile  # Если используете line_profiler для main
+# @profile
 def main() -> int:
+    """
+        Основная управляющая функция для процесса встраивания ЦВЗ.
+        Выполняет все шаги: от анализа входного видео и подготовки данных
+        до встраивания ЦВЗ в "голову", создания "переходного" сегмента (если нужен)
+        и "хвоста", и финальной склейки всех частей с помощью FFmpeg.
+        """
     main_start_time = time.time()
     logging.info(f"--- Запуск Основного Процесса Встраивания (Smart Stitch) ---")
 
@@ -2758,14 +2728,13 @@ def main() -> int:
         return 1
 
     # --- Этап 1: Подготовка и Анализ ---
-    # Определить Имена Файлов
-    input_video_path = "test_video.mp4"  # ЗАМЕНИТЕ НА ВАШ ВХОДНОЙ ФАЙЛ
+    input_video_path = "test_final.mp4"
     if not os.path.exists(input_video_path):
         logging.critical(f"Входной файл не найден: {input_video_path}")
         print(f"ОШИБКА: Входной файл не найден: {input_video_path}")
         return 1
 
-    base_output_filename = f"watermarked_ffmpeg_t{BCH_T}"  # Используем t из BCH
+    base_output_filename = f"watermarked_ffmpeg_t{BCH_T}"
 
     logging.info(f"Входное видео: '{input_video_path}'")
     logging.info(f"Базовое имя выходного файла: '{base_output_filename}'")
@@ -2817,12 +2786,6 @@ def main() -> int:
                     if not input_metadata.get('total_frames_estimated', 0) > 0 and video_track.frame_count:
                         input_metadata['total_frames_estimated'] = int(video_track.frame_count); logging.info(
                             f"  MediaInfo: Кадры: {video_track.frame_count}")
-                    # --- Добавление Time Base из MediaInfo (сложно, требует расчета) ---
-                    # if not input_metadata.get('video_time_base') and video_track.frame_rate and video_track.duration:
-                    #     # Попытка расчета, но это не всегда точно и не всегда Fraction
-                    #     pass
-                    # --- Добавление цветовых тегов, если нужно ---
-                    # if not input_metadata.get('color_space_tag') and video_track.color_space: ...
 
                 if audio_track:
                     if not input_metadata.get('has_audio'): input_metadata['has_audio'] = True
@@ -2881,7 +2844,6 @@ def main() -> int:
         logging.info("Аудио битрейт не найден в метаданных.")
 
     # Рассчитать "Голову"
-    # ... (Ваша логика расчета bits_for_calc_len_list и frames_to_process остается здесь) ...
     payload_id_for_calc_len = os.urandom(PAYLOAD_LEN_BYTES)
     bits_for_calc_len_list: List[int] = []
     try:
@@ -2910,13 +2872,10 @@ def main() -> int:
     frames_to_process = pairs_needed * 2
     if total_original_frames > 0: frames_to_process = min(frames_to_process, total_original_frames)
     if frames_to_process % 2 != 0 and frames_to_process > 0: frames_to_process -= 1
-    # --------------------------------------------------------------------------
 
     # Выбрать Параметры Выхода и имена файлов
     output_extension, target_video_encoder_lib_for_head, ffmpeg_action_original_audio_tail = \
         check_compatibility_and_choose_output(input_metadata)
-    # Примечание: ffmpeg_action_original_audio_tail больше не используется напрямую в concatenate_smart_stitch
-    #             так как логика обработки аудио хвоста там своя. Но он может быть полезен для логов.
 
     final_output_path = base_output_filename + output_extension
     temp_head_path = base_output_filename + "_head" + output_extension
@@ -2940,17 +2899,12 @@ def main() -> int:
             logging.error(f"Ошибка копирования оригинала при frames_to_process=0: {e_copy_zero_frames}", exc_info=True)
             return 1
 
-    # --- Анализ I-кадров оригинала (Шаг 1 нового плана) ---
+    # --- Анализ I-кадров оригинала ---
     logging.info("Анализ I-кадров оригинального видео...")
     iframe_start_times_seconds = get_iframe_start_times(input_video_path)
     if not iframe_start_times_seconds:
         logging.warning(f"Не удалось получить времена I-кадров для '{input_video_path}'. "
                         "Переходный сегмент не будет создан. Возможны артефакты на стыке.")
-        # В этом случае concatenate_smart_stitch должна будет обработать ситуацию
-        # (например, просто склеить голову и полный копированный хвост, как раньше)
-        # Или можно прервать выполнение, если I-кадры критичны:
-        # logging.critical("Критично: Не найдены I-кадры для умной склейки.")
-        # return 1
     else:
         logging.info(f"Найдено {len(iframe_start_times_seconds)} I-кадров.")
 
@@ -2972,11 +2926,11 @@ def main() -> int:
     if actual_frames_read_for_head < frames_to_process:
         logging.warning(
             f"Фактически прочитано кадров ({actual_frames_read_for_head}) меньше, чем запрошено ({frames_to_process}).")
-        # Корректируем frames_to_process, если нужно (убедимся, что четное)
+        # Корректируем frames_to_process, если нужно
         frames_to_process = actual_frames_read_for_head
         if frames_to_process % 2 != 0: frames_to_process -= 1
         if frames_to_process <= 0: logging.error("Не осталось четного числа кадров после коррекции."); return 1
-        head_frames_bgr = head_frames_bgr[:frames_to_process]  # Обрезаем
+        head_frames_bgr = head_frames_bgr[:frames_to_process]
 
     logging.info(
         f"Прочитано {len(head_frames_bgr)} видеокадров для 'головы'. Собрано {len(all_audio_packets or [])} аудиопакетов.")
@@ -3013,7 +2967,7 @@ def main() -> int:
     # --- Этап 3: Запись "Головы" и получение точной длительности + параметров ---
     logging.info("Запись обработанной 'головы' и получение параметров...")
     video_enc_opts_for_head = {
-        'preset': 'veryfast',  # или 'ultrafast' для максимальной скорости/мин. задержки
+        'preset': 'medium',  # или 'ultrafast' для максимальной скорости/мин. задержки
         'crf': '20',  # Ваше значение качества
         'tune': 'zerolatency'  # Ключевая опция для отключения bframes и lookahead
     }
@@ -3023,7 +2977,6 @@ def main() -> int:
         original_audio_bitrate) if original_audio_bitrate and original_audio_bitrate >= 32000 else "128k"
     audio_enc_opts_for_head = {'b:a': audio_bitrate_for_head_str}
 
-    # Вызываем обновленную write_head_only
     actual_head_duration_sec, head_encoding_params = write_head_only(
         watermarked_head_frames=watermarked_head_frames,
         all_audio_packets=all_audio_packets if all_audio_packets is not None else [],
@@ -3060,13 +3013,9 @@ def main() -> int:
         input_metadata=input_metadata,  # Метаданные оригинала
         iframe_times_sec=iframe_start_times_seconds,  # Список времен I-кадров
         head_encoding_params=head_encoding_params,  # Параметры кодирования головы
-        # gap_threshold_sec=0.01 # Можно настроить порог для переходного сегмента
     )
 
     # --- Этап 6: Очистка и Завершение ---
-    # Временный файл головы удаляется ПОСЛЕ вызова concatenate_smart_stitch,
-    # так как он нужен для склейки. concatenate_smart_stitch должна сама удалить
-    # свои временные файлы (переход, хвост_копия, список).
     if os.path.exists(temp_head_path):
         if ffmpeg_smart_stitch_success:
             try:
@@ -3105,7 +3054,6 @@ def main() -> int:
     return 0
 
 
-# --- ПОЛНЫЙ БЛОК: Точка Входа (__name__ == "__main__") ---
 if __name__ == "__main__":
     # Настройка логирования
     if not logging.getLogger().handlers:
@@ -3113,8 +3061,8 @@ if __name__ == "__main__":
         logging.basicConfig(filename=LOG_FILENAME, filemode='w', level=logging.INFO,
                             format='[%(asctime)s] %(levelname).1s %(threadName)s - %(funcName)s:%(lineno)d - %(message)s')
     # Уровень логирования
-    logging.getLogger().setLevel(logging.DEBUG) # Для отладки
-    logging.getLogger().setLevel(logging.INFO)  # Для обычной работы
+    logging.getLogger().setLevel(logging.DEBUG)
+    logging.getLogger().setLevel(logging.INFO)
 
     # Проверка ключевых зависимостей
     missing_libs_critical = []
@@ -3139,13 +3087,12 @@ if __name__ == "__main__":
         logging.critical(error_msg);
         sys.exit(1)
 
-    # Предупреждения об опциональных библиотеках
     if USE_ECC and not GALOIS_AVAILABLE: print(
         "ПРЕДУПРЕЖДЕНИЕ: Библиотека 'galois' не найдена/не работает. ECC будет недоступен.")
     if not PYMEDIAINFO_AVAILABLE: logging.warning("Библиотека 'pymediainfo' не найдена. MediaInfo fallback недоступен.")
 
     # Профилирование
-    DO_PROFILING = False  # Включить/выключить
+    DO_PROFILING = False
     profiler_instance = None
     if DO_PROFILING:
         if 'KERNPROF_VAR' not in os.environ and 'profile' not in globals() and cProfile is not None:
@@ -3155,8 +3102,7 @@ if __name__ == "__main__":
         elif 'profile' in globals() and callable(globals()['profile']):
             print("line_profiler активен. cProfile не будет запущен.")
 
-    # Запуск main и обработка ошибок
-    final_exit_code = 1  # По умолчанию ошибка
+    final_exit_code = 1
     try:
         final_exit_code = main()
     except FileNotFoundError as e_fnf_main:
@@ -3174,7 +3120,7 @@ if __name__ == "__main__":
     except Exception as e_global_main:
         print(f"\nКРИТИЧЕСКАЯ НЕОБРАБОТАННАЯ ОШИБКА в main(): {e_global_main}"); logging.critical(
             f"Необработанная ошибка в main: {e_global_main}", exc_info=True)
-    finally:  # Вывод и сохранение профиля
+    finally:
         if DO_PROFILING and profiler_instance is not None:
             profiler_instance.disable()
             print("\n--- Статистика Профилирования (cProfile) ---")
@@ -3182,7 +3128,7 @@ if __name__ == "__main__":
             stats_obj.print_stats(30)  # Печать топ-30 в консоль
             profile_prof_file = f"profile_embed_smart_t{BCH_T}.prof"
             profile_txt_file = f"profile_embed_smart_t{BCH_T}.txt"
-            try:  # Сохранение статистики
+            try:
                 stats_obj.dump_stats(profile_prof_file)
                 with open(profile_txt_file, 'w', encoding='utf-8') as f_pstats:
                     ps = pstats.Stats(profiler_instance, stream=f_pstats).strip_dirs().sort_stats('cumulative')

@@ -6,7 +6,8 @@
     <file url="file://$PROJECT_DIR$/watermarking_embed_pytorch.log" charset="windows-1251" />
     <file url="file://$PROJECT_DIR$/watermarking_extract.log" charset="windows-1251" />
     <file url="file://$PROJECT_DIR$/watermarking_extract_opencl_batched.log" charset="windows-1251" />
-    <file url="file://$PROJECT_DIR$/watermarking_extract_pytorch.log" charset="windows-1251" />
+    <file url="file://$PROJECT_DIR$/watermarking_extract_pytorch_COMPRESSED.log" charset="windows-1251" />
+    <file url="file://$PROJECT_DIR$/watermarking_extract_pytorch_COMPRESSED.log" charset="windows-1251" />
     <file url="file://$PROJECT_DIR$/watermarking_max_log.log" charset="windows-1251" />
   </component>
 </project>
