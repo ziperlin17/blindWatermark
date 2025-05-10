@@ -85,7 +85,7 @@ except Exception as import_err:
 
 # --- Глобальные Параметры (СОГЛАСОВАНЫ с Embedder) ---
 LAMBDA_PARAM: float = 0.06
-ALPHA_MIN: float = 1.14
+ALPHA_MIN: float = 1.09
 ALPHA_MAX: float = 1.31
 N_RINGS: int = 8
 MAX_THEORETICAL_ENTROPY = 8.0
@@ -1123,8 +1123,8 @@ def main() -> int:
         return 1
 
     input_extension_val = INPUT_EXTENSION if 'INPUT_EXTENSION' in globals() else ".mp4"
-    bch_t_val = BCH_T if 'BCH_T' in globals() and isinstance(BCH_T, int) else "X"  # Предполагаем, что BCH_T - это int
-    input_base = f"watermarked_ffmpeg_t{bch_t_val}"
+    bch_t_val = BCH_T if 'BCH_T' in globals() and isinstance(BCH_T, int) else "X"
+    input_base = f"watermarked_ffmpeg_t9"
     input_video = input_base + input_extension_val
 
     logging.info(f"--- Начало извлечения из файла: '{input_video}' ---")
@@ -1149,7 +1149,7 @@ def main() -> int:
             print(f"ПРЕДУПРЕЖДЕНИЕ: ExifTool не найден. Невозможно прочитать эталонный хеш из XMP.")
 
     if exiftool_path_to_use:
-        tag_to_read_for_exiftool = "XMP-xmp:TrackMetaHash"
+        tag_to_read_for_exiftool = "XMP-xmp:MediaDataHash"
 
         cmd_exiftool_read = [
             exiftool_path_to_use,
@@ -1269,17 +1269,42 @@ def main() -> int:
     calculated_hash_of_extracted_id: Optional[str] = None
     final_match_status = False
 
+    #!!!
+    if os.path.exists(ORIGINAL_WATERMARK_FILE):
+        try:
+            with open(ORIGINAL_WATERMARK_FILE, "r", encoding='utf-8') as f_id:
+                original_id = f_id.read().strip()
+            if not (original_id and len(original_id) == PAYLOAD_LEN_BYTES * 2):
+                logging.error(f"ID в '{ORIGINAL_WATERMARK_FILE}' неверной длины.")
+                original_id = None
+            else:
+                int(original_id, 16)  # Проверка hex
+                logging.info(f"Original ID loaded: {original_id}")
+        except ValueError:
+            logging.error(f"ID в '{ORIGINAL_WATERMARK_FILE}' не hex.");
+            original_id = None
+        except Exception as e_read_id:
+            logging.error(f"Ошибка чтения ID: {e_read_id}");
+            original_id = None
+    else:
+        logging.warning(f"Файл ID '{ORIGINAL_WATERMARK_FILE}' не найден.")
+
+
     if extracted_bytes:
         if len(extracted_bytes) == PAYLOAD_LEN_BYTES:
             extracted_id_hex_representation = extracted_bytes.hex()
             calculated_hash_of_extracted_id = hashlib.sha256(extracted_bytes).hexdigest()
 
             print(f"  Извлеченный ID (Hex): {extracted_id_hex_representation}")
+            print(f"  Получен из txt файла: {original_id}")
+
             print(f"  Хеш извлеченного ID : {calculated_hash_of_extracted_id}")
+            print(f"   Эталонный хеш   XMP: {original_id_hash_from_xmp}")
+
             logging.info(
                 f"Извлеченный ID: {extracted_id_hex_representation}, его хеш: {calculated_hash_of_extracted_id}")
 
-            if original_id_hash_from_xmp:  # Сравнение только если хеш из XMP был прочитан
+            if original_id_hash_from_xmp:
                 if calculated_hash_of_extracted_id == original_id_hash_from_xmp:
                     print("\n  >>> ХЕШИ СОВПАЛИ (ID MATCH) <<<")
                     logging.info("ХЕШИ СОВПАЛИ (ID MATCH).")

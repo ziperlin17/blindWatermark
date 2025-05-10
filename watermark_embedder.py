@@ -159,8 +159,8 @@ FALLBACK_CONTAINER_EXT_FINAL: str = ".mkv"
 
 # --- Глобальные Параметры ---
 LAMBDA_PARAM: float = 0.06
-ALPHA_MIN: float = 1.04
-ALPHA_MAX: float = 1.45  # Ваше новое значение
+ALPHA_MIN: float = 1.09
+ALPHA_MAX: float = 1.31
 N_RINGS: int = 8
 MAX_THEORETICAL_ENTROPY = 8.0
 EMBED_COMPONENT: int = 2  # Cb
@@ -179,9 +179,9 @@ OUTPUT_CODEC: str = 'mp4v'
 OUTPUT_EXTENSION: str = '.mp4'
 SELECTED_RINGS_FILE: str = 'selected_rings_embed_pytorch.json'
 ORIGINAL_WATERMARK_FILE: str = 'original_watermark_id.txt'
-MAX_WORKERS: Optional[int] = 11
+MAX_WORKERS: Optional[int] = 13
 MAX_TOTAL_PACKETS = 18
-SAFE_MAX_WORKERS = 11
+SAFE_MAX_WORKERS = 13
 
 # --- Инициализация Галуа (с t=9, k=187) ---
 BCH_CODE_OBJECT: Optional['galois.BCH'] = None
@@ -1834,7 +1834,7 @@ def concatenate_smart_stitch(
         input_metadata: Dict[str, Any],
         iframe_times_sec: List[float],
         head_encoding_params: Dict[str, Any],
-        gap_threshold_sec: float = 0.005
+        gap_threshold_sec: float = 0.002
 ) -> bool:
     """
     Выполняет "умную" склейку видео ("Голова + Переход + Хвост_Копия"):
@@ -2859,7 +2859,7 @@ def main() -> int:
         print("ОШИБКА: pytorch_wavelets недоступен!")
         return 1
 
-    input_video_path = "test_final.mp4"
+    input_video_path = "large.mp4"
     if not os.path.exists(input_video_path):
         logging.critical(f"Входной файл не найден: {input_video_path}")
         print(f"ОШИБКА: Входной файл не найден: {input_video_path}")
@@ -3184,7 +3184,7 @@ def main() -> int:
                     exiftool_path = potential_path
 
             if exiftool_path:
-                tag_name_for_exiftool = "XMP-xmp:TrackMetaHash"
+                tag_name_for_exiftool = "XMP-xmp:MediaDataHash"
 
                 # cmd_exiftool = [
                 #     exiftool_path,
