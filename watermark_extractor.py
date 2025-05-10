@@ -1,6 +1,10 @@
 import cProfile
 import concurrent
+import gc
+import math
 import pstats
+import shutil
+import subprocess
 from concurrent.futures import ThreadPoolExecutor
 
 import cv2
@@ -80,9 +84,9 @@ except Exception as import_err:
     class BCH: pass; BCH_TYPE = BCH; GALOIS_IMPORTED = False; logging.error(f"Galois import error: {import_err}", exc_info=True)
 
 # --- Глобальные Параметры (СОГЛАСОВАНЫ с Embedder) ---
-LAMBDA_PARAM: float = 0.05
-ALPHA_MIN: float = 1.13
-ALPHA_MAX: float = 1.28
+LAMBDA_PARAM: float = 0.06
+ALPHA_MIN: float = 1.14
+ALPHA_MAX: float = 1.31
 N_RINGS: int = 8
 MAX_THEORETICAL_ENTROPY = 8.0
 EMBED_COMPONENT: int = 2
@@ -100,7 +104,7 @@ INPUT_EXTENSION: str = '.mp4'
 ORIGINAL_WATERMARK_FILE: str = 'original_watermark_id.txt'
 MAX_WORKERS_EXTRACT: Optional[int] = 14
 expect_hybrid_ecc_global = True
-MAX_TOTAL_PACKETS_global = 15
+MAX_TOTAL_PACKETS_global = 18
 
 BCH_CODE_OBJECT: Optional[BCH_TYPE] = None
 GALOIS_AVAILABLE = False
@@ -1075,32 +1079,24 @@ def extract_watermark_from_video(
     return final_payload_bytes
 
 
-# --- Функция main (Адаптированная для PyTorch BN) ---
+# --- Функция main ---
 def main() -> int:
-    """
-    Основная функция запуска экстрактора ЦВЗ.
-    Читает необходимое количество кадров с помощью OpenCV и передает их
-    функции извлечения, которая использует ThreadPoolExecutor.
-    """
     main_start_time = time.time()
-    logging.info(f"--- Запуск Основного Процесса Извлечения (OpenCV Limited Read + ThreadPool) ---")
+    logging.info(f"--- Запуск Основного Процесса Извлечения (с чтением XMP) ---")
 
-    # --- Инициализация PyTorch и Проверки ---
     if not PYTORCH_WAVELETS_AVAILABLE or not TORCH_DCT_AVAILABLE:
-        print("ERROR: PyTorch libraries required.");
+        print("ERROR: PyTorch libraries required.")
         logging.critical("Критические PyTorch библиотеки не найдены.")
         return 1
-    if USE_ECC and not GALOIS_AVAILABLE:
-        # Используем expect_hybrid_ecc_global из глобальных констант для проверки
-        # Если она не определена, можно использовать просто USE_ECC
-        # Для простоты, предполагаем, что expect_hybrid_ecc - это тоже глобальная константа
-        # или передается в extract_watermark_from_video
-        global_expect_hybrid_ecc = globals().get('expect_hybrid_ecc_global', USE_ECC)  # Пример получения глобальной
-        if global_expect_hybrid_ecc:
-            print("\nWARNING: ECC requested for hybrid mode but galois unavailable.")
-            logging.warning("Galois недоступен, ECC для гибридного режима не будет работать.")
 
-    # Определяем устройство
+    # Используем expect_hybrid_ecc_global, если она определена, иначе значение по умолчанию
+    # Это важно для расчета pairs_needed_for_extract
+    current_expect_hybrid_ecc = globals().get('expect_hybrid_ecc_global', True)
+
+    if USE_ECC and current_expect_hybrid_ecc and not GALOIS_AVAILABLE:
+        print("\nWARNING: ECC requested for hybrid mode but galois unavailable.")
+        logging.warning("Galois недоступен, ECC для гибридного режима не будет работать (влияет на расчет числа пар).")
+
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     if torch.cuda.is_available():
         try:
@@ -1112,90 +1108,123 @@ def main() -> int:
     else:
         logging.info("Используется CPU.")
 
-    # Создаем экземпляр DTCWTForward
     dtcwt_fwd: Optional[DTCWTForward] = None
-    if PYTORCH_WAVELETS_AVAILABLE:  # Эта проверка уже была, но для полноты
+    if PYTORCH_WAVELETS_AVAILABLE:
         try:
             dtcwt_fwd = DTCWTForward(J=1, biort='near_sym_a', qshift='qshift_a').to(device)
             logging.info("PyTorch DTCWTForward instance created.")
         except Exception as e_dtcwt:
             logging.critical(f"Failed to init DTCWTForward: {e_dtcwt}", exc_info=True)
+            print(f"ОШИБКА: Failed to init DTCWTForward: {e_dtcwt}")
             return 1
-    else:  # Сюда не должны попасть, если проверка выше прошла
+    else:
         logging.critical("PyTorch Wavelets недоступен!")
+        print("ОШИБКА: PyTorch Wavelets недоступен!")
         return 1
 
-    # --- Имя входного файла и Загрузка Оригинального ID ---
-    input_base = f"watermarked_compressed_crf30"
-    input_video = input_base + INPUT_EXTENSION
-    original_id: Optional[str] = None
-
-    if os.path.exists(ORIGINAL_WATERMARK_FILE):
-        try:
-            with open(ORIGINAL_WATERMARK_FILE, "r", encoding='utf-8') as f_id:
-                original_id = f_id.read().strip()
-            if not (original_id and len(original_id) == PAYLOAD_LEN_BYTES * 2):
-                logging.error(f"ID в '{ORIGINAL_WATERMARK_FILE}' неверной длины.")
-                original_id = None
-            else:
-                int(original_id, 16)  # Проверка hex
-                logging.info(f"Original ID loaded: {original_id}")
-        except ValueError:
-            logging.error(f"ID в '{ORIGINAL_WATERMARK_FILE}' не hex.");
-            original_id = None
-        except Exception as e_read_id:
-            logging.error(f"Ошибка чтения ID: {e_read_id}");
-            original_id = None
-    else:
-        logging.warning(f"Файл ID '{ORIGINAL_WATERMARK_FILE}' не найден.")
+    input_extension_val = INPUT_EXTENSION if 'INPUT_EXTENSION' in globals() else ".mp4"
+    bch_t_val = BCH_T if 'BCH_T' in globals() and isinstance(BCH_T, int) else "X"  # Предполагаем, что BCH_T - это int
+    input_base = f"watermarked_ffmpeg_t{bch_t_val}"
+    input_video = input_base + input_extension_val
 
     logging.info(f"--- Начало извлечения из файла: '{input_video}' ---")
     if not os.path.exists(input_video):
-        logging.critical(f"Входной файл не найден: '{input_video}'.");
-        print(f"ОШИБКА: Файл не найден: '{input_video}'");
+        logging.critical(f"Входной файл не найден: '{input_video}'.")
+        print(f"ОШИБКА: Файл не найден: '{input_video}'")
         return 1
 
-    # --- Расчет необходимого числа кадров для чтения ---
+    original_id_hash_from_xmp: Optional[str] = None
+    exiftool_direct_path = r"C:\exiftool-13.29_64\exiftool.exe"
+    exiftool_path_to_use = None
+
+    if os.path.isfile(exiftool_direct_path):
+        exiftool_path_to_use = exiftool_direct_path
+        logging.info(f"Используется ExifTool по прямому пути: {exiftool_path_to_use}")
+    else:
+        exiftool_path_to_use = shutil.which("exiftool.exe")
+        if exiftool_path_to_use:
+            logging.info(f"ExifTool найден через shutil.which: {exiftool_path_to_use}")
+        else:
+            logging.warning(f"ExifTool не найден ни по прямому пути '{exiftool_direct_path}', ни через shutil.which.")
+            print(f"ПРЕДУПРЕЖДЕНИЕ: ExifTool не найден. Невозможно прочитать эталонный хеш из XMP.")
+
+    if exiftool_path_to_use:
+        tag_to_read_for_exiftool = "XMP-xmp:TrackMetaHash"
+
+        cmd_exiftool_read = [
+            exiftool_path_to_use,
+            "-s3",
+            f"-{tag_to_read_for_exiftool}",
+            input_video
+        ]
+        logging.info(f"Чтение хеша ID из XMP с ExifTool: {' '.join(cmd_exiftool_read)}")
+        try:
+            result_exiftool_read = subprocess.run(cmd_exiftool_read, check=True, capture_output=True, text=True,
+                                                  encoding='utf-8', errors='replace')
+            original_id_hash_from_xmp = result_exiftool_read.stdout.strip()
+            if original_id_hash_from_xmp:
+                if len(original_id_hash_from_xmp) == 64:  # Для SHA256
+                    logging.info(f"Эталонный хеш ID из XMP: {original_id_hash_from_xmp}")
+                    print(f"  Эталонный хеш из XMP: {original_id_hash_from_xmp}")
+                else:
+                    logging.warning(f"Прочитанный хеш из XMP имеет неожиданную длину: '{original_id_hash_from_xmp}'")
+                    print(
+                        f"  ПРЕДУПРЕЖДЕНИЕ: Прочитанный XMP хеш имеет неверную длину: {len(original_id_hash_from_xmp)} символов.")
+                    original_id_hash_from_xmp = None
+            else:
+                logging.warning(f"Тег XMP '{tag_to_read_for_exiftool}' не найден или пуст в файле '{input_video}'.")
+                print(f"  ПРЕДУПРЕЖДЕНИЕ: Тег '{tag_to_read_for_exiftool}' не найден или пуст в XMP.")
+        except subprocess.CalledProcessError as e_exif_read:
+            logging.warning(
+                f"ExifTool не смог прочитать тег '{tag_to_read_for_exiftool}' (код {e_exif_read.returncode}, возможно, его нет). Stderr: {e_exif_read.stderr}")
+        except FileNotFoundError:
+            logging.error(f"Ошибка: Команда ExifTool не найдена ('{exiftool_path_to_use}').")
+            print(f"ОШИБКА: ExifTool не найден по пути: {exiftool_path_to_use}")
+        except Exception as e_exif_read_general:
+            logging.error(f"Общая ошибка при чтении XMP тега с ExifTool: {e_exif_read_general}", exc_info=True)
+            print(f"ОШИБКА: Проблема при чтении XMP тега с ExifTool.")
+
     payload_len_bits = PAYLOAD_LEN_BYTES * 8
     packet_len_if_ecc = payload_len_bits
     packet_len_if_raw = payload_len_bits
     ecc_possible_for_first_calc = False
 
-    if USE_ECC and GALOIS_AVAILABLE and BCH_CODE_OBJECT is not None:
+    if USE_ECC and GALOIS_AVAILABLE and BCH_CODE_OBJECT is not None and isinstance(BCH_CODE_OBJECT, BCH_TYPE):
         try:
-            if payload_len_bits <= BCH_CODE_OBJECT.k:
+            if hasattr(BCH_CODE_OBJECT, 'k') and hasattr(BCH_CODE_OBJECT, 'n') and \
+                    payload_len_bits <= BCH_CODE_OBJECT.k:
                 packet_len_if_ecc = BCH_CODE_OBJECT.n
                 ecc_possible_for_first_calc = True
-        except Exception:
-            pass
+        except Exception as e_bch_params_access:
+            logging.error(f"Ошибка доступа к параметрам объекта BCH: {e_bch_params_access}")
 
-        # Используем глобальную константу expect_hybrid_ecc, если она есть, иначе True по умолчанию
-    current_expect_hybrid_ecc = globals().get('expect_hybrid_ecc', True)
-
-    # Локальная копия для расчета, которая может быть изменена
     expect_hybrid_for_calc = current_expect_hybrid_ecc
     if expect_hybrid_for_calc and not ecc_possible_for_first_calc:
         expect_hybrid_for_calc = False
 
-    max_possible_bits = 0
+    max_possible_bits_to_extract = 0
     if expect_hybrid_for_calc:
-        max_possible_bits = packet_len_if_ecc + max(0, MAX_TOTAL_PACKETS_global - 1) * packet_len_if_raw
+        max_possible_bits_to_extract = packet_len_if_ecc + max(0, MAX_TOTAL_PACKETS_global - 1) * packet_len_if_raw
     else:
-        current_packet_len_for_calc = packet_len_if_ecc if USE_ECC and ecc_possible_for_first_calc else packet_len_if_raw
-        max_possible_bits = MAX_TOTAL_PACKETS_global * current_packet_len_for_calc
+        len_for_first_pkt_calc = packet_len_if_ecc if USE_ECC and ecc_possible_for_first_calc else packet_len_if_raw
+        max_possible_bits_to_extract = MAX_TOTAL_PACKETS_global * len_for_first_pkt_calc
 
-    if BITS_PER_PAIR <= 0: logging.critical("BITS_PER_PAIR <= 0!"); return 1
-    pairs_needed_for_extract = ceil(max_possible_bits / BITS_PER_PAIR) if max_possible_bits > 0 else 0
+    if BITS_PER_PAIR <= 0:
+        logging.critical(f"BITS_PER_PAIR ({BITS_PER_PAIR}) должен быть > 0!")
+        print(f"ОШИБКА: BITS_PER_PAIR ({BITS_PER_PAIR}) должен быть > 0!")
+        return 1
+    pairs_needed_for_extract = math.ceil(
+        max_possible_bits_to_extract / BITS_PER_PAIR) if max_possible_bits_to_extract > 0 else 0
 
     if pairs_needed_for_extract == 0:
-        logging.error("Не требуется обрабатывать ни одной пары (согласно расчетам).")
+        logging.error("Не требуется обрабатывать ни одной пары (согласно расчетам для извлечения).")
+        print("ОШИБКА: Не требуется обрабатывать ни одной пары.")
         return 1
 
     num_frames_to_read = pairs_needed_for_extract * 2
     logging.info(
         f"Требуется обработать {pairs_needed_for_extract} пар, необходимо прочитать {num_frames_to_read} кадров.")
 
-    # --- Чтение ТОЛЬКО необходимых кадров через OpenCV ---
     read_start_time = time.time()
     logging.info(f"Чтение первых {num_frames_to_read} кадров с помощью OpenCV из '{input_video}'...")
     frames_for_extraction = read_required_frames_opencv(input_video, num_frames_to_read)
@@ -1203,19 +1232,19 @@ def main() -> int:
 
     if frames_for_extraction is None:
         logging.critical("Критическая ошибка при чтении необходимых кадров. Прерывание.")
+        print("ОШИБКА: Критическая ошибка при чтении кадров.")
         return 1
 
     actual_frames_read = len(frames_for_extraction)
     logging.info(f"Прочитано {actual_frames_read} кадров для извлечения за {read_time:.2f} сек.")
 
-    if actual_frames_read < 2:  # Меньше одной пары
+    if actual_frames_read < 2:
         logging.error(f"Прочитано менее 2 кадров ({actual_frames_read}). Невозможно извлечь ЦВЗ.")
+        print(f"ОШИБКА: Прочитано менее 2 кадров ({actual_frames_read}).")
         return 1
     if actual_frames_read < num_frames_to_read:
         logging.warning(f"Прочитано кадров ({actual_frames_read}) меньше, чем требовалось ({num_frames_to_read}).")
-        # extract_watermark_from_video сама скорректирует pairs_to_process
 
-    # --- Вызов основной функции извлечения со списком кадров ---
     extracted_bytes = extract_watermark_from_video(
         frames=frames_for_extraction,
         nr=N_RINGS,
@@ -1232,44 +1261,57 @@ def main() -> int:
         plb=PAYLOAD_LEN_BYTES,
         mw=MAX_WORKERS_EXTRACT
     )
+    del frames_for_extraction
+    gc.collect()
 
-    # --- Вывод результатов ---
-    print(f"\n--- Extraction Results ---")
-    extracted_hex: Optional[str] = None
+    print(f"\n--- Результаты Извлечения ---")
+    extracted_id_hex_representation: Optional[str] = None
+    calculated_hash_of_extracted_id: Optional[str] = None
+    final_match_status = False
+
     if extracted_bytes:
         if len(extracted_bytes) == PAYLOAD_LEN_BYTES:
-            extracted_hex = extracted_bytes.hex()
-            print(f"  Payload Length OK.")
-            print(f"  Decoded ID (Hex): {extracted_hex}")
-            logging.info(f"Decoded ID: {extracted_hex}")
-        else:
-            print(f"  ERROR: Decoded length mismatch! {len(extracted_bytes)}B != {PAYLOAD_LEN_BYTES}B.")
-            logging.error(f"Decoded length mismatch!")
-    else:
-        print(f"  Extraction FAILED (No payload).")
-        logging.error("Extraction failed/No payload.")
+            extracted_id_hex_representation = extracted_bytes.hex()
+            calculated_hash_of_extracted_id = hashlib.sha256(extracted_bytes).hexdigest()
 
-    # Сравнение
-    final_match_status = False
-    if original_id:
-        print(f"  Original ID (Hex): {original_id}")
-        if extracted_hex and extracted_hex == original_id:
-            print("\n  >>> ID MATCH <<<")
-            logging.info("ID MATCH.")
-            final_match_status = True
-        else:
-            print("\n  >>> !!! ID MISMATCH or FAILED !!! <<<")
-            logging.warning("ID MISMATCH or Extraction Failed.")
-    else:
-        print("\n  Original ID unavailable for comparison.")
+            print(f"  Извлеченный ID (Hex): {extracted_id_hex_representation}")
+            print(f"  Хеш извлеченного ID : {calculated_hash_of_extracted_id}")
+            logging.info(
+                f"Извлеченный ID: {extracted_id_hex_representation}, его хеш: {calculated_hash_of_extracted_id}")
 
-    logging.info("--- Extraction Main Process Finished ---")
+            if original_id_hash_from_xmp:  # Сравнение только если хеш из XMP был прочитан
+                if calculated_hash_of_extracted_id == original_id_hash_from_xmp:
+                    print("\n  >>> ХЕШИ СОВПАЛИ (ID MATCH) <<<")
+                    logging.info("ХЕШИ СОВПАЛИ (ID MATCH).")
+                    final_match_status = True
+                else:
+                    print("\n  >>> !!! ХЕШИ НЕ СОВПАЛИ (ID MISMATCH) !!! <<<")
+                    logging.warning(
+                        f"ХЕШИ НЕ СОВПАЛИ (Эталонный XMP: {original_id_hash_from_xmp}, Хеш извлеченного: {calculated_hash_of_extracted_id})")
+            else:  # Хеш из XMP не прочитан, но ID извлечен
+                print("\n  Эталонный хеш ID из XMP недоступен для сравнения (но ID извлечен).")
+                logging.info(f"Эталонный XMP хеш не найден. Хеш извлеченного ID: {calculated_hash_of_extracted_id}")
+        else:
+            print(f"  ОШИБКА: Длина извлеченного ID не совпадает! {len(extracted_bytes)}B != {PAYLOAD_LEN_BYTES}B.")
+            logging.error(f"Длина извлеченного ID не совпадает! {len(extracted_bytes)}B vs {PAYLOAD_LEN_BYTES}B")
+            # final_match_status остается False
+    else:
+        print(f"  Извлечение НЕ УДАЛОСЬ (нет полезной нагрузки).")
+        logging.error("Извлечение не удалось/нет полезной нагрузки.")
+        if original_id_hash_from_xmp:  # Если XMP хеш был, но извлечь ничего не удалось
+            print(f"  (Эталонный хеш из XMP был: {original_id_hash_from_xmp})")
+            logging.info(f"Эталонный XMP хеш был {original_id_hash_from_xmp}, но извлечение ЦВЗ не удалось.")
+        # final_match_status остается False
+
+    logging.info("--- Основной Процесс Извлечения Завершен ---")
     total_main_time = time.time() - main_start_time
-    logging.info(f"--- Total Extractor Time: {total_main_time:.2f} sec ---")
-    print(f"\nExtraction finished. Log: {LOG_FILENAME}")
+    logging.info(f"--- Общее Время Работы Экстрактора: {total_main_time:.2f} сек ---")
 
-    # Возвращаем 0, если извлечение прошло (даже если ID не совпал), 1 при критической ошибке
-    return 0 if extracted_bytes is not None else 1
+    log_filename_val = LOG_FILENAME if 'LOG_FILENAME' in globals() and isinstance(LOG_FILENAME,
+                                                                                  str) else "watermarking_extract.log"
+    print(f"\nИзвлечение завершено. Лог: {log_filename_val}")
+
+    return 0 if final_match_status else 1
 
 
 if __name__ == "__main__":
